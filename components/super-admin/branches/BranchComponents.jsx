@@ -66,7 +66,7 @@ export function DeleteConfirmationModal({ isOpen, onClose, onConfirm, itemName, 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/40 backdrop-blur-[2px] animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-black/60 backdrop-blur-[6px] animate-in fade-in duration-200">
       <div className="bg-white dark:bg-[#101935] w-full max-w-[400px] rounded-[12px] shadow-xl overflow-hidden animate-in zoom-in-95 duration-200 border border-red-50 dark:border-red-900/20">
         <div className="p-8 text-center">
           <div className="w-16 h-16 bg-red-50 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-6">
@@ -101,12 +101,75 @@ export function DeleteConfirmationModal({ isOpen, onClose, onConfirm, itemName, 
 export function BranchCard({ branch, viewType = "grid", onEdit, onDelete }) {
   const isList = viewType === "list";
   const router = useRouter();
+  const [isInitializing, setIsInitializing] = useState(false);
+  const [progress, setProgress] = useState(0);
+
+  const handleInitTables = async (e) => {
+    e.stopPropagation();
+    setIsInitializing(true);
+    setProgress(0);
+    
+    // Simulate realistic progress
+    const interval = setInterval(() => {
+      setProgress(prev => {
+        if (prev < 30) return prev + Math.random() * 5;
+        if (prev < 70) return prev + Math.random() * 2;
+        if (prev < 90) return prev + Math.random() * 0.5;
+        return prev;
+      });
+    }, 400);
+
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`/api/branches/${branch.id}/init-tables`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const json = await res.json();
+      
+      clearInterval(interval);
+      setProgress(100);
+      
+      setTimeout(() => {
+        if (json.success) {
+          window.location.reload(); 
+        } else {
+          setIsInitializing(false);
+          setProgress(0);
+        }
+      }, 500);
+    } catch (error) {
+      clearInterval(interval);
+      setIsInitializing(false);
+      setProgress(0);
+      console.error("Init tables error:", error);
+    }
+  };
 
   return (
     <div className={cn(
       "group bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[10px] overflow-hidden flex transition-all relative",
       isList ? "flex-row items-center p-5 gap-6" : "flex-col p-6 h-full"
     )}>
+      
+      {/* Progress Overlay during initialization */}
+      {isInitializing && (
+        <div className="absolute inset-0 z-10 bg-white/90 dark:bg-[#101935]/95 backdrop-blur-[2px] flex items-center justify-center p-8 animate-in fade-in duration-300">
+           <div className="w-full max-w-[200px] text-center space-y-3">
+              <div className="flex justify-between items-end mb-1">
+                 <span className="text-[10px] font-bold text-primary uppercase tracking-widest animate-pulse">Provisioning Tables...</span>
+                 <span className="text-[14px] font-black text-primary/80 mono">{Math.round(progress)}%</span>
+              </div>
+              <div className="h-2 w-full bg-primary/10 rounded-full overflow-hidden border border-primary/5">
+                 <div 
+                   className="h-full bg-primary transition-all duration-300 ease-out shadow-[0_0_15px_rgba(29,78,216,0.3)]"
+                   style={{ width: `${progress}%` }}
+                 />
+              </div>
+              <p className="text-[9px] text-gray-400 font-bold uppercase tracking-tighter">Setting up Healthcare Infrastructure</p>
+           </div>
+        </div>
+      )}
       
       <div className={cn("flex-1 transition-all", isList && "flex-[3]")}>
         {/* Top Header */}
@@ -121,9 +184,9 @@ export function BranchCard({ branch, viewType = "grid", onEdit, onDelete }) {
                 <span className="text-[12px] text-gray-400 dark:text-gray-500 font-medium">#{branch.code}</span>
                 <span className={cn(
                   "text-[9px] font-extrabold px-2 py-0.5 rounded-[4px] uppercase tracking-wider",
-                  branch.isActive ? "bg-emerald-50 text-emerald-500 border border-emerald-100" : "bg-gray-50 text-gray-400 border border-gray-100"
+                  branch.active ? "bg-emerald-50 text-emerald-500 border border-emerald-100" : "bg-gray-50 text-gray-400 border border-gray-100"
                 )}>
-                  {branch.isActive ? "Active" : "Inactive"}
+                  {branch.active ? "Active" : "Inactive"}
                 </span>
               </div>
             </div>
@@ -169,7 +232,7 @@ export function BranchCard({ branch, viewType = "grid", onEdit, onDelete }) {
               </div>
               <div className="text-right">
                 <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Status</p>
-                <p className={cn("text-[14px] font-bold", branch.isActive ? "text-emerald-500" : "text-gray-400")}>{branch.isActive ? "Fully Operational" : "Temporarily Offline"}</p>
+                <p className={cn("text-[14px] font-bold", branch.active ? "text-emerald-500" : "text-gray-400")}>{branch.active ? "Fully Operational" : "Temporarily Offline"}</p>
               </div>
             </div>
           </div>
@@ -181,6 +244,21 @@ export function BranchCard({ branch, viewType = "grid", onEdit, onDelete }) {
         "flex items-center gap-2 transition-all duration-500", 
         isList ? "pb-0 px-0 flex-row w-auto border-l border-gray-100 dark:border-white/5 pl-8" : "mt-6"
       )}>
+        {branch.dbName && (!branch.isDbInitialized || branch.schemaVersion !== branch.currentSchemaVersion) && (
+           <button 
+             onClick={handleInitTables}
+             className={cn(
+               "px-4 h-9 font-bold text-[11px] rounded-[5px] transition-all flex items-center justify-center gap-2 uppercase tracking-widest", 
+               branch.schemaVersion && branch.schemaVersion !== branch.currentSchemaVersion 
+                ? "bg-amber-100 text-amber-600 hover:bg-amber-200 border border-amber-200" 
+                : "bg-amber-500 text-white hover:bg-amber-600",
+               !isList && "flex-1"
+             )}
+           >
+             <Database className="w-3.5 h-3.5" /> 
+             {branch.schemaVersion && branch.schemaVersion !== branch.currentSchemaVersion ? "Update Tables" : "Push Tables"}
+           </button>
+        )}
         <button 
           onClick={() => router.push(`/super-admin/branches/${branch.id}`)}
           className={cn("px-4 h-9 bg-primary/5 dark:bg-primary/10 hover:bg-primary/20 text-primary font-semibold text-[12px] rounded-[5px] transition-all flex items-center justify-center gap-2 border border-primary/20", !isList && "flex-1")}

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Plus, LayoutGrid, List, Search, Building2, MapPin, Phone, Edit3, Trash2, Eye } from "lucide-react";
+import { Plus, LayoutGrid, List, Search, Building2, MapPin, Phone, Edit3, Trash2, Eye, Database } from "lucide-react";
 import { 
   BranchStats, BranchCard, 
   DeleteConfirmationModal 
@@ -19,6 +19,8 @@ export default function BranchesPage() {
   const [editingBranch, setEditingBranch] = useState(null);
   const [branchToDelete, setBranchToDelete] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [schemaInfo, setSchemaInfo] = useState({ version: null });
+  const [isSyncingAll, setIsSyncingAll] = useState(false);
 
   // Responsive view enforcement
   useEffect(() => {
@@ -37,6 +39,23 @@ export default function BranchesPage() {
     b.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
     b.code.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const outOfSyncBranches = branches.filter(b => 
+    b.dbName && (!b.isDbInitialized || b.schemaVersion !== schemaInfo.version)
+  );
+
+  const fetchSchemaInfo = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch("/api/branches/schema/info", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const json = await res.json();
+      if (json.success) setSchemaInfo(json.data);
+    } catch (error) {
+      console.error("Schema info error:", error);
+    }
+  };
 
   const fetchBranches = async () => {
     try {
@@ -59,7 +78,30 @@ export default function BranchesPage() {
 
   useEffect(() => {
     fetchBranches();
+    fetchSchemaInfo();
   }, []);
+
+  const handleSyncAll = async () => {
+    try {
+      setIsSyncingAll(true);
+      const token = localStorage.getItem("token");
+      const res = await fetch("/api/branches/sync/all", {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const json = await res.json();
+      if (json.success) {
+        toast.success(`Infrastructure synchronized for ${json.data.success.length} branches`);
+        fetchBranches();
+      } else {
+        toast.error(json.message);
+      }
+    } catch (error) {
+      toast.error("Universal sync failed");
+    } finally {
+      setIsSyncingAll(false);
+    }
+  };
 
   const handleCreateNew = () => {
     setEditingBranch(null);
@@ -103,12 +145,28 @@ export default function BranchesPage() {
       {/* Header Section */}
       <div className="flex justify-between items-center mb-[25px]">
         <h1 className="text-[20px] font-bold text-[#1e293b] dark:text-white leading-tight">Branch Management</h1>
-        <button 
-          onClick={handleCreateNew}
-          className="bg-primary text-white px-5 py-2.5 rounded-[5px] text-[13px] font-semibold flex items-center gap-2 hover:opacity-90 transition-all border border-primary/20"
-        >
-          <Plus className="w-4.5 h-4.5" /> Add New Branch
-        </button>
+        <div className="flex items-center gap-3">
+          {outOfSyncBranches.length > 0 && (
+            <button 
+              onClick={handleSyncAll}
+              disabled={isSyncingAll}
+              className="bg-amber-500 text-white px-5 py-2.5 rounded-[5px] text-[13px] font-bold flex items-center gap-2 hover:bg-amber-600 transition-all border border-amber-400/20 shadow-lg shadow-amber-500/10"
+            >
+              <Database className="w-4 h-4" /> 
+              {isSyncingAll ? (
+                <span>SYNCING {outOfSyncBranches.length}...</span>
+              ) : (
+                <span>Universal Schema Sync ({outOfSyncBranches.length})</span>
+              )}
+            </button>
+          )}
+          <button 
+            onClick={handleCreateNew}
+            className="bg-primary text-white px-5 py-2.5 rounded-[5px] text-[13px] font-semibold flex items-center gap-2 hover:opacity-90 transition-all border border-primary/20"
+          >
+            <Plus className="w-4.5 h-4.5" /> Add New Branch
+          </button>
+        </div>
       </div>
 
       {/* Stats Section */}
@@ -175,7 +233,8 @@ export default function BranchesPage() {
                    staff: "-",
                    depts: "-",
                    manager: "-",
-                   revenue: "₹-"
+                   revenue: "₹-",
+                   currentSchemaVersion: schemaInfo.version
                 }} 
                 viewType={viewType} 
                 onEdit={() => handleEdit(branch)}

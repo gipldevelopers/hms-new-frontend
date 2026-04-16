@@ -29,7 +29,7 @@ export function PromptModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-black/40 backdrop-blur-[2px] animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-black/60 backdrop-blur-[6px] animate-in fade-in duration-200">
       <div className="bg-white dark:bg-[#101935] w-full max-w-[400px] rounded-[12px] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-[#E7E8EB] dark:border-white/10">
         <div className="p-6 border-b border-gray-100 dark:border-white/5 flex justify-between items-center bg-[#F8F9FC] dark:bg-[#1e293b]/30">
           <div className="flex items-center gap-2">
