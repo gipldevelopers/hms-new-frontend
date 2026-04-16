@@ -46,8 +46,8 @@ export function BranchStats() {
         <div key={i} className="bg-white dark:bg-[#101935] p-5 rounded-[12px] border border-[#E7E8EB] dark:border-white/10 flex items-center gap-4">
           <div className={cn(
             "w-12 h-12 rounded-[10px] flex items-center justify-center",
-            stat.color === "blue" && "bg-[#2E37A4]/5 text-[#2E37A4]",
-            stat.color === "indigo" && "bg-[#2E37A4]/5 text-[#2E37A4]",
+            stat.color === "blue" && "bg-primary/10 text-primary",
+            stat.color === "indigo" && "bg-primary/10 text-primary",
             stat.color === "emerald" && "bg-emerald-50 text-emerald-500",
           )}>
             <stat.icon className="w-6 h-6" />
@@ -112,8 +112,8 @@ export function BranchCard({ branch, viewType = "grid", onEdit, onDelete }) {
         {/* Top Header */}
         <div className="flex justify-between items-start mb-5">
           <div className="flex gap-4">
-            <div className="w-12 h-12 bg-indigo-50 dark:bg-[#2E37A4]/5 rounded-[5px] flex items-center justify-center border border-indigo-100 dark:border-[#2E37A4]/10 shrink-0">
-              <Building2 className="w-6 h-6 text-[#2E37A4]" />
+            <div className="w-12 h-12 bg-primary/10 rounded-[5px] flex items-center justify-center border border-primary/20 shrink-0">
+              <Building2 className="w-6 h-6 text-primary" />
             </div>
             <div>
               <h3 className="text-[17px] font-bold text-[#1e293b] dark:text-white leading-tight">{branch.name}</h3>
@@ -135,14 +135,14 @@ export function BranchCard({ branch, viewType = "grid", onEdit, onDelete }) {
               <div>
                 <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 font-sans">Location</p>
                 <div className="flex items-center gap-1.5 overflow-hidden">
-                   <MapPin className="w-3.5 h-3.5 text-[#2E37A4]" />
+                   <MapPin className="w-3.5 h-3.5 text-primary" />
                    <p className="text-[13px] font-bold text-[#1e293b] dark:text-white leading-none truncate">{branch.city}, {branch.state}</p>
                 </div>
               </div>
               <div>
                 <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 font-sans">Contact Center</p>
                 <div className="flex items-center gap-1.5">
-                   <Phone className="w-3.5 h-3.5 text-[#2E37A4]" />
+                   <Phone className="w-3.5 h-3.5 text-primary" />
                    <p className="text-[13px] font-bold text-[#1e293b] dark:text-white leading-none">{branch.contact}</p>
                 </div>
               </div>
@@ -155,10 +155,10 @@ export function BranchCard({ branch, viewType = "grid", onEdit, onDelete }) {
           <div className="animate-in fade-in zoom-in-95 duration-700">
             <div className="space-y-3 mb-6">
                <p className="text-[12px] text-gray-400 dark:text-gray-500 flex items-center gap-2 font-medium">
-                  <MapPin className="w-4 h-4 text-[#2E37A4]" /> {branch.address}
+                  <MapPin className="w-4 h-4 text-primary" /> {branch.address}
                </p>
                <p className="text-[12px] text-gray-400 dark:text-gray-500 flex items-center gap-2 font-medium">
-                  <Phone className="w-4 h-4 text-[#2E37A4]" /> {branch.contact}
+                  <Phone className="w-4 h-4 text-primary" /> {branch.contact}
                </p>
             </div>
             
@@ -183,13 +183,13 @@ export function BranchCard({ branch, viewType = "grid", onEdit, onDelete }) {
       )}>
         <button 
           onClick={() => router.push(`/super-admin/branches/${branch.id}`)}
-          className={cn("px-4 h-9 bg-[#F4F5FB] dark:bg-[#1e293b] hover:bg-[#EAEBFF] text-[#2E37A4] font-semibold text-[12px] rounded-[5px] transition-all flex items-center justify-center gap-2 border border-indigo-100/30", !isList && "flex-1")}
+          className={cn("px-4 h-9 bg-primary/5 dark:bg-primary/10 hover:bg-primary/20 text-primary font-semibold text-[12px] rounded-[5px] transition-all flex items-center justify-center gap-2 border border-primary/20", !isList && "flex-1")}
         >
           <Eye className="w-4 h-4" /> View
         </button>
         <button 
           onClick={onEdit}
-          className={cn("px-4 h-9 bg-[#2E37A4] text-white font-semibold text-[12px] rounded-[5px] transition-all hover:bg-[#252c84] flex items-center justify-center gap-2", !isList && "flex-1")}
+          className={cn("px-4 h-9 bg-primary text-white font-semibold text-[12px] rounded-[5px] transition-all hover:opacity-90 flex items-center justify-center gap-2", !isList && "flex-1")}
         >
           <Edit3 className="w-4 h-4" /> Edit
         </button>

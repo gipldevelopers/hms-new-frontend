@@ -113,7 +113,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) 
                 />
              </div>
             <span className={cn(
-              "text-xl font-bold text-[#2E37A4] dark:text-blue-400 tracking-tight whitespace-nowrap transition-all duration-300",
+              "text-xl font-bold text-primary tracking-tight whitespace-nowrap transition-all duration-300",
               isCollapsed && "lg:opacity-0 lg:invisible lg:w-0"
             )}>
               GVoice HMS
@@ -135,7 +135,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) 
             "flex items-center border border-[#E7E8EB] dark:border-white/10 rounded-[10px] transition-all bg-white dark:bg-[#1e293b]", 
             isCollapsed ? "lg:justify-center p-2" : "p-3 gap-3"
           )}>
-            <div className="w-9 h-9 bg-[#2E37A4] rounded-[5px] shrink-0 flex items-center justify-center">
+            <div className="w-9 h-9 bg-primary rounded-[5px] shrink-0 flex items-center justify-center">
               <span className="text-white text-xs font-bold">VD</span>
             </div>
             <div className={cn(
@@ -198,7 +198,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) 
                                     className={cn(
                                       "flex items-center h-8 px-3 rounded-[5px] text-[12px] font-semibold transition-all",
                                       pathname === sub.path 
-                                        ? "text-[#2E37A4] bg-[#F4F5FB] dark:bg-[#1e293b] dark:text-blue-400" 
+                                        ? "text-primary bg-primary/5 dark:bg-primary/10" 
                                         : "text-[#5E6C84] dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-[#1e293b]"
                                     )}
                                   >
@@ -230,19 +230,19 @@ function NavItem({ item, isCollapsed, isActive, hasSubItems, isOpen, onClick, pa
         "flex items-center rounded-[5px] transition-all relative group h-10 cursor-pointer overflow-hidden",
         isCollapsed ? "lg:justify-center px-0 bg-transparent lg:px-0" : "px-3 gap-3 w-full",
         isActive
-          ? "bg-[#F4F5FB] dark:bg-[#1e293b] text-[#2E37A4] dark:text-blue-400"
+          ? "bg-primary/5 dark:bg-primary/10 text-primary"
           : "text-[#5E6C84] dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-[#1e293b]",
         !isCollapsed && "px-3 gap-3"
       )}
     >
       {isActive && !isCollapsed && (
-        <div className="absolute left-0 top-1.5 bottom-1.5 w-[3px] bg-[#2E37A4] dark:bg-blue-400 rounded-r-full" />
+        <div className="absolute left-0 top-1.5 bottom-1.5 w-[3px] bg-primary rounded-r-full" />
       )}
       <div className={cn(
         "flex items-center justify-center shrink-0 transition-all duration-300",
         isCollapsed ? "w-10 h-10 lg:w-10 lg:h-10" : "w-4.5 h-4.5"
       )}>
-        <Icon className={cn("w-4.5 h-4.5", isActive ? "text-[#2E37A4] dark:text-blue-400" : "text-[#5E6C84] dark:text-slate-500")} />
+        <Icon className={cn("w-4.5 h-4.5", isActive ? "text-primary" : "text-[#5E6C84] dark:text-slate-500")} />
       </div>
       <div className={cn(
         "flex items-center justify-between flex-1 transition-all duration-300",
@@ -272,10 +272,10 @@ function NavItem({ item, isCollapsed, isActive, hasSubItems, isOpen, onClick, pa
            
            {isCollapsed && hasSubItems && (
              <div className="absolute left-full top-0 pl-3 hidden lg:group-hover/collapsed-parent:block z-[250]">
-               <div className="bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[10px] p-2 min-w-[220px] shadow-2xl animate-in fade-in slide-in-from-left-2 duration-200">
-                    <div className="px-3 py-2.5 mb-1 bg-[#F4F5FB] dark:bg-white/5 rounded-[6px]">
-                       <p className="text-[11px] font-bold text-[#2E37A4] dark:text-blue-400 uppercase tracking-widest">{item.name}</p>
-                    </div>
+                <div className="bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[10px] p-2 min-w-[220px] shadow-2xl animate-in fade-in slide-in-from-left-2 duration-200">
+                     <div className="px-3 py-2.5 mb-1 bg-primary/5 dark:bg-primary/10 rounded-[6px]">
+                        <p className="text-[11px] font-bold text-primary uppercase tracking-widest">{item.name}</p>
+                     </div>
                     <div className="space-y-0.5">
                       {item.subItems.map((sub) => (
                         <Link
@@ -284,7 +284,7 @@ function NavItem({ item, isCollapsed, isActive, hasSubItems, isOpen, onClick, pa
                           className={cn(
                             "flex items-center h-10 px-3 rounded-[6px] text-[13px] font-semibold transition-all mb-0.5",
                             pathname === sub.path 
-                              ? "text-[#2E37A4] bg-[#F4F5FB] dark:bg-[#1e293b] dark:text-blue-400" 
+                              ? "text-primary bg-primary/5 dark:bg-primary/10" 
                               : "text-[#5E6C84] dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-[#1e293b] hover:translate-x-1"
                           )}
                         >

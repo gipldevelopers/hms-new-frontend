@@ -80,16 +80,16 @@ function DraggableToolkitItem({ type }) {
       {...attributes}
       className={cn(
         "flex items-center justify-between p-3 rounded-[6px] border border-[#E7E8EB] dark:border-white/10 transition-all cursor-grab active:cursor-grabbing bg-white dark:bg-[#1e293b]",
-        isDragging ? "opacity-40 border-dashed" : "hover:border-[#2D3A8C] group"
+        isDragging ? "opacity-40 border-dashed" : "hover:border-primary group"
       )}
     >
       <div className="flex items-center gap-3">
-        <div className="w-8 h-8 rounded-[5px] bg-[#F4F5FB] dark:bg-[#101935] flex items-center justify-center">
-           <type.icon className="w-4 h-4 text-[#2D3A8C]" />
+        <div className="w-8 h-8 rounded-[5px] bg-primary/5 dark:bg-primary/10 flex items-center justify-center">
+           <type.icon className="w-4 h-4 text-primary" />
         </div>
         <span className="text-[11px] font-bold text-gray-500 uppercase tracking-widest">{type.label}</span>
       </div>
-      <Plus className="w-3.5 h-3.5 text-gray-300 group-hover:text-[#2D3A8C]" />
+      <Plus className="w-3.5 h-3.5 text-gray-300 group-hover:text-primary" />
     </div>
   );
 }
@@ -141,7 +141,7 @@ function SortableBlock({ block, onRemove, onUpdate, onTypeChange }) {
         <div 
           {...attributes} 
           {...listeners} 
-          className="mt-2 text-gray-300 cursor-grab active:cursor-grabbing hover:text-[#2D3A8C] transition-colors"
+          className="mt-2 text-gray-300 cursor-grab active:cursor-grabbing hover:text-primary transition-colors"
         >
           <GripVertical className="w-5 h-5" />
         </div>
@@ -159,10 +159,10 @@ function SortableBlock({ block, onRemove, onUpdate, onTypeChange }) {
             </div>
             
             <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-3 bg-[#F8F9FC] dark:bg-[#101935] px-3 py-1.5 rounded-[5px] border border-[#E7E8EB] dark:border-white/10 hover:border-[#2D3A8C]/30 transition-all outline-none group">
-                 <BlockIcon className="w-3.5 h-3.5 text-[#2D3A8C]" />
-                 <span className="text-[10px] font-bold text-[#2D3A8C] uppercase tracking-[2px]">{block.type}</span>
-                 <ChevronDown className="w-3.5 h-3.5 text-gray-400 group-hover:text-[#2D3A8C]" />
+              <DropdownMenuTrigger className="flex items-center gap-3 bg-[#F8F9FC] dark:bg-[#101935] px-3 py-1.5 rounded-[5px] border border-[#E7E8EB] dark:border-white/10 hover:border-primary/30 transition-all outline-none group focus:border-primary">
+                 <BlockIcon className="w-3.5 h-3.5 text-primary" />
+                 <span className="text-[10px] font-bold text-primary uppercase tracking-[2px]">{block.type}</span>
+                 <ChevronDown className="w-3.5 h-3.5 text-gray-400 group-hover:text-primary" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-[200px] dark:bg-[#101935] dark:border-white/10 p-1 shadow-2xl">
                 {TEMPLATE_BLOCKS.map((t) => (
@@ -171,9 +171,9 @@ function SortableBlock({ block, onRemove, onUpdate, onTypeChange }) {
                     onClick={() => onTypeChange(block.id, t.id)}
                     className="flex items-center gap-3 px-3 py-2 text-[12px] font-semibold cursor-pointer rounded-[5px]"
                   >
-                    <t.icon className={cn("w-4 h-4", block.type === t.id ? "text-[#2D3A8C]" : "text-gray-400")} />
+                    <t.icon className={cn("w-4 h-4", block.type === t.id ? "text-primary" : "text-gray-400")} />
                     <span className="capitalize">{t.label}</span>
-                    {block.type === t.id && <Check className="w-4 h-4 ml-auto text-[#2D3A8C]" />}
+                    {block.type === t.id && <Check className="w-4 h-4 ml-auto text-primary" />}
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
@@ -186,7 +186,7 @@ function SortableBlock({ block, onRemove, onUpdate, onTypeChange }) {
                <div className="flex items-start gap-6 animate-in slide-in-from-top-2 duration-300">
                   <div 
                     onClick={() => fileInputRef.current?.click()}
-                    className="w-24 h-24 rounded-[8px] border-2 border-dashed border-gray-100 dark:border-white/5 flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-[#2D3A8C]/30 hover:bg-gray-50 transition-all overflow-hidden relative shrink-0"
+                    className="w-24 h-24 rounded-[8px] border-2 border-dashed border-gray-100 dark:border-white/5 flex flex-col items-center justify-center gap-2 cursor-pointer hover:border-primary/30 hover:bg-primary/5 transition-all overflow-hidden relative shrink-0"
                   >
                     {logoPreview ? (
                        <img src={logoPreview} alt="Logo" className="w-full h-full object-cover" />
@@ -202,18 +202,18 @@ function SortableBlock({ block, onRemove, onUpdate, onTypeChange }) {
                      <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-1">
                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Hospital Name</label>
-                           <input type="text" placeholder="GVoice Medical Center" className="w-full h-9 px-3 bg-[#F8F9FC] dark:bg-[#1e293b]/50 border border-gray-100 dark:border-white/5 rounded-[5px] text-[12px] font-semibold outline-none focus:ring-1 focus:ring-[#2D3A8C]" />
+                           <input type="text" placeholder="GVoice Medical Center" className="w-full h-9 px-3 bg-[#F8F9FC] dark:bg-[#1e293b]/50 border border-gray-100 dark:border-white/5 rounded-[5px] text-[12px] font-semibold outline-none focus:border-primary" />
                         </div>
                         <div className="space-y-1">
                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Contact Info</label>
-                           <input type="text" placeholder="+91 99999 00000" className="w-full h-9 px-3 bg-[#F8F9FC] dark:bg-[#1e293b]/50 border border-gray-100 dark:border-white/5 rounded-[5px] text-[12px] font-semibold outline-none focus:ring-1 focus:ring-[#2D3A8C]" />
+                           <input type="text" placeholder="+91 99999 00000" className="w-full h-9 px-3 bg-[#F8F9FC] dark:bg-[#1e293b]/50 border border-gray-100 dark:border-white/5 rounded-[5px] text-[12px] font-semibold outline-none focus:border-primary" />
                         </div>
                      </div>
-                     <textarea placeholder="Hospital Address Line 1..." className="w-full h-16 p-3 bg-[#F8F9FC] dark:bg-[#1e293b]/50 border border-gray-100 dark:border-white/5 rounded-[5px] text-[12px] font-medium outline-none focus:ring-1 focus:ring-[#2D3A8C] resize-none" />
+                     <textarea placeholder="Hospital Address Line 1..." className="w-full h-16 p-3 bg-[#F8F9FC] dark:bg-[#1e293b]/50 border border-gray-100 dark:border-white/5 rounded-[5px] text-[12px] font-medium outline-none focus:border-primary resize-none" />
                   </div>
                </div>
              ) : (
-               <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-indigo-50/50 dark:bg-[#2D3A8C]/10 rounded-[5px] border border-indigo-100/50 dark:border-[#2D3A8C]/20 text-indigo-500 animate-in fade-in duration-500">
+               <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/5 dark:bg-primary/20 rounded-[5px] border border-primary/20 text-primary animate-in fade-in duration-500">
                   <span className="text-[12px] font-medium italic">{blockTypeInfo.description}</span>
                </div>
              )}
@@ -265,7 +265,7 @@ function DropZone({ children }) {
       ref={setNodeRef}
       className={cn(
         "space-y-3 min-h-[50px] rounded-[10px] transition-all",
-        isOver && "bg-indigo-50/10 dark:bg-[#2D3A8C]/5 p-2 rounded-[15px] border-2 border-dashed border-indigo-200 dark:border-[#2D3A8C]/30"
+        isOver && "bg-primary/5 dark:bg-primary/10 p-2 rounded-[15px] border-2 border-dashed border-primary/20"
       )}
     >
       {children}
@@ -471,7 +471,7 @@ export default function CreateTemplatePage() {
             <button 
               disabled={loading}
               onClick={handleSave}
-              className="bg-[#2D3A8C] text-white px-8 py-2.5 rounded-[5px] text-[13px] font-bold flex items-center justify-center gap-2 hover:bg-[#1e2775] transition-all disabled:opacity-50"
+              className="bg-primary text-white px-8 py-2.5 rounded-[5px] text-[13px] font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all disabled:opacity-50 border border-primary/20"
             >
               <Save className="w-4 h-4" /> {loading ? "Saving..." : (editId ? "Update Template" : "Publish Template")}
             </button>
@@ -485,28 +485,28 @@ export default function CreateTemplatePage() {
               <h3 className="text-[13px] font-bold text-[#1e293b] dark:text-white uppercase tracking-wider border-b border-gray-100 dark:border-white/5 pb-3">Template Info</h3>
               <div className="space-y-1.5">
                 <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Display Name</label>
-                <input type="text" placeholder="e.g. Discharge Summary" className="w-full h-11 px-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[6px] text-[13px] font-semibold focus:ring-1 focus:ring-[#2D3A8C] outline-none placeholder:text-gray-300 transition-all font-semibold" value={tempName} onChange={(e) => setTempName(e.target.value)} />
+                <input type="text" placeholder="e.g. Discharge Summary" className="w-full h-11 px-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[6px] text-[13px] font-semibold focus:border-primary outline-none placeholder:text-gray-300 transition-all font-semibold" value={tempName} onChange={(e) => setTempName(e.target.value)} />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1.5">
                   <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Internal Code</label>
-                  <input type="text" placeholder="e.g. RX_01" className="w-full h-11 px-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[6px] text-[13px] font-semibold focus:ring-1 focus:ring-[#2D3A8C] outline-none placeholder:text-gray-300 transition-all font-mono" value={tempCode} onChange={(e) => setTempCode(e.target.value)} />
+                  <input type="text" placeholder="e.g. RX_01" className="w-full h-11 px-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[6px] text-[13px] font-semibold focus:border-primary outline-none placeholder:text-gray-300 transition-all font-mono" value={tempCode} onChange={(e) => setTempCode(e.target.value)} />
                 </div>
                 <div className="space-y-1.5">
                   <div className="flex justify-between items-center">
                     <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Category</label>
                     <button 
                       onClick={() => setIsModalOpen(true)}
-                      className="text-[10px] font-bold text-[#2D3A8C] flex items-center gap-1 hover:underline"
+                      className="text-[10px] font-bold text-primary flex items-center gap-1 hover:underline uppercase tracking-tighter"
                     >
                       <Plus className="w-3 h-3" /> Add
                     </button>
                   </div>
                   
                   <DropdownMenu>
-                    <DropdownMenuTrigger className="w-full h-11 px-4 bg-[#F8F9FC] dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[6px] text-[13px] font-bold text-[#1e293b] dark:text-white flex items-center justify-between focus:ring-1 focus:ring-[#2D3A8C] outline-none hover:border-[#2D3A8C]/30 transition-all group shadow-sm">
+                    <DropdownMenuTrigger className="w-full h-11 px-4 bg-[#F8F9FC] dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[6px] text-[13px] font-bold text-[#1e293b] dark:text-white flex items-center justify-between focus:border-primary outline-none hover:border-primary/30 transition-all group shadow-sm shadow-primary/5">
                       <span className="capitalize">{tempCategory}</span>
-                      <ChevronDown className="w-4 h-4 text-gray-400 group-hover:text-[#2D3A8C] transition-colors" />
+                      <ChevronDown className="w-4 h-4 text-gray-400 group-hover:text-primary transition-colors" />
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="w-[180px] dark:bg-[#101935] dark:border-white/10 p-1 shadow-2xl">
                       {categories.map((cat) => (
@@ -517,7 +517,7 @@ export default function CreateTemplatePage() {
                         >
                           <div className="flex items-center gap-2 flex-1" onClick={() => setTempCategory(cat)}>
                              <span className="capitalize">{cat}</span>
-                             {tempCategory === cat && <Check className="w-4 h-4 text-[#2D3A8C]" />}
+                             {tempCategory === cat && <Check className="w-4 h-4 text-primary" />}
                           </div>
                           <button 
                             onClick={(e) => {
@@ -550,7 +550,7 @@ export default function CreateTemplatePage() {
           <div className="lg:col-span-8 space-y-5">
             <div className="flex items-center justify-between px-1 border-b border-gray-100 dark:border-white/5 pb-4">
               <h3 className="text-[14px] font-bold text-[#1e293b] dark:text-white uppercase tracking-wider">Design Document Blocks</h3>
-              <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest underline decoration-[#2D3A8C] decoration-2 underline-offset-4">{blocks.length} Blocks Added</span>
+              <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest underline decoration-primary decoration-2 underline-offset-4">{blocks.length} Blocks Added</span>
             </div>
 
             <DropZone>
@@ -569,7 +569,7 @@ export default function CreateTemplatePage() {
 
             <button 
               onClick={() => addBlock()}
-              className="w-full h-14 border border-dashed border-[#E7E8EB] dark:border-white/10 rounded-[10px] flex items-center justify-center gap-2.5 text-gray-400 font-bold text-[13px] uppercase tracking-widest hover:border-[#2D3A8C] hover:text-[#2D3A8C] transition-all bg-white dark:bg-[#101935]/30 mt-4 group"
+              className="w-full h-14 border border-dashed border-[#E7E8EB] dark:border-white/10 rounded-[10px] flex items-center justify-center gap-2.5 text-gray-400 font-bold text-[13px] uppercase tracking-widest hover:border-primary hover:text-primary transition-all bg-white dark:bg-[#101935]/30 mt-4 group"
             >
               <Plus className="w-4 h-4 group-hover:rotate-90 transition-transform duration-300" /> Add New Block (Header)
             </button>
@@ -578,19 +578,19 @@ export default function CreateTemplatePage() {
 
         <DragOverlay modifiers={[restrictToWindowEdges]}>
           {activeTool && (
-            <div className="flex items-center justify-between p-3 rounded-[6px] border border-[#2D3A8C] bg-white dark:bg-[#101935] shadow-2xl w-[300px]">
+            <div className="flex items-center justify-between p-3 rounded-[6px] border border-primary bg-white dark:bg-[#101935] shadow-2xl w-[300px]">
                <div className="flex items-center gap-3">
-                 <div className="w-8 h-8 rounded-[5px] bg-[#F4F5FB] dark:bg-[#101935] flex items-center justify-center">
-                    <activeTool.icon className="w-4 h-4 text-[#2D3A8C]" />
+                 <div className="w-8 h-8 rounded-[5px] bg-primary/10 dark:bg-primary/20 flex items-center justify-center">
+                    <activeTool.icon className="w-4 h-4 text-primary" />
                  </div>
                  <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">{activeTool.label}</span>
                </div>
             </div>
           )}
           {activeBlock && (
-            <div className="bg-white dark:bg-[#101935] border-2 border-[#2D3A8C] rounded-[10px] p-6 opacity-90 shadow-2xl w-[600px]">
+            <div className="bg-white dark:bg-[#101935] border-2 border-primary rounded-[10px] p-6 opacity-90 shadow-2xl w-[600px]">
                <div className="flex gap-4">
-                  <GripVertical className="w-5 h-5 text-[#2D3A8C]" />
+                  <GripVertical className="w-5 h-5 text-primary" />
                   <span className="font-bold text-[#1e293b] dark:text-white">{activeBlock.label || "Untilted Block"}</span>
                </div>
             </div>

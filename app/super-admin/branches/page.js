@@ -105,7 +105,7 @@ export default function BranchesPage() {
         <h1 className="text-[20px] font-bold text-[#1e293b] dark:text-white leading-tight">Branch Management</h1>
         <button 
           onClick={handleCreateNew}
-          className="bg-[#2E37A4] text-white px-5 py-2.5 rounded-[5px] text-[13px] font-semibold flex items-center gap-2 hover:bg-[#252c84] transition-all"
+          className="bg-primary text-white px-5 py-2.5 rounded-[5px] text-[13px] font-semibold flex items-center gap-2 hover:opacity-90 transition-all border border-primary/20"
         >
           <Plus className="w-4.5 h-4.5" /> Add New Branch
         </button>
@@ -121,7 +121,7 @@ export default function BranchesPage() {
           <input 
             type="text" 
             placeholder="Search branches by name, code or location..."
-            className="w-full h-10 pl-10 pr-4 bg-[#F8F9FC] dark:bg-[#1e293b] border-none rounded-[6px] text-[13px] font-medium focus:ring-1 focus:ring-[#2E37A4] transition-all font-semibold outline-none"
+            className="w-full h-10 pl-10 pr-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-gray-100 dark:border-white/10 rounded-[6px] text-[13px] font-medium focus:border-primary transition-all font-semibold outline-none"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -134,7 +134,7 @@ export default function BranchesPage() {
               onClick={() => setViewType("grid")}
               className={cn(
                 "p-1.5 rounded-[4px] transition-all",
-                viewType === "grid" ? "bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 text-[#2E37A4] shadow-sm" : "text-gray-400 hover:text-[#2E37A4]"
+                viewType === "grid" ? "bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 text-primary shadow-sm" : "text-gray-400 hover:text-primary"
               )}
             >
               <LayoutGrid className="w-4 h-4" />
@@ -143,7 +143,7 @@ export default function BranchesPage() {
               onClick={() => setViewType("list")}
               className={cn(
                 "p-1.5 rounded-[4px] transition-all",
-                viewType === "list" ? "bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 text-[#2E37A4] shadow-sm" : "text-gray-400 hover:text-[#2E37A4]"
+                viewType === "list" ? "bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 text-primary shadow-sm" : "text-gray-400 hover:text-primary"
               )}
             >
               <List className="w-4 h-4" />

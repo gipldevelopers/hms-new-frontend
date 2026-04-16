@@ -111,7 +111,7 @@ export default function Header({
             <Input
               type="text"
               placeholder="Search"
-              className="pl-10 pr-4 md:pr-12 h-10 w-full bg-white dark:bg-[#101935] border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[14px] placeholder:text-slate-400 dark:placeholder:text-slate-500 focus-visible:ring-1 focus-visible:ring-indigo-100 transition-all dark:text-white"
+              className="pl-10 pr-4 md:pr-12 h-10 w-full bg-white dark:bg-[#101935] border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[14px] placeholder:text-slate-400 dark:placeholder:text-slate-500 focus-visible:ring-1 focus-visible:ring-primary transition-all dark:text-white"
             />
             <div className="absolute right-2 hidden md:flex items-center justify-center w-7 h-7 bg-gray-50 dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-md">
               <Command className="w-3.5 h-3.5 text-slate-500" />
@@ -137,7 +137,7 @@ export default function Header({
             className="w-9 h-9 md:w-10 md:h-10 rounded-full border border-[#E7E8EB] dark:border-white/10 bg-white dark:bg-[#101935] text-slate-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-[#1e293b] relative"
           >
             <Bell className="w-[17px] h-[17px] md:w-[18px] md:h-[18px]" />
-            <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-orange-500 border-2 border-white dark:border-[#101935] rounded-full"></span>
+            <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-primary border-2 border-white dark:border-[#101935] rounded-full"></span>
           </Button>
 
           {isNotificationsOpen && (
@@ -149,7 +149,7 @@ export default function Header({
                 <span className="text-[13px] font-bold text-[#101935] dark:text-white">
                   Recent Notifications
                 </span>
-                <span className="text-[10px] font-bold bg-orange-100 dark:bg-orange-500/20 text-orange-600 dark:text-orange-400 px-2 py-0.5 rounded-full">
+                <span className="text-[10px] font-bold bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary px-2 py-0.5 rounded-full">
                   4 New
                 </span>
               </div>
@@ -159,7 +159,7 @@ export default function Header({
                     key={n.id}
                     className="p-4 border-b border-[#E7E8EB] dark:border-white/5 hover:bg-gray-50 dark:hover:bg-white/[0.02] cursor-pointer transition-colors group"
                   >
-                    <p className="text-[12px] font-bold text-[#101935] dark:text-white leading-tight group-hover:text-[#2E37A4] transition-colors">
+                    <p className="text-[12px] font-bold text-[#101935] dark:text-white leading-tight group-hover:text-primary transition-colors">
                       {n.title}
                     </p>
                     <p className="text-[11px] text-[#64748B] dark:text-slate-400 mt-1 line-clamp-2 leading-relaxed">
@@ -172,7 +172,7 @@ export default function Header({
                 ))}
               </div>
               <div className="p-3 text-center border-t border-[#E7E8EB] dark:border-white/10">
-                <button className="text-[11px] font-bold text-[#2E37A4] dark:text-blue-400 hover:underline uppercase tracking-tighter">
+                <button className="text-[11px] font-bold text-primary dark:text-primary hover:underline uppercase tracking-tighter">
                   View All Updates
                 </button>
               </div>

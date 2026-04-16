@@ -94,9 +94,9 @@ function CustomCalendar({ selectedDate, onSelect, onClose }) {
                 type="button"
                 onClick={() => { onSelect(day); onClose(); }}
                 className={cn(
-                  "w-8 h-8 rounded-[6px] text-[12px] font-semibold transition-all hover:bg-[#F4F5FB] dark:hover:bg-white/5",
-                  isSameDay(day, selectedDate) ? "bg-[#2D3A8C] text-white hover:bg-[#2D3A8C]" : "text-[#1e293b] dark:text-gray-300",
-                  isSameDay(day, new Date()) && !isSameDay(day, selectedDate) && "text-[#2D3A8C] font-bold"
+                  "w-8 h-8 rounded-[6px] text-[12px] font-semibold transition-all hover:bg-primary/5 dark:hover:bg-primary/10",
+                  isSameDay(day, selectedDate) ? "bg-primary text-white hover:bg-primary" : "text-[#1e293b] dark:text-gray-300",
+                  isSameDay(day, new Date()) && !isSameDay(day, selectedDate) && "text-primary font-bold"
                 )}
               >
                 {day.getDate()}
@@ -108,7 +108,7 @@ function CustomCalendar({ selectedDate, onSelect, onClose }) {
       
       <div className="flex justify-between items-center mt-3 pt-3 border-t border-gray-100 dark:border-white/5 px-1">
         <button type="button" onClick={() => { onSelect(null); onClose(); }} className="text-[11px] font-bold text-gray-400 hover:text-red-500">Clear</button>
-        <button type="button" onClick={() => { onSelect(new Date()); onClose(); }} className="text-[11px] font-bold text-[#2D3A8C]">Today</button>
+        <button type="button" onClick={() => { onSelect(new Date()); onClose(); }} className="text-[11px] font-bold text-primary">Today</button>
       </div>
     </div>
   );
@@ -143,7 +143,7 @@ function CustomTimePicker({ selectedTime, onSelect, onClose }) {
             onClick={() => setHour(h)}
             className={cn(
               "w-full py-2.5 text-[13px] font-bold transition-all",
-              hour === h ? "bg-[#2D3A8C] text-white" : "text-gray-500 hover:bg-gray-50 dark:hover:bg-white/5"
+              hour === h ? "bg-primary text-white" : "text-gray-500 hover:bg-gray-50 dark:hover:bg-white/5"
             )}
           >
             {h.toString().padStart(2, '0')}
@@ -158,7 +158,7 @@ function CustomTimePicker({ selectedTime, onSelect, onClose }) {
             onClick={() => setMinute(m)}
             className={cn(
               "w-full py-2.5 text-[13px] font-bold transition-all",
-              minute === m ? "bg-[#2D3A8C] text-white" : "text-gray-500 hover:bg-gray-50 dark:hover:bg-white/5"
+              minute === m ? "bg-primary text-white" : "text-gray-500 hover:bg-gray-50 dark:hover:bg-white/5"
             )}
           >
             {m.toString().padStart(2, '0')}
@@ -173,7 +173,7 @@ function CustomTimePicker({ selectedTime, onSelect, onClose }) {
             onClick={() => setPeriod(p)}
             className={cn(
               "flex-1 mx-2 my-1 rounded-[5px] text-[11px] font-bold transition-all",
-              period === p ? "bg-[#2D3A8C] text-white" : "text-gray-500 hover:bg-gray-50 dark:hover:bg-white/5"
+              period === p ? "bg-primary text-white" : "text-gray-500 hover:bg-gray-50 dark:hover:bg-white/5"
             )}
           >
             {p}
@@ -182,7 +182,7 @@ function CustomTimePicker({ selectedTime, onSelect, onClose }) {
         <button 
           type="button"
           onClick={onClose}
-          className="mt-auto p-2 text-[#2D3A8C] hover:bg-gray-100 dark:hover:bg-white/5"
+          className="mt-auto p-2 text-primary hover:bg-gray-100 dark:hover:bg-white/5"
         >
           <Check className="w-4 h-4 mx-auto" />
         </button>
@@ -319,7 +319,7 @@ export default function FillMasterDataPage() {
   if (!isMounted) return null;
 
   const renderField = (field) => {
-    const commonClass = "w-full h-11 px-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[6px] text-[13px] font-semibold focus:ring-1 focus:ring-[#2D3A8C] outline-none placeholder:text-gray-300 transition-all flex items-center justify-between shadow-sm hover:border-[#2D3A8C]/30";
+    const commonClass = "w-full h-11 px-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[6px] text-[13px] font-semibold focus:border-primary outline-none placeholder:text-gray-300 transition-all flex items-center justify-between shadow-sm hover:border-primary/30";
     const inputClass = "w-full h-full bg-transparent border-none outline-none focus:ring-0 p-0 text-[13px] font-semibold text-[#1e293b] dark:text-white placeholder:text-gray-300";
 
     switch (field.type) {
@@ -331,7 +331,7 @@ export default function FillMasterDataPage() {
               <span className={cn("truncate", !formData[field.label] && "text-gray-400 font-medium")}>
                 {formData[field.label] || "Select option..."}
               </span>
-              <ChevronDown className="w-4 h-4 text-gray-400 group-hover:text-[#2D3A8C] transition-colors" />
+              <ChevronDown className="w-4 h-4 text-gray-400 group-hover:text-primary transition-colors" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-[300px] max-h-[250px] overflow-y-auto dark:bg-[#101935] dark:border-white/10 p-1 shadow-2xl">
               {opts.map((opt, i) => (
@@ -341,7 +341,7 @@ export default function FillMasterDataPage() {
                   onClick={() => handleInputChange(field.label, opt.trim())}
                 >
                   {opt.trim()}
-                  {formData[field.label] === opt.trim() && <Check className="w-3.5 h-3.5 text-[#2D3A8C]" />}
+                  {formData[field.label] === opt.trim() && <Check className="w-3.5 h-3.5 text-primary" />}
                 </DropdownMenuItem>
               ))}
               {opts.length === 0 && <div className="p-3 text-center text-gray-400 text-[11px]">No options defined</div>}
@@ -357,11 +357,11 @@ export default function FillMasterDataPage() {
               <label key={i} className="flex items-center gap-3 cursor-pointer group">
                 <input 
                   type="checkbox" 
-                  className="w-4 h-4 rounded border-gray-300 text-[#2D3A8C] focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                  className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-0 focus:ring-offset-0 cursor-pointer"
                   checked={(formData[field.label] || []).includes(opt.trim())}
                   onChange={(e) => handleCheckboxChange(field.label, opt.trim(), e.target.checked)}
                 />
-                <span className="text-[13px] font-medium text-[#1e293b] dark:text-gray-300 group-hover:text-[#2D3A8C] transition-colors">{opt.trim()}</span>
+                <span className="text-[13px] font-medium text-[#1e293b] dark:text-gray-300 group-hover:text-primary transition-colors">{opt.trim()}</span>
               </label>
             ))}
           </div>
@@ -378,7 +378,7 @@ export default function FillMasterDataPage() {
               <span className={cn(!formData[field.label] && "text-gray-400 font-medium")}>
                 {formData[field.label] ? new Date(formData[field.label]).toLocaleDateString() : "dd-mm-yyyy"}
               </span>
-              <CalendarIcon className="w-4 h-4 text-gray-400 group-hover:text-[#2D3A8C] transition-colors" />
+              <CalendarIcon className="w-4 h-4 text-gray-400 group-hover:text-primary transition-colors" />
             </button>
             {openPicker?.id === field.id && openPicker?.type === 'date' && (
               <div className="absolute top-12 left-0 z-[100]">
@@ -403,7 +403,7 @@ export default function FillMasterDataPage() {
               <span className={cn(!formData[field.label] && "text-gray-400 font-medium")}>
                 {formData[field.label] || "--:--"}
               </span>
-              <Clock className="w-4 h-4 text-gray-400 group-hover:text-[#2D3A8C] transition-colors" />
+              <Clock className="w-4 h-4 text-gray-400 group-hover:text-primary transition-colors" />
             </button>
             {openPicker?.id === field.id && openPicker?.type === 'time' && (
               <div className="absolute top-12 left-0 z-[100]">
@@ -433,7 +433,7 @@ export default function FillMasterDataPage() {
               <span className="truncate max-w-[80%] text-gray-500 font-medium">
                 {formData[field.label] || field.placeholder || "Choose file to upload..."}
               </span>
-              <FileUp className="w-4 h-4 text-gray-400 group-hover/file:text-[#2D3A8C] transition-all" />
+              <FileUp className="w-4 h-4 text-gray-400 group-hover/file:text-primary transition-all" />
             </label>
           </div>
         );
@@ -449,7 +449,7 @@ export default function FillMasterDataPage() {
               value={formData[field.label] || ""}
               onChange={(e) => handleInputChange(field.label, e.target.value)}
             />
-            <Mail className="w-4 h-4 text-gray-400 group-focus-within:text-[#2D3A8C] transition-colors" />
+            <Mail className="w-4 h-4 text-gray-400 group-focus-within:text-primary transition-colors" />
           </div>
         );
 
@@ -464,7 +464,7 @@ export default function FillMasterDataPage() {
               value={formData[field.label] || ""}
               onChange={(e) => handleInputChange(field.label, e.target.value)}
             />
-            <Hash className="w-4 h-4 text-gray-400 group-focus-within:text-[#2D3A8C] transition-colors" />
+            <Hash className="w-4 h-4 text-gray-400 group-focus-within:text-primary transition-colors" />
           </div>
         );
 
@@ -479,7 +479,7 @@ export default function FillMasterDataPage() {
               value={formData[field.label] || ""}
               onChange={(e) => handleInputChange(field.label, e.target.value)}
             />
-            <Type className="w-4 h-4 text-gray-400 group-focus-within:text-[#2D3A8C] transition-colors" />
+            <Type className="w-4 h-4 text-gray-400 group-focus-within:text-primary transition-colors" />
           </div>
         );
     }
@@ -507,7 +507,7 @@ export default function FillMasterDataPage() {
         <div className="lg:col-span-4 space-y-6">
           <form onSubmit={handleSubmit} className="bg-white dark:bg-[#101935] p-6 rounded-[10px] border border-[#E7E8EB] dark:border-white/10 space-y-6 shadow-sm">
             <div className="flex items-center gap-3 border-b border-gray-100 dark:border-white/5 pb-4">
-              <Plus className="w-5 h-5 text-[#2D3A8C]" />
+              <Plus className="w-5 h-5 text-primary" />
               <h3 className="text-[13px] font-bold text-[#1e293b] dark:text-white uppercase tracking-wider">Add New Entry</h3>
             </div>
 
@@ -528,7 +528,7 @@ export default function FillMasterDataPage() {
                 <button 
                   type="submit"
                   disabled={saving}
-                  className="w-full bg-[#2D3A8C] text-white h-12 rounded-[6px] text-[13px] font-bold flex items-center justify-center gap-2 hover:bg-[#1e2775] transition-all disabled:opacity-50 mt-4 shadow-lg shadow-[#2D3A8C]/10"
+                  className="w-full bg-primary text-white h-12 rounded-[6px] text-[13px] font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all disabled:opacity-50 mt-4 shadow-lg shadow-primary/10"
                 >
                   <Save className="w-4 h-4" /> {saving ? "Saving..." : "Save Record"}
                 </button>
@@ -567,7 +567,7 @@ export default function FillMasterDataPage() {
                  <tbody>
                    {records.map((record, index) => (
                      <tr key={record.id} className="border-b border-gray-50 dark:border-white/5 hover:bg-gray-50 dark:hover:bg-white/5 transition-all group">
-                       <td className="px-6 py-4 text-[12px] font-bold text-gray-300 group-hover:text-[#2D3A8C] transition-colors">{index + 1}</td>
+                       <td className="px-6 py-4 text-[12px] font-bold text-gray-300 group-hover:text-primary transition-colors">{index + 1}</td>
                        {schema?.fields.slice(0, 3).map(f => (
                          <td key={f.id} className="px-6 py-4 text-[13px] font-semibold text-[#1e293b] dark:text-white truncate max-w-[200px]">{record.data[f.label] || <span className="text-gray-200">N/A</span>}</td>
                        ))}

@@ -29,8 +29,8 @@ function TemplateCard({ file, viewType, onDelete }) {
       <div className={cn("flex-1 transition-all duration-500", isList && "flex-[3]")}>
         <div className="flex justify-between items-start mb-5">
           <div className="flex gap-4">
-            <div className="w-12 h-12 bg-indigo-50 dark:bg-indigo-900/10 rounded-[5px] flex items-center justify-center border border-indigo-100 dark:border-indigo-900/20 shrink-0">
-               <FileText className="w-6 h-6 text-[#2D3A8C]" />
+            <div className="w-12 h-12 bg-primary/10 dark:bg-primary/20 rounded-[5px] flex items-center justify-center border border-primary/20 shrink-0">
+               <FileText className="w-6 h-6 text-primary" />
             </div>
             <div>
               <h3 className="text-[17px] font-bold text-[#1e293b] dark:text-white leading-tight">{file.name}</h3>
@@ -79,13 +79,13 @@ function TemplateCard({ file, viewType, onDelete }) {
       )}>
         <button 
           onClick={() => window.location.href=`/super-admin/configurations/templates/create?id=${file.id}`}
-          className={cn("px-4 h-9 bg-[#F4F5FB] dark:bg-[#1e293b] hover:bg-[#EAEBFF] text-[#2D3A8C] font-semibold text-[12px] rounded-[5px] transition-all flex items-center justify-center gap-2 border border-indigo-100/30", !isList && "flex-1")}
+          className={cn("px-4 h-9 bg-primary/5 dark:bg-primary/10 hover:bg-primary/20 text-primary font-semibold text-[12px] rounded-[5px] transition-all flex items-center justify-center gap-2 border border-primary/20", !isList && "flex-1")}
         >
           <Eye className="w-4 h-4" /> View
         </button>
         <button 
           onClick={() => window.location.href=`/super-admin/configurations/templates/create?id=${file.id}`}
-          className={cn("px-4 h-9 bg-[#2D3A8C] text-white font-semibold text-[12px] rounded-[5px] transition-all hover:bg-[#1e2775] flex items-center justify-center gap-2", !isList && "flex-1")}
+          className={cn("px-4 h-9 bg-primary text-white font-semibold text-[12px] rounded-[5px] transition-all hover:opacity-90 flex items-center justify-center gap-2", !isList && "flex-1")}
         >
           <Edit className="w-4 h-4" /> Edit
         </button>
@@ -168,7 +168,7 @@ export default function TemplatesPage() {
         </div>
         <button 
           onClick={() => window.location.href = '/super-admin/configurations/templates/create'}
-          className="bg-[#2D3A8C] text-white px-5 py-2.5 rounded-[5px] text-[13px] font-semibold flex items-center gap-2 hover:bg-[#1e2775] transition-all"
+          className="bg-primary text-white px-5 py-2.5 rounded-[5px] text-[13px] font-semibold flex items-center gap-2 hover:opacity-90 transition-all border border-primary/20"
         >
           <Plus className="w-4.5 h-4.5" /> Add New Template
         </button>
@@ -184,9 +184,9 @@ export default function TemplatesPage() {
           <div key={i} className="bg-white dark:bg-[#101935] p-5 rounded-[12px] border border-[#E7E8EB] dark:border-white/10 flex items-center gap-4">
             <div className={cn(
               "w-12 h-12 rounded-[10px] flex items-center justify-center",
-              stat.color === "blue" && "bg-blue-50 text-blue-500 dark:bg-blue-900/20",
-              stat.color === "indigo" && "bg-indigo-50 text-indigo-500 dark:bg-indigo-900/20",
-              stat.color === "emerald" && "bg-emerald-50 text-emerald-500 dark:bg-emerald-900/20",
+              stat.color === "blue" && "bg-primary/10 text-primary",
+              stat.color === "indigo" && "bg-primary/10 text-primary",
+              stat.color === "emerald" && "bg-emerald-50 text-emerald-500",
             )}>
               <stat.icon className="w-6 h-6" />
             </div>
@@ -205,7 +205,7 @@ export default function TemplatesPage() {
           <input 
             type="text" 
             placeholder="Search templates..."
-            className="w-full h-10 pl-10 pr-4 bg-[#F8F9FC] dark:bg-[#1e293b] border-none rounded-[6px] text-[13px] font-medium focus:ring-1 focus:ring-[#2D3A8C] transition-all font-semibold"
+            className="w-full h-10 pl-10 pr-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-gray-100 dark:border-white/10 rounded-[6px] text-[13px] font-medium focus:border-primary transition-all font-semibold outline-none"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -217,7 +217,7 @@ export default function TemplatesPage() {
               onClick={() => setViewType("grid")}
               className={cn(
                 "p-1.5 rounded-[4px] transition-all",
-                viewType === "grid" ? "bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 text-[#2D3A8C] shadow-sm" : "text-gray-400 hover:text-[#2D3A8C]"
+                viewType === "grid" ? "bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 text-primary shadow-sm" : "text-gray-400 hover:text-primary"
               )}
             >
               <LayoutGrid className="w-4 h-4" />
@@ -226,7 +226,7 @@ export default function TemplatesPage() {
               onClick={() => setViewType("list")}
               className={cn(
                 "p-1.5 rounded-[4px] transition-all",
-                viewType === "list" ? "bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 text-[#2D3A8C] shadow-sm" : "text-gray-400 hover:text-[#2D3A8C]"
+                viewType === "list" ? "bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 text-primary shadow-sm" : "text-gray-400 hover:text-primary"
               )}
             >
               <List className="w-4 h-4" />

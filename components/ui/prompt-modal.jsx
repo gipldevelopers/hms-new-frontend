@@ -50,7 +50,7 @@ export function PromptModal({
               autoFocus
               type="text" 
               placeholder={placeholder}
-              className="w-full h-12 px-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[8px] text-[14px] font-semibold focus:ring-1 focus:ring-[#2D3A8C] outline-none placeholder:text-gray-300 transition-all"
+              className="w-full h-12 px-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[8px] text-[14px] font-semibold focus:ring-1 focus:ring-primary outline-none placeholder:text-gray-300 transition-all"
               value={value}
               onChange={(e) => setValue(e.target.value)}
             />
@@ -66,7 +66,7 @@ export function PromptModal({
             </button>
             <button 
               type="submit"
-              className="flex-1 h-12 text-[13px] font-bold text-white bg-[#2D3A8C] hover:bg-[#1e2775] rounded-[8px] transition-all shadow-lg shadow-[#2D3A8C]/10"
+              className="flex-1 h-12 text-[13px] font-bold text-white bg-primary hover:opacity-90 rounded-[8px] transition-all shadow-lg shadow-primary/10"
             >
               {confirmText}
             </button>

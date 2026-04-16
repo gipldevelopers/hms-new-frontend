@@ -71,7 +71,7 @@ function DraggableToolkitItem({ type }) {
       {...attributes}
       className={cn(
         "flex items-center justify-between p-3 rounded-[6px] border border-[#E7E8EB] dark:border-white/10 transition-all cursor-grab active:cursor-grabbing bg-white dark:bg-[#1e293b]",
-        isDragging ? "opacity-40 border-dashed" : "hover:border-[#2D3A8C] group"
+        isDragging ? "opacity-40 border-dashed" : "hover:border-primary group"
       )}
     >
       <div className="flex items-center gap-3">
@@ -80,7 +80,7 @@ function DraggableToolkitItem({ type }) {
         </div>
         <span className="text-[11px] font-bold text-gray-500 uppercase tracking-widest">{type.label}</span>
       </div>
-      <Plus className="w-3.5 h-3.5 text-gray-300 group-hover:text-[#2D3A8C]" />
+      <Plus className="w-3.5 h-3.5 text-gray-300 group-hover:text-primary" />
     </div>
   );
 }
@@ -107,7 +107,7 @@ function SortableField({ field, onRemove, onUpdate }) {
       ref={setNodeRef} 
       style={style}
       className={cn(
-        "group bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[10px] p-6 transition-all hover:border-[#2D3A8C]/30 flex flex-col gap-6 relative shadow-none",
+        "group bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[10px] p-6 transition-all hover:border-primary/30 flex flex-col gap-6 relative shadow-none",
         isDragging && "opacity-50 z-50 shadow-2xl"
       )}
     >
@@ -115,7 +115,7 @@ function SortableField({ field, onRemove, onUpdate }) {
         <div 
           {...attributes} 
           {...listeners} 
-          className="mt-2 text-gray-300 cursor-grab active:cursor-grabbing hover:text-[#2D3A8C] transition-colors"
+          className="mt-2 text-gray-300 cursor-grab active:cursor-grabbing hover:text-primary transition-colors"
         >
           <GripVertical className="w-5 h-5" />
         </div>
@@ -132,10 +132,10 @@ function SortableField({ field, onRemove, onUpdate }) {
               />
             </div>
             <DropdownMenu>
-              <DropdownMenuTrigger className="flex items-center gap-3 bg-[#F8F9FC] dark:bg-[#101935] px-3 py-1.5 rounded-[5px] border border-[#E7E8EB] dark:border-white/10 hover:border-[#2D3A8C] transition-all outline-none group/type">
+              <DropdownMenuTrigger className="flex items-center gap-3 bg-[#F8F9FC] dark:bg-[#101935] px-3 py-1.5 rounded-[5px] border border-[#E7E8EB] dark:border-white/10 hover:border-primary transition-all outline-none group/type">
                 <TypeIcon className="w-3.5 h-3.5 text-[#2D3A8C]" />
                 <span className="text-[10px] font-bold text-[#2D3A8C] uppercase tracking-[2px]">{field.type}</span>
-                <ChevronDown className="w-3 h-3 text-gray-400 group-hover/type:text-[#2D3A8C]" />
+                <ChevronDown className="w-3 h-3 text-gray-400 group-hover/type:text-primary" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-[180px] dark:bg-[#101935] dark:border-white/10 p-1">
                 {FIELD_TYPES.map((type) => (
@@ -187,7 +187,7 @@ function SortableField({ field, onRemove, onUpdate }) {
                   checked={field.required}
                   onChange={(e) => onUpdate(field.id, 'required', e.target.checked)}
                 />
-                <label htmlFor={`req-${field.id}`} className="text-[11px] font-bold text-gray-500 uppercase tracking-widest cursor-pointer hover:text-[#2D3A8C] transition-colors">Required</label>
+                <label htmlFor={`req-${field.id}`} className="text-[11px] font-bold text-gray-500 uppercase tracking-widest cursor-pointer hover:text-primary transition-colors">Required</label>
               </div>
               
               <button 
@@ -215,7 +215,7 @@ function DropZone({ children }) {
       ref={setNodeRef}
       className={cn(
         "space-y-3 min-h-[50px] rounded-[10px] transition-all",
-        isOver && "bg-indigo-50/10 dark:bg-[#2D3A8C]/5 p-2 rounded-[15px] border-2 border-dashed border-indigo-200 dark:border-[#2D3A8C]/30"
+        isOver && "bg-primary/5 dark:bg-primary/5 p-2 rounded-[15px] border-2 border-dashed border-primary/20 dark:border-primary/30"
       )}
     >
       {children}
@@ -381,14 +381,14 @@ export default function CreateMasterDataPage() {
             <button 
               disabled={loading}
               onClick={() => window.location.href='/super-admin/configurations/master-data'}
-              className="px-6 py-2 rounded-[5px] text-[13px] font-bold text-gray-500 hover:text-[#2D3A8C] transition-all disabled:opacity-50"
+              className="px-6 py-2 rounded-[5px] text-[13px] font-bold text-gray-500 hover:text-primary transition-all disabled:opacity-50"
             >
               Cancel
             </button>
             <button 
               disabled={loading}
               onClick={handleSave}
-              className="bg-[#2D3A8C] text-white px-8 py-2.5 rounded-[5px] text-[13px] font-bold flex items-center gap-2 hover:bg-[#1e2775] transition-all shadow-sm disabled:opacity-50"
+              className="bg-primary text-white px-8 py-2.5 rounded-[5px] text-[13px] font-bold flex items-center gap-2 hover:opacity-90 transition-all shadow-sm disabled:opacity-50"
             >
               {loading ? "Saving..." : (editId ? "Update Schema" : "Save Schema")}
             </button>
@@ -428,7 +428,7 @@ export default function CreateMasterDataPage() {
           <div className="lg:col-span-8 space-y-5">
             <div className="flex items-center justify-between px-1 border-b border-gray-100 dark:border-white/5 pb-4">
               <h3 className="text-[14px] font-bold text-[#1e293b] dark:text-white uppercase tracking-wider">Design Input Fields</h3>
-              <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest underline decoration-[#2D3A8C] decoration-2 underline-offset-4">{fields.length} Fields Added</span>
+              <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest underline decoration-primary decoration-2 underline-offset-4">{fields.length} Fields Added</span>
             </div>
 
             <DropZone>
@@ -441,7 +441,7 @@ export default function CreateMasterDataPage() {
 
             <button 
               onClick={() => addField()}
-              className="w-full h-14 border border-dashed border-[#E7E8EB] dark:border-white/10 rounded-[10px] flex items-center justify-center gap-2.5 text-gray-400 font-bold text-[13px] uppercase tracking-widest hover:border-[#2D3A8C] hover:text-[#2D3A8C] transition-all bg-white dark:bg-[#101935]/30 mt-4 shadow-none"
+              className="w-full h-14 border border-dashed border-[#E7E8EB] dark:border-white/10 rounded-[10px] flex items-center justify-center gap-2.5 text-gray-400 font-bold text-[13px] uppercase tracking-widest hover:border-primary hover:text-primary transition-all bg-white dark:bg-[#101935]/30 mt-4 shadow-none"
             >
               <Plus className="w-4 h-4" /> Add New Field
             </button>
@@ -450,7 +450,7 @@ export default function CreateMasterDataPage() {
 
         <DragOverlay modifiers={[restrictToWindowEdges]}>
           {activeTool && (
-            <div className="flex items-center justify-between p-3 rounded-[6px] border border-[#2D3A8C] bg-white dark:bg-[#101935] shadow-2xl w-[300px]">
+            <div className="flex items-center justify-between p-3 rounded-[6px] border border-primary bg-white dark:bg-[#101935] shadow-2xl w-[300px]">
                <div className="flex items-center gap-3">
                  <div className="w-8 h-8 rounded-[5px] bg-[#F4F5FB] dark:bg-[#101935] flex items-center justify-center">
                     <activeTool.icon className="w-4 h-4 text-[#2D3A8C]" />
