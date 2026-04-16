@@ -8,12 +8,14 @@ const inter = Inter({
 });
 
 export const metadata = {
-  title: "HMS Platform",
-  description: "Hospital Management System - Portal",
+  title: "GVoice HMS",
+  description: "GVoice Hospital Management System - Portal",
 };
 
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { Toaster } from "sonner";
+import { GlobalLoader, RootContent } from "@/components/GlobalLoader";
+import { Suspense } from "react";
 
 export default function RootLayout({ children }) {
   return (
@@ -23,8 +25,18 @@ export default function RootLayout({ children }) {
       suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col">
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem enableColorScheme={false}>
-          {children}
+        <ThemeProvider 
+          attribute="class" 
+          defaultTheme="light" 
+          enableSystem={false} 
+          enableColorScheme={false}
+          disableTransitionOnChange
+        >
+          <RootContent>
+             <Suspense fallback={<GlobalLoader />}>
+                {children}
+             </Suspense>
+          </RootContent>
           <Toaster position="top-right" richColors />
         </ThemeProvider>
       </body>

@@ -195,4 +195,19 @@
   html {
     @apply font-sans;
   }
+
+/* Utility to hide native browser calendar/clock icons */
+.hide-native-icon::-webkit-calendar-picker-indicator,
+.hide-native-icon::-webkit-inner-spin-button,
+.hide-native-icon::-webkit-clear-button {
+  display: none !important;
+  -webkit-appearance: none !important;
+}
+
+/* Ensure the input itself allows clicking through to trigger the actual picker */
+input[type='date'].hide-native-icon,
+input[type='time'].hide-native-icon {
+  position: relative;
+  cursor: pointer;
+}
 }

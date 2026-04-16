@@ -13,6 +13,7 @@ export function AddBranchModal({ isOpen, onClose, onSuccess, editingBranch }) {
     state: "Gujarat",
     isActive: true,
   });
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (editingBranch) {
@@ -53,6 +54,7 @@ export function AddBranchModal({ isOpen, onClose, onSuccess, editingBranch }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
     try {
       const token = localStorage.getItem("token");
       const url = editingBranch 
@@ -248,9 +250,10 @@ export function AddBranchModal({ isOpen, onClose, onSuccess, editingBranch }) {
             </button>
             <button 
               type="submit"
-              className="w-[200px] h-[52px] rounded-[12px] bg-[#3F51B5] text-white font-bold text-[16px] hover:bg-[#334295] transition-all shadow-md shadow-indigo-100"
+              disabled={loading}
+              className="w-[200px] h-[52px] rounded-[12px] bg-[#3F51B5] text-white font-bold text-[16px] hover:bg-[#334295] transition-all shadow-md shadow-indigo-100 disabled:opacity-50"
             >
-              {editingBranch ? "Update Branch" : "Add Branch"}
+              {loading ? "Processing..." : (editingBranch ? "Update Branch" : "Add Branch")}
             </button>
           </div>
         </form>
