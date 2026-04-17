@@ -217,13 +217,6 @@ export default function Header({
                 <button className="w-full flex items-center gap-3 px-3 py-2 text-[12px] font-bold text-gray-500 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-white/[0.05] rounded-[5px] transition-colors uppercase tracking-tight">
                   <User className="w-4 h-4" /> Account
                 </button>
-                <div className="h-px bg-gray-100 dark:bg-white/5 my-1 mx-2" />
-                <button
-                  onClick={handleLogout}
-                  className="w-full flex items-center gap-3 px-3 py-2 text-[12px] font-bold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-[5px] transition-colors uppercase tracking-tight"
-                >
-                  <LogOut className="w-4 h-4" /> Logout
-                </button>
               </div>
             </div>
           )}

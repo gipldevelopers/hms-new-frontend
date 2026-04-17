@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import {
   LayoutGrid,
   Building2,
@@ -21,7 +22,8 @@ import {
   Wallet,
   PieChart,
   CalendarDays,
-  Hotel
+  Hotel,
+  LogOut
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -53,6 +55,7 @@ const roleMenus = {
       ]
     },
     { name: "Analytics", icon: BarChart3, path: "/super-admin/analytics", section: "SYSTEM" },
+    { name: "Master Data", icon: Database, path: "/super-admin/configurations/master-data", section: "SYSTEM" },
     { name: "Audit Logs", icon: FileText, path: "/super-admin/audit-logs", section: "SYSTEM" },
   ],
   "branch-admin": [
@@ -108,7 +111,14 @@ const roleMenus = {
 
 export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [openSubMenu, setOpenSubMenu] = React.useState(null);
+
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("token");
+    router.push("/auth/login");
+  };
 
   // Detect current role from pathname
   const currentRole = pathname.split('/')[1] || 'super-admin';
@@ -173,7 +183,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) 
         <div className={cn("p-4 shrink-0 transition-all duration-300 overflow-hidden", isCollapsed && "lg:px-2")}>
           <div className={cn(
             "flex items-center border border-[#E7E8EB] dark:border-white/10 rounded-[10px] transition-all bg-white dark:bg-[#1e293b]", 
-            isCollapsed ? "lg:justify-center p-2" : "p-3 gap-3"
+            isCollapsed ? "lg:flex-col lg:p-2 gap-2" : "p-3 gap-3"
           )}>
             <div className="w-9 h-9 bg-primary rounded-[5px] shrink-0 flex items-center justify-center">
               <span className="text-white text-xs font-bold">VD</span>
@@ -185,6 +195,19 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) 
               <p className="text-[13px] font-bold text-[#1A1C23] dark:text-white truncate">Vraj Darji</p>
               <p className="text-[11px] text-gray-500 dark:text-slate-400 font-medium truncate uppercase tracking-tighter capitalize">{currentRole.replace('-', ' ')}</p>
             </div>
+            
+            <button 
+              onClick={handleLogout}
+              className={cn(
+                "flex items-center justify-center transition-all",
+                isCollapsed 
+                  ? "w-8 h-8 rounded-full hover:bg-red-50 dark:hover:bg-red-500/10 text-red-500" 
+                  : "w-8 h-8 rounded-[5px] hover:bg-red-50 dark:hover:bg-red-500/10 text-red-500 border border-transparent hover:border-red-100 dark:hover:border-red-500/20"
+              )}
+              title="Logout"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
           </div>
         </div>
 
