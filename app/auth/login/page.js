@@ -31,7 +31,10 @@ export default function LoginPage() {
       if (result.success) {
         localStorage.setItem("user", JSON.stringify(result.data.user));
         localStorage.setItem("token", result.data.token);
-        router.push("/super-admin");
+        
+        const role = result.data.user.role;
+        const redirectPath = role === "SUPERADMIN" ? "/super-admin" : `/${role.toLowerCase().replace(/_/g, "-")}`;
+        router.push(redirectPath);
       } else {
         setError(result.message || "Credential validation failed. Please try again.");
       }
@@ -259,25 +262,47 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Quick Access / Demo */}
-          <div className="mt-12 text-center">
+          {/* Quick Access / Demo Matrix */}
+          <div className="mt-8 text-center">
             <div className="relative flex items-center justify-center mb-6">
               <div className="absolute inset-x-0 h-px bg-gray-100 dark:bg-white/5" />
               <span className="relative bg-white dark:bg-[#0A0F1D] px-6 text-[9px] font-bold text-gray-400 uppercase tracking-[3px]">
-                Demo Sandbox
+                Demo Role Access
               </span>
             </div>
             
-            <button
-              type="button"
-              onClick={autoFillSuperAdmin}
-              className="w-full h-[50px] flex items-center justify-center gap-3 rounded-[10px] border border-[#E7E8EB] dark:border-white/10 bg-white dark:bg-[#101935] text-[12px] font-bold text-[#1e293b] dark:text-gray-300 hover:bg-gray-50 transition-all shadow-none group"
-            >
-              <div className="w-8 h-8 rounded-full bg-[#2E37A4]/5 flex items-center justify-center group-hover:bg-[#2E37A4] group-hover:text-white transition-all duration-300">
-                <Zap className="h-4 w-4" />
-              </div>
-              Bypass to Principal Dashboard
-            </button>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+               {[
+                 { name: "Super Admin", slug: "super", role: "SUPERADMIN" },
+                 { name: "Branch Admin", slug: "branchadmin", role: "BRANCH_ADMIN" },
+                 { name: "Doctor", slug: "doctor", role: "DOCTOR" },
+                 { name: "Staff", slug: "staff", role: "STAFF" },
+                 { name: "Reception", slug: "reception", role: "RECEPTION" },
+                 { name: "Pharmacy", slug: "pharmacy", role: "PHARMACY" },
+                 { name: "Laboratory", slug: "laboratory", role: "LABORATORY" },
+                 { name: "Radiology", slug: "radiology", role: "RADIOLOGY" },
+                 { name: "Finance", slug: "finance", role: "FINANCE" },
+                 { name: "Reports", slug: "reports", role: "REPORTS" }
+               ].map((demo) => (
+                 <button
+                   key={demo.role}
+                   type="button"
+                   onClick={() => {
+                     const e = `${demo.slug}.developer@gohilinfotech.com`;
+                     const p = `${demo.slug}@123`;
+                     setEmail(e);
+                     setPassword(p);
+                     handleLogin(e, p);
+                   }}
+                   className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-[10px] border border-[#E7E8EB] dark:border-white/10 bg-white dark:bg-[#101935] hover:border-[#2E37A4] hover:bg-[#F8F9FC] transition-all group"
+                 >
+                   <div className="w-8 h-8 rounded-full bg-slate-50 dark:bg-white/5 flex items-center justify-center group-hover:bg-[#2E37A4]/10 transition-colors">
+                      <Zap className="h-3.5 w-3.5 text-gray-400 group-hover:text-[#2E37A4]" />
+                   </div>
+                   <span className="text-[10px] font-bold text-gray-600 dark:text-gray-400 group-hover:text-[#2E37A4] whitespace-nowrap">{demo.name}</span>
+                 </button>
+               ))}
+            </div>
           </div>
         </div>
 

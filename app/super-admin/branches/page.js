@@ -34,11 +34,7 @@ export default function BranchesPage() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const filteredBranches = branches.filter(b => 
-    b.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    b.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    b.code.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredBranches = branches; // Server-side filtered now
 
   const outOfSyncBranches = branches.filter(b => 
     b.dbName && (!b.isDbInitialized || b.schemaVersion !== schemaInfo.version)
@@ -61,7 +57,8 @@ export default function BranchesPage() {
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
-      const res = await fetch("/api/branches", {
+      const url = searchQuery ? `/api/branches?search=${encodeURIComponent(searchQuery)}` : "/api/branches";
+      const res = await fetch(url, {
         headers: { Authorization: `Bearer ${token}` },
       });
       const json = await res.json();
@@ -77,7 +74,13 @@ export default function BranchesPage() {
   };
 
   useEffect(() => {
-    fetchBranches();
+    const timer = setTimeout(() => {
+      fetchBranches();
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  useEffect(() => {
     fetchSchemaInfo();
   }, []);
 
@@ -146,23 +149,34 @@ export default function BranchesPage() {
       <div className="flex justify-between items-center mb-[25px]">
         <h1 className="text-[20px] font-bold text-[#1e293b] dark:text-white leading-tight">Branch Management</h1>
         <div className="flex items-center gap-3">
-          {outOfSyncBranches.length > 0 && (
+          {branches.length > 0 && (
             <button 
               onClick={handleSyncAll}
               disabled={isSyncingAll}
-              className="bg-amber-500 text-white px-5 py-2.5 rounded-[5px] text-[13px] font-bold flex items-center gap-2 hover:bg-amber-600 transition-all border border-amber-400/20 shadow-lg shadow-amber-500/10"
+              className={cn(
+                "px-5 h-[44px] rounded-[6px] text-[13px] font-bold flex items-center gap-2 transition-all border shadow-none",
+                outOfSyncBranches.some(b => !b.schemaVersion) 
+                  ? "bg-red-500 text-white border-red-600 hover:bg-red-600 animate-pulse" 
+                  : outOfSyncBranches.length > 0
+                  ? "bg-amber-500 text-white border-amber-600 hover:bg-amber-600"
+                  : "bg-white dark:bg-[#101935] text-gray-500 border-[#E7E8EB] dark:border-white/10 hover:bg-gray-50"
+              )}
             >
               <Database className="w-4 h-4" /> 
               {isSyncingAll ? (
-                <span>SYNCING {outOfSyncBranches.length}...</span>
-              ) : (
+                <span>SYNCHRONIZING {branches.length}...</span>
+              ) : outOfSyncBranches.some(b => !b.schemaVersion) ? (
+                <span>Initialize All Branches ({outOfSyncBranches.length})</span>
+              ) : outOfSyncBranches.length > 0 ? (
                 <span>Universal Schema Sync ({outOfSyncBranches.length})</span>
+              ) : (
+                <span>Force Universal Sync</span>
               )}
             </button>
           )}
           <button 
             onClick={handleCreateNew}
-            className="bg-primary text-white px-5 py-2.5 rounded-[5px] text-[13px] font-semibold flex items-center gap-2 hover:opacity-90 transition-all border border-primary/20"
+            className="bg-primary text-white px-5 h-[44px] rounded-[6px] text-[13px] font-bold flex items-center gap-2 hover:bg-primary/90 transition-all border border-primary shadow-none"
           >
             <Plus className="w-4.5 h-4.5" /> Add New Branch
           </button>
@@ -239,6 +253,7 @@ export default function BranchesPage() {
                 viewType={viewType} 
                 onEdit={() => handleEdit(branch)}
                 onDelete={() => handleDeleteClick(branch)}
+                isGlobalSyncing={isSyncingAll}
               />
             ))}
           </div>
