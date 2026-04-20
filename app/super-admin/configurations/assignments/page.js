@@ -26,7 +26,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-const API_BASE = "http://localhost:5050/api";
+const API_BASE = "/api";
 
 export default function AssignmentsPage() {
   const [branches, setBranches] = useState([]);

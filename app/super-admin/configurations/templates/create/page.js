@@ -305,7 +305,10 @@ export default function CreateTemplatePage() {
   const fetchTemplate = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`http://localhost:5050/api/templates/${editId}`);
+      const token = localStorage.getItem("token");
+      const res = await fetch(`/api/templates/${editId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       if (!res.ok) throw new Error("Could not find template");
       const data = await res.json();
       setTempName(data.name);
@@ -382,13 +385,17 @@ export default function CreateTemplatePage() {
 
     setLoading(true);
     try {
+      const token = localStorage.getItem("token");
       const url = editId 
-        ? `http://localhost:5050/api/templates/${editId}`
-        : "http://localhost:5050/api/templates";
+        ? `/api/templates/${editId}`
+        : "/api/templates";
       
       const res = await fetch(url, {
         method: editId ? "PUT" : "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
         body: JSON.stringify({
           name: tempName,
           code: tempCode,

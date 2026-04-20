@@ -135,7 +135,10 @@ export default function MasterDataPage() {
   const fetchMasterData = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`http://localhost:5050/api/master-data?search=${searchQuery}`);
+      const token = localStorage.getItem("token");
+      const res = await fetch(`/api/master-data?search=${searchQuery}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       const data = await res.json();
       
       if (res.ok && Array.isArray(data)) {
@@ -164,7 +167,11 @@ export default function MasterDataPage() {
     if (!itemToDelete) return;
     
     try {
-      const res = await fetch(`http://localhost:5050/api/master-data/${itemToDelete.id}`, { method: 'DELETE' });
+      const token = localStorage.getItem("token");
+      const res = await fetch(`/api/master-data/${itemToDelete.id}`, { 
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+      });
       if (res.ok) {
         toast.success("Schema deleted");
         setIsDeleteModalOpen(false);

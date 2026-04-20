@@ -220,7 +220,10 @@ export default function FillMasterDataPage() {
   const fetchSchemaAndRecords = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`http://localhost:5050/api/master-data/${schemaId}`);
+      const token = localStorage.getItem("token");
+      const res = await fetch(`/api/master-data/${schemaId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       if (!res.ok) throw new Error("Schema not found");
       const data = await res.json();
       setSchema(data);
@@ -276,9 +279,13 @@ export default function FillMasterDataPage() {
         }
       });
 
-      const res = await fetch(`http://localhost:5050/api/master-data/${schemaId}/records`, {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`/api/master-data/${schemaId}/records`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
         body: JSON.stringify(dataToSave)
       });
       if (!res.ok) throw new Error("Failed to save record");
@@ -303,8 +310,10 @@ export default function FillMasterDataPage() {
   const confirmDeleteRecord = async () => {
     if (!recordToDelete) return;
     try {
-      const res = await fetch(`http://localhost:5050/api/master-data/records/${recordToDelete.id}`, {
-        method: 'DELETE'
+      const token = localStorage.getItem("token");
+      const res = await fetch(`/api/master-data/records/${recordToDelete.id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
         toast.success("Record removed");

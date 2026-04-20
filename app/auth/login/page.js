@@ -20,7 +20,7 @@ export default function LoginPage() {
     setError("");
     
     try {
-      const response = await fetch("http://localhost:5050/api/auth/login", {
+      const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: eEmail, password: ePassword }),
@@ -64,7 +64,7 @@ export default function LoginPage() {
     <div className="flex h-screen w-full bg-[#F8F9FC] dark:bg-[#0A0F1D] font-sans selection:bg-[#2E37A4]/20 overflow-hidden">
       
       {/* ── LEFT PANEL – IMMERSIVE ANIMATED BRANDING ── */}
-      <div className="relative hidden xl:flex w-[60%] flex-col justify-between p-12 overflow-hidden bg-[#2E37A4]">
+      <div className="relative hidden xl:flex w-[55%] flex-col justify-between p-12 overflow-hidden bg-[#2E37A4]">
         {/* Animated Background Elements */}
         <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
            <motion.div 
@@ -164,8 +164,9 @@ export default function LoginPage() {
       </div>
 
       {/* ── RIGHT PANEL – REFINED AUTH ── */}
-      <div className="relative flex-1 flex flex-col items-center justify-center p-6 md:p-12 bg-white dark:bg-[#0A0F1D]">
-        <div className="w-full max-w-[400px]">
+      <div className="relative flex-1 h-full overflow-y-auto custom-scrollbar bg-white dark:bg-[#0A0F1D]">
+        <div className="min-h-full flex flex-col items-center justify-center p-6 py-16 md:p-12">
+          <div className="w-full max-w-[420px]">
           
           {/* Mobile Only Header */}
           <div className="xl:hidden flex items-center gap-3 mb-8">
@@ -304,15 +305,16 @@ export default function LoginPage() {
                ))}
             </div>
           </div>
-        </div>
 
-        {/* Global Footer Meta */}
-        <div className="absolute bottom-6 w-full px-12 flex justify-between items-center text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-           <p>© 2026 Gohil Infotech</p>
-           <div className="flex items-center gap-6">
-              <a href="#" className="hover:text-[#2E37A4]">GVoice HMS Platform</a>
-              <a href="#" className="hover:text-[#2E37A4]">System Logs</a>
-           </div>
+          {/* Global Footer Meta */}
+          <div className="mt-12 w-full flex justify-between items-center text-[10px] font-bold text-gray-400 uppercase tracking-widest border-t border-gray-100 dark:border-white/5 pt-6">
+             <p>© 2026 Gohil Infotech</p>
+             <div className="flex items-center gap-6">
+                <a href="#" className="hover:text-[#2E37A4]">GVoice HMS Platform</a>
+                <a href="#" className="hover:text-[#2E37A4]">System Logs</a>
+             </div>
+          </div>
+          </div>
         </div>
       </div>
     </div>

@@ -46,7 +46,6 @@ const roleMenus = {
   "super-admin": [
     { name: "Dashboard", icon: LayoutGrid, path: "/super-admin", section: "none" },
     { name: "Branch Management", icon: Building2, path: "/super-admin/branches", section: "MANAGEMENT" },
-    { name: "User Management", icon: Users2, path: "/super-admin/users", section: "MANAGEMENT" },
     { name: "Configurations", icon: Settings, path: "/super-admin/configurations", section: "CONFIGURATION",
       subItems: [
         { name: "Master Data", path: "/super-admin/configurations/master-data" },

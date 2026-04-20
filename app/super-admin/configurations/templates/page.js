@@ -127,7 +127,10 @@ export default function TemplatesPage() {
   const fetchTemplates = async () => {
     try {
       setLoading(true);
-      const res = await fetch(`http://localhost:5050/api/templates?search=${searchQuery}`);
+      const token = localStorage.getItem("token");
+      const res = await fetch(`/api/templates?search=${searchQuery}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       const data = await res.json();
       if (res.ok) {
         setTemplates(data);
@@ -148,7 +151,11 @@ export default function TemplatesPage() {
   const confirmDelete = async () => {
     if (!itemToDelete) return;
     try {
-      const res = await fetch(`http://localhost:5050/api/templates/${itemToDelete.id}`, { method: 'DELETE' });
+      const token = localStorage.getItem("token");
+      const res = await fetch(`/api/templates/${itemToDelete.id}`, { 
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+      });
       if (res.ok) {
         toast.success("Template deleted");
         setIsDeleteModalOpen(false);

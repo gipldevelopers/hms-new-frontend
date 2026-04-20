@@ -252,7 +252,10 @@ export default function CreateMasterDataPage() {
 
   const fetchSchema = async () => {
     try {
-      const res = await fetch(`http://localhost:5050/api/master-data/${editId}`);
+      const token = localStorage.getItem("token");
+      const res = await fetch(`/api/master-data/${editId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
       if (!res.ok) throw new Error("Could not find schema");
       const data = await res.json();
       setFormName(data.name);
@@ -318,13 +321,17 @@ export default function CreateMasterDataPage() {
 
     setLoading(true);
     try {
+      const token = localStorage.getItem("token");
       const url = editId 
-        ? `http://localhost:5050/api/master-data/${editId}`
-        : "http://localhost:5050/api/master-data";
+        ? `/api/master-data/${editId}`
+        : "/api/master-data";
       
       const res = await fetch(url, {
         method: editId ? "PUT" : "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
         body: JSON.stringify({
           name: formName,
           code: formCode,
