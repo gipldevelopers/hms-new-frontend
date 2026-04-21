@@ -16,7 +16,7 @@ export default function BranchRevenue() {
     <div className="bg-white dark:bg-[#101935] rounded-[5px] border border-[#E7E8EB] dark:border-white/10 overflow-hidden font-sans transition-all">
       {/* Header */}
       <div className="flex justify-between items-center px-6 py-4 border-b border-[#E7E8EB] dark:border-white/10 bg-slate-50/50 dark:bg-white/5">
-        <h3 className="text-[16px] font-bold text-[#101935] dark:text-white tracking-wider">
+        <h3 className="text-[16px] font-bold text-[#101935] dark:text-white">
           Branch Revenue Distribution
         </h3>
         <button className="flex items-center gap-2 text-[12px] font-bold text-[#64748B] dark:text-slate-400 border border-[#E7E8EB] dark:border-white/10 px-3 py-1.5 rounded-[5px] transition-colors">
@@ -51,13 +51,13 @@ export default function BranchRevenue() {
               >
                 {/* The Bar */}
                 <div
-                  className="w-full bg-[#5E60AD] rounded-[2px] transition-all duration-1000"
+                  className="w-full bg-[#5E60AD] rounded-[5px] transition-all duration-1000"
                   style={{ height: `${(item.value / 100) * 100}%` }}
                 ></div>
 
                 {/* X-Axis Label */}
                 <div className="absolute -bottom-10 w-full text-center">
-                  <span className="text-[10px] text-[#334155] dark:text-slate-400 font-bold uppercase whitespace-nowrap overflow-hidden text-ellipsis px-0.5">
+                  <span className="text-[10px] text-[#334155] dark:text-slate-400 font-bold whitespace-nowrap overflow-hidden text-ellipsis px-0.5">
                     {item.name.split(" ")[0]}
                   </span>
                 </div>

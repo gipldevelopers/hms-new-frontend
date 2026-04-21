@@ -52,7 +52,7 @@ export function OccupancyByBranch() {
               >
                 {/* The Bar */}
                 <div
-                  className="w-full bg-[#5E60AD] rounded-[2px] transition-all duration-700"
+                  className="w-full bg-[#5E60AD] rounded-[5px] transition-all duration-700"
                   style={{ height: `${(item.value / 80) * 100}%` }}
                 ></div>
 

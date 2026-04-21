@@ -41,7 +41,7 @@ const StatCard = ({ title, value, percentage, isUp, color, icon: Icon }) => {
         </div>
 
         <div className="mt-3">
-          <p className="text-[13px] font-semibold text-gray-400 dark:text-slate-500 mb-0.5 tracking-wider">
+          <p className="text-[13px] font-semibold text-gray-400 dark:text-slate-500 mb-0.5">
             {title}
           </p>
           <h2 className="text-[24px] font-bold text-[#1e293b] dark:text-white tracking-tight">
@@ -71,7 +71,7 @@ const StatCard = ({ title, value, percentage, isUp, color, icon: Icon }) => {
           {style.type === "bars" && (
             <div className="flex items-end gap-1 h-full">
               {[30, 60, 45, 90, 50, 80].map((h, i) => (
-                <div key={i} className={cn("w-1.5 rounded-[2px]", style.chart)} style={{ height: `${h}%` }} />
+                <div key={i} className={cn("w-1.5 rounded-[5px]", style.chart)} style={{ height: `${h}%` }} />
               ))}
             </div>
           )}
@@ -85,7 +85,7 @@ const StatCard = ({ title, value, percentage, isUp, color, icon: Icon }) => {
           {style.type === "bars_light" && (
             <div className="flex items-end gap-1 h-full">
               {[100, 40, 60, 30, 70, 65].map((h, i) => (
-                <div key={i} className={cn("w-1.5 rounded-[2px]", style.chart)} style={{ height: `${h}%` }} />
+                <div key={i} className={cn("w-1.5 rounded-[5px]", style.chart)} style={{ height: `${h}%` }} />
               ))}
             </div>
           )}

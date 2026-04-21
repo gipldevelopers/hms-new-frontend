@@ -37,10 +37,10 @@ export default function AnalyticsPage() {
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-[160px] bg-white dark:bg-[#101935] border-[#E7E8EB] dark:border-white/10 p-1">
-              <DropdownMenuItem className="text-[12px] font-medium cursor-pointer rounded-[3px]">Last week</DropdownMenuItem>
-              <DropdownMenuItem className="text-[12px] font-medium cursor-pointer rounded-[3px]">Last Month</DropdownMenuItem>
-              <DropdownMenuItem className="text-[12px] font-medium cursor-pointer rounded-[3px]">Last 6 Months</DropdownMenuItem>
-              <DropdownMenuItem className="text-[12px] font-medium cursor-pointer rounded-[3px]">Last Year</DropdownMenuItem>
+              <DropdownMenuItem className="text-[12px] font-medium cursor-pointer rounded-[5px]">Last week</DropdownMenuItem>
+              <DropdownMenuItem className="text-[12px] font-medium cursor-pointer rounded-[5px]">Last Month</DropdownMenuItem>
+              <DropdownMenuItem className="text-[12px] font-medium cursor-pointer rounded-[5px]">Last 6 Months</DropdownMenuItem>
+              <DropdownMenuItem className="text-[12px] font-medium cursor-pointer rounded-[5px]">Last Year</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -52,9 +52,9 @@ export default function AnalyticsPage() {
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-[160px] bg-white dark:bg-[#101935] border-[#E7E8EB] dark:border-white/10 p-1">
-              <DropdownMenuItem className="text-[12px] font-medium cursor-pointer rounded-[3px]">Export as PDF</DropdownMenuItem>
-              <DropdownMenuItem className="text-[12px] font-medium cursor-pointer rounded-[3px]">Export as Excel</DropdownMenuItem>
-              <DropdownMenuItem className="text-[12px] font-medium cursor-pointer rounded-[3px]">Export as CSV</DropdownMenuItem>
+              <DropdownMenuItem className="text-[12px] font-medium cursor-pointer rounded-[5px]">Export as PDF</DropdownMenuItem>
+              <DropdownMenuItem className="text-[12px] font-medium cursor-pointer rounded-[5px]">Export as Excel</DropdownMenuItem>
+              <DropdownMenuItem className="text-[12px] font-medium cursor-pointer rounded-[5px]">Export as CSV</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

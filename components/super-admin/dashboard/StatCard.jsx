@@ -95,7 +95,7 @@ export function StatCard({ title, value, percentage, isUp, color, icon: Icon }) 
               {[30, 60, 45, 90, 50, 80].map((h, i) => (
                 <div
                   key={i}
-                  className={cn("w-1.5 rounded-[2px]", style.chart)}
+                  className={cn("w-1.5 rounded-[5px]", style.chart)}
                   style={{ height: `${h}%` }}
                 />
               ))}
@@ -130,7 +130,7 @@ export function StatCard({ title, value, percentage, isUp, color, icon: Icon }) 
               {[100, 40, 60, 30, 70, 65].map((h, i) => (
                 <div
                   key={i}
-                  className={cn("w-1.5 rounded-[2px]", style.chart)}
+                  className={cn("w-1.5 rounded-[5px]", style.chart)}
                   style={{ height: `${h}%` }}
                 />
               ))}

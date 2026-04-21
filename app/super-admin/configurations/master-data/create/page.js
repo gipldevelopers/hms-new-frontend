@@ -70,7 +70,7 @@ function DraggableToolkitItem({ type }) {
       {...listeners}
       {...attributes}
       className={cn(
-        "flex items-center justify-between p-3 rounded-[6px] border border-[#E7E8EB] dark:border-white/10 transition-all cursor-grab active:cursor-grabbing bg-white dark:bg-[#1e293b]",
+        "flex items-center justify-between p-3 rounded-[5px] border border-[#E7E8EB] dark:border-white/10 transition-all cursor-grab active:cursor-grabbing bg-white dark:bg-[#1e293b]",
         isDragging ? "opacity-40 border-dashed" : "hover:border-primary group"
       )}
     >
@@ -78,7 +78,7 @@ function DraggableToolkitItem({ type }) {
         <div className="w-8 h-8 rounded-[5px] bg-[#F4F5FB] dark:bg-[#101935] flex items-center justify-center">
            <type.icon className="w-4 h-4 text-[#2D3A8C]" />
         </div>
-        <span className="text-[11px] font-bold text-gray-500 uppercase tracking-widest">{type.label}</span>
+        <span className="text-[11px] font-bold text-gray-500">{type.label}</span>
       </div>
       <Plus className="w-3.5 h-3.5 text-gray-300 group-hover:text-primary" />
     </div>
@@ -107,7 +107,7 @@ function SortableField({ field, onRemove, onUpdate }) {
       ref={setNodeRef} 
       style={style}
       className={cn(
-        "group bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[10px] p-6 transition-all hover:border-primary/30 flex flex-col gap-6 relative shadow-none",
+        "group bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] p-6 transition-all hover:border-primary/30 flex flex-col gap-6 relative shadow-none",
         isDragging && "opacity-50 z-50 shadow-2xl"
       )}
     >
@@ -134,7 +134,7 @@ function SortableField({ field, onRemove, onUpdate }) {
             <DropdownMenu>
               <DropdownMenuTrigger className="flex items-center gap-3 bg-[#F8F9FC] dark:bg-[#101935] px-3 py-1.5 rounded-[5px] border border-[#E7E8EB] dark:border-white/10 hover:border-primary transition-all outline-none group/type">
                 <TypeIcon className="w-3.5 h-3.5 text-[#2D3A8C]" />
-                <span className="text-[10px] font-bold text-[#2D3A8C] uppercase tracking-[2px]">{field.type}</span>
+                <span className="text-[10px] font-bold text-[#2D3A8C] tracking-[2px]">{field.type}</span>
                 <ChevronDown className="w-3 h-3 text-gray-400 group-hover/type:text-primary" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-[180px] dark:bg-[#101935] dark:border-white/10 p-1">
@@ -154,8 +154,8 @@ function SortableField({ field, onRemove, onUpdate }) {
 
           {/* Special Config for list types */}
           {(field.type === 'select' || field.type === 'checkbox') && (
-            <div className="mb-6 p-4 bg-amber-50/50 dark:bg-amber-900/5 border border-amber-100 dark:border-amber-900/10 rounded-[8px]">
-               <label className="text-[10px] font-bold text-amber-600 dark:text-amber-400 uppercase tracking-widest block mb-2">Options (One per line)</label>
+            <div className="mb-6 p-4 bg-amber-50/50 dark:bg-amber-900/5 border border-amber-100 dark:border-amber-900/10 rounded-[5px]">
+               <label className="text-[10px] font-bold text-amber-600 dark:text-amber-400 block mb-2">Options (One per line)</label>
                <textarea 
                  rows={3}
                  placeholder="Option 1&#10;Option 2&#10;Option 3"
@@ -187,7 +187,7 @@ function SortableField({ field, onRemove, onUpdate }) {
                   checked={field.required}
                   onChange={(e) => onUpdate(field.id, 'required', e.target.checked)}
                 />
-                <label htmlFor={`req-${field.id}`} className="text-[11px] font-bold text-gray-500 uppercase tracking-widest cursor-pointer hover:text-primary transition-colors">Required</label>
+                <label htmlFor={`req-${field.id}`} className="text-[11px] font-bold text-gray-500 cursor-pointer hover:text-primary transition-colors">Required</label>
               </div>
               
               <button 
@@ -214,8 +214,8 @@ function DropZone({ children }) {
     <div 
       ref={setNodeRef}
       className={cn(
-        "space-y-3 min-h-[50px] rounded-[10px] transition-all",
-        isOver && "bg-primary/5 dark:bg-primary/5 p-2 rounded-[15px] border-2 border-dashed border-primary/20 dark:border-primary/30"
+        "space-y-3 min-h-[50px] rounded-[5px] transition-all",
+        isOver && "bg-primary/5 dark:bg-primary/5 p-2 rounded-[5px] border-2 border-dashed border-primary/20 dark:border-primary/30"
       )}
     >
       {children}
@@ -405,24 +405,24 @@ export default function CreateMasterDataPage() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Left Side */}
           <div className="lg:col-span-4 space-y-6">
-            <div className="bg-white dark:bg-[#101935] p-6 rounded-[10px] border border-[#E7E8EB] dark:border-white/10 space-y-6">
-              <h3 className="text-[13px] font-bold text-[#1e293b] dark:text-white uppercase tracking-wider border-b border-gray-100 dark:border-white/5 pb-3">Basic Information</h3>
+            <div className="bg-white dark:bg-[#101935] p-6 rounded-[5px] border border-[#E7E8EB] dark:border-white/10 space-y-6">
+              <h3 className="text-[13px] font-bold text-[#1e293b] dark:text-white border-b border-gray-100 dark:border-white/5 pb-3">Basic Information</h3>
               <div className="space-y-1.5">
-                <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Master Data Name</label>
-                <input type="text" placeholder="e.g. Hospital Master Data" className="w-full h-11 px-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[6px] text-[13px] font-semibold focus:ring-0 outline-none placeholder:text-gray-300" value={formName} onChange={(e) => setFormName(e.target.value)} />
+                <label className="text-[11px] font-bold text-gray-400">Master Data Name</label>
+                <input type="text" placeholder="e.g. Hospital Master Data" className="w-full h-11 px-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] font-semibold focus:ring-0 outline-none placeholder:text-gray-300" value={formName} onChange={(e) => setFormName(e.target.value)} />
               </div>
               <div className="space-y-1.5">
-                <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Unique Schema Code</label>
-                <input type="text" placeholder="e.g. HOSP_MD" className="w-full h-11 px-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[6px] text-[13px] font-semibold focus:ring-0 outline-none placeholder:text-gray-300" value={formCode} onChange={(e) => setFormCode(e.target.value)} />
+                <label className="text-[11px] font-bold text-gray-400">Unique Schema Code</label>
+                <input type="text" placeholder="e.g. HOSP_MD" className="w-full h-11 px-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] font-semibold focus:ring-0 outline-none placeholder:text-gray-300" value={formCode} onChange={(e) => setFormCode(e.target.value)} />
               </div>
               <div className="space-y-1.5">
-                <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Description</label>
-                <textarea placeholder="..." rows={4} className="w-full px-4 py-3 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[6px] text-[13px] font-semibold focus:ring-0 outline-none resize-none placeholder:text-gray-300" value={formDesc} onChange={(e) => setFormDesc(e.target.value)} />
+                <label className="text-[11px] font-bold text-gray-400">Description</label>
+                <textarea placeholder="..." rows={4} className="w-full px-4 py-3 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] font-semibold focus:ring-0 outline-none resize-none placeholder:text-gray-300" value={formDesc} onChange={(e) => setFormDesc(e.target.value)} />
               </div>
             </div>
 
-            <div className="bg-white dark:bg-[#101935] p-6 rounded-[10px] border border-[#E7E8EB] dark:border-white/10">
-              <h3 className="text-[13px] font-bold text-[#1e293b] dark:text-white uppercase tracking-wider border-b border-gray-100 dark:border-white/5 pb-3 mb-4">Field Types Toolkit</h3>
+            <div className="bg-white dark:bg-[#101935] p-6 rounded-[5px] border border-[#E7E8EB] dark:border-white/10">
+              <h3 className="text-[13px] font-bold text-[#1e293b] dark:text-white border-b border-gray-100 dark:border-white/5 pb-3 mb-4">Field Types Toolkit</h3>
               <div className="grid grid-cols-1 gap-2.5">
                 {FIELD_TYPES.map((type) => (
                   <DraggableToolkitItem key={type.id} type={type} />
@@ -434,8 +434,8 @@ export default function CreateMasterDataPage() {
           {/* Right Side */}
           <div className="lg:col-span-8 space-y-5">
             <div className="flex items-center justify-between px-1 border-b border-gray-100 dark:border-white/5 pb-4">
-              <h3 className="text-[14px] font-bold text-[#1e293b] dark:text-white uppercase tracking-wider">Design Input Fields</h3>
-              <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest underline decoration-primary decoration-2 underline-offset-4">{fields.length} Fields Added</span>
+              <h3 className="text-[14px] font-bold text-[#1e293b] dark:text-white">Design Input Fields</h3>
+              <span className="text-[11px] font-bold text-gray-400 underline decoration-primary decoration-2 underline-offset-4">{fields.length} Fields Added</span>
             </div>
 
             <DropZone>
@@ -448,7 +448,7 @@ export default function CreateMasterDataPage() {
 
             <button 
               onClick={() => addField()}
-              className="w-full h-14 border border-dashed border-[#E7E8EB] dark:border-white/10 rounded-[10px] flex items-center justify-center gap-2.5 text-gray-400 font-bold text-[13px] uppercase tracking-widest hover:border-primary hover:text-primary transition-all bg-white dark:bg-[#101935]/30 mt-4 shadow-none"
+              className="w-full h-14 border border-dashed border-[#E7E8EB] dark:border-white/10 rounded-[5px] flex items-center justify-center gap-2.5 text-gray-400 font-bold text-[13px] hover:border-primary hover:text-primary transition-all bg-white dark:bg-[#101935]/30 mt-4 shadow-none"
             >
               <Plus className="w-4 h-4" /> Add New Field
             </button>
@@ -457,17 +457,17 @@ export default function CreateMasterDataPage() {
 
         <DragOverlay modifiers={[restrictToWindowEdges]}>
           {activeTool && (
-            <div className="flex items-center justify-between p-3 rounded-[6px] border border-primary bg-white dark:bg-[#101935] shadow-2xl w-[300px]">
+            <div className="flex items-center justify-between p-3 rounded-[5px] border border-primary bg-white dark:bg-[#101935] shadow-2xl w-[300px]">
                <div className="flex items-center gap-3">
                  <div className="w-8 h-8 rounded-[5px] bg-[#F4F5FB] dark:bg-[#101935] flex items-center justify-center">
                     <activeTool.icon className="w-4 h-4 text-[#2D3A8C]" />
                  </div>
-                 <span className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">{activeTool.label}</span>
+                 <span className="text-[11px] font-bold text-gray-400">{activeTool.label}</span>
                </div>
             </div>
           )}
           {activeField && (
-            <div className="bg-white dark:bg-[#101935] border-2 border-[#2D3A8C] rounded-[10px] p-6 opacity-90 shadow-2xl w-[600px]">
+            <div className="bg-white dark:bg-[#101935] border-2 border-[#2D3A8C] rounded-[5px] p-6 opacity-90 shadow-2xl w-[600px]">
                <div className="flex gap-4">
                   <GripVertical className="w-5 h-5 text-[#2D3A8C]" />
                   <span className="font-bold text-[#1e293b] dark:text-white">{activeField.label || "Untilted Field"}</span>

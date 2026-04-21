@@ -9,7 +9,7 @@ export default function PatientAppointments() {
     <div className="bg-white dark:bg-[#101935] rounded-[5px] border border-[#E7E8EB] dark:border-white/10 overflow-hidden font-sans transition-all">
       {/* Header */}
       <div className="flex justify-between items-center px-6 py-4 border-b border-[#E7E8EB] dark:border-white/10 bg-slate-50/50 dark:bg-white/5">
-        <h3 className="text-[16px] font-bold text-[#101935] dark:text-white tracking-wider">Patients & Appointments</h3>
+        <h3 className="text-[16px] font-bold text-[#101935] dark:text-white">Patients & Appointments</h3>
         <button className="flex items-center gap-2 text-[12px] font-bold text-[#64748B] dark:text-slate-400 border border-[#E7E8EB] dark:border-white/10 px-3 py-1.5 rounded-[5px] transition-colors">
           Monthly <ChevronDown className="w-3.5 h-3.5" />
         </button>
@@ -59,7 +59,7 @@ export default function PatientAppointments() {
           </svg>
 
           {/* X-Axis Labels */}
-          <div className="absolute bottom-0 w-full flex justify-between text-[11px] text-[#64748B] dark:text-slate-500 font-bold uppercase px-1">
+          <div className="absolute bottom-0 w-full flex justify-between text-[11px] text-[#64748B] dark:text-slate-500 font-bold px-1">
             {xLabels.map((month) => (
               <span key={month}>{month}</span>
             ))}

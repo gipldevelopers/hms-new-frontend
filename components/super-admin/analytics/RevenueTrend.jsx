@@ -21,7 +21,7 @@ export default function RevenueTrend() {
     <div className="w-full bg-white dark:bg-[#101935] rounded-[5px] border border-[#E7E8EB] dark:border-white/10 flex flex-col font-sans transition-all">
       {/* Header */}
       <div className="flex justify-between items-center p-5">
-        <h3 className="text-[16px] font-bold text-[#0F172A] dark:text-white tracking-wider">Revenue Trend</h3>
+        <h3 className="text-[16px] font-bold text-[#0F172A] dark:text-white">Revenue Trend</h3>
         <button className="flex items-center gap-2 text-[12px] font-medium text-[#64748B] dark:text-slate-400 border border-[#E7E8EB] dark:border-white/10 px-3 py-1.5 rounded-[5px] transition-colors">
           Monthly <ChevronDown className="w-3.5 h-3.5" />
         </button>
@@ -54,20 +54,20 @@ export default function RevenueTrend() {
               >
                 {/* Purple Bar (Top) */}
                 <div
-                  className="bg-[#4F46E5] w-full rounded-[2px]"
+                  className="bg-[#4F46E5] w-full rounded-[5px]"
                   style={{ height: `${item.v1 * 0.7}px` }}
                 ></div>
                 {/* Gap */}
                 <div className="h-[2px]"></div>
                 {/* Blue Bar (Bottom) */}
                 <div
-                  className="bg-[#38BDF8] w-full rounded-[2px]"
+                  className="bg-[#38BDF8] w-full rounded-[5px]"
                   style={{ height: `${item.v2 * 0.7}px` }}
                 ></div>
               </div>
 
               {/* X-Axis Month Label */}
-              <span className="absolute -bottom-6 text-[10px] text-[#64748B] dark:text-slate-500 font-bold uppercase">
+              <span className="absolute -bottom-6 text-[10px] text-[#64748B] dark:text-slate-500 font-bold">
                 {item.m}
               </span>
             </div>

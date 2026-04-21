@@ -30,7 +30,7 @@ export default function UserManagementPage() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("authtoken");
       const headers = { 
         "Authorization": `Bearer ${token}` 
       };
@@ -93,7 +93,7 @@ export default function UserManagementPage() {
     
     if (confirmed) {
       try {
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem("authtoken");
         const res = await fetch(`${API_BASE}/users/${user.id}`, {
           method: "DELETE",
           headers: { 
@@ -122,13 +122,13 @@ export default function UserManagementPage() {
       
       {/* Header Section */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-5">
-        <h1 className="text-[20px] font-bold text-[#1e293b] dark:text-white uppercase tracking-tight leading-none">User Matrix Control</h1>
+        <h1 className="text-[20px] font-bold text-[#1e293b] dark:text-white tracking-tight leading-none">User Matrix Control</h1>
         
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
              <DropdownMenu>
               <DropdownMenuTrigger className="flex items-center gap-3 bg-white dark:bg-[#101935] px-4 h-[42px] rounded-[5px] border border-[#E7E8EB] dark:border-white/10 hover:border-primary transition-all outline-none group min-w-[240px] shadow-none">
                  <Building2 className="w-4 h-4 text-primary shrink-0" />
-                 <span className={cn("text-[13px] font-bold truncate flex-1 text-left uppercase", !selectedBranch && "text-gray-400 font-medium")}>
+                 <span className={cn("text-[13px] font-bold truncate flex-1 text-left", !selectedBranch && "text-gray-400 font-medium")}>
                     {selectedBranch ? selectedBranch.name : "System Global Filter"}
                  </span>
                  <ChevronDown className="w-4 h-4 text-gray-400 group-hover:text-primary transition-colors shrink-0" />
@@ -139,7 +139,7 @@ export default function UserManagementPage() {
                   <input 
                     type="text"
                     placeholder="Search locations..."
-                    className="w-full h-9 pl-8 pr-3 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 rounded-[4px] text-[11px] font-bold outline-none focus:border-primary uppercase tracking-widest"
+                    className="w-full h-9 pl-8 pr-3 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 rounded-[5px] text-[11px] font-bold outline-none focus:border-primary"
                     value={branchSearch}
                     onChange={(e) => setBranchSearch(e.target.value)}
                     onKeyDown={(e) => e.stopPropagation()}
@@ -149,7 +149,7 @@ export default function UserManagementPage() {
                 <div className="max-h-[250px] overflow-y-auto custom-scrollbar">
                   <DropdownMenuItem 
                     onClick={() => setSelectedBranch(null)}
-                    className="flex items-center gap-3 px-3 py-2 text-[12px] font-bold cursor-pointer rounded-[4px] mb-0.5 uppercase tracking-wide"
+                    className="flex items-center gap-3 px-3 py-2 text-[12px] font-bold cursor-pointer rounded-[5px] mb-0.5 tracking-wide"
                   >
                     <Building2 className="w-4 h-4 text-gray-400" />
                     <span>Global Personnel View</span>
@@ -159,7 +159,7 @@ export default function UserManagementPage() {
                     <DropdownMenuItem 
                       key={branch.id} 
                       onClick={() => setSelectedBranch(branch)}
-                      className="flex items-center gap-3 px-3 py-2 text-[12px] font-bold cursor-pointer rounded-[4px] mb-0.5 uppercase tracking-wide"
+                      className="flex items-center gap-3 px-3 py-2 text-[12px] font-bold cursor-pointer rounded-[5px] mb-0.5 tracking-wide"
                     >
                       <Building2 className="w-4 h-4 text-gray-400" />
                       <span>{branch.name}</span>
@@ -172,7 +172,7 @@ export default function UserManagementPage() {
 
             <button 
               onClick={handleCreateNew}
-              className="bg-primary text-white px-6 h-[42px] rounded-[5px] text-[12px] font-bold flex items-center justify-center gap-3 hover:opacity-90 transition-all uppercase tracking-widest"
+              className="bg-primary text-white px-6 h-[42px] rounded-[5px] text-[12px] font-bold flex items-center justify-center gap-3 hover:opacity-90 transition-all"
             >
               <UserPlus className="w-3.5 h-3.5" />
               Register User
@@ -195,9 +195,9 @@ export default function UserManagementPage() {
         />
         
         {loading && (
-          <div className="absolute inset-0 top-32 flex flex-col items-center pt-24 bg-white/50 dark:bg-[#0A0F1D]/50 backdrop-blur-sm z-10 rounded-[12px]">
+          <div className="absolute inset-0 top-32 flex flex-col items-center pt-24 bg-white/50 dark:bg-[#0A0F1D]/50 backdrop-blur-sm z-10 rounded-[5px]">
             <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-4"></div>
-            <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest">Accessing Encrypted Personnel Registry...</p>
+            <p className="text-[11px] font-bold text-gray-400">Accessing Encrypted Personnel Registry...</p>
           </div>
         )}
       </div>

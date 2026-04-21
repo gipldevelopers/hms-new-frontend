@@ -17,7 +17,7 @@ export function DynamicDashboard({ roleName = "System" }) {
   return (
     <div className="p-6 bg-[#F8F9FC] dark:bg-[#0A0F1D] min-h-screen space-y-[20px] font-sans transition-colors duration-300">
       <div className="flex justify-between items-center mb-2">
-         <h1 className="text-[20px] font-bold text-[#1e293b] dark:text-white leading-tight uppercase tracking-tight">
+         <h1 className="text-[20px] font-bold text-[#1e293b] dark:text-white leading-tight tracking-tight">
             {roleName} Dashboard
          </h1>
       </div>

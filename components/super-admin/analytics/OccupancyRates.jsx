@@ -6,7 +6,7 @@ const OccupancyRow = ({ name, beds, progress, bg }) => (
     <div className="flex justify-between items-start">
       <div>
         <h4 className="text-[14px] font-bold text-[#0F172A] dark:text-white leading-tight">{name}</h4>
-        <p className="text-[12px] text-[#94A3B8] dark:text-slate-500 font-medium mt-1 uppercase tracking-tight">{beds} beds total</p>
+        <p className="text-[12px] text-[#94A3B8] dark:text-slate-500 font-medium mt-1 tracking-tight">{beds} beds total</p>
       </div>
       <span className="text-[14px] font-bold text-[#0F172A] dark:text-white tracking-tight">
         {Math.round((progress * beds) / 100)} Active
@@ -32,7 +32,7 @@ export default function OccupancyRates() {
   return (
     <div className="bg-white dark:bg-[#101935] rounded-[5px] border border-[#E7E8EB] dark:border-white/10 flex flex-col h-full font-sans transition-all">
       <div className="px-6 py-4 border-b border-[#E7E8EB] dark:border-white/10 bg-slate-50/50 dark:bg-white/5">
-        <h3 className="text-[16px] font-bold text-[#0F172A] dark:text-white tracking-wider">
+        <h3 className="text-[16px] font-bold text-[#0F172A] dark:text-white">
           Occupancy By Branch
         </h3>
       </div>

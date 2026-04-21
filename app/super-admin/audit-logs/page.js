@@ -1,431 +1,449 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { 
-  Search, Filter, Calendar, User, Activity, 
+  Search, Filter, Calendar as CalendarIcon, User, Activity, 
   Eye, Download, RefreshCcw, ShieldCheck,
   ChevronLeft, ChevronRight, Info, AlertCircle,
   X, ChevronDown, ChevronUp, Database,
-  Lock, Key, Users, LayoutDashboard, Globe, Terminal
+  Lock, Key, Users, LayoutDashboard, Globe, Terminal,
+  Plus, UserPlus, ArrowLeft, Building2, Check
 } from "lucide-react";
-import { format } from "date-fns";
+import { format, startOfDay, endOfDay } from "date-fns";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { CustomCalendar } from "@/components/ui/custom-calendar";
 
-const ROLE_PERMISSIONS = [
-  { module: "User Management", roles: ["SUPERADMIN"], icon: Users, color: "text-blue-500", bg: "bg-blue-500/5", border: "border-blue-500/20" },
-  { module: "Branch Management", roles: ["SUPERADMIN"], icon: Globe, color: "text-emerald-500", bg: "bg-emerald-500/5", border: "border-emerald-500/20" },
-  { module: "Master Data", roles: ["SUPERADMIN", "BRANCH_ADMIN"], icon: Database, color: "text-amber-500", bg: "bg-amber-500/5", border: "border-amber-500/20" },
-  { module: "Templates", roles: ["SUPERADMIN", "BRANCH_ADMIN"], icon: LayoutDashboard, color: "text-purple-500", bg: "bg-purple-500/5", border: "border-purple-500/20" },
-  { module: "System Logs", roles: ["SUPERADMIN"], icon: ShieldCheck, color: "text-rose-500", bg: "bg-rose-500/5", border: "border-rose-500/20" },
-];
+const API_BASE = "/api";
+
+// --- AUDIT STATS COMPONENT ---
+function AuditStats({ stats }) {
+  const cards = [
+    { title: "Total traces", value: stats.totalTraces, icon: ShieldCheck, color: "blue" },
+    { title: "Successful ops", value: stats.successfulOps, icon: Activity, color: "emerald" },
+    { title: "Failed attempts", value: stats.failedAttempts, icon: AlertCircle, color: "red" },
+    { title: "Unique actors", value: stats.uniqueActors, icon: Users, color: "indigo" },
+  ];
+
+  return (
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8">
+      {cards.map((stat, i) => (
+        <div key={i} className="bg-white dark:bg-[#101935] p-5 rounded-[5px] border border-[#E7E8EB] dark:border-white/10 flex items-center gap-4 transition-all">
+          <div className={cn(
+            "w-12 h-12 rounded-[5px] flex items-center justify-center shrink-0",
+            stat.color === "blue" && "bg-primary/10 text-primary",
+            stat.color === "indigo" && "bg-indigo-50 text-indigo-500",
+            stat.color === "emerald" && "bg-emerald-50 text-emerald-500",
+            stat.color === "red" && "bg-red-50 text-red-500",
+          )}>
+            <stat.icon className="w-6 h-6" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-[12px] font-bold text-gray-400 leading-none mb-1.5 truncate">{stat.title}</p>
+            <p className="text-[20px] font-bold text-[#1e293b] dark:text-white leading-none truncate">{stat.value}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 
 export default function AuditLogsPage() {
+  const router = useRouter();
   const [logs, setLogs] = useState([]);
+  const [stats, setStats] = useState({ totalTraces: 0, successfulOps: 0, failedAttempts: 0, uniqueActors: 0, modules: [] });
   const [loading, setLoading] = useState(true);
-  const [pagination, setPagination] = useState({ page: 1, limit: 50, total: 0, totalPages: 0 });
+  const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0, totalPages: 0 });
   const [searchQuery, setSearchQuery] = useState("");
-  const [filters, setFilters] = useState({
-    module: "",
-    from: "",
-    to: ""
-  });
+  const [moduleFilter, setModuleFilter] = useState("All");
   const [expandedId, setExpandedId] = useState(null);
-  const [showPermissions, setShowPermissions] = useState(false);
+  const [openPicker, setOpenPicker] = useState(null); // 'from' or 'to'
+  const pickerRef = useRef(null);
+  
+  const [dateFilters, setDateFilters] = useState({ from: "", to: "" });
+
+  const fetchStats = async () => {
+    try {
+      const token = localStorage.getItem("authtoken");
+      const res = await fetch(`${API_BASE}/audit-logs/stats`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const json = await res.json();
+      if (json.success) setStats(json.data);
+    } catch (e) {
+      console.error("Failed to fetch audit stats", e);
+    }
+  };
 
   const fetchLogs = async (page = 1) => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("authtoken");
       
-      let url = `/api/audit-logs?page=${page}&limit=${pagination.limit}`;
+      let url = `${API_BASE}/audit-logs?page=${page}&limit=${pagination.limit}`;
       if (searchQuery) url += `&search=${encodeURIComponent(searchQuery)}`;
-      if (filters.module) url += `&module=${encodeURIComponent(filters.module)}`;
-      if (filters.from) url += `&from=${filters.from}`;
-      if (filters.to) url += `&to=${filters.to}`;
+      if (moduleFilter !== "All") url += `&module=${encodeURIComponent(moduleFilter)}`;
+      
+      const from = dateFilters.from;
+      const to = dateFilters.to;
+      
+      if (from && !to) {
+        const d = new Date(from);
+        url += `&from=${startOfDay(d).toISOString()}&to=${endOfDay(d).toISOString()}`;
+      } else {
+        if (from) url += `&from=${startOfDay(new Date(from)).toISOString()}`;
+        if (to) url += `&to=${endOfDay(new Date(to)).toISOString()}`;
+      }
 
       const res = await fetch(url, {
         headers: { Authorization: `Bearer ${token}` },
       });
       
-      // Safety check for non-JSON or error responses
-      if (!res.ok) {
-        const errorText = await res.text();
-        console.error("API Error Response:", errorText);
-        throw new Error(`Server returned ${res.status}: ${errorText.substring(0, 100)}`);
-      }
-
       const json = await res.json();
-      
       if (json.success) {
         setLogs(json.data.logs);
         setPagination(json.data.pagination);
-      } else {
-        toast.error(json.message || "Trace acquisition failed");
       }
     } catch (error) {
       console.error("Fetch logs error:", error);
-      toast.error("An error occurred while fetching logs");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
+    fetchStats();
+  }, []);
+
+  useEffect(() => {
     const timer = setTimeout(() => {
       fetchLogs(1);
     }, 300);
     return () => clearTimeout(timer);
-  }, [searchQuery, filters]);
+  }, [searchQuery, moduleFilter, dateFilters]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (pickerRef.current && !pickerRef.current.contains(event.target)) setOpenPicker(null);
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleRefresh = () => {
+    fetchStats();
+    fetchLogs(pagination.page);
+    toast.success("Logs synchronized");
+  };
 
   const toggleExpand = (id) => {
     setExpandedId(expandedId === id ? null : id);
   };
 
-  const getActionStyle = (action) => {
-    if (action.includes("CREATE") || action.includes("POST")) return "bg-emerald-500/10 text-emerald-600 border-emerald-500/20";
-    if (action.includes("UPDATE") || action.includes("PATCH") || action.includes("PUT")) return "bg-sky-500/10 text-sky-600 border-sky-500/20";
-    if (action.includes("DELETE")) return "bg-rose-500/10 text-rose-600 border-rose-500/20";
-    if (action.includes("LOGIN")) return "bg-violet-500/10 text-violet-600 border-violet-500/20";
-    return "bg-slate-500/10 text-slate-600 border-slate-500/20";
+  const formatAction = (action, status) => {
+    if (!action) return "Unknown Action";
+    const map = {
+      "USER_LOGIN": status === "SUCCESS" ? "User logged in" : "User login failed",
+      "USER_LOGOUT": "User logged out",
+      "PROVISION_USER": "Provisioned new personnel",
+      "CREATE_BRANCH": "Created new branch",
+      "PUT_MASTER-DATA": "Updated master data entry",
+      "POST_MASTER-DATA": "Created new master data entry",
+      "DELETE_MASTER-DATA": "Removed master data entry",
+      "PUT_USERS": "Updated user profile",
+      "PUT_BRANCHES": "Modified branch configuration",
+    };
+    if (map[action]) return map[action];
+    let friendly = action.replace(/-/g, ' ').replace(/_/g, ' ').toLowerCase();
+    friendly = friendly.replace(/^put /, 'updated ').replace(/^post /, 'created ').replace(/^delete /, 'removed ').replace(/^patch /, 'modified ');
+    return friendly.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
   };
 
-  return (
-    <div className="p-8 bg-[#F8F9FC] dark:bg-[#080B14] min-h-screen space-y-8 font-sans transition-all duration-500">
-      
-      {/* ── HEADER DESIGN – CRISP & MODERN ── */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-        <div className="space-y-1">
-          <div className="flex items-center gap-3">
-             <div className="w-10 h-10 rounded-xl bg-primary/15 border border-primary/20 flex items-center justify-center">
-                <ShieldCheck className="w-6 h-6 text-primary" />
-             </div>
-             <h1 className="text-3xl font-black text-[#1e293b] dark:text-white tracking-tighter">
-                Control Hub <span className="text-primary italic font-medium tracking-normal text-sm ml-2 px-3 py-1 bg-primary/5 rounded-full border border-primary/10">Audit Traces</span>
-             </h1>
-          </div>
-          <p className="text-[12px] text-gray-500 dark:text-gray-400 font-bold uppercase tracking-[2px] ml-13"> Forensic Activity Log & Security Monitor </p>
-        </div>
+  const formatRole = (role) => {
+    if (!role) return "Guest";
+    if (role === "SUPERADMIN") return "Super Admin";
+    return role.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ');
+  };
 
-        <div className="flex items-center gap-3 ml-13 md:ml-0">
+  const dynamicModules = stats.modules || [];
+
+  return (
+    <div className="p-4 lg:p-6 bg-[#F8F9FC] dark:bg-[#0A0F1D] min-h-screen flex flex-col transition-colors duration-300 font-sans pb-10">
+      
+      {/* Header Section */}
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-8">
+        <div className="flex items-center gap-4">
           <button 
-            onClick={() => setShowPermissions(!showPermissions)}
-            className={cn(
-              "group relative px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300 border",
-              showPermissions 
-                ? "bg-primary text-white border-primary" 
-                : "bg-white dark:bg-white/[0.03] border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-300 hover:border-primary/40"
-            )}
+            onClick={() => router.back()}
+            className="p-2 bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-gray-500 hover:text-primary transition-all shadow-none shrink-0"
           >
-            <span className="flex items-center gap-2">
-               <Lock className={cn("w-4 h-4 transition-transform", showPermissions && "scale-110")} />
-               Auth Map
-            </span>
+            <ArrowLeft className="w-5 h-5" />
           </button>
-          <button 
-            onClick={() => fetchLogs(pagination.page)}
-            className="p-3 rounded-xl bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-white/10 text-gray-500 hover:text-primary hover:border-primary/40 transition-all duration-300"
-          >
-            <RefreshCcw className={cn("w-5 h-5", loading && "animate-spin")} />
-          </button>
+          <h1 className="text-[18px] lg:text-[20px] font-bold text-[#1e293b] dark:text-white tracking-tight leading-none">
+            System audit logs
+          </h1>
         </div>
+        
+        <button 
+          onClick={handleRefresh}
+          className="bg-primary text-white px-6 lg:px-8 h-[44px] lg:h-[48px] rounded-[5px] text-[13px] font-bold flex items-center justify-center gap-3 hover:opacity-90 transition-all shadow-none whitespace-nowrap"
+        >
+          <RefreshCcw className={cn("w-4 h-4", loading && "animate-spin")} />
+          Sync traces
+        </button>
       </div>
 
-      {/* ── EXCITING AUTHORIZATION BOXES ── */}
-      <AnimatePresence>
-        {showPermissions && (
-          <motion.div 
-            initial={{ opacity: 0, height: 0, y: -20 }}
-            animate={{ opacity: 1, height: "auto", y: 0 }}
-            exit={{ opacity: 0, height: 0, y: -20 }}
-            className="overflow-hidden"
-          >
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4 pt-2">
-              {ROLE_PERMISSIONS.map((perm, i) => (
-                <motion.div 
-                  key={i}
-                  whileHover={{ y: -5 }}
-                  className={cn(
-                    "relative p-5 rounded-2xl border transition-all duration-300",
-                    perm.bg, perm.border
-                  )}
-                >
-                   <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center mb-4", perm.bg)}>
-                      <perm.icon className={cn("w-5 h-5", perm.color)} />
-                   </div>
-                   <h3 className="text-sm font-black text-gray-900 dark:text-white uppercase tracking-tighter mb-1.5">{perm.module}</h3>
-                   <div className="flex flex-wrap gap-1">
-                      {perm.roles.map(r => (
-                        <span key={r} className="text-[9px] font-black text-primary uppercase tracking-tighter">@{r}</span>
-                      ))}
-                   </div>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <AuditStats stats={stats} />
 
-      {/* ── SEARCH & FILTER BOX – FLAT & CRISP ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 bg-white dark:bg-white/[0.02] p-2 rounded-2xl border border-gray-200 dark:border-white/10">
-        <div className="relative">
+      {/* Filter Bar */}
+      <div className="flex flex-col xl:flex-row justify-between items-stretch xl:items-center gap-4 bg-white dark:bg-[#101935] p-3 rounded-[5px] border border-[#E7E8EB] dark:border-white/10 shadow-none mb-6">
+        <div className="relative w-full xl:w-[380px]">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input 
             type="text" 
-            placeholder="Trace by Actor, Action or IP..."
-            className="w-full h-12 pl-12 pr-4 bg-transparent border-none outline-none text-sm font-bold text-gray-700 dark:text-white placeholder:text-gray-400 placeholder:font-medium"
+            placeholder="Search logs by actor, action or ip..." 
+            className="w-full h-11 pl-11 pr-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] font-medium outline-none focus:border-primary transition-all shadow-none"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
+        
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full xl:w-auto">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="h-11 px-5 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] font-bold text-gray-600 dark:text-gray-300 flex items-center justify-between gap-3 hover:bg-gray-50 dark:hover:bg-white/5 transition-all outline-none shadow-none min-w-[200px]">
+                    <span className="capitalize">{moduleFilter === "All" ? "Filter by module" : moduleFilter.replace(/_/g, ' ').toLowerCase()}</span>
+                    <ChevronDown className="w-4 h-4 text-gray-400" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-[240px] border-[#E7E8EB] dark:border-white/10 shadow-xl rounded-[5px] p-1 max-h-[300px] overflow-y-auto custom-scrollbar">
+                <DropdownMenuItem 
+                  onClick={() => setModuleFilter("All")} 
+                  className={cn("rounded-[5px] text-[13px] font-medium px-3 py-2 cursor-pointer transition-colors", moduleFilter === "All" ? "bg-primary/5 text-primary font-bold" : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5")}
+                >
+                  All modules
+                  {moduleFilter === "All" && <Check className="w-4 h-4 ml-auto" />}
+                </DropdownMenuItem>
+                {dynamicModules.map(mod => (
+                   <DropdownMenuItem 
+                    key={mod} 
+                    onClick={() => setModuleFilter(mod)} 
+                    className={cn("rounded-[5px] text-[13px] font-medium px-3 py-2 cursor-pointer transition-colors", moduleFilter === mod ? "bg-primary/5 text-primary font-bold" : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5")}
+                   >
+                    <span className="capitalize">{mod.replace(/_/g, ' ').toLowerCase()}</span>
+                    {moduleFilter === mod && <Check className="w-4 h-4 ml-auto" />}
+                   </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
 
-        <div className="flex items-center gap-2 border-l border-gray-100 dark:border-white/5 pl-4">
-           <Activity className="w-4 h-4 text-gray-300" />
-           <select 
-            className="w-full h-12 bg-transparent border-none outline-none text-[12px] font-black uppercase tracking-widest text-gray-600 dark:text-gray-300 cursor-pointer"
-            value={filters.module}
-            onChange={(e) => setFilters(prev => ({ ...prev, module: e.target.value }))}
-          >
-            <option value="">Functional Unit: ALL</option>
-            <option value="USER_MANAGEMENT">@User_Management</option>
-            <option value="BRANCH_MANAGEMENT">@Branch_Management</option>
-            <option value="AUTHENTICATION">@Authentication</option>
-            <option value="MASTER_DATA">@Master_Data</option>
-            <option value="TEMPLATES">@Templates</option>
-          </select>
-        </div>
-
-        <div className="flex items-center gap-4 border-l border-gray-100 dark:border-white/5 pl-4">
-           <div className="flex items-center gap-2 w-full">
-              <Calendar className="w-4 h-4 text-gray-300" />
-              <div className="flex items-center gap-2 w-full">
-                <input type="date" value={filters.from} onChange={(e)=>setFilters(p=>({...p,from:e.target.value}))} className="bg-transparent border-none outline-none text-[10px] font-black text-gray-500 uppercase flex-1" />
-                <span className="text-gray-300">/</span>
-                <input type="date" value={filters.to} onChange={(e)=>setFilters(p=>({...p,to:e.target.value}))} className="bg-transparent border-none outline-none text-[10px] font-black text-gray-500 uppercase flex-1" />
+            {/* Date Range Picker */}
+            <div className="relative flex items-center bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] group h-11 w-full sm:w-auto" ref={pickerRef}>
+              <div className="pl-4 pr-2 py-3 border-r border-[#E7E8EB] dark:border-white/10 shrink-0">
+                <CalendarIcon className="w-4 h-4 text-gray-400 group-hover:text-primary transition-colors" />
               </div>
-           </div>
-        </div>
-
-        <div className="flex items-center justify-end px-4">
-          <button 
-            onClick={() => { setSearchQuery(""); setFilters({ module: "", from: "", to: "" }); }}
-            className="p-2 text-gray-400 hover:text-red-500 transition-colors"
-            title="Reset Filters"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-      </div>
-
-      {/* ── ACTIVITY STREAM – BOX DESIGN ── */}
-      <div className="space-y-4">
-        {loading ? (
-          Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="h-24 bg-white dark:bg-white/[0.02] border border-gray-100 dark:border-white/5 rounded-2xl animate-pulse" />
-          ))
-        ) : logs.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-32 bg-white dark:bg-white/[0.02] border border-gray-100 dark:border-white/5 rounded-3xl">
-             <div className="w-16 h-16 rounded-2xl bg-gray-50 dark:bg-white/5 flex items-center justify-center mb-4">
-                <AlertCircle className="w-8 h-8 text-gray-300" />
-             </div>
-             <p className="text-sm font-black text-gray-400 uppercase tracking-[3px]">Forensic Buffer Empty</p>
-          </div>
-        ) : (
-          logs.map((log) => (
-            <div 
-              key={log.id}
-              className={cn(
-                "group relative bg-white dark:bg-white/[0.02] border transition-all duration-500 rounded-2xl overflow-hidden",
-                expandedId === log.id 
-                  ? "border-primary/40 bg-primary/[0.02]" 
-                  : "border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20"
-              )}
-            >
-              {/* Row Header */}
-              <div 
-                className="p-5 md:p-6 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-6"
-                onClick={() => toggleExpand(log.id)}
-              >
-                <div className="flex items-center gap-6">
-                   <div className="hidden md:flex flex-col items-center justify-center w-14 h-14 rounded-xl bg-[#F8F9FC] dark:bg-white/5 border border-gray-100 dark:border-white/5 group-hover:border-primary/20 transition-colors">
-                      <span className="text-[12px] font-black text-gray-900 dark:text-white leading-none mb-1">{format(new Date(log.createdAt), "dd")}</span>
-                      <span className="text-[8px] font-black text-gray-400 uppercase tracking-tighter">{format(new Date(log.createdAt), "MMM")}</span>
-                   </div>
-                   
-                   <div className="space-y-1">
-                      <div className="flex items-center gap-3">
-                         <h3 className="text-[14px] font-black text-gray-900 dark:text-white capitalize tracking-tight font-sans">
-                            {log.userName || "Security_Node"}
-                         </h3>
-                         <span className="text-[9px] px-2 py-0.5 rounded-[4px] bg-primary/5 text-primary font-black uppercase tracking-widest border border-primary/10">
-                            {log.userRole || "CORE"}
-                         </span>
-                      </div>
-                      <div className="flex items-center gap-3 text-[11px] text-gray-500 font-semibold lowercase tracking-tight">
-                         <span>{log.userEmail}</span>
-                         <span className="text-gray-300 text-[10px]">|</span>
-                         <span className="font-mono text-[9px] text-gray-400 font-bold tracking-widest">{format(new Date(log.createdAt), "HH:mm:ss")}</span>
-                      </div>
-                   </div>
-                </div>
-
-                <div className="flex-1 max-w-md hidden lg:block px-8 border-x border-gray-100 dark:border-white/5">
-                   <div className="flex items-center gap-2 mb-2">
-                      <Terminal className="w-3.5 h-3.5 text-gray-300" />
-                      <span className="text-[9px] font-black text-gray-400 uppercase tracking-[2px] mb-0.5">{log.module}</span>
-                   </div>
-                   <div className={cn(
-                      "inline-flex items-center px-4 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-widest border transition-colors",
-                      getActionStyle(log.action)
-                   )}>
-                      {log.action}
-                   </div>
-                </div>
-
-                <div className="flex items-center justify-between md:justify-end gap-6 shrink-0">
-                   <div className={cn(
-                      "flex items-center gap-2 text-[11px] font-black uppercase tracking-[2px]",
-                      log.status === "SUCCESS" ? "text-emerald-500" : "text-rose-500"
-                   )}>
-                      <div className={cn("w-2 h-2 rounded-full animate-pulse", log.status === "SUCCESS" ? "bg-emerald-500" : "bg-rose-500")} />
-                      {log.status || "SUCCESS"}
-                   </div>
-                   <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gray-50 dark:bg-white/5 text-gray-400 group-hover:text-primary transition-colors">
-                      {expandedId === log.id ? <ChevronUp className="w-5 h-5 text-primary" /> : <ChevronDown className="w-5 h-5" />}
-                   </div>
-                </div>
+              <div className="flex items-center px-1">
+                <button 
+                  onClick={() => setOpenPicker(openPicker === 'from' ? null : 'from')} 
+                  className={cn(
+                    "px-4 py-2 text-[12px] font-bold transition-all text-left min-w-[125px] whitespace-nowrap", 
+                    dateFilters.from ? "text-[#1e293b] dark:text-white" : "text-gray-400"
+                  )}
+                >
+                  {dateFilters.from ? format(new Date(dateFilters.from), "dd-MM-yyyy") : "start date"}
+                </button>
+                <div className="h-4 border-r border-gray-300 dark:border-white/20 mx-1 shrink-0" />
+                <button 
+                  onClick={() => setOpenPicker(openPicker === 'to' ? null : 'to')} 
+                  className={cn(
+                    "px-4 py-2 text-[12px] font-bold transition-all text-left min-w-[125px] whitespace-nowrap", 
+                    dateFilters.to ? "text-[#1e293b] dark:text-white" : "text-gray-400"
+                  )}
+                >
+                  {dateFilters.to ? format(new Date(dateFilters.to), "dd-MM-yyyy") : "end date"}
+                </button>
               </div>
-
-              {/* Accordion Content with Framer Motion Height Animation */}
+              {/* Picker Popovers - Aligned to right to prevent screen overflow */}
               <AnimatePresence>
-                {expandedId === log.id && (
-                  <motion.div 
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: "auto", opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.4, ease: [0.04, 0.62, 0.23, 0.98] }}
-                  >
-                    <div className="p-8 pt-2 border-t border-gray-100 dark:border-white/5 bg-gray-50/30 dark:bg-black/10">
-                       <div className="grid grid-cols-1 xl:grid-cols-2 gap-10 mt-6 relative z-10">
-                          
-                          {/* Descriptive Metadata */}
-                          <div className="space-y-8">
-                             <div className="space-y-4">
-                                <h4 className="text-[10px] font-black text-primary uppercase tracking-[4px] flex items-center gap-2 pl-1">
-                                   <Activity className="w-4 h-4" /> Trace Visualization
-                                </h4>
-                                <div className="grid grid-cols-2 gap-4">
-                                   <div className="bg-white dark:bg-white/[0.03] p-5 rounded-2xl border border-gray-100 dark:border-white/10">
-                                      <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5 opacity-50">Functional Node</p>
-                                      <p className="text-[12px] font-black text-gray-900 dark:text-white uppercase tracking-wider">{log.module}</p>
-                                   </div>
-                                   <div className="bg-white dark:bg-white/[0.03] p-5 rounded-2xl border border-gray-100 dark:border-white/10">
-                                      <p className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1.5 opacity-50">Operation Result</p>
-                                      <div className="flex items-center gap-2">
-                                         <div className={cn("w-1.5 h-1.5 rounded-full", log.status === 'SUCCESS' ? "bg-emerald-500" : "bg-rose-500")} />
-                                         <p className={cn("text-[12px] font-black uppercase tracking-widest", log.status === 'SUCCESS' ? "text-emerald-500" : "text-rose-500")}>
-                                            {log.status || "SUCCESS"}
-                                         </p>
-                                      </div>
-                                   </div>
-                                </div>
-                                <div className="bg-white dark:bg-white/[0.03] p-6 rounded-3xl border border-gray-100 dark:border-white/10 space-y-4">
-                                   <div className="flex items-center gap-3">
-                                      <div className="w-8 h-8 rounded-lg bg-gray-50 dark:bg-white/5 flex items-center justify-center">
-                                         <Globe className="w-4 h-4 text-gray-400" />
-                                      </div>
-                                      <div>
-                                         <p className="text-[9px] font-black text-gray-400 uppercase tracking-[2px] mb-0.5">Origin Protocol (IPv4)</p>
-                                         <p className="text-[13px] font-mono font-black text-gray-800 dark:text-gray-200">{log.ipAddress || "127.0.0.1"}</p>
-                                      </div>
-                                   </div>
-                                   <div className="pt-4 border-t border-gray-100 dark:border-white/5">
-                                      <p className="text-[9px] font-black text-gray-400 uppercase tracking-[2px] mb-2 pl-1">Client Authorization String</p>
-                                      <div className="text-[11px] text-gray-500 font-medium leading-relaxed font-mono bg-gray-50/50 dark:bg-black/20 p-4 rounded-xl border border-gray-100 dark:border-white/5">
-                                         {log.userAgent}
-                                      </div>
-                                   </div>
-                                </div>
-                             </div>
-                          </div>
-
-                          {/* Code Trace Payload */}
-                          <div className="space-y-4">
-                             <div className="flex items-center justify-between pl-1">
-                                <h4 className="text-[10px] font-black text-primary uppercase tracking-[4px] flex items-center gap-2">
-                                   <Database className="w-4 h-4" /> State Interaction Payload
-                                </h4>
-                                <button 
-                                  onClick={() => { navigator.clipboard.writeText(JSON.stringify(log.details, null, 2)); toast.success("Buffer Updated: Forensic Payload Seeded"); }}
-                                  className="text-[10px] font-black text-primary hover:bg-primary/5 px-4 py-1.5 rounded-lg border border-primary/20 transition-all uppercase tracking-widest"
-                                >
-                                  Seed Buffer
-                                </button>
-                             </div>
-                             <div className="bg-[#05070D] p-1 rounded-[2.5rem] border border-white/5 shadow-2xl relative">
-                                <div className="absolute top-6 left-6 flex gap-2 z-20">
-                                   <div className="w-2.5 h-2.5 rounded-full bg-rose-500/30 border border-rose-500/20" />
-                                   <div className="w-2.5 h-2.5 rounded-full bg-amber-500/30 border border-amber-500/20" />
-                                   <div className="w-2.5 h-2.5 rounded-full bg-emerald-500/30 border border-emerald-500/20" />
-                                </div>
-                                <div className="bg-black/40 p-10 pt-16 rounded-[2.2rem] border border-white/[0.02]">
-                                   <pre className="text-[13px] font-mono text-cyan-400/80 overflow-x-auto custom-scrollbar max-h-[400px] leading-relaxed selection:bg-cyan-500/20">
-                                      {JSON.stringify(log.details, null, 2)}
-                                   </pre>
-                                </div>
-                             </div>
-                          </div>
-
-                       </div>
-                    </div>
-                  </motion.div>
+                {openPicker === 'from' && (
+                  <div className="absolute top-[105%] right-0 z-[200]">
+                    <CustomCalendar 
+                      selectedDate={dateFilters.from ? new Date(dateFilters.from) : null}
+                      onSelect={(date) => {
+                        setDateFilters(p => ({ ...p, from: date ? date.toISOString() : "" }));
+                        setOpenPicker(null);
+                      }}
+                      onClose={() => setOpenPicker(null)}
+                    />
+                  </div>
+                )}
+                {openPicker === 'to' && (
+                  <div className="absolute top-[105%] right-0 z-[200]">
+                    <CustomCalendar 
+                      selectedDate={dateFilters.to ? new Date(dateFilters.to) : null}
+                      onSelect={(date) => {
+                        setDateFilters(p => ({ ...p, to: date ? date.toISOString() : "" }));
+                        setOpenPicker(null);
+                      }}
+                      onClose={() => setOpenPicker(null)}
+                    />
+                  </div>
                 )}
               </AnimatePresence>
+              {(dateFilters.from || dateFilters.to) && (
+                <button onClick={() => { setDateFilters({ from: "", to: "" }); setOpenPicker(null); }} className="px-3 hover:bg-red-50 dark:hover:bg-red-500/10 text-gray-400 hover:text-red-500 transition-all border-l border-[#E7E8EB] dark:border-white/10 h-full">
+                  <X className="w-4 h-4" />
+                </button>
+              )}
             </div>
-          ))
-        )}
+        </div>
       </div>
 
-      {/* ── FOOTER PAGINATION – MINIMALIST ── */}
+      {/* Table Section */}
+      <div className="bg-white dark:bg-[#101935] rounded-[5px] border border-[#E7E8EB] dark:border-white/10 shadow-none overflow-hidden pb-4 flex-1">
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse table-fixed min-w-[1000px]">
+            <colgroup>
+              <col className="w-[120px]" />
+              <col className="w-[200px]" />
+              <col className="w-[180px]" />
+              <col className="w-[220px]" />
+              <col className="w-[100px]" />
+              <col className="w-[150px]" />
+            </colgroup>
+            <thead>
+              <tr className="bg-[#F8FAFC] dark:bg-white/[0.02]">
+                <th className="px-8 py-5 text-left text-[12px] font-bold text-gray-400 border-b border-[#E7E8EB] dark:border-white/10">Status</th>
+                <th className="px-8 py-5 text-left text-[12px] font-bold text-gray-400 border-b border-[#E7E8EB] dark:border-white/10">Action</th>
+                <th className="px-8 py-5 text-left text-[12px] font-bold text-gray-400 border-b border-[#E7E8EB] dark:border-white/10">Resource</th>
+                <th className="px-8 py-5 text-left text-[12px] font-bold text-gray-400 border-b border-[#E7E8EB] dark:border-white/10">Performed by</th>
+                <th className="px-8 py-5 text-left text-[12px] font-bold text-gray-400 border-b border-[#E7E8EB] dark:border-white/10">Details</th>
+                <th className="px-8 py-5 text-right text-[12px] font-bold text-gray-400 border-b border-[#E7E8EB] dark:border-white/10">Date & time</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#E7E8EB] dark:divide-white/10">
+              {logs.length === 0 && !loading ? (
+                <tr>
+                  <td colSpan="6" className="px-8 py-24 text-center text-gray-400 font-bold text-[12px] opacity-60">
+                     System records status: empty
+                  </td>
+                </tr>
+              ) : (
+                logs.map((log) => (
+                  <React.Fragment key={log.id}>
+                    <tr className={cn("hover:bg-[#F8FAFC]/80 dark:hover:bg-white/[0.01] transition-all group cursor-pointer", expandedId === log.id && "bg-[#F8FAFC]/50 dark:bg-white/[0.02]")} onClick={() => toggleExpand(log.id)}>
+                      <td className="px-8 py-6">
+                        <span className={cn("inline-flex px-3 py-1 rounded-[5px] text-[11px] font-bold border leading-none items-center justify-center", log.status === 'SUCCESS' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : 'bg-red-100 text-red-700 border-red-200')}>
+                          {log.status === 'SUCCESS' ? "Success" : "Failed"}
+                        </span>
+                      </td>
+                      <td className="px-8 py-6">
+                        <div className="text-[14px] font-bold text-[#1e293b] dark:text-white leading-tight truncate">
+                           {formatAction(log.action, log.status)}
+                        </div>
+                      </td>
+                      <td className="px-8 py-6">
+                        <div className="flex items-center gap-2 truncate">
+                           <div className="w-1.5 h-1.5 rounded-full bg-primary/20 shrink-0" />
+                           <span className="text-[12px] font-bold text-gray-500 dark:text-gray-400 truncate capitalize">{log.module.toLowerCase().replace(/_/g, ' ')}</span>
+                        </div>
+                      </td>
+                      <td className="px-8 py-6">
+                         <div className="flex flex-col truncate">
+                            <span className="text-[14px] font-bold text-[#1e293b] dark:text-white truncate">{log.userName || "System node"}</span>
+                            <span className="text-[10px] font-bold text-primary">{formatRole(log.userRole)}</span>
+                         </div>
+                      </td>
+                      <td className="px-8 py-6">
+                        <div className={cn("w-8 h-8 rounded-[5px] flex items-center justify-center border transition-all duration-300", expandedId === log.id ? "bg-primary/10 border-primary/20 text-primary" : "bg-gray-50 dark:bg-white/5 border-gray-100 dark:border-white/10 text-gray-400 group-hover:border-primary/20 group-hover:text-primary")}>
+                           {expandedId === log.id ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                        </div>
+                      </td>
+                      <td className="px-8 py-6 text-right">
+                        <div className="flex flex-col items-end shrink-0">
+                           <span className="text-[13px] font-bold text-[#1e293b] dark:text-white">{format(new Date(log.createdAt), "dd MMM yyyy")}</span>
+                           <span className="text-[10px] font-bold text-gray-400 font-mono">{format(new Date(log.createdAt), "HH:mm:ss")}</span>
+                        </div>
+                      </td>
+                    </tr>
+                    <AnimatePresence initial={false}>
+                      {expandedId === log.id && (
+                        <tr className="bg-gray-50/50 dark:bg-white/[0.01]">
+                          <td colSpan="6" className="px-0 py-0 overflow-hidden">
+                            <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} transition={{ duration: 0.3, ease: "easeInOut" }}>
+                              <div className="p-8 border-t border-[#E7E8EB] dark:border-white/10">
+                                <div className="space-y-4">
+                                     <h4 className="text-[10px] font-bold text-primary pl-1">Forensic state payload</h4>
+                                     <div className="bg-[#05070D] p-1 rounded-[5px] border border-white/5">
+                                        <div className="bg-black/40 p-6 rounded-[5px] max-h-[400px] overflow-auto custom-scrollbar">
+                                           <pre className="text-[13px] font-mono text-cyan-400/80 leading-relaxed font-sans">{JSON.stringify(log.details, null, 2)}</pre>
+                                        </div>
+                                     </div>
+                                </div>
+                              </div>
+                            </motion.div>
+                          </td>
+                        </tr>
+                      )}
+                    </AnimatePresence>
+                  </React.Fragment>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      
+      {/* Premium Pagination Footer */}
       {!loading && logs.length > 0 && (
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6 pt-10 border-t border-gray-200 dark:border-white/10">
-          <div className="text-[11px] font-black text-gray-400 uppercase tracking-[3px] border-l-2 border-primary/40 pl-6">
-            PAGE <span className="text-gray-900 dark:text-white mx-1">{pagination.page}</span> / <span className="text-gray-900 dark:text-white mx-1">{pagination.totalPages}</span>
-            <span className="mx-4 text-gray-200 dark:text-white/10">|</span>
-            TOTAL TRACES: <span className="text-gray-900 dark:text-white ml-1">{pagination.total}</span>
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6 mt-6 py-6 border-t border-[#E7E8EB] dark:border-white/10">
+           <div className="flex items-center gap-3">
+             <div className="p-2.5 bg-primary/5 rounded-[5px] border border-primary/10 shrink-0">
+                <Database className="w-4 h-4 text-primary" />
+             </div>
+             <div className="flex flex-col min-w-0">
+                <span className="text-[12px] font-bold text-[#1e293b] dark:text-white leading-none mb-1">Trace Explorer</span>
+                <p className="text-[11px] font-bold text-gray-400 truncate">
+                  Showing <span className="text-primary">{logs.length}</span> of <span className="text-gray-900 dark:text-white">{pagination.total}</span> events
+                </p>
+             </div>
           </div>
           
-          <div className="flex items-center gap-2">
-            <button 
-              onClick={() => handlePageChange(pagination.page - 1)}
-              disabled={pagination.page === 1}
-              className="w-12 h-12 rounded-2xl border border-gray-200 dark:border-white/10 flex items-center justify-center text-gray-600 dark:text-white hover:border-primary/50 transition-all disabled:opacity-30 disabled:hover:border-gray-200"
-            >
-              <ChevronLeft className="w-5 h-5" />
+          <div className="flex items-center gap-2 lg:gap-3 w-full md:w-auto overflow-x-auto pb-2 md:pb-0 no-scrollbar">
+            <button onClick={() => fetchLogs(pagination.page - 1)} disabled={pagination.page === 1} className="px-4 h-11 bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[12px] font-bold text-gray-500 hover:text-primary hover:border-primary flex items-center gap-2 transition-all disabled:opacity-30 shadow-none shrink-0">
+              <ChevronLeft className="w-4 h-4" /> Previous
             </button>
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-1.5 lg:gap-2 px-1 lg:px-2">
                {Array.from({ length: Math.min(5, pagination.totalPages) }).map((_, i) => {
                  const p = i + 1;
+                 const isActive = pagination.page === p;
                  return (
-                   <button 
-                    key={p} onClick={()=>handlePageChange(p)}
-                    className={cn(
-                      "w-12 h-12 rounded-2xl text-xs font-black uppercase tracking-tighter transition-all duration-300",
-                      pagination.page === p ? "bg-primary text-white" : "bg-white dark:bg-white/[0.02] border border-gray-200 dark:border-white/10 text-gray-600 dark:text-gray-400 hover:border-primary/40"
-                    )}
-                   > {p} </button>
+                   <button key={p} onClick={()=>fetchLogs(p)} className={cn("w-10 h-10 lg:w-11 lg:h-11 rounded-[5px] text-[13px] font-bold transition-all flex items-center justify-center border shrink-0", isActive ? "bg-primary border-primary text-white shadow-lg shadow-primary/20" : "bg-white dark:bg-[#101935] border-[#E7E8EB] dark:border-white/10 text-gray-600 dark:text-gray-400 hover:border-primary/40 hover:text-primary")}>
+                     {p} 
+                   </button>
                  )
                })}
+               {pagination.totalPages > 5 && <span className="text-gray-400 font-bold px-1 select-none">...</span>}
             </div>
-            <button 
-              onClick={() => handlePageChange(pagination.page + 1)}
-              disabled={pagination.page === pagination.totalPages}
-              className="w-12 h-12 rounded-2xl border border-gray-200 dark:border-white/10 flex items-center justify-center text-gray-600 dark:text-white hover:border-primary/50 transition-all disabled:opacity-30 disabled:hover:border-gray-200"
-            >
-              <ChevronRight className="w-5 h-5" />
+            <button onClick={() => fetchLogs(pagination.page + 1)} disabled={pagination.page === pagination.totalPages} className="px-4 h-11 bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[12px] font-bold text-gray-500 hover:text-primary hover:border-primary flex items-center gap-2 transition-all disabled:opacity-30 shadow-none shrink-0">
+              Next <ChevronRight className="w-4 h-4" />
             </button>
           </div>
+        </div>
+      )}
+
+      {loading && (
+        <div className="fixed inset-0 flex flex-col items-center justify-center bg-white/50 dark:bg-[#0A0F1D]/50 backdrop-blur-sm z-50">
+          <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-4" />
+          <p className="text-[11px] font-bold text-gray-400 font-mono">Decoding forensic buffers...</p>
         </div>
       )}
     </div>

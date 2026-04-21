@@ -64,7 +64,7 @@ function CustomCalendar({ selectedDate, onSelect, onClose }) {
   };
 
   return (
-    <div className="p-3 w-[260px] bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[10px] shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+    <div className="p-3 w-[260px] bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] shadow-2xl animate-in fade-in zoom-in-95 duration-200">
       <div className="flex justify-between items-center mb-4 px-1">
         <button 
           type="button"
@@ -94,7 +94,7 @@ function CustomCalendar({ selectedDate, onSelect, onClose }) {
                 type="button"
                 onClick={() => { onSelect(day); onClose(); }}
                 className={cn(
-                  "w-8 h-8 rounded-[6px] text-[12px] font-semibold transition-all hover:bg-primary/5 dark:hover:bg-primary/10",
+                  "w-8 h-8 rounded-[5px] text-[12px] font-semibold transition-all hover:bg-primary/5 dark:hover:bg-primary/10",
                   isSameDay(day, selectedDate) ? "bg-primary text-white hover:bg-primary" : "text-[#1e293b] dark:text-gray-300",
                   isSameDay(day, new Date()) && !isSameDay(day, selectedDate) && "text-primary font-bold"
                 )}
@@ -134,7 +134,7 @@ function CustomTimePicker({ selectedTime, onSelect, onClose }) {
   }, [hour, minute, period]);
 
   return (
-    <div className="flex bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[10px] shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+    <div className="flex bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
       <div className="w-16 h-48 overflow-y-auto border-r border-gray-100 dark:border-white/5 custom-scrollbar">
         {hours.map(h => (
           <button 
@@ -328,7 +328,7 @@ export default function FillMasterDataPage() {
   if (!isMounted) return null;
 
   const renderField = (field) => {
-    const commonClass = "w-full h-11 px-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[6px] text-[13px] font-semibold focus:border-primary outline-none placeholder:text-gray-300 transition-all flex items-center justify-between shadow-sm hover:border-primary/30";
+    const commonClass = "w-full h-11 px-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] font-semibold focus:border-primary outline-none placeholder:text-gray-300 transition-all flex items-center justify-between shadow-sm hover:border-primary/30";
     const inputClass = "w-full h-full bg-transparent border-none outline-none focus:ring-0 p-0 text-[13px] font-semibold text-[#1e293b] dark:text-white placeholder:text-gray-300";
 
     switch (field.type) {
@@ -361,7 +361,7 @@ export default function FillMasterDataPage() {
       case 'checkbox':
         const cbOptions = (field.options || "").split("\n").filter(o => o.trim() !== "");
         return (
-          <div className="space-y-3 p-4 bg-[#F8F9FC] dark:bg-[#1e293b]/30 border border-[#E7E8EB] dark:border-white/10 rounded-[8px]">
+          <div className="space-y-3 p-4 bg-[#F8F9FC] dark:bg-[#1e293b]/30 border border-[#E7E8EB] dark:border-white/10 rounded-[5px]">
             {cbOptions.map((opt, i) => (
               <label key={i} className="flex items-center gap-3 cursor-pointer group">
                 <input 
@@ -514,19 +514,19 @@ export default function FillMasterDataPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         <div className="lg:col-span-4 space-y-6">
-          <form onSubmit={handleSubmit} className="bg-white dark:bg-[#101935] p-6 rounded-[10px] border border-[#E7E8EB] dark:border-white/10 space-y-6 shadow-sm">
+          <form onSubmit={handleSubmit} className="bg-white dark:bg-[#101935] p-6 rounded-[5px] border border-[#E7E8EB] dark:border-white/10 space-y-6 shadow-sm">
             <div className="flex items-center gap-3 border-b border-gray-100 dark:border-white/5 pb-4">
               <Plus className="w-5 h-5 text-primary" />
-              <h3 className="text-[13px] font-bold text-[#1e293b] dark:text-white uppercase tracking-wider">Add New Entry</h3>
+              <h3 className="text-[13px] font-bold text-[#1e293b] dark:text-white">Add New Entry</h3>
             </div>
 
             {loading ? (
-              <div className="py-10 text-center text-gray-400 text-[12px] font-bold uppercase tracking-widest animate-pulse">Fetching Schema...</div>
+              <div className="py-10 text-center text-gray-400 text-[12px] font-bold animate-pulse">Fetching Schema...</div>
             ) : (
               <div className="space-y-6">
                 {schema?.fields.map((field) => (
                   <div key={field.id} className="space-y-2">
-                    <label className="text-[11px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
+                    <label className="text-[11px] font-bold text-gray-400 flex items-center gap-2">
                       {field.label}
                       {field.required && <span className="text-red-500">*</span>}
                     </label>
@@ -537,7 +537,7 @@ export default function FillMasterDataPage() {
                 <button 
                   type="submit"
                   disabled={saving}
-                  className="w-full bg-primary text-white h-12 rounded-[6px] text-[13px] font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all disabled:opacity-50 mt-4 shadow-lg shadow-primary/10"
+                  className="w-full bg-primary text-white h-12 rounded-[5px] text-[13px] font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all disabled:opacity-50 mt-4 shadow-lg shadow-primary/10"
                 >
                   <Save className="w-4 h-4" /> {saving ? "Saving..." : "Save Record"}
                 </button>
@@ -545,7 +545,7 @@ export default function FillMasterDataPage() {
             )}
           </form>
 
-          <div className="bg-blue-50/50 dark:bg-blue-900/10 p-5 rounded-[10px] border border-blue-100 dark:border-blue-900/20 flex gap-4">
+          <div className="bg-blue-50/50 dark:bg-blue-900/10 p-5 rounded-[5px] border border-blue-100 dark:border-blue-900/20 flex gap-4">
              <Info className="w-5 h-5 text-blue-500 shrink-0" />
              <p className="text-[12px] text-blue-700 dark:text-blue-300 leading-relaxed">
                Data filled here will be available globally for todos, forms, and clinical modules using the <strong>{schema?.code}</strong> identifier.
@@ -554,11 +554,11 @@ export default function FillMasterDataPage() {
         </div>
 
         <div className="lg:col-span-8 space-y-5">
-           <div className="bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[10px] overflow-hidden shadow-sm">
+           <div className="bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] overflow-hidden shadow-sm">
              <div className="p-4 bg-[#F8F9FC] dark:bg-[#1e293b] border-b border-[#E7E8EB] dark:border-white/5 flex justify-between items-center">
                 <div className="flex items-center gap-2">
                    <Table className="w-4 h-4 text-gray-400" />
-                   <h3 className="text-[13px] font-bold text-[#1e293b] dark:text-white uppercase tracking-wider">Existing Data Entries</h3>
+                   <h3 className="text-[13px] font-bold text-[#1e293b] dark:text-white">Existing Data Entries</h3>
                 </div>
              </div>
              
@@ -566,11 +566,11 @@ export default function FillMasterDataPage() {
                <table className="w-full border-collapse">
                  <thead>
                    <tr className="border-b border-gray-100 dark:border-white/5 bg-white dark:bg-[#101935]">
-                     <th className="px-6 py-4 text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest w-16">#</th>
+                     <th className="px-6 py-4 text-left text-[10px] font-bold text-gray-400 w-16">#</th>
                      {schema?.fields.slice(0, 3).map(f => (
-                       <th key={f.id} className="px-6 py-4 text-left text-[10px] font-bold text-gray-400 uppercase tracking-widest">{f.label}</th>
+                       <th key={f.id} className="px-6 py-4 text-left text-[10px] font-bold text-gray-400">{f.label}</th>
                      ))}
-                     <th className="px-6 py-4 text-right text-[10px] font-bold text-gray-400 uppercase tracking-widest">Actions</th>
+                     <th className="px-6 py-4 text-right text-[10px] font-bold text-gray-400">Actions</th>
                    </tr>
                  </thead>
                  <tbody>

@@ -36,7 +36,7 @@ export default function DepartmentDistribution() {
     <div className="bg-white dark:bg-[#101935] rounded-[5px] border border-[#E7E8EB] dark:border-white/10 flex flex-col h-full font-sans transition-all">
       {/* Header (No background as per image) */}
       <div className="flex justify-between items-center px-6 py-4">
-        <h3 className="text-[16px] font-bold text-[#1E293B] dark:text-white uppercase tracking-wider">
+        <h3 className="text-[16px] font-bold text-[#1E293B] dark:text-white">
           Department Distribution
         </h3>
         <button className="flex items-center gap-2 text-[12px] font-medium text-[#1e293b] dark:text-slate-300 border border-[#E7E8EB] dark:border-white/10 px-3 py-1.5 rounded-[5px] bg-white dark:bg-white/5">

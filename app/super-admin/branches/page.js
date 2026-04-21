@@ -154,7 +154,7 @@ export default function BranchesPage() {
               onClick={handleSyncAll}
               disabled={isSyncingAll}
               className={cn(
-                "px-5 h-[44px] rounded-[6px] text-[13px] font-bold flex items-center gap-2 transition-all border shadow-none",
+                "px-5 h-[44px] rounded-[5px] text-[13px] font-bold flex items-center gap-2 transition-all border shadow-none",
                 outOfSyncBranches.some(b => !b.schemaVersion) 
                   ? "bg-red-500 text-white border-red-600 hover:bg-red-600 animate-pulse" 
                   : outOfSyncBranches.length > 0
@@ -164,7 +164,7 @@ export default function BranchesPage() {
             >
               <Database className="w-4 h-4" /> 
               {isSyncingAll ? (
-                <span>SYNCHRONIZING {branches.length}...</span>
+                <span>Synchronizing {branches.length}...</span>
               ) : outOfSyncBranches.some(b => !b.schemaVersion) ? (
                 <span>Initialize All Branches ({outOfSyncBranches.length})</span>
               ) : outOfSyncBranches.length > 0 ? (
@@ -176,7 +176,7 @@ export default function BranchesPage() {
           )}
           <button 
             onClick={handleCreateNew}
-            className="bg-primary text-white px-5 h-[44px] rounded-[6px] text-[13px] font-bold flex items-center gap-2 hover:bg-primary/90 transition-all border border-primary shadow-none"
+            className="bg-primary text-white px-5 h-[44px] rounded-[5px] text-[13px] font-bold flex items-center gap-2 hover:bg-primary/90 transition-all border border-primary shadow-none"
           >
             <Plus className="w-4.5 h-4.5" /> Add New Branch
           </button>
@@ -187,13 +187,13 @@ export default function BranchesPage() {
       <BranchStats />
 
       {/* Filter Bar */}
-      <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-white dark:bg-[#101935] p-3 rounded-[12px] border border-[#E7E8EB] dark:border-white/10 shadow-none">
+      <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-white dark:bg-[#101935] p-3 rounded-[5px] border border-[#E7E8EB] dark:border-white/10 shadow-none">
         <div className="relative w-full md:w-[350px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input 
             type="text" 
             placeholder="Search branches by name, code or location..."
-            className="w-full h-10 pl-10 pr-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-gray-100 dark:border-white/10 rounded-[6px] text-[13px] font-medium focus:border-primary transition-all font-semibold outline-none"
+            className="w-full h-10 pl-10 pr-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-gray-100 dark:border-white/10 rounded-[5px] text-[13px] font-medium focus:border-primary transition-all font-semibold outline-none"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -201,11 +201,11 @@ export default function BranchesPage() {
         
         {/* Responsive Switcher Hiding */}
         <div className="flex items-center gap-2 hidden lg:flex">
-          <div className="flex items-center gap-1 bg-[#F8F9FC] dark:bg-[#1e293b] p-1 rounded-[6px] border border-[#E7E8EB] dark:border-white/10">
+          <div className="flex items-center gap-1 bg-[#F8F9FC] dark:bg-[#1e293b] p-1 rounded-[5px] border border-[#E7E8EB] dark:border-white/10">
             <button 
               onClick={() => setViewType("grid")}
               className={cn(
-                "p-1.5 rounded-[4px] transition-all",
+                "p-1.5 rounded-[5px] transition-all",
                 viewType === "grid" ? "bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 text-primary shadow-sm" : "text-gray-400 hover:text-primary"
               )}
             >
@@ -214,7 +214,7 @@ export default function BranchesPage() {
             <button 
               onClick={() => setViewType("list")}
               className={cn(
-                "p-1.5 rounded-[4px] transition-all",
+                "p-1.5 rounded-[5px] transition-all",
                 viewType === "list" ? "bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 text-primary shadow-sm" : "text-gray-400 hover:text-primary"
               )}
             >
@@ -226,13 +226,12 @@ export default function BranchesPage() {
 
       {/* Hospital List Section */}
       <div className="space-y-[20px] pb-10">
-        <div className="flex justify-between items-center px-1 border-b border-gray-100 dark:border-white/5 pb-4">
-          <h2 className="text-[14px] font-bold text-[#1e293b] dark:text-white uppercase tracking-wider">Registered Institutions</h2>
-        </div>
+        <div className="border-b border-gray-100 dark:border-white/5 pb-2" />
+
 
         {/* Grid/List Content */}
         {loading ? (
-          <div className="py-20 text-center text-gray-400 font-bold uppercase tracking-widest text-[12px] animate-pulse">Synchronizing Branches...</div>
+          <div className="py-20 text-center text-gray-400 font-bold text-[12px] animate-pulse">Synchronizing Branches...</div>
         ) : (
           <div className={cn(
             "grid gap-6 transition-all duration-500",
@@ -260,8 +259,8 @@ export default function BranchesPage() {
         )}
         
         {!loading && filteredBranches.length === 0 && (
-          <div className="py-24 text-center bg-white dark:bg-[#101935] rounded-[10px] border border-dashed border-gray-200">
-             <p className="text-gray-400 font-medium font-bold uppercase tracking-widest text-xs opacity-50">No hospital branches match your records.</p>
+          <div className="py-24 text-center bg-white dark:bg-[#101935] rounded-[5px] border border-dashed border-gray-200">
+             <p className="text-gray-400 font-medium font-bold text-xs opacity-50">No hospital branches match your records.</p>
           </div>
         )}
       </div>

@@ -76,7 +76,7 @@ export function GlobalLoader() {
 
           {/* Logo with Heartbeat Pulse */}
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-14 h-14 bg-white dark:bg-[#1e293b] rounded-xl shadow-2xl shadow-primary/20 flex items-center justify-center overflow-hidden border border-gray-100 dark:border-white/5 animate-pulse">
+            <div className="w-14 h-14 bg-white dark:bg-[#1e293b] rounded-[5px] shadow-2xl shadow-primary/20 flex items-center justify-center overflow-hidden border border-gray-100 dark:border-white/5 animate-pulse">
                <img 
                  src="/favicon.ico" 
                  alt="Logo" 
@@ -126,6 +126,8 @@ export function GlobalLoader() {
   );
 }
 
+import { ConsoleSwitcher } from "@/components/layout/ConsoleSwitcher";
+
 export function RootContent({ children }) {
   const [isAppLoading, setIsAppLoading] = useState(true);
 
@@ -139,6 +141,7 @@ export function RootContent({ children }) {
       {isAppLoading && <GlobalLoader />}
       <div className={isAppLoading ? "invisible h-0" : "contents"}>
         {children}
+        <ConsoleSwitcher />
       </div>
     </>
   );

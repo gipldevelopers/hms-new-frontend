@@ -22,7 +22,7 @@ function TemplateCard({ file, viewType, onDelete }) {
   return (
     <div 
       className={cn(
-        "group bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[10px] overflow-hidden flex transition-all duration-500 relative",
+        "group bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] overflow-hidden flex transition-all duration-500 relative",
         isList ? "flex-row items-center p-5 gap-6" : "flex-col p-6 h-full"
       )}
     >
@@ -42,15 +42,15 @@ function TemplateCard({ file, viewType, onDelete }) {
         {isList ? (
            <div className="grid grid-cols-3 gap-6 animate-in fade-in duration-700">
               <div>
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 font-sans">Layout blocks</p>
+                <p className="text-[10px] font-bold text-gray-400 mb-1.5 font-sans">Layout blocks</p>
                 <p className="text-[15px] font-bold text-[#1e293b] dark:text-white leading-none">{(file.blocks || []).length} Sections</p>
               </div>
               <div>
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 font-sans">Category</p>
+                <p className="text-[10px] font-bold text-gray-400 mb-1.5 font-sans">Category</p>
                 <p className="text-[15px] font-bold text-[#1e293b] dark:text-white leading-none capitalize">{file.category}</p>
               </div>
               <div className="line-clamp-2 max-w-[300px]">
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 font-sans">Created On</p>
+                <p className="text-[10px] font-bold text-gray-400 mb-1.5 font-sans">Created On</p>
                 <p className="text-[12px] text-gray-500 leading-relaxed truncate">{new Date(file.createdAt).toLocaleDateString()}</p>
               </div>
            </div>
@@ -61,11 +61,11 @@ function TemplateCard({ file, viewType, onDelete }) {
             </p>
             <div className="mt-6 pt-6 border-t border-gray-100 dark:border-white/5 grid grid-cols-2 gap-4">
               <div>
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Layout Blocks</p>
+                <p className="text-[10px] font-bold text-gray-400 mb-1">Layout Blocks</p>
                 <p className="text-[14px] font-bold text-[#1e293b] dark:text-white">{(file.blocks || []).length} Blocks</p>
               </div>
               <div className="text-right">
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Last Update</p>
+                <p className="text-[10px] font-bold text-gray-400 mb-1">Last Update</p>
                 <p className="text-[14px] font-bold text-[#1e293b] dark:text-white">{new Date(file.updatedAt).toLocaleDateString()}</p>
               </div>
             </div>
@@ -188,9 +188,9 @@ export default function TemplatesPage() {
           { label: "Design Blocks", value: templates.reduce((acc, curr) => acc + (curr.blocks?.length || 0), 0), icon: LayoutGrid, color: "indigo" },
           { label: "Categories", value: [...new Set(templates.map(t => t.category))].length, icon: Database, color: "emerald" },
         ].map((stat, i) => (
-          <div key={i} className="bg-white dark:bg-[#101935] p-5 rounded-[12px] border border-[#E7E8EB] dark:border-white/10 flex items-center gap-4">
+          <div key={i} className="bg-white dark:bg-[#101935] p-5 rounded-[5px] border border-[#E7E8EB] dark:border-white/10 flex items-center gap-4">
             <div className={cn(
-              "w-12 h-12 rounded-[10px] flex items-center justify-center",
+              "w-12 h-12 rounded-[5px] flex items-center justify-center",
               stat.color === "blue" && "bg-primary/10 text-primary",
               stat.color === "indigo" && "bg-primary/10 text-primary",
               stat.color === "emerald" && "bg-emerald-50 text-emerald-500",
@@ -198,7 +198,7 @@ export default function TemplatesPage() {
               <stat.icon className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest leading-none">{stat.label}</p>
+              <p className="text-[11px] font-bold text-gray-400 leading-none">{stat.label}</p>
               <p className="text-[20px] font-bold text-[#1e293b] dark:text-white mt-1.5 leading-none">{stat.value}</p>
             </div>
           </div>
@@ -206,24 +206,24 @@ export default function TemplatesPage() {
       </div>
 
       {/* Filter Bar */}
-      <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-white dark:bg-[#101935] p-3 rounded-[12px] border border-[#E7E8EB] dark:border-white/10 shadow-none">
+      <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-white dark:bg-[#101935] p-3 rounded-[5px] border border-[#E7E8EB] dark:border-white/10 shadow-none">
         <div className="relative w-full md:w-[350px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input 
             type="text" 
             placeholder="Search templates..."
-            className="w-full h-10 pl-10 pr-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-gray-100 dark:border-white/10 rounded-[6px] text-[13px] font-medium focus:border-primary transition-all font-semibold outline-none"
+            className="w-full h-10 pl-10 pr-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-gray-100 dark:border-white/10 rounded-[5px] text-[13px] font-medium focus:border-primary transition-all font-semibold outline-none"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
         
         <div className="flex items-center gap-2 hidden lg:flex">
-          <div className="flex items-center gap-1 bg-[#F8F9FC] dark:bg-[#1e293b] p-1 rounded-[6px] border border-[#E7E8EB] dark:border-white/10 text-[#1e293b] dark:text-white">
+          <div className="flex items-center gap-1 bg-[#F8F9FC] dark:bg-[#1e293b] p-1 rounded-[5px] border border-[#E7E8EB] dark:border-white/10 text-[#1e293b] dark:text-white">
             <button 
               onClick={() => setViewType("grid")}
               className={cn(
-                "p-1.5 rounded-[4px] transition-all",
+                "p-1.5 rounded-[5px] transition-all",
                 viewType === "grid" ? "bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 text-primary shadow-sm" : "text-gray-400 hover:text-primary"
               )}
             >
@@ -232,7 +232,7 @@ export default function TemplatesPage() {
             <button 
               onClick={() => setViewType("list")}
               className={cn(
-                "p-1.5 rounded-[4px] transition-all",
+                "p-1.5 rounded-[5px] transition-all",
                 viewType === "list" ? "bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 text-primary shadow-sm" : "text-gray-400 hover:text-primary"
               )}
             >
@@ -248,15 +248,15 @@ export default function TemplatesPage() {
         viewType === "grid" ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" : "grid-cols-1"
       )}>
         {loading ? (
-          <div className="col-span-full py-20 text-center text-gray-400 font-bold uppercase tracking-widest text-[12px] animate-pulse">Loading Templates...</div>
+          <div className="col-span-full py-20 text-center text-gray-400 font-bold text-[12px] animate-pulse">Loading Templates...</div>
         ) : (
           templates.map((file) => (
             <TemplateCard key={file.id} file={file} viewType={viewType} onDelete={handleDeleteClick} />
           ))
         )}
         {templates.length === 0 && !loading && (
-          <div className="col-span-full py-24 text-center bg-white dark:bg-[#101935] rounded-[10px] border border-dashed border-gray-200">
-             <p className="text-gray-400 font-medium font-bold uppercase tracking-widest text-xs opacity-50">No templates found in library.</p>
+          <div className="col-span-full py-24 text-center bg-white dark:bg-[#101935] rounded-[5px] border border-dashed border-gray-200">
+             <p className="text-gray-400 font-medium font-bold text-xs opacity-50">No templates found in library.</p>
           </div>
         )}
       </div>

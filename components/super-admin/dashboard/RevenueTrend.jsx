@@ -54,14 +54,14 @@ export function RevenueTrend() {
               >
                 {/* Purple Bar (Top) */}
                 <div
-                  className="bg-[#4F46E5] w-full rounded-[2px]"
+                  className="bg-[#4F46E5] w-full rounded-[5px]"
                   style={{ height: `${item.v1 * 0.8}px` }}
                 ></div>
                 {/* Gap */}
                 <div className="h-[2px]"></div>
                 {/* Blue Bar (Bottom) */}
                 <div
-                  className="bg-[#38BDF8] w-full rounded-[2px]"
+                  className="bg-[#38BDF8] w-full rounded-[5px]"
                   style={{ height: `${item.v2 * 0.8}px` }}
                 ></div>
               </div>

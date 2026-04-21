@@ -54,13 +54,13 @@ const roleMenus = {
       ]
     },
     { name: "Analytics", icon: BarChart3, path: "/super-admin/analytics", section: "SYSTEM" },
-    { name: "Master Data", icon: Database, path: "/super-admin/configurations/master-data", section: "SYSTEM" },
     { name: "Audit Logs", icon: FileText, path: "/super-admin/audit-logs", section: "SYSTEM" },
   ],
   "branch-admin": [
     { name: "Dashboard", icon: LayoutGrid, path: "/branch-admin", section: "none" },
     { name: "Departments", icon: Building2, path: "/branch-admin/departments", section: "MANAGEMENT" },
     { name: "Staff Management", icon: Users2, path: "/branch-admin/staff", section: "MANAGEMENT" },
+    { name: "Roles & Permissions", icon: ShieldCheck, path: "/branch-admin/roles-permissions", section: "MANAGEMENT" },
     { name: "Inventory", icon: Database, path: "/branch-admin/inventory", section: "SYSTEM" },
     { name: "Analytics", icon: BarChart3, path: "/branch-admin/analytics", section: "SYSTEM" },
   ],
@@ -160,12 +160,20 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) 
                   className="object-contain"
                 />
              </div>
-            <span className={cn(
-              "text-xl font-bold text-primary tracking-tight whitespace-nowrap transition-all duration-300",
-              isCollapsed && "lg:opacity-0 lg:invisible lg:w-0"
-            )}>
-              GVoice HMS
-            </span>
+            <div className="flex flex-col">
+              <span className={cn(
+                "text-xl font-bold text-primary tracking-tight whitespace-nowrap transition-all duration-300",
+                isCollapsed && "lg:opacity-0 lg:invisible lg:w-0"
+              )}>
+                GVoice HMS
+              </span>
+              <p className={cn(
+                "text-[9px] uppercase font-black text-primary/60 tracking-[0.15em] leading-none transition-all duration-300 -mt-0.5",
+                isCollapsed && "lg:opacity-0 lg:invisible lg:h-0"
+              )}>
+                {currentRole.replace('-', ' ')}
+              </p>
+            </div>
           </div>
 
           {!isCollapsed && (
@@ -178,47 +186,16 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) 
           )}
         </div>
 
-        {/* User Profile Section - Dynamic Role Display */}
-        <div className={cn("p-4 shrink-0 transition-all duration-300 overflow-hidden", isCollapsed && "lg:px-2")}>
-          <div className={cn(
-            "flex items-center border border-[#E7E8EB] dark:border-white/10 rounded-[10px] transition-all bg-white dark:bg-[#1e293b]", 
-            isCollapsed ? "lg:flex-col lg:p-2 gap-2" : "p-3 gap-3"
-          )}>
-            <div className="w-9 h-9 bg-primary rounded-[5px] shrink-0 flex items-center justify-center">
-              <span className="text-white text-xs font-bold">VD</span>
-            </div>
-            <div className={cn(
-              "flex-1 min-w-0 transition-all duration-300",
-              isCollapsed && "lg:opacity-0 lg:invisible lg:w-0"
-            )}>
-              <p className="text-[13px] font-bold text-[#1A1C23] dark:text-white truncate">Vraj Darji</p>
-              <p className="text-[11px] text-gray-500 dark:text-slate-400 font-medium truncate uppercase tracking-tighter capitalize">{currentRole.replace('-', ' ')}</p>
-            </div>
-            
-            <button 
-              onClick={handleLogout}
-              className={cn(
-                "flex items-center justify-center transition-all",
-                isCollapsed 
-                  ? "w-8 h-8 rounded-full hover:bg-red-50 dark:hover:bg-red-500/10 text-red-500" 
-                  : "w-8 h-8 rounded-[5px] hover:bg-red-50 dark:hover:bg-red-500/10 text-red-500 border border-transparent hover:border-red-100 dark:hover:border-red-500/20"
-              )}
-              title="Logout"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-
+        {/* Navigation - Main Area */}
         <nav className={cn(
-          "flex-1 px-3 space-y-5 pt-2 no-scrollbar pb-10 transition-all duration-300",
-          isCollapsed ? "lg:overflow-visible" : "overflow-y-auto"
+          "flex-1 px-3 pt-4 no-scrollbar transition-all duration-300",
+          isCollapsed ? "lg:overflow-visible space-y-0" : "overflow-y-auto space-y-5"
         )}>
           {orderedSections.map((section) => (
-            <div key={section} className="space-y-1">
+            <div key={section} className={cn(isCollapsed ? "space-y-0" : "space-y-1")}>
               {section !== "none" && (
                 <p className={cn(
-                  "px-4 text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 whitespace-nowrap transition-all duration-300",
+                  "px-4 text-[10px] font-bold text-gray-400 mb-2 whitespace-nowrap transition-all duration-300",
                   isCollapsed && "lg:opacity-0 lg:invisible lg:h-0 lg:mb-0"
                 )}>
                   {section}
@@ -278,6 +255,57 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) 
             </div>
           ))}
         </nav>
+
+        {/* User Profile Section - Now at Bottom */}
+        <div className={cn(
+          "p-4 shrink-0 border-t border-[#E7E8EB] dark:border-white/10 transition-all duration-300",
+          isCollapsed && "lg:px-2"
+        )}>
+          <div className={cn(
+            "flex items-center transition-all bg-white dark:bg-[#101935] overflow-hidden", 
+            isCollapsed ? "lg:flex-col gap-1" : "gap-3 p-2 rounded-[5px] border border-[#E7E8EB] dark:border-white/10"
+          )}>
+            {/* Avatar or Tooltip Trigger in Collapsed Mode */}
+            {isCollapsed ? (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="w-10 h-10 bg-primary rounded-[5px] flex items-center justify-center shrink-0 cursor-default">
+                    <span className="text-white text-xs font-bold">VD</span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="right" className="bg-[#1e293b] text-white border-none text-[12px] font-bold">
+                  Vraj Darji (Super Admin)
+                </TooltipContent>
+              </Tooltip>
+            ) : (
+              <div className="w-9 h-9 bg-primary rounded-[5px] shrink-0 flex items-center justify-center">
+                <span className="text-white text-xs font-bold">VD</span>
+              </div>
+            )}
+            
+            {!isCollapsed && (
+              <div className="flex-1 min-w-0 transition-all duration-300">
+                <p className="text-[13px] font-bold text-[#1A1C23] dark:text-white truncate">Vraj Darji</p>
+                <p className="text-[11px] text-gray-500 dark:text-slate-400 font-medium truncate capitalize tracking-tighter">
+                  {currentRole.replace('-', ' ')}
+                </p>
+              </div>
+            )}
+            
+            <button 
+              onClick={handleLogout}
+              className={cn(
+                "flex items-center justify-center transition-all border border-transparent shadow-none",
+                isCollapsed 
+                  ? "w-8 h-8 rounded-full text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10" 
+                  : "w-8 h-8 rounded-[5px] text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 hover:border-red-100 dark:hover:border-red-500/20"
+              )}
+              title="Logout"
+            >
+              <LogOut className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
       </aside>
     </TooltipProvider>
   );
@@ -334,9 +362,9 @@ function NavItem({ item, isCollapsed, isActive, hasSubItems, isOpen, onClick, pa
            
            {isCollapsed && hasSubItems && (
              <div className="absolute left-full top-0 pl-3 hidden lg:group-hover/collapsed-parent:block z-[250]">
-                <div className="bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[10px] p-2 min-w-[220px] shadow-2xl animate-in fade-in slide-in-from-left-2 duration-200">
-                     <div className="px-3 py-2.5 mb-1 bg-primary/5 dark:bg-primary/10 rounded-[6px]">
-                        <p className="text-[11px] font-bold text-primary uppercase tracking-widest">{item.name}</p>
+                <div className="bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] p-2 min-w-[220px] shadow-2xl animate-in fade-in slide-in-from-left-2 duration-200">
+                     <div className="px-3 py-2.5 mb-1 bg-primary/5 dark:bg-primary/10 rounded-[5px]">
+                        <p className="text-[11px] font-bold text-primary">{item.name}</p>
                      </div>
                     <div className="space-y-0.5">
                       {item.subItems.map((sub) => (
@@ -344,7 +372,7 @@ function NavItem({ item, isCollapsed, isActive, hasSubItems, isOpen, onClick, pa
                           key={sub.name}
                           href={sub.path}
                           className={cn(
-                            "flex items-center h-10 px-3 rounded-[6px] text-[13px] font-semibold transition-all mb-0.5",
+                            "flex items-center h-10 px-3 rounded-[5px] text-[13px] font-semibold transition-all mb-0.5",
                             pathname === sub.path 
                               ? "text-primary bg-primary/5 dark:bg-primary/10" 
                               : "text-[#5E6C84] dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-[#1e293b] hover:translate-x-1"

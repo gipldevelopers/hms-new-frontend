@@ -97,7 +97,7 @@
   --chart-3: oklch(0.4568 0.2146 277.0229);
   --chart-4: oklch(0.3984 0.1773 277.3662);
   --chart-5: oklch(0.3588 0.1354 278.6973);
-  --radius: 0.5rem;
+  --radius: 5px;
   --sidebar: oklch(0.9670 0.0029 264.5419);
   --sidebar-foreground: oklch(0.2795 0.0368 260.0310);
   --sidebar-primary: #2E37A4;
@@ -162,7 +162,7 @@
   --sidebar-border: oklch(0.4461 0.0263 256.8018);
   --sidebar-ring: #5D69F4;
   --destructive-foreground: oklch(0.2077 0.0398 265.7549);
-  --radius: 0.5rem;
+  --radius: 5px;
   --font-sans: Inter, sans-serif;
   --font-serif: Merriweather, serif;
   --font-mono: JetBrains Mono, monospace;

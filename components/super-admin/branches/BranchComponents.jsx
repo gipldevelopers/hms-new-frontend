@@ -20,7 +20,7 @@ export function BranchStats() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem("authtoken");
         const res = await fetch("/api/branches/stats", {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -43,9 +43,9 @@ export function BranchStats() {
         { title: "Active Beds", value: stats.totalBeds, icon: Activity, color: "emerald" },
         { title: "Total Staff", value: stats.totalStaff, icon: Users2, color: "indigo" },
       ].map((stat, i) => (
-        <div key={i} className="bg-white dark:bg-[#101935] p-5 rounded-[12px] border border-[#E7E8EB] dark:border-white/10 flex items-center gap-4">
+        <div key={i} className="bg-white dark:bg-[#101935] p-5 rounded-[5px] border border-[#E7E8EB] dark:border-white/10 flex items-center gap-4">
           <div className={cn(
-            "w-12 h-12 rounded-[10px] flex items-center justify-center",
+            "w-12 h-12 rounded-[5px] flex items-center justify-center",
             stat.color === "blue" && "bg-primary/10 text-primary",
             stat.color === "indigo" && "bg-primary/10 text-primary",
             stat.color === "emerald" && "bg-emerald-50 text-emerald-500",
@@ -53,7 +53,7 @@ export function BranchStats() {
             <stat.icon className="w-6 h-6" />
           </div>
           <div>
-            <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest leading-none">{stat.title}</p>
+            <p className="text-[11px] font-bold text-gray-400 leading-none">{stat.title}</p>
             <p className="text-[20px] font-bold text-[#1e293b] dark:text-white mt-1.5 leading-none">{stat.value}</p>
           </div>
         </div>
@@ -67,7 +67,7 @@ export function DeleteConfirmationModal({ isOpen, onClose, onConfirm, itemName, 
 
   return (
     <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-black/60 backdrop-blur-[6px] animate-in fade-in duration-200">
-      <div className="bg-white dark:bg-[#101935] w-full max-w-[400px] rounded-[12px] shadow-xl overflow-hidden animate-in zoom-in-95 duration-200 border border-red-50 dark:border-red-900/20">
+      <div className="bg-white dark:bg-[#101935] w-full max-w-[400px] rounded-[5px] shadow-xl overflow-hidden animate-in zoom-in-95 duration-200 border border-red-50 dark:border-red-900/20">
         <div className="p-8 text-center">
           <div className="w-16 h-16 bg-red-50 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-6">
             <Trash2 className="w-8 h-8 text-red-500" />
@@ -129,7 +129,7 @@ export function BranchCard({ branch, viewType = "grid", onEdit, onDelete, isGlob
     setLocalInitializing(true);
     
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("authtoken");
       const res = await fetch(`/api/branches/${branch.id}/init-tables`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` }
@@ -153,7 +153,7 @@ export function BranchCard({ branch, viewType = "grid", onEdit, onDelete, isGlob
 
   return (
     <div className={cn(
-      "group bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[10px] overflow-hidden flex transition-all relative",
+      "group bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] overflow-hidden flex transition-all relative",
       isList ? "flex-row items-center p-5 gap-6" : "flex-col p-6 h-full"
     )}>
       
@@ -162,7 +162,7 @@ export function BranchCard({ branch, viewType = "grid", onEdit, onDelete, isGlob
         <div className="absolute inset-0 z-10 bg-white/90 dark:bg-[#101935]/95 backdrop-blur-[2px] flex items-center justify-center p-8 animate-in fade-in duration-300">
            <div className="w-full max-w-[200px] text-center space-y-3">
               <div className="flex justify-between items-end mb-1">
-                 <span className="text-[10px] font-bold text-primary uppercase tracking-widest animate-pulse">Provisioning Tables...</span>
+                 <span className="text-[10px] font-bold text-primary animate-pulse">Provisioning Tables...</span>
                  <span className="text-[14px] font-black text-primary/80 mono">{Math.round(progress)}%</span>
               </div>
               <div className="h-2 w-full bg-primary/10 rounded-full overflow-hidden border border-primary/5">
@@ -171,7 +171,7 @@ export function BranchCard({ branch, viewType = "grid", onEdit, onDelete, isGlob
                    style={{ width: `${progress}%` }}
                  />
               </div>
-              <p className="text-[9px] text-gray-400 font-bold uppercase tracking-tighter">Setting up Healthcare Infrastructure</p>
+              <p className="text-[9px] text-gray-400 font-bold tracking-tighter">Setting up Healthcare Infrastructure</p>
            </div>
         </div>
       )}
@@ -188,7 +188,7 @@ export function BranchCard({ branch, viewType = "grid", onEdit, onDelete, isGlob
               <div className="mt-1.5 flex items-center gap-2">
                 <span className="text-[12px] text-gray-400 dark:text-gray-500 font-medium">#{branch.code}</span>
                 <span className={cn(
-                  "text-[9px] font-extrabold px-2 py-0.5 rounded-[4px] uppercase tracking-wider",
+                  "text-[9px] font-extrabold px-2 py-0.5 rounded-[5px]",
                   branch.active ? "bg-emerald-50 text-emerald-500 border border-emerald-100" : "bg-gray-50 text-gray-400 border border-gray-100"
                 )}>
                   {branch.active ? "Active" : "Inactive"}
@@ -201,21 +201,21 @@ export function BranchCard({ branch, viewType = "grid", onEdit, onDelete, isGlob
         {isList ? (
            <div className="grid grid-cols-3 gap-6 animate-in fade-in duration-700">
               <div>
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 font-sans">Location</p>
+                <p className="text-[10px] font-bold text-gray-400 mb-1.5 font-sans">Location</p>
                 <div className="flex items-center gap-1.5 overflow-hidden">
                    <MapPin className="w-3.5 h-3.5 text-primary" />
                    <p className="text-[13px] font-bold text-[#1e293b] dark:text-white leading-none truncate">{branch.city}, {branch.state}</p>
                 </div>
               </div>
               <div>
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 font-sans">Contact Center</p>
+                <p className="text-[10px] font-bold text-gray-400 mb-1.5 font-sans">Contact Center</p>
                 <div className="flex items-center gap-1.5">
                    <Phone className="w-3.5 h-3.5 text-primary" />
                    <p className="text-[13px] font-bold text-[#1e293b] dark:text-white leading-none">{branch.contact}</p>
                 </div>
               </div>
               <div className="line-clamp-2">
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 font-sans">Facilities</p>
+                <p className="text-[10px] font-bold text-gray-400 mb-1.5 font-sans">Facilities</p>
                 <p className="text-[12px] text-gray-500 leading-relaxed truncate">{branch.address}</p>
               </div>
            </div>
@@ -232,11 +232,11 @@ export function BranchCard({ branch, viewType = "grid", onEdit, onDelete, isGlob
             
             <div className="mt-6 pt-6 border-t border-gray-100 dark:border-white/5 grid grid-cols-2 gap-4">
               <div>
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Departments</p>
+                <p className="text-[10px] font-bold text-gray-400 mb-1">Departments</p>
                 <p className="text-[14px] font-bold text-[#1e293b] dark:text-white">Professional Setup</p>
               </div>
               <div className="text-right">
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Status</p>
+                <p className="text-[10px] font-bold text-gray-400 mb-1">Status</p>
                 <p className={cn("text-[14px] font-bold", branch.active ? "text-emerald-500" : "text-gray-400")}>{branch.active ? "Fully Operational" : "Temporarily Offline"}</p>
               </div>
             </div>
@@ -253,7 +253,7 @@ export function BranchCard({ branch, viewType = "grid", onEdit, onDelete, isGlob
            <button 
              onClick={handleInitTables}
              className={cn(
-               "px-4 h-[40px] font-bold text-[11px] rounded-[6px] transition-all flex items-center justify-center gap-2 uppercase tracking-widest border shadow-none shrink-0", 
+               "px-4 h-[40px] font-bold text-[11px] rounded-[5px] transition-all flex items-center justify-center gap-2 border shadow-none shrink-0", 
                branch.schemaVersion === branch.currentSchemaVersion 
                 ? "bg-slate-50 text-slate-500 border-[#E7E8EB] hover:bg-slate-100 dark:bg-white/5 dark:border-white/10 dark:text-gray-400" 
                 : !branch.schemaVersion 
@@ -275,7 +275,7 @@ export function BranchCard({ branch, viewType = "grid", onEdit, onDelete, isGlob
         <button 
           onClick={() => router.push(`/super-admin/branches/${branch.id}`)}
           className={cn(
-            "px-4 h-[40px] bg-white dark:bg-white/5 text-primary font-bold text-[12px] rounded-[6px] transition-all flex items-center justify-center gap-2 border border-[#E7E8EB] dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/10 shadow-none", 
+            "px-4 h-[40px] bg-white dark:bg-white/5 text-primary font-bold text-[12px] rounded-[5px] transition-all flex items-center justify-center gap-2 border border-[#E7E8EB] dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/10 shadow-none", 
             !isList && "flex-1"
           )}
         >
@@ -284,7 +284,7 @@ export function BranchCard({ branch, viewType = "grid", onEdit, onDelete, isGlob
         <button 
           onClick={onEdit}
           className={cn(
-            "px-4 h-[40px] bg-primary text-white font-bold text-[12px] rounded-[6px] transition-all hover:bg-primary/90 flex items-center justify-center gap-2 border border-primary shadow-none", 
+            "px-4 h-[40px] bg-primary text-white font-bold text-[12px] rounded-[5px] transition-all hover:bg-primary/90 flex items-center justify-center gap-2 border border-primary shadow-none", 
             !isList && "flex-1"
           )}
         >
@@ -292,7 +292,7 @@ export function BranchCard({ branch, viewType = "grid", onEdit, onDelete, isGlob
         </button>
         <button 
           onClick={onDelete}
-          className="w-[40px] h-[40px] bg-white dark:bg-white/5 text-red-500 rounded-[6px] flex items-center justify-center hover:bg-red-50 dark:hover:bg-red-500/10 transition-all border border-[#E7E8EB] dark:border-white/10 shadow-none"
+          className="w-[40px] h-[40px] bg-white dark:bg-white/5 text-red-500 rounded-[5px] flex items-center justify-center hover:bg-red-50 dark:hover:bg-red-500/10 transition-all border border-[#E7E8EB] dark:border-white/10 shadow-none"
         >
           <Trash2 className="w-4 h-4" />
         </button>

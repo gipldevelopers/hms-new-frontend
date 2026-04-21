@@ -30,7 +30,7 @@ function MasterDataCard({ file, viewType, onDelete }) {
   return (
     <div 
       className={cn(
-        "group bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[10px] overflow-hidden flex transition-all duration-500 relative",
+        "group bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] overflow-hidden flex transition-all duration-500 relative",
         isList ? "flex-row items-center p-5 gap-6" : "flex-col p-6 h-full"
       )}
     >
@@ -50,15 +50,15 @@ function MasterDataCard({ file, viewType, onDelete }) {
         {isList ? (
            <div className="grid grid-cols-3 gap-6 animate-in fade-in duration-700">
               <div>
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 font-sans">Total fields</p>
+                <p className="text-[10px] font-bold text-gray-400 mb-1.5 font-sans">Total fields</p>
                 <p className="text-[15px] font-bold text-[#1e293b] dark:text-white leading-none">{file.fields?.length || 0} Inputs</p>
               </div>
               <div>
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 font-sans">Total Records</p>
+                <p className="text-[10px] font-bold text-gray-400 mb-1.5 font-sans">Total Records</p>
                 <p className="text-[15px] font-bold text-[#1e293b] dark:text-white leading-none">{file._count?.records || 0} Entries</p>
               </div>
               <div className="line-clamp-2 max-w-[300px]">
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5 font-sans">Description</p>
+                <p className="text-[10px] font-bold text-gray-400 mb-1.5 font-sans">Description</p>
                 <p className="text-[12px] text-gray-500 leading-relaxed truncate">{file.description || "No description provided."}</p>
               </div>
            </div>
@@ -69,11 +69,11 @@ function MasterDataCard({ file, viewType, onDelete }) {
             </p>
             <div className="mt-6 pt-6 border-t border-gray-100 dark:border-white/5 grid grid-cols-2 gap-4">
               <div>
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Field Definition</p>
+                <p className="text-[10px] font-bold text-gray-400 mb-1">Field Definition</p>
                 <p className="text-[14px] font-bold text-[#1e293b] dark:text-white">{file.fields?.length || 0} Inputs</p>
               </div>
               <div className="text-right">
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Data Entries</p>
+                <p className="text-[10px] font-bold text-gray-400 mb-1">Data Entries</p>
                 <p className="text-[14px] font-bold text-[#1e293b] dark:text-white">{file._count?.records || 0} Records</p>
               </div>
             </div>
@@ -206,9 +206,9 @@ export default function MasterDataPage() {
           { label: "Active Fields", value: Array.isArray(masterFiles) ? masterFiles.reduce((acc, curr) => acc + (curr.fields?.length || 0), 0) : 0, icon: ShieldCheck, color: "indigo" },
           { label: "Total Data Entries", value: Array.isArray(masterFiles) ? masterFiles.reduce((acc, curr) => acc + (curr._count?.records || 0), 0) : 0, icon: Database, color: "emerald" },
         ].map((stat, i) => (
-          <div key={i} className="bg-white dark:bg-[#101935] p-5 rounded-[12px] border border-[#E7E8EB] dark:border-white/10 flex items-center gap-4">
+          <div key={i} className="bg-white dark:bg-[#101935] p-5 rounded-[5px] border border-[#E7E8EB] dark:border-white/10 flex items-center gap-4">
             <div className={cn(
-              "w-12 h-12 rounded-[10px] flex items-center justify-center",
+              "w-12 h-12 rounded-[5px] flex items-center justify-center",
               stat.color === "blue" && "bg-primary/10 text-primary",
               stat.color === "indigo" && "bg-primary/10 text-primary",
               stat.color === "emerald" && "bg-emerald-50 text-emerald-500",
@@ -216,7 +216,7 @@ export default function MasterDataPage() {
               <stat.icon className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest leading-none">{stat.label}</p>
+              <p className="text-[11px] font-bold text-gray-400 leading-none">{stat.label}</p>
               <p className="text-[20px] font-bold text-[#1e293b] dark:text-white mt-1.5 leading-none">{stat.value}</p>
             </div>
           </div>
@@ -224,24 +224,24 @@ export default function MasterDataPage() {
       </div>
 
       {/* Filter Bar */}
-      <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-white dark:bg-[#101935] p-3 rounded-[10px] border border-[#E7E8EB] dark:border-white/10">
+      <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-white dark:bg-[#101935] p-3 rounded-[5px] border border-[#E7E8EB] dark:border-white/10">
         <div className="relative w-full md:w-[350px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input 
             type="text" 
             placeholder="Search schemas..."
-            className="w-full h-10 pl-10 pr-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-gray-100 dark:border-white/10 rounded-[6px] text-[13px] font-medium focus:border-primary transition-all font-semibold outline-none"
+            className="w-full h-10 pl-10 pr-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-gray-100 dark:border-white/10 rounded-[5px] text-[13px] font-medium focus:border-primary transition-all font-semibold outline-none"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
         
         <div className="flex items-center gap-2 hidden lg:flex">
-          <div className="flex items-center gap-1 bg-[#F8F9FC] dark:bg-[#1e293b] p-1 rounded-[6px] border border-[#E7E8EB] dark:border-white/10">
+          <div className="flex items-center gap-1 bg-[#F8F9FC] dark:bg-[#1e293b] p-1 rounded-[5px] border border-[#E7E8EB] dark:border-white/10">
             <button 
               onClick={() => setViewType("grid")}
               className={cn(
-                "p-1.5 rounded-[4px] transition-all",
+                "p-1.5 rounded-[5px] transition-all",
                 viewType === "grid" ? "bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 text-primary shadow-sm" : "text-gray-400 hover:text-primary"
               )}
             >
@@ -250,7 +250,7 @@ export default function MasterDataPage() {
             <button 
               onClick={() => setViewType("list")}
               className={cn(
-                "p-1.5 rounded-[4px] transition-all",
+                "p-1.5 rounded-[5px] transition-all",
                 viewType === "list" ? "bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 text-primary shadow-sm" : "text-gray-400 hover:text-primary"
               )}
             >
@@ -262,7 +262,7 @@ export default function MasterDataPage() {
 
       {/* Dynamic View Content */}
       {loading ? (
-        <div className="flex-1 flex items-center justify-center p-20 text-gray-400 font-bold uppercase tracking-widest text-[13px]">
+        <div className="flex-1 flex items-center justify-center p-20 text-gray-400 font-bold text-[13px]">
            Synchronizing with server...
         </div>
       ) : (
@@ -274,7 +274,7 @@ export default function MasterDataPage() {
             <MasterDataCard key={file.id} file={file} viewType={viewType} onDelete={() => handleDeleteClick(file.id)} />
           ))}
           {masterFiles.length === 0 && (
-            <div className="col-span-full py-20 text-center bg-white dark:bg-[#101935] rounded-[10px] border border-dashed border-gray-200">
+            <div className="col-span-full py-20 text-center bg-white dark:bg-[#101935] rounded-[5px] border border-dashed border-gray-200">
                <p className="text-gray-400 font-medium">No master data schemas found matching your search.</p>
             </div>
           )}

@@ -18,11 +18,11 @@ const PerformanceMetricItem = ({ title, value, percentage, trend }) => (
           <p className="text-[20px] font-bold text-[#101935] dark:text-white leading-none tracking-tight truncate">
             {value}
           </p>
-          <p className="text-[12px] font-bold text-[#64748B] dark:text-slate-500 mt-2 uppercase tracking-tight truncate">
+          <p className="text-[12px] font-bold text-[#64748B] dark:text-slate-500 mt-2 tracking-tight truncate">
             {title}
           </p>
         </div>
-        <p className="text-[11px] font-bold text-[#94A3B8] uppercase whitespace-nowrap">Target: 5</p>
+        <p className="text-[11px] font-bold text-[#94A3B8] whitespace-nowrap">Target: 5</p>
       </div>
       <div className="h-1.5 w-full bg-slate-100 dark:bg-white/10 rounded-full overflow-hidden">
         <div 
@@ -46,7 +46,7 @@ export default function PerformanceMetrics() {
     <div className="bg-white dark:bg-[#101935] rounded-[5px] border border-[#E7E8EB] dark:border-white/10 overflow-hidden font-sans transition-all">
       {/* Container Header */}
       <div className="px-6 py-4 border-b border-[#E7E8EB] dark:border-white/10 bg-slate-50/50 dark:bg-white/5">
-        <h3 className="text-[16px] font-bold text-[#101935] dark:text-white uppercase tracking-wider">Performance Metrics</h3>
+        <h3 className="text-[16px] font-bold text-[#101935] dark:text-white">Performance Metrics</h3>
       </div>
       
       {/* Grid */}

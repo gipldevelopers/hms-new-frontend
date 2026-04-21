@@ -1,44 +1,43 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
-import { Plus, LayoutGrid, Search, UserPlus, Filter, Building2, ChevronDown, Check, ArrowLeft } from "lucide-react";
+import { Search, UserPlus, ArrowLeft } from "lucide-react";
 import { UserTable, UserStats } from "@/components/super-admin/users/UserComponents";
 import { AddUserModal } from "@/components/super-admin/users/AddUserModal";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
+import { useRouter } from "next/navigation";
 
 const API_BASE = "/api";
 
-export default function BranchUserManagementPage() {
-  const { id: branchId } = useParams();
+export default function StaffManagementPage() {
   const router = useRouter();
-  
+  const [mounted, setMounted] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [roleFilter, setRoleFilter] = useState("All");
   
   const [users, setUsers] = useState([]);
-  const [branch, setBranch] = useState(null);
   const [editingUser, setEditingUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [adminInfo, setAdminInfo] = useState(null);
+
+  useEffect(() => {
+    setMounted(true);
+    // Determine current admin info from local storage
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    setAdminInfo(user);
+  }, []);
 
   const fetchData = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("authtoken");
       const headers = { 
         "Authorization": `Bearer ${token}` 
       };
       
-      // Fetch Branch Details
-      const branchRes = await fetch(`${API_BASE}/branches/${branchId}`, { headers });
-      const branchJson = await branchRes.json();
-      if (branchJson.success) setBranch(branchJson.data);
-
-      // Fetch Users for this specific branch
+      // Fetch Users (Scoping is handled by backend JWT)
       const userParams = new URLSearchParams();
-      userParams.append("branchId", branchId);
       if (roleFilter !== "All") userParams.append("role", roleFilter);
       if (searchQuery) userParams.append("search", searchQuery);
       
@@ -48,14 +47,14 @@ export default function BranchUserManagementPage() {
       if (userJson.success) {
         const enrichedUsers = userJson.data.map(u => ({
           ...u,
-          hospital: u.branch ? u.branch.name : "GLOBAL REGISTRY",
+          hospital: u.branch ? u.branch.name : "LOCAL BRANCH",
           status: u.status || "Active"
         }));
         setUsers(enrichedUsers);
       }
     } catch (error) {
-      console.error("Fetch users error:", error);
-      toast.error("Handshake fail. Registry inaccessible.");
+      console.error("Fetch staff error:", error);
+      toast.error("Handshake timeout. Local registry disconnected.");
     } finally {
       setLoading(false);
     }
@@ -66,7 +65,9 @@ export default function BranchUserManagementPage() {
       fetchData();
     }, 300);
     return () => clearTimeout(timer);
-  }, [roleFilter, searchQuery, branchId]);
+  }, [roleFilter, searchQuery]);
+
+  if (!mounted) return null;
 
   const handleCreateNew = () => {
     setEditingUser(null);
@@ -79,30 +80,25 @@ export default function BranchUserManagementPage() {
   };
 
   const handleView = (user) => {
-    toast.info(`Reviewing profile for ${user.name}`);
+    toast.info(`Reviewing bio-matrix profile for ${user.name}`);
   };
 
   const handleDelete = async (user) => {
-    const confirmed = window.confirm(`Revoke access: Are you sure you want to permanently remove all credentials for ${user.name}?`);
-    
+    const confirmed = window.confirm(`REVOKE ACCESS: Confirm purging ${user.name} from branch registries?`);
     if (confirmed) {
       try {
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem("authtoken");
         const res = await fetch(`${API_BASE}/users/${user.id}`, {
           method: "DELETE",
-          headers: { 
-            "Authorization": `Bearer ${token}` 
-          }
+          headers: { "Authorization": `Bearer ${token}` }
         });
         const json = await res.json();
         if (json.success) {
-          toast.success("Personnel purged from registry");
+          toast.success("Personnel access purged from branch registry");
           fetchData();
-        } else {
-          toast.error(json.message || "Revocation failed");
         }
       } catch (err) {
-        toast.error("Security module handshake timeout");
+        toast.error("Security module handshake failure");
       }
     }
   };
@@ -115,14 +111,13 @@ export default function BranchUserManagementPage() {
         <div className="flex items-center gap-4">
           <button 
             onClick={() => router.back()}
-            className="p-2 bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-gray-500 hover:text-primary transition-all shadow-none"
+            className="w-10 h-10 border border-[#E7E8EB] dark:border-white/10 rounded-[5px] flex items-center justify-center hover:bg-gray-50 transition-all text-gray-400 bg-white dark:bg-[#101935]"
+            className="w-10 h-10 border border-[#E7E8EB] dark:border-white/10 rounded-[5px] flex items-center justify-center hover:bg-gray-50 transition-all text-gray-400 bg-white dark:bg-[#101935] shadow-none"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div className="space-y-1">
-            <h1 className="text-[20px] font-bold text-[#1e293b] dark:text-white tracking-tight leading-none">
-              {branch ? `${branch.name} directory` : "Branch user directory"}
-            </h1>
+            <h1 className="text-[20px] font-bold text-[#1e293b] dark:text-white tracking-tight leading-none">Branch staff matrix</h1>
           </div>
         </div>
         
@@ -131,7 +126,7 @@ export default function BranchUserManagementPage() {
           className="bg-primary text-white px-8 h-[48px] rounded-[5px] text-[13px] font-bold flex items-center justify-center gap-3 hover:opacity-90 transition-all shadow-none"
         >
           <UserPlus className="w-4 h-4" />
-          Add branch user
+          Provision staff
         </button>
       </div>
 
@@ -152,7 +147,7 @@ export default function BranchUserManagementPage() {
         {loading && (
           <div className="absolute inset-0 top-32 flex flex-col items-center pt-24 bg-white/50 dark:bg-[#0A0F1D]/50 backdrop-blur-sm z-10 rounded-[5px]">
             <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-4"></div>
-            <p className="text-[11px] font-bold text-gray-400">Synchronizing isolated database...</p>
+            <p className="text-[11px] font-bold text-gray-400">Synchronizing branch personnel data...</p>
           </div>
         )}
       </div>
@@ -162,8 +157,8 @@ export default function BranchUserManagementPage() {
         onClose={() => setIsModalOpen(false)} 
         onSuccess={fetchData}
         editingUser={editingUser}
-        branches={branch ? [branch] : []}
-        selectedBranchId={branchId}
+        branches={adminInfo?.branch ? [adminInfo.branch] : []}
+        selectedBranchId={adminInfo?.branchId}
       />
     </div>
   );

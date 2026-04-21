@@ -30,7 +30,7 @@ export default function LoginPage() {
 
       if (result.success) {
         localStorage.setItem("user", JSON.stringify(result.data.user));
-        localStorage.setItem("token", result.data.token);
+        localStorage.setItem("authtoken", result.data.authtoken);
         
         const role = result.data.user.role;
         const redirectPath = role === "SUPERADMIN" ? "/super-admin" : `/${role.toLowerCase().replace(/_/g, "-")}`;
@@ -94,14 +94,14 @@ export default function LoginPage() {
         <div className="relative z-10 flex flex-col h-full justify-between">
             {/* Logo Section */}
             <div className="flex items-center gap-4">
-               <div className="bg-white/10 p-2.5 rounded-[12px] border border-white/20 backdrop-blur-xl">
+               <div className="bg-white/10 p-2.5 rounded-[5px] border border-white/20 backdrop-blur-xl">
                   <Image src="/favicon.ico" width={32} height={32} alt="Logo" className="brightness-0 invert" />
                </div>
                <div>
-                  <h2 className="text-white text-[22px] font-black tracking-tighter uppercase italic">GVoice HMS</h2>
+                  <h2 className="text-white text-[22px] font-black tracking-tighter italic">GVoice HMS</h2>
                   <div className="flex items-center gap-2 mt-0.5">
                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                     <p className="text-white/50 text-[9px] font-bold uppercase tracking-[3px]">Next-Gen Healthcare OS</p>
+                     <p className="text-white/50 text-[9px] font-bold tracking-[3px]">Next-Gen Healthcare OS</p>
                   </div>
                </div>
             </div>
@@ -113,7 +113,7 @@ export default function LoginPage() {
                  animate={{ opacity: 1, y: 0 }}
                  transition={{ duration: 0.8, ease: "easeOut" }}
                >
-                  <p className="text-white/60 font-black text-[12px] uppercase tracking-[5px] mb-4">Revolutionary Management</p>
+                  <p className="text-white/60 font-black text-[12px] tracking-[5px] mb-4">Revolutionary Management</p>
                   <h1 className="text-white text-[56px] font-bold leading-[1] mb-6 tracking-tighter">
                     Built for <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-indigo-100">Clinical Precision.</span>
                   </h1>
@@ -129,13 +129,13 @@ export default function LoginPage() {
                        { icon: CheckCircle2, text: "Regulatory Compliance", sub: "HIPAA & HL7 Standards" },
                        { icon: HeartPulse, text: "Real-time Diagnostics", sub: "Patient-first intelligence" }
                      ].map((f, i) => (
-                        <div key={i} className="flex gap-4 p-4 rounded-[12px] bg-white/5 border border-white/10 backdrop-blur-sm group hover:bg-white/10 transition-all cursor-default">
-                           <div className="w-9 h-9 rounded-[8px] bg-white/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                        <div key={i} className="flex gap-4 p-4 rounded-[5px] bg-white/5 border border-white/10 backdrop-blur-sm group hover:bg-white/10 transition-all cursor-default">
+                           <div className="w-9 h-9 rounded-[5px] bg-white/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
                               <f.icon className="w-4 h-4 text-blue-200" />
                            </div>
                            <div>
                               <p className="text-white font-bold text-[12px]">{f.text}</p>
-                              <p className="text-white/40 text-[9px] font-bold uppercase tracking-tight mt-0.5">{f.sub}</p>
+                              <p className="text-white/40 text-[9px] font-bold tracking-tight mt-0.5">{f.sub}</p>
                            </div>
                         </div>
                      ))}
@@ -156,7 +156,7 @@ export default function LoginPage() {
                   </div>
                </div>
                <div className="text-right">
-                  <p className="text-white/40 text-[10px] font-bold uppercase tracking-widest leading-none">Gohil Infotech</p>
+                  <p className="text-white/40 text-[10px] font-bold leading-none">Gohil Infotech</p>
                   <p className="text-white text-[16px] font-black mt-1 leading-none">Trusted By Leading Hospitals</p>
                </div>
             </div>
@@ -170,10 +170,10 @@ export default function LoginPage() {
           
           {/* Mobile Only Header */}
           <div className="xl:hidden flex items-center gap-3 mb-8">
-             <div className="bg-[#2E37A4] p-2 rounded-[10px]">
+             <div className="bg-[#2E37A4] p-2 rounded-[5px]">
                 <Image src="/favicon.ico" width={20} height={20} alt="Logo" className="brightness-0 invert" />
              </div>
-             <h2 className="text-[#2E37A4] text-[18px] font-black tracking-tighter uppercase italic">GVoice HMS</h2>
+             <h2 className="text-[#2E37A4] text-[18px] font-black tracking-tighter italic">GVoice HMS</h2>
           </div>
 
           <div className="mb-10 text-left">
@@ -186,7 +186,7 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-5">
             
             <div className="space-y-2">
-              <label className="text-[11px] font-bold text-[#1e293b] dark:text-gray-300 uppercase tracking-widest pl-1">
+              <label className="text-[11px] font-bold text-[#1e293b] dark:text-gray-300 pl-1">
                 Access Identifier
               </label>
               <div className="relative">
@@ -200,7 +200,7 @@ export default function LoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="admin@gvoice.hms"
                   className={cn(
-                    "w-full h-[52px] pl-11 pr-4 bg-[#F8F9FC] dark:bg-white/[0.03] border border-[#E7E8EB] dark:border-white/10 rounded-[10px]",
+                    "w-full h-[52px] pl-11 pr-4 bg-[#F8F9FC] dark:bg-white/[0.03] border border-[#E7E8EB] dark:border-white/10 rounded-[5px]",
                     "text-[14px] font-bold text-[#1e293b] dark:text-white outline-none transition-all duration-300 shadow-none",
                     "focus:border-[#2E37A4] focus:bg-white transition-all"
                   )}
@@ -210,10 +210,10 @@ export default function LoginPage() {
 
             <div className="space-y-2">
               <div className="flex justify-between items-center px-1">
-                <label className="text-[11px] font-bold text-[#1e293b] dark:text-gray-300 uppercase tracking-widest">
+                <label className="text-[11px] font-bold text-[#1e293b] dark:text-gray-300">
                   Passcode / Token
                 </label>
-                <button type="button" className="text-[10px] font-bold text-[#2E37A4] hover:underline uppercase tracking-tighter">Reset Passcode</button>
+                <button type="button" className="text-[10px] font-bold text-[#2E37A4] hover:underline tracking-tighter">Reset Passcode</button>
               </div>
               <div className="relative">
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
@@ -226,7 +226,7 @@ export default function LoginPage() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••••••"
                   className={cn(
-                    "w-full h-[52px] pl-11 pr-11 bg-[#F8F9FC] dark:bg-white/[0.03] border border-[#E7E8EB] dark:border-white/10 rounded-[10px]",
+                    "w-full h-[52px] pl-11 pr-11 bg-[#F8F9FC] dark:bg-white/[0.03] border border-[#E7E8EB] dark:border-white/10 rounded-[5px]",
                     "text-[14px] font-bold text-[#1e293b] dark:text-white outline-none transition-all duration-300 shadow-none",
                     "focus:border-[#2E37A4] focus:bg-white transition-all"
                   )}
@@ -242,7 +242,7 @@ export default function LoginPage() {
             </div>
 
             {error && (
-              <div className="flex items-center gap-3 p-4 rounded-[10px] bg-red-50 border border-red-100 text-red-600">
+              <div className="flex items-center gap-3 p-4 rounded-[5px] bg-red-50 border border-red-100 text-red-600">
                 <ShieldCheck className="w-4.5 h-4.5 shrink-0" />
                 <p className="text-[11px] font-bold leading-tight">{error}</p>
               </div>
@@ -251,7 +251,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="relative w-full h-[54px] rounded-[10px] bg-[#2E37A4] text-white text-[14px] font-bold uppercase tracking-[1.5px] transition-all duration-300 hover:bg-[#252c84] disabled:opacity-50 border border-[#2E37A4]/10"
+              className="relative w-full h-[54px] rounded-[5px] bg-[#2E37A4] text-white text-[14px] font-bold tracking-[1.5px] transition-all duration-300 hover:bg-[#252c84] disabled:opacity-50 border border-[#2E37A4]/10"
             >
               {isLoading ? (
                 <div className="h-6 w-6 animate-spin border-[3px] border-white/20 border-t-white rounded-full mx-auto" />
@@ -267,7 +267,7 @@ export default function LoginPage() {
           <div className="mt-8 text-center">
             <div className="relative flex items-center justify-center mb-6">
               <div className="absolute inset-x-0 h-px bg-gray-100 dark:bg-white/5" />
-              <span className="relative bg-white dark:bg-[#0A0F1D] px-6 text-[9px] font-bold text-gray-400 uppercase tracking-[3px]">
+              <span className="relative bg-white dark:bg-[#0A0F1D] px-6 text-[9px] font-bold text-gray-400 tracking-[3px]">
                 Demo Role Access
               </span>
             </div>
@@ -295,7 +295,7 @@ export default function LoginPage() {
                      setPassword(p);
                      handleLogin(e, p);
                    }}
-                   className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-[10px] border border-[#E7E8EB] dark:border-white/10 bg-white dark:bg-[#101935] hover:border-[#2E37A4] hover:bg-[#F8F9FC] transition-all group"
+                   className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-[5px] border border-[#E7E8EB] dark:border-white/10 bg-white dark:bg-[#101935] hover:border-[#2E37A4] hover:bg-[#F8F9FC] transition-all group"
                  >
                    <div className="w-8 h-8 rounded-full bg-slate-50 dark:bg-white/5 flex items-center justify-center group-hover:bg-[#2E37A4]/10 transition-colors">
                       <Zap className="h-3.5 w-3.5 text-gray-400 group-hover:text-[#2E37A4]" />
@@ -307,7 +307,7 @@ export default function LoginPage() {
           </div>
 
           {/* Global Footer Meta */}
-          <div className="mt-12 w-full flex justify-between items-center text-[10px] font-bold text-gray-400 uppercase tracking-widest border-t border-gray-100 dark:border-white/5 pt-6">
+          <div className="mt-12 w-full flex justify-between items-center text-[10px] font-bold text-gray-400 border-t border-gray-100 dark:border-white/5 pt-6">
              <p>© 2026 Gohil Infotech</p>
              <div className="flex items-center gap-6">
                 <a href="#" className="hover:text-[#2E37A4]">GVoice HMS Platform</a>

@@ -100,7 +100,7 @@ export default function Header({
             e.stopPropagation();
             setIsMobileOpen(!isMobileOpen);
           }}
-          className="lg:hidden w-10 h-10 flex items-center justify-center rounded-[8px] border border-[#E7E8EB] dark:border-white/10 text-gray-500 hover:bg-gray-50 dark:hover:bg-[#1e293b] transition-all"
+          className="lg:hidden w-10 h-10 flex items-center justify-center rounded-[5px] border border-[#E7E8EB] dark:border-white/10 text-gray-500 hover:bg-gray-50 dark:hover:bg-[#1e293b] transition-all"
         >
           <Menu className="w-5 h-5" />
         </button>
@@ -113,7 +113,7 @@ export default function Header({
               placeholder="Search"
               className="pl-10 pr-4 md:pr-12 h-10 w-full bg-white dark:bg-[#101935] border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[14px] placeholder:text-slate-400 dark:placeholder:text-slate-500 focus-visible:ring-1 focus-visible:ring-primary transition-all dark:text-white"
             />
-            <div className="absolute right-2 hidden md:flex items-center justify-center w-7 h-7 bg-gray-50 dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-md">
+            <div className="absolute right-2 hidden md:flex items-center justify-center w-7 h-7 bg-gray-50 dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px]">
               <Command className="w-3.5 h-3.5 text-slate-500" />
             </div>
           </div>
@@ -165,14 +165,14 @@ export default function Header({
                     <p className="text-[11px] text-[#64748B] dark:text-slate-400 mt-1 line-clamp-2 leading-relaxed">
                       {n.desc}
                     </p>
-                    <p className="text-[10px] text-[#94A3B8] dark:text-slate-500 mt-2 font-bold uppercase tracking-widest">
+                    <p className="text-[10px] text-[#94A3B8] dark:text-slate-500 mt-2 font-bold">
                       {n.time}
                     </p>
                   </div>
                 ))}
               </div>
               <div className="p-3 text-center border-t border-[#E7E8EB] dark:border-white/10">
-                <button className="text-[11px] font-bold text-primary dark:text-primary hover:underline uppercase tracking-tighter">
+                <button className="text-[11px] font-bold text-primary dark:text-primary hover:underline tracking-tighter">
                   View All Updates
                 </button>
               </div>
@@ -209,12 +209,12 @@ export default function Header({
                 <p className="text-[13px] font-bold text-[#101935] dark:text-white truncate">
                   Vraj Darji
                 </p>
-                <p className="text-[10px] text-[#64748B] dark:text-slate-400 font-bold uppercase tracking-widest truncate">
+                <p className="text-[10px] text-[#64748B] dark:text-slate-400 font-bold truncate">
                   Administrator
                 </p>
               </div>
               <div className="p-1">
-                <button className="w-full flex items-center gap-3 px-3 py-2 text-[12px] font-bold text-gray-500 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-white/[0.05] rounded-[5px] transition-colors uppercase tracking-tight">
+                <button className="w-full flex items-center gap-3 px-3 py-2 text-[12px] font-bold text-gray-500 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-white/[0.05] rounded-[5px] transition-colors tracking-tight">
                   <User className="w-4 h-4" /> Account
                 </button>
               </div>

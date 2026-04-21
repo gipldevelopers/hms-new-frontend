@@ -185,7 +185,7 @@ export default function AssignmentsPage() {
                   <input 
                     type="text"
                     placeholder="Search branches..."
-                    className="w-full h-9 pl-8 pr-3 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 rounded-[4px] text-[12px] font-medium outline-none focus:border-primary"
+                    className="w-full h-9 pl-8 pr-3 bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/5 rounded-[5px] text-[12px] font-medium outline-none focus:border-primary"
                     value={branchSearch}
                     onChange={(e) => setBranchSearch(e.target.value)}
                     onKeyDown={(e) => e.stopPropagation()}
@@ -198,14 +198,14 @@ export default function AssignmentsPage() {
                     <DropdownMenuItem 
                       key={branch.id} 
                       onClick={() => setSelectedBranch(branch)}
-                      className="flex items-center gap-3 px-3 py-2 text-[13px] font-semibold cursor-pointer rounded-[4px] mb-0.5"
+                      className="flex items-center gap-3 px-3 py-2 text-[13px] font-semibold cursor-pointer rounded-[5px] mb-0.5"
                     >
                       <Building2 className="w-4 h-4 text-gray-400" />
                       <span>{branch.name}</span>
                       {selectedBranch?.id === branch.id && <Check className="w-4 h-4 ml-auto text-primary" />}
                     </DropdownMenuItem>
                   ))}
-                  {filteredBranches.length === 0 && <div className="p-3 text-center text-gray-400 text-xs font-bold uppercase tracking-widest">No matching branch</div>}
+                  {filteredBranches.length === 0 && <div className="p-3 text-center text-gray-400 text-xs font-bold">No matching branch</div>}
                 </div>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -222,7 +222,7 @@ export default function AssignmentsPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 items-start pb-10">
         {/* Master Data Assignments */}
-        <div className="bg-white dark:bg-[#101935] rounded-[10px] border border-[#E7E8EB] dark:border-white/10 overflow-hidden shadow-none flex flex-col">
+        <div className="bg-white dark:bg-[#101935] rounded-[5px] border border-[#E7E8EB] dark:border-white/10 overflow-hidden shadow-none flex flex-col">
           <div className="p-4 md:p-5 border-b border-gray-100 dark:border-white/5 flex flex-col gap-4 bg-[#F8F9FC]/30 dark:bg-white/[0.01]">
              <div className="flex justify-between items-center">
                 <div className="flex items-center gap-3">
@@ -230,21 +230,21 @@ export default function AssignmentsPage() {
                     <ShieldCheck className="w-5 h-5 text-primary" />
                   </div>
                   <div>
-                    <h3 className="text-[13px] md:text-[14px] font-bold text-[#1e293b] dark:text-white uppercase tracking-wider">Master Data Access</h3>
+                    <h3 className="text-[13px] md:text-[14px] font-bold text-[#1e293b] dark:text-white">Master Data Access</h3>
                   </div>
                 </div>
                 
                 <div className="flex items-center gap-2">
                   <button 
                     onClick={() => setSelectedMasterData(masterData.map(m => m.id))}
-                    className="text-[10px] md:text-[11px] font-bold text-primary uppercase tracking-widest hover:opacity-80 transition-colors"
+                    className="text-[10px] md:text-[11px] font-bold text-primary hover:opacity-80 transition-colors"
                   >
                     All
                   </button>
                   <span className="text-gray-200">/</span>
                   <button 
                     onClick={() => setSelectedMasterData([])}
-                    className="text-[10px] md:text-[11px] font-bold text-gray-400 uppercase tracking-widest hover:text-red-500 transition-colors"
+                    className="text-[10px] md:text-[11px] font-bold text-gray-400 hover:text-red-500 transition-colors"
                   >
                     Clear
                   </button>
@@ -268,18 +268,18 @@ export default function AssignmentsPage() {
              {!selectedBranch && !loading && (
                <div className="py-16 md:py-20 text-center flex flex-col items-center gap-3">
                   <Target className="w-10 h-10 text-gray-200" />
-                  <p className="text-[10px] md:text-[11px] font-bold text-gray-400 uppercase tracking-widest px-4">Select branch to manage data</p>
+                  <p className="text-[10px] md:text-[11px] font-bold text-gray-400 px-4">Select branch to manage data</p>
                </div>
              )}
              {loading && (
-                <div className="py-10 text-center text-gray-300 text-[11px] font-bold uppercase tracking-widest animate-pulse">Syncing...</div>
+                <div className="py-10 text-center text-gray-300 text-[11px] font-bold animate-pulse">Syncing...</div>
              )}
              {selectedBranch && !loading && filteredMasterData.map((item) => (
                 <div 
                   key={item.id}
                   onClick={() => handleToggleMasterData(item.id)}
                   className={cn(
-                    "flex items-center p-3 md:p-4 rounded-[10px] transition-all cursor-pointer border group mx-1",
+                    "flex items-center p-3 md:p-4 rounded-[5px] transition-all cursor-pointer border group mx-1",
                     selectedMasterData.includes(item.id) 
                       ? "bg-primary/5 border-primary/20 dark:bg-primary/10 dark:border-primary/30 shadow-none" 
                       : "bg-white dark:bg-[#101935]/40 border-gray-100/50 dark:border-white/5 hover:border-primary/30 dark:hover:border-primary/30"
@@ -293,10 +293,10 @@ export default function AssignmentsPage() {
                    </div>
                    <div className="flex-1 ml-3 md:ml-4 text-left">
                       <h4 className="text-[13px] md:text-[14px] font-bold text-[#1e293b] dark:text-white leading-tight truncate">{item.name}</h4>
-                      <p className="text-[10px] md:text-[11px] text-gray-400 font-bold mt-1 uppercase tracking-tight opacity-70 truncate">{item.code} • {item.fields?.length || 0} Fields</p>
+                      <p className="text-[10px] md:text-[11px] text-gray-400 font-bold mt-1 tracking-tight opacity-70 truncate">{item.code} • {item.fields?.length || 0} Fields</p>
                    </div>
                    <div className={cn(
-                     "w-5 h-5 rounded-[4px] border transition-all flex items-center justify-center shrink-0",
+                     "w-5 h-5 rounded-[5px] border transition-all flex items-center justify-center shrink-0",
                      selectedMasterData.includes(item.id) ? "bg-primary border-primary" : "border-gray-200 dark:border-white/10 group-hover:border-primary/50"
                    )}>
                       {selectedMasterData.includes(item.id) && <Check className="w-3.5 h-3.5 text-white stroke-[3]" />}
@@ -307,7 +307,7 @@ export default function AssignmentsPage() {
         </div>
 
         {/* Template Assignments */}
-        <div className="bg-white dark:bg-[#101935] rounded-[10px] border border-[#E7E8EB] dark:border-white/10 overflow-hidden shadow-none flex flex-col">
+        <div className="bg-white dark:bg-[#101935] rounded-[5px] border border-[#E7E8EB] dark:border-white/10 overflow-hidden shadow-none flex flex-col">
           <div className="p-4 md:p-5 border-b border-gray-100 dark:border-white/5 flex flex-col gap-4 bg-[#F8F9FC]/30 dark:bg-white/[0.01]">
              <div className="flex justify-between items-center">
                 <div className="flex items-center gap-3">
@@ -315,21 +315,21 @@ export default function AssignmentsPage() {
                     <FileText className="w-5 h-5 text-primary" />
                   </div>
                   <div>
-                    <h3 className="text-[13px] md:text-[14px] font-bold text-[#1e293b] dark:text-white uppercase tracking-wider">Document Templates</h3>
+                    <h3 className="text-[13px] md:text-[14px] font-bold text-[#1e293b] dark:text-white">Document Templates</h3>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2">
                   <button 
                     onClick={() => setSelectedTemplates(templates.map(t => t.id))}
-                    className="text-[10px] md:text-[11px] font-bold text-primary uppercase tracking-widest hover:opacity-80 transition-colors"
+                    className="text-[10px] md:text-[11px] font-bold text-primary hover:opacity-80 transition-colors"
                   >
                     All
                   </button>
                   <span className="text-gray-200">/</span>
                   <button 
                     onClick={() => setSelectedTemplates([])}
-                    className="text-[10px] md:text-[11px] font-bold text-gray-400 uppercase tracking-widest hover:text-red-500 transition-colors"
+                    className="text-[10px] md:text-[11px] font-bold text-gray-400 hover:text-red-500 transition-colors"
                   >
                     Clear
                   </button>
@@ -353,18 +353,18 @@ export default function AssignmentsPage() {
              {!selectedBranch && !loading && (
                <div className="py-16 md:py-20 text-center flex flex-col items-center gap-3">
                   <Target className="w-10 h-10 text-gray-200" />
-                  <p className="text-[10px] md:text-[11px] font-bold text-gray-400 uppercase tracking-widest px-4">Select branch to manage templates</p>
+                  <p className="text-[10px] md:text-[11px] font-bold text-gray-400 px-4">Select branch to manage templates</p>
                </div>
              )}
              {loading && (
-                <div className="py-10 text-center text-gray-300 text-[11px] font-bold uppercase tracking-widest animate-pulse">Syncing...</div>
+                <div className="py-10 text-center text-gray-300 text-[11px] font-bold animate-pulse">Syncing...</div>
              )}
              {selectedBranch && !loading && filteredTemplates.map((item) => (
                 <div 
                   key={item.id}
                   onClick={() => handleToggleTemplate(item.id)}
                   className={cn(
-                    "flex items-center p-3 md:p-4 rounded-[10px] transition-all cursor-pointer border group mx-1",
+                    "flex items-center p-3 md:p-4 rounded-[5px] transition-all cursor-pointer border group mx-1",
                     selectedTemplates.includes(item.id) 
                       ? "bg-primary/5 border-primary/20 dark:bg-primary/10 dark:border-primary/30 shadow-none" 
                       : "bg-white dark:bg-[#101935]/40 border-gray-100/50 dark:border-white/5 hover:border-primary/30 dark:hover:border-primary/30"
@@ -379,14 +379,14 @@ export default function AssignmentsPage() {
                    <div className="flex-1 ml-3 md:ml-4 text-left">
                       <h4 className="text-[13px] md:text-[14px] font-bold text-[#1e293b] dark:text-white leading-tight truncate">{item.name}</h4>
                       <div className="flex items-center gap-2 mt-1.5">
-                         <span className="text-[8px] md:text-[9px] font-extrabold text-primary uppercase px-2 py-0.5 bg-primary/5 dark:bg-primary/20 rounded-full flex items-center gap-1 border border-primary/10">
+                         <span className="text-[8px] md:text-[9px] font-extrabold text-primary px-2 py-0.5 bg-primary/5 dark:bg-primary/20 rounded-full flex items-center gap-1 border border-primary/10">
                             {item.category}
                          </span>
-                         <span className="text-[10px] md:text-[11px] text-gray-400 font-bold uppercase tracking-tight opacity-70 truncate">{(item.blocks || []).length} Secs</span>
+                         <span className="text-[10px] md:text-[11px] text-gray-400 font-bold tracking-tight opacity-70 truncate">{(item.blocks || []).length} Secs</span>
                       </div>
                    </div>
                    <div className={cn(
-                     "w-5 h-5 rounded-[4px] border transition-all flex items-center justify-center shrink-0",
+                     "w-5 h-5 rounded-[5px] border transition-all flex items-center justify-center shrink-0",
                      selectedTemplates.includes(item.id) ? "bg-primary border-primary" : "border-gray-200 dark:border-white/10 group-hover:border-primary/50"
                    )}>
                       {selectedTemplates.includes(item.id) && <Check className="w-3.5 h-3.5 text-white stroke-[3]" />}

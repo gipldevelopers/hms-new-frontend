@@ -28,7 +28,7 @@ const MetricItem = ({ icon: Icon, title, value, trend }) => (
       <p className="text-[22px] font-bold text-[#101935] dark:text-white leading-none tracking-tight">
         {value}
       </p>
-      <p className="text-[12px] font-bold text-[#64748B] dark:text-slate-500 mt-2 uppercase tracking-wide">
+      <p className="text-[12px] font-bold text-[#64748B] dark:text-slate-500 mt-2 tracking-wide">
         {title}
       </p>
     </div>
@@ -40,7 +40,7 @@ export default function KeyMetrics() {
     <div className="bg-white dark:bg-[#101935] rounded-[5px] border border-[#E7E8EB] dark:border-white/10 overflow-hidden font-sans transition-all">
       {/* Header */}
       <div className="px-6 py-4 border-b border-[#E7E8EB] dark:border-white/10 bg-slate-50/50 dark:bg-white/5">
-        <h3 className="text-[16px] font-bold text-[#101935] dark:text-white tracking-wider">Key Metrics</h3>
+        <h3 className="text-[16px] font-bold text-[#101935] dark:text-white">Key Metrics</h3>
       </div>
       
       {/* Grid */}
