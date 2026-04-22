@@ -1,9 +1,10 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Lock, User, Eye, EyeOff, ShieldCheck, HeartPulse, ExternalLink, Globe, Zap, CheckCircle2, ChevronRight } from "lucide-react";
+import { Lock, User, Eye, EyeOff, ShieldCheck, HeartPulse, ExternalLink, Globe, Zap, CheckCircle2, ChevronRight, ChevronLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
@@ -48,16 +49,6 @@ export default function LoginPage() {
   const handleSubmit = (e) => {
     e.preventDefault();
     handleLogin();
-  };
-
-  const autoFillSuperAdmin = () => {
-    const creds = {
-      email: "super.developer@gohilinfotech.com",
-      password: "super@123",
-    };
-    setEmail(creds.email);
-    setPassword(creds.password);
-    handleLogin(creds.email, creds.password);
   };
 
   return (
@@ -213,7 +204,7 @@ export default function LoginPage() {
                 <label className="text-[11px] font-bold text-[#1e293b] dark:text-gray-300">
                   Passcode / Token
                 </label>
-                <button type="button" className="text-[10px] font-bold text-[#2E37A4] hover:underline tracking-tighter">Reset Passcode</button>
+                <Link href="/auth/forgot-password" className="text-[10px] font-bold text-[#2E37A4] hover:underline tracking-tighter cursor-pointer">Reset Passcode</Link>
               </div>
               <div className="relative">
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
@@ -297,10 +288,10 @@ export default function LoginPage() {
                    }}
                    className="flex flex-col items-center justify-center gap-1.5 p-3 rounded-[5px] border border-[#E7E8EB] dark:border-white/10 bg-white dark:bg-[#101935] hover:border-[#2E37A4] hover:bg-[#F8F9FC] transition-all group"
                  >
-                   <div className="w-8 h-8 rounded-full bg-slate-50 dark:bg-white/5 flex items-center justify-center group-hover:bg-[#2E37A4]/10 transition-colors">
-                      <Zap className="h-3.5 w-3.5 text-gray-400 group-hover:text-[#2E37A4]" />
-                   </div>
-                   <span className="text-[10px] font-bold text-gray-600 dark:text-gray-400 group-hover:text-[#2E37A4] whitespace-nowrap">{demo.name}</span>
+                    <div className="w-8 h-8 rounded-full bg-slate-50 dark:bg-white/5 flex items-center justify-center group-hover:bg-[#2E37A4]/10 transition-colors">
+                       <Zap className="h-3.5 w-3.5 text-gray-400 group-hover:text-[#2E37A4]" />
+                    </div>
+                    <span className="text-[10px] font-bold text-gray-600 dark:text-gray-400 group-hover:text-[#2E37A4] whitespace-nowrap">{demo.name}</span>
                  </button>
                ))}
             </div>
@@ -311,7 +302,7 @@ export default function LoginPage() {
              <p>© 2026 Gohil Infotech</p>
              <div className="flex items-center gap-6">
                 <a href="#" className="hover:text-[#2E37A4]">GVoice HMS Platform</a>
-                <a href="#" className="hover:text-[#2E37A4]">System Logs</a>
+                <Link href="/system-logs" className="hover:text-[#2E37A4]">System Logs</Link>
              </div>
           </div>
           </div>
