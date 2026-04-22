@@ -127,7 +127,7 @@ export default function TemplatesPage() {
   const fetchTemplates = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("authtoken");
       const res = await fetch(`/api/templates?search=${searchQuery}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -151,7 +151,7 @@ export default function TemplatesPage() {
   const confirmDelete = async () => {
     if (!itemToDelete) return;
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("authtoken");
       const res = await fetch(`/api/templates/${itemToDelete.id}`, { 
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }

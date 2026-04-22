@@ -58,7 +58,7 @@ export default function AssignmentsPage() {
   }, [selectedBranch]);
 
   const getHeaders = () => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("authtoken");
     return {
       "Content-Type": "application/json",
       "Authorization": `Bearer ${token}`

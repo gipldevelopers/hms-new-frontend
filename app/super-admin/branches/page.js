@@ -42,7 +42,7 @@ export default function BranchesPage() {
 
   const fetchSchemaInfo = async () => {
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("authtoken");
       const res = await fetch("/api/branches/schema/info", {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -56,7 +56,7 @@ export default function BranchesPage() {
   const fetchBranches = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("authtoken");
       const url = searchQuery ? `/api/branches?search=${encodeURIComponent(searchQuery)}` : "/api/branches";
       const res = await fetch(url, {
         headers: { Authorization: `Bearer ${token}` },
@@ -87,7 +87,7 @@ export default function BranchesPage() {
   const handleSyncAll = async () => {
     try {
       setIsSyncingAll(true);
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("authtoken");
       const res = await fetch("/api/branches/sync/all", {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
@@ -124,7 +124,7 @@ export default function BranchesPage() {
   const confirmDelete = async () => {
     if (!branchToDelete) return;
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("authtoken");
       const res = await fetch(`/api/branches/${branchToDelete.id}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
@@ -226,9 +226,6 @@ export default function BranchesPage() {
 
       {/* Hospital List Section */}
       <div className="space-y-[20px] pb-10">
-        <div className="border-b border-gray-100 dark:border-white/5 pb-2" />
-
-
         {/* Grid/List Content */}
         {loading ? (
           <div className="py-20 text-center text-gray-400 font-bold text-[12px] animate-pulse">Synchronizing Branches...</div>

@@ -104,22 +104,11 @@ export default function StaffManagementPage() {
   };
 
   return (
-    <div className="p-6 bg-[#F8F9FC] dark:bg-[#0A0F1D] min-h-screen flex flex-col transition-colors duration-300 font-sans">
+    <div className="p-6 bg-background min-h-screen flex flex-col space-y-5 transition-colors duration-300 font-sans">
       
       {/* Header Section */}
-      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-8">
-        <div className="flex items-center gap-4">
-          <button 
-            onClick={() => router.back()}
-            className="w-10 h-10 border border-[#E7E8EB] dark:border-white/10 rounded-[5px] flex items-center justify-center hover:bg-gray-50 transition-all text-gray-400 bg-white dark:bg-[#101935]"
-            className="w-10 h-10 border border-[#E7E8EB] dark:border-white/10 rounded-[5px] flex items-center justify-center hover:bg-gray-50 transition-all text-gray-400 bg-white dark:bg-[#101935] shadow-none"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <div className="space-y-1">
-            <h1 className="text-[20px] font-bold text-[#1e293b] dark:text-white tracking-tight leading-none">Branch staff matrix</h1>
-          </div>
-        </div>
+      <div className="flex justify-between items-center mb-5">
+        <h1 className="text-[20px] font-bold text-foreground tracking-tight leading-none">Branch staff matrix</h1>
         
         <button 
           onClick={handleCreateNew}
@@ -132,7 +121,7 @@ export default function StaffManagementPage() {
 
       <UserStats />
 
-      <div className="space-y-[30px] pb-20 relative">
+      <div className="space-y-5 pb-20 relative">
         <UserTable 
           users={loading ? [] : users}
           onEdit={handleEdit}

@@ -135,7 +135,7 @@ export default function MasterDataPage() {
   const fetchMasterData = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("authtoken");
       const res = await fetch(`/api/master-data?search=${searchQuery}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -167,7 +167,7 @@ export default function MasterDataPage() {
     if (!itemToDelete) return;
     
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("authtoken");
       const res = await fetch(`/api/master-data/${itemToDelete.id}`, { 
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }

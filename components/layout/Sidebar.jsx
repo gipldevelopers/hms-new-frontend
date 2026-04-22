@@ -60,7 +60,13 @@ const roleMenus = {
     { name: "Dashboard", icon: LayoutGrid, path: "/branch-admin", section: "none" },
     { name: "Departments", icon: Building2, path: "/branch-admin/departments", section: "MANAGEMENT" },
     { name: "Staff Management", icon: Users2, path: "/branch-admin/staff", section: "MANAGEMENT" },
-    { name: "Roles & Permissions", icon: ShieldCheck, path: "/branch-admin/roles-permissions", section: "MANAGEMENT" },
+    { name: "Shift Management", icon: CalendarDays, path: "/branch-admin/shifts", section: "MANAGEMENT",
+      subItems: [
+        { name: "Shift Templates", path: "/branch-admin/shifts/templates" },
+        { name: "Shift Roster", path: "/branch-admin/shifts/roster" },
+        { name: "Attendance", path: "/branch-admin/shifts/attendance" },
+      ]
+    },
     { name: "Inventory", icon: Database, path: "/branch-admin/inventory", section: "SYSTEM" },
     { name: "Analytics", icon: BarChart3, path: "/branch-admin/analytics", section: "SYSTEM" },
   ],

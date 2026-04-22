@@ -16,8 +16,8 @@ const Bed = (props) => (
 const MetricItem = ({ icon: Icon, title, value, trend }) => (
   <div className="bg-slate-50/30 dark:bg-white/5 p-5 rounded-[5px] border border-[#E7E8EB] dark:border-white/10 flex flex-col justify-between min-h-[125px] transition-all">
     <div className="flex justify-between items-start w-full">
-      <div className="w-10 h-10 rounded-[5px] bg-white dark:bg-[#0A0F1D] flex items-center justify-center border border-[#E7E8EB] dark:border-white/10 shadow-sm">
-        <Icon className="w-5 h-5 text-[#64748B] dark:text-slate-400" />
+      <div className="flex items-center justify-center pt-1">
+        <Icon className="w-6 h-6 text-[#101935] dark:text-white" />
       </div>
       <span className="text-[12px] font-bold text-emerald-500 bg-emerald-50 dark:bg-emerald-500/10 px-2.5 py-1 rounded-full whitespace-nowrap">
         +{trend}%

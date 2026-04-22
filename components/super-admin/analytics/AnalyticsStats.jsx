@@ -36,8 +36,8 @@ const StatCard = ({ title, value, percentage, isUp, color, icon: Icon }) => {
     <div className="bg-white dark:bg-[#101935] p-5 rounded-[5px] border border-[#E7E8EB] dark:border-white/10 flex justify-between h-[140px] transition-all">
       {/* Left Content */}
       <div className="flex flex-col justify-between">
-        <div className={cn("w-10 h-10 rounded-[5px] flex items-center justify-center", style.bg)}>
-          <Icon className={cn("w-5 h-5", style.icon)} />
+        <div className="flex items-center justify-start pt-1">
+          <Icon className="w-6 h-6 text-[#101935] dark:text-white" />
         </div>
 
         <div className="mt-3">
