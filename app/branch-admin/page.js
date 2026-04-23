@@ -1,4 +1,4 @@
-import { DynamicDashboard } from "@/components/dashboard/DynamicDashboard";
+import BranchAdminDashboard from "@/components/branch-admin/dashboard/BranchAdminDashboard";
 export default function Page() {
-  return <DynamicDashboard roleName="Branch Admin" />;
+  return <BranchAdminDashboard />;
 }
