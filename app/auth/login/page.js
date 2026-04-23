@@ -8,6 +8,8 @@ import { Lock, User, Eye, EyeOff, ShieldCheck, HeartPulse, ExternalLink, Globe, 
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
+import { API_URL } from "@/lib/api";
+
 export default function LoginPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
@@ -21,7 +23,7 @@ export default function LoginPage() {
     setError("");
     
     try {
-      const response = await fetch("/api/auth/login", {
+      const response = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: eEmail, password: ePassword }),
