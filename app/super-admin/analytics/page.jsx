@@ -3,7 +3,7 @@
 import React from "react";
 import { ChevronDown } from "lucide-react";
 
-// Modular Analytics Components
+// Modular Analytics Component
 import AnalyticsStats from "@/components/super-admin/analytics/AnalyticsStats";
 import KeyMetrics from "@/components/super-admin/analytics/KeyMetrics";
 import RevenueTrend from "@/components/super-admin/analytics/RevenueTrend";
