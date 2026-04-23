@@ -300,12 +300,18 @@ export default function LoginPage() {
           </div>
 
           {/* Global Footer Meta */}
-          <div className="mt-12 w-full flex justify-between items-center text-[10px] font-bold text-gray-400 border-t border-gray-100 dark:border-white/5 pt-6">
-             <p>© 2026 Gohil Infotech</p>
-             <div className="flex items-center gap-6">
-                <a href="#" className="hover:text-[#2E37A4]">GVoice HMS Platform</a>
-                <Link href="/system-logs" className="hover:text-[#2E37A4]">System Logs</Link>
+          <div className="mt-12 w-full flex flex-col items-center gap-4 text-[10px] font-bold text-gray-400 border-t border-gray-100 dark:border-white/5 pt-6">
+             <div className="w-full flex justify-between items-center">
+                <p>© 2026 Gohil Infotech</p>
+                <div className="flex items-center gap-6">
+                   <a href="#" className="hover:text-[#2E37A4]">GVoice HMS Platform</a>
+                   <Link href="/system-logs" className="hover:text-[#2E37A4]">System Logs</Link>
+                </div>
              </div>
+             {/* DEBUG INDICATOR */}
+             <p className="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded opacity-50">
+               DEBUG: {API_URL}
+             </p>
           </div>
           </div>
         </div>
