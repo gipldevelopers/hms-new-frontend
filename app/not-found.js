@@ -2,106 +2,126 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowLeft, Search, ShieldAlert, Home, Zap } from "lucide-react";
+import { Home, RotateCcw } from "lucide-react";
 import Image from "next/image";
 
 export default function NotFound() {
   return (
-    <div className="min-h-screen bg-[#F8F9FC] dark:bg-[#0A0F1D] flex items-center justify-center p-6 font-sans">
-      <div className="max-w-[1000px] w-full grid grid-cols-1 md:grid-cols-2 bg-white dark:bg-[#101935] rounded-[5px] border border-[#E7E8EB] dark:border-white/10 overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.05)]">
+    <div className="h-screen w-screen bg-[#F8F9FC] dark:bg-[#0A0F1D] flex flex-col items-center p-6 font-sans relative overflow-hidden">
+      
+      {/* ── IMMERSIVE ANIMATED BACKGROUND ── */}
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        <motion.div 
+          animate={{ 
+            scale: [1, 1.5, 1],
+            x: [0, 100, 0],
+            y: [0, 50, 0]
+          }}
+          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+          className="absolute top-[-20%] left-[-10%] w-[60%] h-[60%] bg-primary/10 rounded-full blur-[150px]" 
+        />
+        <motion.div 
+          animate={{ 
+            scale: [1, 1.4, 1],
+            x: [0, -100, 0],
+            y: [0, -50, 0]
+          }}
+          transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+          className="absolute bottom-[-20%] right-[-10%] w-[70%] h-[70%] bg-blue-500/10 rounded-full blur-[180px]" 
+        />
         
-        {/* ── LEFT SECTION – INSTITUTIONAL CONTEXT ── */}
-        <div className="bg-[#2E37A4] p-12 flex flex-col justify-between relative overflow-hidden">
-           {/* Decorative Background */}
-           <div className="absolute inset-0 z-0 opacity-10">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full blur-3xl -mr-32 -mt-32" />
-              <div className="absolute bottom-0 left-0 w-64 h-64 bg-white rounded-full blur-3xl -ml-32 -mb-32" />
-           </div>
-
-           <div className="relative z-10">
-              <div className="flex items-center gap-3 mb-12">
-                 <div className="bg-white/10 p-2 rounded-[5px] border border-white/20 backdrop-blur-xl">
-                    <Image src="/favicon.ico" width={24} height={24} alt="Logo" className="brightness-0 invert" />
-                 </div>
-                 <h2 className="text-white text-[16px] font-black tracking-tighter italic">GVoice HMS</h2>
-              </div>
-
-              <motion.div 
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.6 }}
-              >
-                <p className="text-white/40 font-black text-[10px] tracking-[5px] mb-4 uppercase">System Exception 404</p>
-                <h1 className="text-white text-[48px] font-bold leading-[1.1] mb-6 tracking-tighter">
-                  Node <span className="text-blue-300">Unreachable.</span>
-                </h1>
-                <p className="text-white/70 text-[16px] leading-relaxed font-medium max-w-[350px]">
-                  The requested resource index is not registered in our current institutional mapping.
-                </p>
-              </motion.div>
-           </div>
-
-           <div className="relative z-10 flex items-center gap-4 border-t border-white/10 pt-8 mt-12 md:mt-0">
-              <div className="w-10 h-10 rounded-[5px] bg-white/10 flex items-center justify-center border border-white/20">
-                 <ShieldAlert className="w-5 h-5 text-blue-200" />
-              </div>
-              <div>
-                 <p className="text-white font-bold text-[12px]">Infrastructure Security</p>
-                 <p className="text-white/40 text-[9px] font-bold tracking-tight uppercase">Access logging initialized</p>
-              </div>
-           </div>
-        </div>
-
-        {/* ── RIGHT SECTION – NAVIGATION ── */}
-        <div className="p-12 flex flex-col justify-center items-center text-center">
-           <motion.div
-             initial={{ scale: 0.9, opacity: 0 }}
-             animate={{ scale: 1, opacity: 1 }}
-             transition={{ duration: 0.5, delay: 0.2 }}
-             className="w-32 h-32 bg-[#F8F9FC] dark:bg-white/[0.03] rounded-full flex items-center justify-center border border-[#E7E8EB] dark:border-white/10 mb-8 relative"
-           >
-              <Search className="w-10 h-10 text-gray-300" />
-              <motion.div 
-                animate={{ 
-                  scale: [1, 1.2, 1],
-                  rotate: [0, 10, -10, 0]
-                }}
-                transition={{ duration: 4, repeat: Infinity }}
-                className="absolute -top-1 -right-1 w-10 h-10 bg-white dark:bg-[#101935] rounded-full shadow-lg flex items-center justify-center border border-[#E7E8EB] dark:border-white/10"
-              >
-                 <Zap className="w-4 h-4 text-primary" />
-              </motion.div>
-           </motion.div>
-
-           <h2 className="text-[24px] font-bold text-[#1e293b] dark:text-white mb-3">Resource Disconnected.</h2>
-           <p className="text-[14px] font-semibold text-gray-500 max-w-[300px] mb-10">
-             The path you followed may be deprecated or restricted. Please return to the main operational node.
-           </p>
-
-           <div className="grid grid-cols-1 w-full gap-3">
-              <Link 
-                href="/" 
-                className="flex items-center justify-center gap-3 h-[54px] bg-[#2E37A4] text-white rounded-[5px] text-[14px] font-bold tracking-widest hover:bg-[#252c84] transition-all"
-              >
-                <Home className="w-4 h-4" />
-                Return to Dashboard
-              </Link>
-              
-              <button 
-                onClick={() => window.history.back()}
-                className="flex items-center justify-center gap-3 h-[54px] bg-white dark:bg-transparent border border-[#E7E8EB] dark:border-white/10 text-[#1e293b] dark:text-white rounded-[5px] text-[14px] font-bold tracking-widest hover:bg-gray-50 dark:hover:bg-white/5 transition-all"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                Revert Last Action
-              </button>
-           </div>
-
-           <div className="mt-12 text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-              GVoice HMS Ecosystem &copy; 2026
-           </div>
-        </div>
-
+        {/* Full Screen Grid */}
+        <div className="absolute inset-0 opacity-[0.05] dark:opacity-[0.08]" 
+          style={{ 
+            backgroundImage: `linear-gradient(#2E37A4 1.5px, transparent 1.5px), linear-gradient(90deg, #2E37A4 1.5px, transparent 1.5px)`,
+            backgroundSize: '60px 60px'
+          }} 
+        />
       </div>
+
+      {/* ── TOP LOGO ── */}
+      <motion.div 
+        initial={{ y: -20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        className="mt-12 z-20"
+      >
+        <div className="flex items-center gap-3 bg-white/50 dark:bg-black/20 backdrop-blur-md px-6 py-3 rounded-full border border-[#E7E8EB] dark:border-white/10 shadow-sm">
+          <Image src="/favicon.ico" width={24} height={24} alt="Logo" className="object-contain" />
+          <span className="text-[14px] font-black text-primary tracking-tighter uppercase">GVoice HMS</span>
+        </div>
+      </motion.div>
+
+      {/* ── CENTERED HERO SECTION ── */}
+      <div className="flex-1 flex flex-col items-center justify-center relative z-10 text-center max-w-4xl w-full">
+        <div className="relative mb-4">
+          {/* Main 404 Text */}
+          <motion.h1 
+            initial={{ opacity: 0, scale: 0.8, y: 50 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            transition={{ 
+              type: "spring",
+              stiffness: 100,
+              damping: 10,
+              delay: 0.2 
+            }}
+            className="text-[120px] sm:text-[220px] md:text-[280px] font-black text-transparent bg-clip-text bg-gradient-to-b from-primary via-blue-500 to-indigo-400 leading-none select-none tracking-tighter"
+          >
+            404
+          </motion.h1>
+
+          {/* Floating Blur Effect */}
+          <motion.div 
+            animate={{ 
+              scale: [1, 1.1, 1],
+              opacity: [0.1, 0.2, 0.1]
+            }}
+            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute inset-0 flex items-center justify-center pointer-events-none"
+          >
+            <h1 className="text-[130px] sm:text-[240px] md:text-[300px] font-black text-primary leading-none blur-[40px]">404</h1>
+          </motion.div>
+        </div>
+
+        {/* Message Content */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="space-y-4 px-6"
+        >
+          <h2 className="text-[24px] md:text-[36px] font-black text-slate-800 dark:text-white tracking-tight uppercase">
+            Page Not Found
+          </h2>
+          <p className="text-[14px] md:text-[16px] font-bold text-slate-500 dark:text-slate-400 max-w-[550px] mx-auto leading-relaxed">
+            The page you are looking for does not exist or has been moved.
+          </p>
+        </motion.div>
+
+        {/* Immersive Action Buttons */}
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.7 }}
+          className="flex flex-col sm:flex-row gap-4 justify-center mt-10 w-full px-6"
+        >
+          <Link 
+            href="/" 
+            className="flex items-center justify-center gap-3 h-[58px] px-8 bg-primary text-white rounded-[5px] text-[14px] font-black uppercase tracking-widest transition-all hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98] shadow-xl shadow-primary/20 group sm:min-w-[240px]"
+          >
+            <Home className="w-5 h-5 group-hover:-translate-y-1 transition-transform" />
+            Go Home
+          </Link>
+          
+          <button 
+            onClick={() => window.history.back()}
+            className="flex items-center justify-center gap-3 h-[58px] px-8 bg-white dark:bg-white/5 backdrop-blur-xl border-2 border-[#E7E8EB] dark:border-white/10 text-slate-800 dark:text-white rounded-[5px] text-[14px] font-black uppercase tracking-widest transition-all hover:bg-white dark:hover:bg-white/10 hover:scale-[1.02] active:scale-[0.98] sm:min-w-[240px]"
+          >
+            <RotateCcw className="w-5 h-5" />
+            Go Back
+          </button>
+        </motion.div>
+      </div>
+
     </div>
   );
 }

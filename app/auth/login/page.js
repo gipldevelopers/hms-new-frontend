@@ -39,10 +39,10 @@ export default function LoginPage() {
         const redirectPath = role === "SUPERADMIN" ? "/super-admin" : `/${role.toLowerCase().replace(/_/g, "-")}`;
         router.push(redirectPath);
       } else {
-        setError(result.message || "Credential validation failed. Please try again.");
+        setError(result.message || "Login failed. Please check your email and password.");
       }
     } catch (err) {
-      setError("Infrastructure connection error. Verify network stability.");
+      setError("Failed to connect. Please check your internet.");
     } finally {
       setIsLoading(false);
     }
@@ -106,19 +106,19 @@ export default function LoginPage() {
                  animate={{ opacity: 1, y: 0 }}
                  transition={{ duration: 0.8, ease: "easeOut" }}
                >
-                  <p className="text-white/60 font-black text-[12px] tracking-[5px] mb-4">Revolutionary Management</p>
+                  <p className="text-white/60 font-black text-[12px] tracking-[5px] mb-4">Simple Management</p>
                   <h1 className="text-white text-[56px] font-bold leading-[1] mb-6 tracking-tighter">
-                    Built for <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-indigo-100">Clinical Precision.</span>
+                    Built for <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-300 to-indigo-100">Hospitals.</span>
                   </h1>
                   <p className="text-white/70 text-[18px] leading-relaxed font-medium mb-10 max-w-[600px]">
-                    Experience a unified ecosystem that harmonizes patient care, institutional data, and operational blueprints in real-time.
+                    Manage your hospital, staff, and patients in one simple place.
                   </p>
 
                   {/* Feature Pills */}
                   <div className="grid grid-cols-2 gap-3 max-w-[550px]">
                      {[
-                       { icon: Zap, text: "Instant Data Provisioning", sub: "Global-to-Local scale" },
-                       { icon: Globe, text: "Multi-Branch Sync", sub: "Enterprise Architecture" },
+                       { icon: Zap, text: "Fast Data Access", sub: "Global-to-Local scale" },
+                       { icon: Globe, text: "Sync Multiple Branches", sub: "Enterprise Architecture" },
                        { icon: CheckCircle2, text: "Regulatory Compliance", sub: "HIPAA & HL7 Standards" },
                        { icon: HeartPulse, text: "Real-time Diagnostics", sub: "Patient-first intelligence" }
                      ].map((f, i) => (
@@ -170,9 +170,9 @@ export default function LoginPage() {
           </div>
 
           <div className="mb-10 text-left">
-            <h2 className="text-[26px] font-bold text-[#1e293b] dark:text-white leading-tight">Sign Into <br/>Administrative Node.</h2>
+            <h2 className="text-[26px] font-bold text-[#1e293b] dark:text-white leading-tight">Sign Into <br/>Admin Panel.</h2>
             <p className="text-[14px] font-semibold text-gray-500 mt-3 leading-relaxed">
-              Authorized access required for institutional management.
+              Please login to continue.
             </p>
           </div>
 
@@ -180,7 +180,7 @@ export default function LoginPage() {
             
             <div className="space-y-2">
               <label className="text-[11px] font-bold text-[#1e293b] dark:text-gray-300 pl-1">
-                Access Identifier
+                Email Address
               </label>
               <div className="relative">
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
@@ -204,9 +204,9 @@ export default function LoginPage() {
             <div className="space-y-2">
               <div className="flex justify-between items-center px-1">
                 <label className="text-[11px] font-bold text-[#1e293b] dark:text-gray-300">
-                  Passcode / Token
+                  Password
                 </label>
-                <Link href="/auth/forgot-password" className="text-[10px] font-bold text-[#2E37A4] hover:underline tracking-tighter cursor-pointer">Reset Passcode</Link>
+                <Link href="/auth/forgot-password" className="text-[10px] font-bold text-[#2E37A4] hover:underline tracking-tighter cursor-pointer">Forgot Password?</Link>
               </div>
               <div className="relative">
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">

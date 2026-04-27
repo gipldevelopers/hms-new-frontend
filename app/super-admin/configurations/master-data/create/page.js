@@ -252,7 +252,7 @@ export default function CreateMasterDataPage() {
 
   const fetchSchema = async () => {
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("authtoken");
       const res = await fetch(`/api/master-data/${editId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -321,7 +321,7 @@ export default function CreateMasterDataPage() {
 
     setLoading(true);
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("authtoken");
       const url = editId 
         ? `/api/master-data/${editId}`
         : "/api/master-data";

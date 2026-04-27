@@ -54,7 +54,7 @@ export default function StaffAttendancePage() {
 
         await fetchData(userData.branchId, userData.id);
       } catch (err) {
-        toast.error("Session expired or registry error.");
+        toast.error("Session expired. Please login again.");
         router.push("/login");
       } finally {
         setLoading(false);
@@ -124,13 +124,13 @@ export default function StaffAttendancePage() {
 
       const json = await res.json();
       if (json.success) {
-        toast.success("Bio-matrix verification successful.");
+        toast.success("Attendance recorded successfully.");
         fetchData(branchId, user.id);
       } else {
         throw new Error(json.message);
       }
     } catch (err) {
-      toast.error(err.message || "Registry synchronization failure.");
+      toast.error(err.message || "Failed to save attendance.");
     } finally {
       setSubmitting(false);
     }
@@ -147,13 +147,13 @@ export default function StaffAttendancePage() {
 
       const json = await res.json();
       if (json.success) {
-        toast.success("Duty cycle complete.");
+        toast.success("Shift finished.");
         fetchData(branchId, user.id);
       } else {
         throw new Error(json.message);
       }
     } catch (err) {
-      toast.error(err.message || "Registry synchronization failure.");
+      toast.error(err.message || "Failed to save attendance.");
     } finally {
       setSubmitting(false);
     }
@@ -163,7 +163,7 @@ export default function StaffAttendancePage() {
     return (
       <div className="h-screen flex flex-col items-center justify-center bg-[#F8F9FC] dark:bg-[#0A0F1D]">
         <Loader2 className="w-10 h-10 text-primary animate-spin mb-4" />
-        <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400">Synchronizing Bio-Matrix Registry...</p>
+        <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400">Loading attendance...</p>
       </div>
     );
   }
@@ -177,7 +177,7 @@ export default function StaffAttendancePage() {
       {/* Header Section */}
       <div className="flex justify-between items-center mb-[25px]">
         <div>
-          <h1 className="text-[20px] font-bold text-[#1e293b] dark:text-white leading-tight">Attendance Registry</h1>
+          <h1 className="text-[20px] font-bold text-[#1e293b] dark:text-white leading-tight">My Attendance</h1>
         </div>
         <div className="flex items-center gap-3">
           <div className="bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 h-[44px] px-5 rounded-[5px] flex items-center gap-3 shadow-none">
@@ -202,7 +202,7 @@ export default function StaffAttendancePage() {
             </div>
 
             <h2 className="text-[22px] font-bold text-[#1e293b] dark:text-white mb-2">
-              {isCheckedIn ? "Duty In Progress" : isCheckedOut ? "Duty Cycle Complete" : "Ready for Duty"}
+              {isCheckedIn ? "Shift Started" : isCheckedOut ? "Shift Finished" : "Ready to Start"}
             </h2>
             <p className="text-[13px] text-gray-500 dark:text-gray-400 mb-8 max-w-sm font-medium">
               {rosterToday 
@@ -261,7 +261,7 @@ export default function StaffAttendancePage() {
                 <MapPin className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Active Geofence</p>
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Work Location</p>
                 <p className="text-[13px] font-bold text-[#1e293b] dark:text-white">Main Hospital Campus</p>
               </div>
             </div>
@@ -270,7 +270,7 @@ export default function StaffAttendancePage() {
                 <ShieldCheck className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Registry Identity</p>
+                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Device Status</p>
                 <p className="text-[13px] font-bold text-[#1e293b] dark:text-white truncate max-w-[150px]">Verified Device</p>
               </div>
             </div>
@@ -281,7 +281,7 @@ export default function StaffAttendancePage() {
         <div className="space-y-6">
           <div className="bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] h-full flex flex-col overflow-hidden shadow-none">
             <div className="p-5 border-b border-[#E7E8EB] dark:border-white/10 flex justify-between items-center bg-[#F8F9FC] dark:bg-[#1e293b]/50">
-              <h3 className="text-[12px] font-bold text-[#1e293b] dark:text-white uppercase tracking-widest">Recent Logs</h3>
+              <h3 className="text-[12px] font-bold text-[#1e293b] dark:text-white uppercase tracking-widest">Recent Records</h3>
               <Calendar className="w-4 h-4 text-gray-400" />
             </div>
             <div className="flex-1 overflow-y-auto p-5 space-y-4 no-scrollbar">

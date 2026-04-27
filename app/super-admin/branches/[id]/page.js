@@ -19,7 +19,7 @@ export default function BranchDetailsPage() {
   useEffect(() => {
     const fetchBranch = async () => {
       try {
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem("authtoken");
         const res = await fetch(`/api/branches/${id}`, {
           headers: { Authorization: `Bearer ${token}` },
         });

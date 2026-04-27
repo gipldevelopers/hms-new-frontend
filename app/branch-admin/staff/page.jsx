@@ -54,7 +54,7 @@ export default function StaffManagementPage() {
       }
     } catch (error) {
       console.error("Fetch staff error:", error);
-      toast.error("Handshake timeout. Local registry disconnected.");
+      toast.error("Unable to load staff data.");
     } finally {
       setLoading(false);
     }
@@ -80,11 +80,11 @@ export default function StaffManagementPage() {
   };
 
   const handleView = (user) => {
-    toast.info(`Reviewing bio-matrix profile for ${user.name}`);
+    toast.info(`Viewing profile for ${user.name}`);
   };
 
   const handleDelete = async (user) => {
-    const confirmed = window.confirm(`REVOKE ACCESS: Confirm purging ${user.name} from branch registries?`);
+    const confirmed = window.confirm(`Are you sure you want to delete ${user.name}?`);
     if (confirmed) {
       try {
         const token = localStorage.getItem("authtoken");
@@ -94,11 +94,11 @@ export default function StaffManagementPage() {
         });
         const json = await res.json();
         if (json.success) {
-          toast.success("Personnel access purged from branch registry");
+          toast.success("Staff member deleted successfully");
           fetchData();
         }
       } catch (err) {
-        toast.error("Security module handshake failure");
+        toast.error("Failed to delete staff member");
       }
     }
   };
@@ -108,18 +108,20 @@ export default function StaffManagementPage() {
       
       {/* Header Section */}
       <div className="flex justify-between items-center mb-5">
-        <h1 className="text-[20px] font-bold text-foreground tracking-tight leading-none">Branch staff matrix</h1>
+        <h1 className="text-[20px] font-bold text-foreground tracking-tight leading-none">Staff Management</h1>
         
         <button 
           onClick={handleCreateNew}
           className="bg-primary text-white px-8 h-[48px] rounded-[5px] text-[13px] font-bold flex items-center justify-center gap-3 hover:opacity-90 transition-all shadow-none"
         >
           <UserPlus className="w-4 h-4" />
-          Provision staff
+          Add staff
         </button>
       </div>
 
-      <UserStats />
+      <div className="mb-[20px]">
+        <UserStats />
+      </div>
 
       <div className="space-y-5 pb-20 relative">
         <UserTable 
@@ -136,7 +138,7 @@ export default function StaffManagementPage() {
         {loading && (
           <div className="absolute inset-0 top-32 flex flex-col items-center pt-24 bg-white/50 dark:bg-[#0A0F1D]/50 backdrop-blur-sm z-10 rounded-[5px]">
             <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-4"></div>
-            <p className="text-[11px] font-bold text-gray-400">Synchronizing branch personnel data...</p>
+            <p className="text-[11px] font-bold text-gray-400">Loading staff members...</p>
           </div>
         )}
       </div>

@@ -8,7 +8,6 @@ const links = [
   { label: "Emergency Case", icon: Activity },
   { label: "Dispatch Ambulance", icon: Truck },
   { label: "New Appointment", icon: Calendar },
-  { label: "Creator Roster", icon: UserCog },
 ];
 
 export function QuickLinks() {

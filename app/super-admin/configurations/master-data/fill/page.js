@@ -220,7 +220,7 @@ export default function FillMasterDataPage() {
   const fetchSchemaAndRecords = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("authtoken");
       const res = await fetch(`/api/master-data/${schemaId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -279,7 +279,7 @@ export default function FillMasterDataPage() {
         }
       });
 
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("authtoken");
       const res = await fetch(`/api/master-data/${schemaId}/records`, {
         method: "POST",
         headers: { 
@@ -310,7 +310,7 @@ export default function FillMasterDataPage() {
   const confirmDeleteRecord = async () => {
     if (!recordToDelete) return;
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("authtoken");
       const res = await fetch(`/api/master-data/records/${recordToDelete.id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }

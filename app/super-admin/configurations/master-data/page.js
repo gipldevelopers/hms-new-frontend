@@ -65,7 +65,7 @@ function MasterDataCard({ file, viewType, onDelete }) {
         ) : (
           <div className="animate-in fade-in zoom-in-95 duration-700">
             <p className="text-[12px] text-gray-400 dark:text-gray-500 mt-2 line-clamp-2 leading-relaxed font-medium min-h-[40px]">
-              {file.description || "Standardized dynamic hospital master data schema."}
+              {file.description || "Standard hospital data format."}
             </p>
             <div className="mt-6 pt-6 border-t border-gray-100 dark:border-white/5 grid grid-cols-2 gap-4">
               <div>
@@ -150,7 +150,7 @@ export default function MasterDataPage() {
       }
     } catch (err) {
       console.error("Fetch failed:", err);
-      toast.error("Failed to fetch master data");
+      toast.error("Failed to load data");
       setMasterFiles([]);
     } finally {
       setLoading(false);
@@ -173,7 +173,7 @@ export default function MasterDataPage() {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
-        toast.success("Schema deleted");
+        toast.success("Deleted successfully");
         setIsDeleteModalOpen(false);
         fetchMasterData();
       } else {
@@ -189,7 +189,7 @@ export default function MasterDataPage() {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-[20px] font-bold text-[#1e293b] dark:text-white leading-tight">Master Data Management</h1>
+          <h1 className="text-[20px] font-bold text-[#1e293b] dark:text-white leading-tight">Manage Data</h1>
         </div>
         <button 
           onClick={() => window.location.href = '/super-admin/configurations/master-data/create'}
@@ -202,9 +202,9 @@ export default function MasterDataPage() {
       {/* Stats Quick View */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {[
-          { label: "Design Schemas", value: Array.isArray(masterFiles) ? masterFiles.length : 0, icon: Settings2, color: "blue" },
+          { label: "Data Types", value: Array.isArray(masterFiles) ? masterFiles.length : 0, icon: Settings2, color: "blue" },
           { label: "Active Fields", value: Array.isArray(masterFiles) ? masterFiles.reduce((acc, curr) => acc + (curr.fields?.length || 0), 0) : 0, icon: ShieldCheck, color: "indigo" },
-          { label: "Total Data Entries", value: Array.isArray(masterFiles) ? masterFiles.reduce((acc, curr) => acc + (curr._count?.records || 0), 0) : 0, icon: Database, color: "emerald" },
+          { label: "Total Entries", value: Array.isArray(masterFiles) ? masterFiles.reduce((acc, curr) => acc + (curr._count?.records || 0), 0) : 0, icon: Database, color: "emerald" },
         ].map((stat, i) => (
           <div key={i} className="bg-white dark:bg-[#101935] p-5 rounded-[5px] border border-[#E7E8EB] dark:border-white/10 flex items-center gap-4">
             <div className={cn(
@@ -229,7 +229,7 @@ export default function MasterDataPage() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input 
             type="text" 
-            placeholder="Search schemas..."
+            placeholder="Search data..."
             className="w-full h-10 pl-10 pr-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-gray-100 dark:border-white/10 rounded-[5px] text-[13px] font-medium focus:border-primary transition-all font-semibold outline-none"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -263,7 +263,7 @@ export default function MasterDataPage() {
       {/* Dynamic View Content */}
       {loading ? (
         <div className="flex-1 flex items-center justify-center p-20 text-gray-400 font-bold text-[13px]">
-           Synchronizing with server...
+           Loading data...
         </div>
       ) : (
         <div className={cn(
@@ -275,7 +275,7 @@ export default function MasterDataPage() {
           ))}
           {masterFiles.length === 0 && (
             <div className="col-span-full py-20 text-center bg-white dark:bg-[#101935] rounded-[5px] border border-dashed border-gray-200">
-               <p className="text-gray-400 font-medium">No master data schemas found matching your search.</p>
+               <p className="text-gray-400 font-medium">No data types found.</p>
             </div>
           )}
         </div>
@@ -286,7 +286,7 @@ export default function MasterDataPage() {
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={confirmDelete}
         itemName={itemToDelete?.name}
-        title="Delete Schema?"
+        title="Delete Data?"
       />
     </div>
   );

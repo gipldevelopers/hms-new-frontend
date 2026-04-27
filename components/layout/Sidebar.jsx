@@ -23,7 +23,12 @@ import {
   PieChart,
   CalendarDays,
   Hotel,
-  LogOut
+  LogOut,
+  User,
+  Settings as SettingsIcon,
+  ChevronRight,
+  MoreVertical,
+  Settings2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -32,6 +37,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
@@ -45,30 +58,24 @@ const Target = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width=
 const roleMenus = {
   "super-admin": [
     { name: "Dashboard", icon: LayoutGrid, path: "/super-admin", section: "none" },
-    { name: "Branch Management", icon: Building2, path: "/super-admin/branches", section: "MANAGEMENT" },
-    { name: "Configurations", icon: Settings, path: "/super-admin/configurations", section: "CONFIGURATION",
+    { name: "Manage Branches", icon: Building2, path: "/super-admin/branches", section: "MANAGEMENT" },
+    { name: "Settings", icon: Settings, path: "/super-admin/configurations", section: "CONFIGURATION",
       subItems: [
         { name: "Master Data", path: "/super-admin/configurations/master-data" },
         { name: "Templates", path: "/super-admin/configurations/templates" },
         { name: "Assignments", path: "/super-admin/configurations/assignments" },
       ]
     },
-    { name: "Analytics", icon: BarChart3, path: "/super-admin/analytics", section: "SYSTEM" },
-    { name: "Audit Logs", icon: FileText, path: "/super-admin/audit-logs", section: "SYSTEM" },
+    { name: "Reports", icon: BarChart3, path: "/super-admin/analytics", section: "SYSTEM" },
+    { name: "System Logs", icon: FileText, path: "/super-admin/audit-logs", section: "SYSTEM" },
   ],
   "branch-admin": [
     { name: "Dashboard", icon: LayoutGrid, path: "/branch-admin", section: "none" },
-    { name: "Departments", icon: Building2, path: "/branch-admin/departments", section: "MANAGEMENT" },
-    { name: "Staff Management", icon: Users2, path: "/branch-admin/staff", section: "MANAGEMENT" },
-    { name: "Shift Management", icon: CalendarDays, path: "/branch-admin/shifts", section: "MANAGEMENT",
-      subItems: [
-        { name: "Shift Templates", path: "/branch-admin/shifts/templates" },
-        { name: "Shift Roster", path: "/branch-admin/shifts/roster" },
-        { name: "Attendance", path: "/branch-admin/shifts/attendance" },
-      ]
-    },
-    { name: "Inventory", icon: Database, path: "/branch-admin/inventory", section: "SYSTEM" },
-    { name: "Analytics", icon: BarChart3, path: "/branch-admin/analytics", section: "SYSTEM" },
+    { name: "Bed & Ward Overview", icon: Hotel, path: "/branch-admin/wards", section: "MAIN" },
+    { name: "Staff Management", icon: Users2, path: "/branch-admin/staff", section: "MAIN" },
+    { name: "Admissions & Discharges", icon: ClipboardList, path: "/branch-admin/admissions", section: "MAIN" },
+    { name: "Billing & Payments", icon: Wallet, path: "/branch-admin/billing", section: "OPERATIONS" },
+    { name: "Settings", icon: Settings, path: "/branch-admin/configuration", section: "ADMIN" },
   ],
   "doctor": [
     { name: "Dashboard", icon: LayoutGrid, path: "/doctor", section: "none" },
@@ -78,7 +85,7 @@ const roleMenus = {
   ],
   "staff": [
     { name: "Dashboard", icon: LayoutGrid, path: "/staff", section: "none" },
-    { name: "Attendence", icon: ClipboardList, path: "/staff/attendance", section: "WORK" },
+    { name: "Attendance", icon: ClipboardList, path: "/staff/attendance", section: "WORK" },
     { name: "My Tasks", icon: Target, path: "/staff/tasks", section: "WORK" },
   ],
   "reception": [
@@ -118,6 +125,12 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) 
   const pathname = usePathname();
   const router = useRouter();
   const [openSubMenu, setOpenSubMenu] = React.useState(null);
+  const [user, setUser] = React.useState(null);
+
+  React.useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+    setUser(storedUser);
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("user");
@@ -153,10 +166,10 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) 
         <div
           className={cn(
             "flex items-center h-[72px] border-b border-[#E7E8EB] dark:border-white/10 shrink-0 transition-all duration-300 overflow-hidden",
-            isCollapsed ? "lg:justify-center px-4" : "px-6",
+            isCollapsed ? "lg:justify-center lg:px-0" : "px-6",
           )}
         >
-          <div className="flex items-center gap-3">
+          <div className={cn("flex items-center", isCollapsed ? "gap-0" : "gap-3")}>
              <div className="w-9 h-9 relative flex items-center justify-center shrink-0">
                 <Image 
                   src="/favicon.ico" 
@@ -166,22 +179,14 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) 
                   className="object-contain"
                 />
              </div>
-            <div className="flex flex-col">
-              <span className={cn(
-                "text-xl font-bold text-primary tracking-tight whitespace-nowrap transition-all duration-300",
-                isCollapsed && "lg:opacity-0 lg:invisible lg:w-0"
-              )}>
-                GVoice HMS
-              </span>
-              <p className={cn(
-                "text-[9px] uppercase font-black text-primary/60 tracking-[0.15em] leading-none transition-all duration-300 -mt-0.5",
-                isCollapsed && "lg:opacity-0 lg:invisible lg:h-0"
-              )}>
-                {currentRole.replace('-', ' ')}
-              </p>
-            </div>
+            {!isCollapsed && (
+              <div className="flex flex-col">
+                <span className="text-xl font-bold text-primary tracking-tight whitespace-nowrap">
+                  GVoice HMS
+                </span>
+              </div>
+            )}
           </div>
-
           {!isCollapsed && (
             <button 
               onClick={() => setIsMobileOpen(false)}
@@ -192,10 +197,74 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) 
           )}
         </div>
 
+        {/* User Profile Section - Now at Top */}
+        <div className={cn(
+          "px-4 pb-0 shrink-0 transition-all duration-300",
+          isCollapsed ? "lg:px-2 lg:pt-2" : "px-4 pt-[20px]"
+        )}>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <div className={cn(
+                  "flex items-center transition-all bg-white dark:bg-[#101935] cursor-pointer hover:bg-gray-50 dark:hover:bg-white/5", 
+                  isCollapsed 
+                    ? "lg:w-10 lg:h-10 lg:mx-auto rounded-full flex items-center justify-center p-0 border-none shadow-none" 
+                    : "gap-3 p-3 rounded-[5px] border border-[#E7E8EB] dark:border-white/10"
+                )}>
+                  {/* Avatar */}
+                  <div className={cn(
+                    "bg-[#2D3A8C] rounded-full shrink-0 flex items-center justify-center transition-all",
+                    isCollapsed ? "w-8 h-8" : "w-10 h-10"
+                  )}>
+                    <span className={cn("text-white font-bold", isCollapsed ? "text-[10px]" : "text-[12px]")}>
+                      {user?.name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'VD'}
+                    </span>
+                  </div>
+                  
+                  {!isCollapsed && (
+                    <div className="flex-1 min-w-0 transition-all duration-300">
+                      <p className="text-[13px] font-bold text-[#1A1C23] dark:text-white truncate">
+                        {user?.name || "Vraj Darji"}
+                      </p>
+                      <p className="text-[11px] text-gray-400 dark:text-slate-500 font-medium truncate capitalize tracking-tight">
+                        {(user?.role || currentRole).toLowerCase().replace(/[-_]/g, ' ')}
+                      </p>
+                    </div>
+                  )}
+                  
+                  {!isCollapsed && (
+                    <Settings2 className="w-4 h-4 text-gray-400" />
+                  )}
+                </div>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent 
+              side={isCollapsed ? "right" : "bottom"} 
+              align={isCollapsed ? "start" : "center"}
+              className="w-56 mt-2 dark:bg-[#101935] dark:border-white/10 z-[300]"
+            >
+              <DropdownMenuLabel className="font-bold text-[11px] text-gray-400 uppercase tracking-widest px-3 py-2">
+                User Account
+              </DropdownMenuLabel>
+              <DropdownMenuItem className="gap-3 h-11 cursor-pointer font-semibold text-[13px] px-3 focus:bg-primary/5 focus:text-primary">
+                <User className="w-4 h-4" /> Profile
+              </DropdownMenuItem>
+              <DropdownMenuItem className="gap-3 h-11 cursor-pointer font-semibold text-[13px] px-3 focus:bg-primary/5 focus:text-primary">
+                <SettingsIcon className="w-4 h-4" /> Settings
+              </DropdownMenuItem>
+              <DropdownMenuSeparator className="bg-gray-100 dark:bg-white/5" />
+              <DropdownMenuItem 
+                onClick={handleLogout}
+                className="gap-3 h-11 cursor-pointer font-semibold text-[13px] px-3 text-red-500 focus:bg-red-50 focus:text-red-600 dark:focus:bg-red-500/10"
+              >
+                <LogOut className="w-4 h-4" /> Logout
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+
         {/* Navigation - Main Area */}
         <nav className={cn(
-          "flex-1 px-3 pt-4 no-scrollbar transition-all duration-300",
-          isCollapsed ? "lg:overflow-visible space-y-0" : "overflow-y-auto space-y-5"
+          "flex-1 px-3 no-scrollbar transition-all duration-300",
+          isCollapsed ? "lg:overflow-visible space-y-0 lg:pt-2" : "overflow-y-auto space-y-5 pt-[20px]"
         )}>
           {orderedSections.map((section) => (
             <div key={section} className={cn(isCollapsed ? "space-y-0" : "space-y-1")}>
@@ -262,56 +331,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) 
           ))}
         </nav>
 
-        {/* User Profile Section - Now at Bottom */}
-        <div className={cn(
-          "p-4 shrink-0 border-t border-[#E7E8EB] dark:border-white/10 transition-all duration-300",
-          isCollapsed && "lg:px-2"
-        )}>
-          <div className={cn(
-            "flex items-center transition-all bg-white dark:bg-[#101935] overflow-hidden", 
-            isCollapsed ? "lg:flex-col gap-1" : "gap-3 p-2 rounded-[5px] border border-[#E7E8EB] dark:border-white/10"
-          )}>
-            {/* Avatar or Tooltip Trigger in Collapsed Mode */}
-            {isCollapsed ? (
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="w-10 h-10 bg-primary rounded-[5px] flex items-center justify-center shrink-0 cursor-default">
-                    <span className="text-white text-xs font-bold">VD</span>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent side="right" className="bg-[#1e293b] text-white border-none text-[12px] font-bold">
-                  Vraj Darji (Super Admin)
-                </TooltipContent>
-              </Tooltip>
-            ) : (
-              <div className="w-9 h-9 bg-primary rounded-[5px] shrink-0 flex items-center justify-center">
-                <span className="text-white text-xs font-bold">VD</span>
-              </div>
-            )}
-            
-            {!isCollapsed && (
-              <div className="flex-1 min-w-0 transition-all duration-300">
-                <p className="text-[13px] font-bold text-[#1A1C23] dark:text-white truncate">Vraj Darji</p>
-                <p className="text-[11px] text-gray-500 dark:text-slate-400 font-medium truncate capitalize tracking-tighter">
-                  {currentRole.replace('-', ' ')}
-                </p>
-              </div>
-            )}
-            
-            <button 
-              onClick={handleLogout}
-              className={cn(
-                "flex items-center justify-center transition-all border border-transparent shadow-none",
-                isCollapsed 
-                  ? "w-8 h-8 rounded-full text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10" 
-                  : "w-8 h-8 rounded-[5px] text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 hover:border-red-100 dark:hover:border-red-500/20"
-              )}
-              title="Logout"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
+        {/* User Profile Section Removed From Here */}
       </aside>
     </TooltipProvider>
   );
@@ -340,17 +360,16 @@ function NavItem({ item, isCollapsed, isActive, hasSubItems, isOpen, onClick, pa
       )}>
         <Icon className={cn("w-4.5 h-4.5", isActive ? "text-primary" : "text-[#5E6C84] dark:text-slate-500")} />
       </div>
-      <div className={cn(
-        "flex items-center justify-between flex-1 transition-all duration-300",
-        isCollapsed && "lg:opacity-0 lg:invisible lg:w-0"
-      )}>
-        <span className="font-semibold text-[13px] whitespace-nowrap">
-          {item.name}
-        </span>
-        {hasSubItems && (
-          <ChevronDown className={cn("w-3.5 h-3.5 transition-transform duration-200", isOpen && "rotate-180")} />
-        )}
-      </div>
+      {!isCollapsed && (
+        <div className="flex items-center justify-between flex-1">
+          <span className="font-semibold text-[13px] whitespace-nowrap">
+            {item.name}
+          </span>
+          {hasSubItems && (
+            <ChevronDown className={cn("w-3.5 h-3.5 transition-transform duration-200", isOpen && "rotate-180")} />
+          )}
+        </div>
+      )}
     </div>
   );
 

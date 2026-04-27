@@ -42,7 +42,7 @@ function TemplateCard({ file, viewType, onDelete }) {
         {isList ? (
            <div className="grid grid-cols-3 gap-6 animate-in fade-in duration-700">
               <div>
-                <p className="text-[10px] font-bold text-gray-400 mb-1.5 font-sans">Layout blocks</p>
+                <p className="text-[10px] font-bold text-gray-400 mb-1.5 font-sans">Sections</p>
                 <p className="text-[15px] font-bold text-[#1e293b] dark:text-white leading-none">{(file.blocks || []).length} Sections</p>
               </div>
               <div>
@@ -57,7 +57,7 @@ function TemplateCard({ file, viewType, onDelete }) {
         ) : (
           <div className="animate-in fade-in zoom-in-95 duration-700">
             <p className="text-[12px] text-gray-400 dark:text-gray-500 mt-2 line-clamp-2 leading-relaxed font-medium min-h-[40px] capitalize">
-              Standardized hospital {file.category} document structure.
+              Standard hospital {file.category} format.
             </p>
             <div className="mt-6 pt-6 border-t border-gray-100 dark:border-white/5 grid grid-cols-2 gap-4">
               <div>
@@ -185,7 +185,7 @@ export default function TemplatesPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {[
           { label: "Active Templates", value: templates.length, icon: FileText, color: "blue" },
-          { label: "Design Blocks", value: templates.reduce((acc, curr) => acc + (curr.blocks?.length || 0), 0), icon: LayoutGrid, color: "indigo" },
+          { label: "Total Sections", value: templates.reduce((acc, curr) => acc + (curr.blocks?.length || 0), 0), icon: LayoutGrid, color: "indigo" },
           { label: "Categories", value: [...new Set(templates.map(t => t.category))].length, icon: Database, color: "emerald" },
         ].map((stat, i) => (
           <div key={i} className="bg-white dark:bg-[#101935] p-5 rounded-[5px] border border-[#E7E8EB] dark:border-white/10 flex items-center gap-4">
@@ -248,7 +248,7 @@ export default function TemplatesPage() {
         viewType === "grid" ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-3" : "grid-cols-1"
       )}>
         {loading ? (
-          <div className="col-span-full py-20 text-center text-gray-400 font-bold text-[12px] animate-pulse">Loading Templates...</div>
+          <div className="col-span-full py-20 text-center text-gray-400 font-bold text-[12px] animate-pulse">Loading templates...</div>
         ) : (
           templates.map((file) => (
             <TemplateCard key={file.id} file={file} viewType={viewType} onDelete={handleDeleteClick} />
@@ -256,7 +256,7 @@ export default function TemplatesPage() {
         )}
         {templates.length === 0 && !loading && (
           <div className="col-span-full py-24 text-center bg-white dark:bg-[#101935] rounded-[5px] border border-dashed border-gray-200">
-             <p className="text-gray-400 font-medium font-bold text-xs opacity-50">No templates found in library.</p>
+             <p className="text-gray-400 font-medium font-bold text-xs opacity-50">No templates found.</p>
           </div>
         )}
       </div>

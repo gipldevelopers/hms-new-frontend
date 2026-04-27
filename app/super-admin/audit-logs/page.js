@@ -27,10 +27,10 @@ const API_BASE = "/api";
 // --- AUDIT STATS COMPONENT ---
 function AuditStats({ stats }) {
   const cards = [
-    { title: "Total traces", value: stats.totalTraces, icon: ShieldCheck, color: "blue" },
-    { title: "Successful ops", value: stats.successfulOps, icon: Activity, color: "emerald" },
-    { title: "Failed attempts", value: stats.failedAttempts, icon: AlertCircle, color: "red" },
-    { title: "Unique actors", value: stats.uniqueActors, icon: Users, color: "indigo" },
+    { title: "Total logs", value: stats.totalTraces, icon: ShieldCheck, color: "blue" },
+    { title: "Successful actions", value: stats.successfulOps, icon: Activity, color: "emerald" },
+    { title: "Failed actions", value: stats.failedAttempts, icon: AlertCircle, color: "red" },
+    { title: "Active users", value: stats.uniqueActors, icon: Users, color: "indigo" },
   ];
 
   return (
@@ -141,7 +141,7 @@ export default function AuditLogsPage() {
   const handleRefresh = () => {
     fetchStats();
     fetchLogs(pagination.page);
-    toast.success("Logs synchronized");
+    toast.success("Logs updated");
   };
 
   const toggleExpand = (id) => {
@@ -153,7 +153,7 @@ export default function AuditLogsPage() {
     const map = {
       "USER_LOGIN": status === "SUCCESS" ? "User logged in" : "User login failed",
       "USER_LOGOUT": "User logged out",
-      "PROVISION_USER": "Provisioned new personnel",
+      "PROVISION_USER": "Added new staff member",
       "CREATE_BRANCH": "Created new branch",
       "PUT_MASTER-DATA": "Updated master data entry",
       "POST_MASTER-DATA": "Created new master data entry",
@@ -197,7 +197,7 @@ export default function AuditLogsPage() {
           className="bg-primary text-white px-6 lg:px-8 h-[44px] lg:h-[48px] rounded-[5px] text-[13px] font-bold flex items-center justify-center gap-3 hover:opacity-90 transition-all shadow-none whitespace-nowrap"
         >
           <RefreshCcw className={cn("w-4 h-4", loading && "animate-spin")} />
-          Sync traces
+          Refresh Logs
         </button>
       </div>
 
@@ -209,7 +209,7 @@ export default function AuditLogsPage() {
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input 
             type="text" 
-            placeholder="Search logs by actor, action or ip..." 
+            placeholder="Search logs..." 
             className="w-full h-11 pl-11 pr-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] font-medium outline-none focus:border-primary transition-all shadow-none"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -333,7 +333,7 @@ export default function AuditLogsPage() {
               {logs.length === 0 && !loading ? (
                 <tr>
                   <td colSpan="6" className="px-8 py-24 text-center text-gray-400 font-bold text-[12px] opacity-60">
-                     System records status: empty
+                     No logs found
                   </td>
                 </tr>
               ) : (
@@ -358,7 +358,7 @@ export default function AuditLogsPage() {
                       </td>
                       <td className="px-8 py-6">
                          <div className="flex flex-col truncate">
-                            <span className="text-[14px] font-bold text-[#1e293b] dark:text-white truncate">{log.userName || "System node"}</span>
+                            <span className="text-[14px] font-bold text-[#1e293b] dark:text-white truncate">{log.userName || "System"}</span>
                             <span className="text-[10px] font-bold text-primary">{formatRole(log.userRole)}</span>
                          </div>
                       </td>
@@ -381,7 +381,7 @@ export default function AuditLogsPage() {
                             <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} transition={{ duration: 0.3, ease: "easeInOut" }}>
                               <div className="p-8 border-t border-[#E7E8EB] dark:border-white/10">
                                 <div className="space-y-4">
-                                     <h4 className="text-[10px] font-bold text-primary pl-1">Forensic state payload</h4>
+                                     <h4 className="text-[10px] font-bold text-primary pl-1">Action Details</h4>
                                      <div className="bg-[#05070D] p-1 rounded-[5px] border border-white/5">
                                         <div className="bg-black/40 p-6 rounded-[5px] max-h-[400px] overflow-auto custom-scrollbar">
                                            <pre className="text-[13px] font-mono text-cyan-400/80 leading-relaxed font-sans">{JSON.stringify(log.details, null, 2)}</pre>
@@ -443,7 +443,7 @@ export default function AuditLogsPage() {
       {loading && (
         <div className="fixed inset-0 flex flex-col items-center justify-center bg-white/50 dark:bg-[#0A0F1D]/50 backdrop-blur-sm z-50">
           <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-4" />
-          <p className="text-[11px] font-bold text-gray-400 font-mono">Decoding forensic buffers...</p>
+          <p className="text-[11px] font-bold text-gray-400 font-mono">Loading logs...</p>
         </div>
       )}
     </div>

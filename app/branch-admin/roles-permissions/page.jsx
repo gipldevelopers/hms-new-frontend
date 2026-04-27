@@ -53,7 +53,7 @@ export default function RolesPermissionsPage() {
       }
     } catch (error) {
       console.error("Fetch roles error:", error);
-      toast.error("Handshake timeout. Permissions registry disconnected.");
+      toast.error("Unable to load permissions.");
     } finally {
       setLoading(false);
     }
@@ -85,11 +85,11 @@ export default function RolesPermissionsPage() {
       });
       
       if (res.ok) {
-        toast.success(`Access Security: Console matrix ${newStatus ? 'restricted' : 'restored'}`);
+        toast.success(`Access: Permissions ${newStatus ? 'restricted' : 'restored'}`);
         fetchData();
       }
     } catch (err) {
-      toast.error("Access control handshake failed");
+      toast.error("Failed to update permissions");
     }
   };
 
@@ -99,17 +99,17 @@ export default function RolesPermissionsPage() {
   };
 
   const handleDelete = async (user) => {
-    if (window.confirm(`VAPORIZE ACCESS: Permanently purge all roles and permissions for ${user.name}?`)) {
+    if (window.confirm(`Are you sure you want to delete ${user.name}?`)) {
       try {
         const token = localStorage.getItem("authtoken");
         await fetch(`${API_BASE}/users/${user.id}`, {
           method: "DELETE",
           headers: { "Authorization": `Bearer ${token}` }
         });
-        toast.success("Security cleared. User wiped from permission matrix.");
+        toast.success("Staff member removed successfully.");
         fetchData();
       } catch (err) {
-        toast.error("Purge failure");
+        toast.error("Failed to delete staff member");
       }
     }
   };
@@ -132,7 +132,7 @@ export default function RolesPermissionsPage() {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <div className="space-y-1">
-            <h1 className="text-[18px] sm:text-[20px] font-bold text-[#1e293b] dark:text-white tracking-tight leading-none">Access control matrix</h1>
+            <h1 className="text-[18px] sm:text-[20px] font-bold text-[#1e293b] dark:text-white tracking-tight leading-none">Roles & Permissions</h1>
           </div>
         </div>
         
@@ -144,7 +144,7 @@ export default function RolesPermissionsPage() {
           className="bg-primary text-white px-6 sm:px-8 h-[44px] sm:h-[48px] rounded-[5px] text-[12px] sm:text-[13px] font-bold flex items-center justify-center gap-3 hover:opacity-90 transition-all shadow-none w-full sm:w-auto"
         >
           <ShieldCheck className="w-4 h-4" />
-          Provision roles
+          Add Roles
         </button>
       </div>
 
@@ -157,7 +157,7 @@ export default function RolesPermissionsPage() {
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
             <input 
               type="text" 
-              placeholder="Search personnel by identity or clearance..." 
+              placeholder="Search staff..." 
               className="w-full h-11 pl-11 pr-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] font-medium outline-none focus:border-primary transition-all"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -170,10 +170,10 @@ export default function RolesPermissionsPage() {
             <table className="w-full border-collapse">
                 <thead>
                     <tr className="bg-[#F8FAFC] dark:bg-white/[0.02]">
-                        <th className="px-8 py-5 text-left text-[11px] font-bold text-gray-400 border-b border-[#E7E8EB] dark:border-white/10 tracking-wider">Identity Card</th>
-                        <th className="px-8 py-5 text-left text-[11px] font-bold text-gray-400 border-b border-[#E7E8EB] dark:border-white/10 tracking-wider">Primary Access</th>
-                        <th className="px-8 py-5 text-left text-[11px] font-bold text-gray-400 border-b border-[#E7E8EB] dark:border-white/10 tracking-wider">Console Clearances</th>
-                        <th className="px-8 py-5 text-right text-[11px] font-bold text-gray-400 border-b border-[#E7E8EB] dark:border-white/10 tracking-wider">Matrix Control</th>
+                        <th className="px-8 py-5 text-left text-[11px] font-bold text-gray-400 border-b border-[#E7E8EB] dark:border-white/10 tracking-wider">Staff Member</th>
+                        <th className="px-8 py-5 text-left text-[11px] font-bold text-gray-400 border-b border-[#E7E8EB] dark:border-white/10 tracking-wider">Primary Role</th>
+                        <th className="px-8 py-5 text-left text-[11px] font-bold text-gray-400 border-b border-[#E7E8EB] dark:border-white/10 tracking-wider">Additional Roles</th>
+                        <th className="px-8 py-5 text-right text-[11px] font-bold text-gray-400 border-b border-[#E7E8EB] dark:border-white/10 tracking-wider">Actions</th>
                     </tr>
                 </thead>
                 <tbody className="divide-y divide-[#E7E8EB] dark:divide-white/10">
@@ -212,7 +212,7 @@ export default function RolesPermissionsPage() {
                                             </span>
                                         ))
                                     ) : (
-                                        <span className="text-[11px] text-gray-400 italic font-medium opacity-50">No secondary clearance</span>
+                                        <span className="text-[11px] text-gray-400 italic font-medium opacity-50">No additional roles</span>
                                     )}
                                 </div>
                             </td>
@@ -226,12 +226,12 @@ export default function RolesPermissionsPage() {
                                                 ? "bg-amber-50 text-amber-500 border border-amber-100 shadow-none" 
                                                 : "text-gray-400 hover:text-amber-500 hover:bg-gray-100 dark:hover:bg-white/5"
                                         )}
-                                        title={user.isRestricted ? "Restore Clearances" : "Restrict All Consoles"}
+                                        title={user.isRestricted ? "Restore Access" : "Restrict Access"}
                                     >
                                         {user.isRestricted ? <Unlock className="w-5 h-5" /> : <Lock className="w-5 h-5" />}
                                     </button>
                                     <button 
-                                        onClick={() => toast.info(`Reviewing clearances for ${user.name}`)}
+                                        onClick={() => toast.info(`Viewing permissions for ${user.name}`)}
                                         className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-[5px] transition-colors"
                                     >
                                         <Eye className="w-5 h-5 text-primary" />
@@ -257,7 +257,7 @@ export default function RolesPermissionsPage() {
                             <td colSpan="4" className="py-24 text-center">
                                 <div className="flex flex-col items-center gap-3">
                                     <AlertCircle className="w-10 h-10 text-gray-200" />
-                                    <p className="text-[11px] font-bold text-gray-300 uppercase tracking-widest leading-none">Registry desolation confirmed.</p>
+                                    <p className="text-[11px] font-bold text-gray-300 uppercase tracking-widest leading-none">No staff found.</p>
                                 </div>
                             </td>
                         </tr>
@@ -269,7 +269,7 @@ export default function RolesPermissionsPage() {
           {loading && (
             <div className="absolute inset-0 top-16 flex flex-col items-center pt-24 bg-white/50 dark:bg-[#101935]/50 backdrop-blur-sm z-10">
               <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-4"></div>
-              <p className="text-[11px] font-bold text-gray-400 italic">Decrypting permission indices...</p>
+              <p className="text-[11px] font-bold text-gray-400 italic">Loading permissions...</p>
             </div>
           )}
         </div>

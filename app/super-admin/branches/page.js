@@ -94,13 +94,13 @@ export default function BranchesPage() {
       });
       const json = await res.json();
       if (json.success) {
-        toast.success(`Infrastructure synchronized for ${json.data.success.length} branches`);
+        toast.success(`Updates completed for ${json.data.success.length} branches`);
         fetchBranches();
       } else {
         toast.error(json.message);
       }
     } catch (error) {
-      toast.error("Universal sync failed");
+      toast.error("Update failed");
     } finally {
       setIsSyncingAll(false);
     }
@@ -147,7 +147,7 @@ export default function BranchesPage() {
     <div className="p-6 bg-[#F8F9FC] dark:bg-[#0A0F1D] min-h-screen space-y-[25px] flex flex-col transition-colors duration-300 font-sans">
       {/* Header Section */}
       <div className="flex justify-between items-center mb-[25px]">
-        <h1 className="text-[20px] font-bold text-[#1e293b] dark:text-white leading-tight">Branch Management</h1>
+        <h1 className="text-[20px] font-bold text-[#1e293b] dark:text-white leading-tight">Manage Branches</h1>
         <div className="flex items-center gap-3">
           {branches.length > 0 && (
             <button 
@@ -164,13 +164,13 @@ export default function BranchesPage() {
             >
               <Database className="w-4 h-4" /> 
               {isSyncingAll ? (
-                <span>Synchronizing {branches.length}...</span>
+                <span>Updating {branches.length}...</span>
               ) : outOfSyncBranches.some(b => !b.schemaVersion) ? (
-                <span>Initialize All Branches ({outOfSyncBranches.length})</span>
+                <span>Setup All Branches ({outOfSyncBranches.length})</span>
               ) : outOfSyncBranches.length > 0 ? (
-                <span>Universal Schema Sync ({outOfSyncBranches.length})</span>
+                <span>Sync All Branches ({outOfSyncBranches.length})</span>
               ) : (
-                <span>Force Universal Sync</span>
+                <span>Force Update All</span>
               )}
             </button>
           )}
@@ -192,7 +192,7 @@ export default function BranchesPage() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input 
             type="text" 
-            placeholder="Search branches by name, code or location..."
+            placeholder="Search branches..."
             className="w-full h-10 pl-10 pr-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-gray-100 dark:border-white/10 rounded-[5px] text-[13px] font-medium focus:border-primary transition-all font-semibold outline-none"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -228,7 +228,7 @@ export default function BranchesPage() {
       <div className="space-y-[20px] pb-10">
         {/* Grid/List Content */}
         {loading ? (
-          <div className="py-20 text-center text-gray-400 font-bold text-[12px] animate-pulse">Synchronizing Branches...</div>
+          <div className="py-20 text-center text-gray-400 font-bold text-[12px] animate-pulse">Loading branches...</div>
         ) : (
           <div className={cn(
             "grid gap-6 transition-all duration-500",
@@ -257,7 +257,7 @@ export default function BranchesPage() {
         
         {!loading && filteredBranches.length === 0 && (
           <div className="py-24 text-center bg-white dark:bg-[#101935] rounded-[5px] border border-dashed border-gray-200">
-             <p className="text-gray-400 font-medium font-bold text-xs opacity-50">No hospital branches match your records.</p>
+             <p className="text-gray-400 font-medium font-bold text-xs opacity-50">No branches found.</p>
           </div>
         )}
       </div>

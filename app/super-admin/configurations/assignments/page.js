@@ -84,7 +84,7 @@ export default function AssignmentsPage() {
       const tempData = await tempRes.json();
       setTemplates(tempData);
     } catch (err) {
-      toast.error("Failed to connect to administrative services");
+      toast.error("Failed to connect");
     } finally {
       setLoading(false);
     }
@@ -103,7 +103,7 @@ export default function AssignmentsPage() {
         setSelectedTemplates(tempIds);
       }
     } catch (err) {
-      toast.error("Error retrieving existing branch assignments");
+      toast.error("Failed to load assignments");
     }
   };
 
@@ -135,7 +135,7 @@ export default function AssignmentsPage() {
 
   const handleSave = async () => {
     if (!selectedBranch) {
-      toast.error("Security exception: Target branch not identified.");
+      toast.error("Please select a branch.");
       return;
     }
     setSaving(true);
@@ -151,12 +151,12 @@ export default function AssignmentsPage() {
       });
       const json = await res.json();
       if (json.success) {
-        toast.success(`Infrastructure provisions updated for ${selectedBranch.name}`);
+        toast.success(`Assignments updated for ${selectedBranch.name}`);
       } else {
-        toast.error(json.message || "Failed to commit assignments");
+        toast.error(json.message || "Failed to save assignments");
       }
     } catch (err) {
-      toast.error("Cloud synchronization error");
+      toast.error("Failed to save assignments");
     } finally {
       setSaving(false);
     }
@@ -167,7 +167,7 @@ export default function AssignmentsPage() {
       {/* Header - Fluid Design */}
       <div className="flex flex-col xl:flex-row justify-between xl:items-center gap-4 mb-2">
         <div>
-          <h1 className="text-[18px] md:text-[20px] font-bold text-[#1e293b] dark:text-white leading-tight">Resource Assignments</h1>
+          <h1 className="text-[18px] md:text-[20px] font-bold text-[#1e293b] dark:text-white leading-tight">Branch Assignments</h1>
         </div>
         
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
@@ -175,7 +175,7 @@ export default function AssignmentsPage() {
               <DropdownMenuTrigger className="flex items-center gap-3 bg-white dark:bg-[#101935] px-4 py-2.5 rounded-[5px] border border-[#E7E8EB] dark:border-white/10 hover:border-primary transition-all outline-none group w-full sm:min-w-[240px] shadow-none">
                  <Building2 className="w-4 h-4 text-primary shrink-0" />
                  <span className={cn("text-[13px] font-bold truncate flex-1 text-left", !selectedBranch && "text-gray-400 font-medium")}>
-                    {selectedBranch ? selectedBranch.name : "Select Target Branch..."}
+                    {selectedBranch ? selectedBranch.name : "Select Branch"}
                  </span>
                  <ChevronDown className="w-4 h-4 text-gray-400 group-hover:text-primary transition-colors shrink-0" />
               </DropdownMenuTrigger>
@@ -215,7 +215,7 @@ export default function AssignmentsPage() {
               onClick={handleSave}
               className="bg-primary text-white px-6 py-2.5 rounded-[5px] text-[13px] font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all disabled:opacity-50 shadow-none border border-primary/20 h-[42px] whitespace-nowrap"
             >
-              <Save className="w-4.5 h-4.5" /> {saving ? "Updating..." : "Apply Assignments"}
+              <Save className="w-4.5 h-4.5" /> {saving ? "Saving..." : "Save Assignments"}
             </button>
         </div>
       </div>
@@ -268,7 +268,7 @@ export default function AssignmentsPage() {
              {!selectedBranch && !loading && (
                <div className="py-16 md:py-20 text-center flex flex-col items-center gap-3">
                   <Target className="w-10 h-10 text-gray-200" />
-                  <p className="text-[10px] md:text-[11px] font-bold text-gray-400 px-4">Select branch to manage data</p>
+                  <p className="text-[10px] md:text-[11px] font-bold text-gray-400 px-4">Select a branch to manage data</p>
                </div>
              )}
              {loading && (
@@ -353,7 +353,7 @@ export default function AssignmentsPage() {
              {!selectedBranch && !loading && (
                <div className="py-16 md:py-20 text-center flex flex-col items-center gap-3">
                   <Target className="w-10 h-10 text-gray-200" />
-                  <p className="text-[10px] md:text-[11px] font-bold text-gray-400 px-4">Select branch to manage templates</p>
+                  <p className="text-[10px] md:text-[11px] font-bold text-gray-400 px-4">Select a branch to manage templates</p>
                </div>
              )}
              {loading && (

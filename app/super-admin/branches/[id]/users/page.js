@@ -26,7 +26,7 @@ export default function BranchUserManagementPage() {
   const fetchData = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("authtoken");
       const headers = { 
         "Authorization": `Bearer ${token}` 
       };
@@ -55,7 +55,7 @@ export default function BranchUserManagementPage() {
       }
     } catch (error) {
       console.error("Fetch users error:", error);
-      toast.error("Handshake fail. Registry inaccessible.");
+      toast.error("Failed to connect.");
     } finally {
       setLoading(false);
     }
@@ -79,15 +79,15 @@ export default function BranchUserManagementPage() {
   };
 
   const handleView = (user) => {
-    toast.info(`Reviewing profile for ${user.name}`);
+    toast.info(`Viewing profile for ${user.name}`);
   };
 
   const handleDelete = async (user) => {
-    const confirmed = window.confirm(`Revoke access: Are you sure you want to permanently remove all credentials for ${user.name}?`);
+    const confirmed = window.confirm(`Delete staff: Are you sure you want to remove ${user.name}?`);
     
     if (confirmed) {
       try {
-        const token = localStorage.getItem("token");
+        const token = localStorage.getItem("authtoken");
         const res = await fetch(`${API_BASE}/users/${user.id}`, {
           method: "DELETE",
           headers: { 
@@ -96,13 +96,13 @@ export default function BranchUserManagementPage() {
         });
         const json = await res.json();
         if (json.success) {
-          toast.success("Personnel purged from registry");
+          toast.success("Staff deleted successfully");
           fetchData();
         } else {
-          toast.error(json.message || "Revocation failed");
+          toast.error(json.message || "Delete failed");
         }
       } catch (err) {
-        toast.error("Security module handshake timeout");
+        toast.error("Connection timed out");
       }
     }
   };
@@ -121,7 +121,7 @@ export default function BranchUserManagementPage() {
           </button>
           <div className="space-y-1">
             <h1 className="text-[20px] font-bold text-[#1e293b] dark:text-white tracking-tight leading-none">
-              {branch ? `${branch.name} directory` : "Branch user directory"}
+              {branch ? `${branch.name} Staff` : "Staff Management"}
             </h1>
           </div>
         </div>
@@ -135,7 +135,9 @@ export default function BranchUserManagementPage() {
         </button>
       </div>
 
-      <UserStats />
+      <div className="mb-[20px]">
+        <UserStats />
+      </div>
 
       <div className="space-y-[30px] pb-20 relative">
         <UserTable 
@@ -152,7 +154,7 @@ export default function BranchUserManagementPage() {
         {loading && (
           <div className="absolute inset-0 top-32 flex flex-col items-center pt-24 bg-white/50 dark:bg-[#0A0F1D]/50 backdrop-blur-sm z-10 rounded-[5px]">
             <div className="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-4"></div>
-            <p className="text-[11px] font-bold text-gray-400">Synchronizing isolated database...</p>
+            <p className="text-[11px] font-bold text-gray-400">Loading staff...</p>
           </div>
         )}
       </div>
