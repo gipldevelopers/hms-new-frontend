@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Search, UserPlus, ArrowLeft } from "lucide-react";
+import { Search, UserPlus, ArrowLeft, Trash2 } from "lucide-react";
 import { UserTable, UserStats } from "@/components/super-admin/users/UserComponents";
 import { AddUserModal } from "@/components/super-admin/users/AddUserModal";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 
 const API_BASE = "/api";
 
@@ -18,12 +19,13 @@ export default function StaffManagementPage() {
   
   const [users, setUsers] = useState([]);
   const [editingUser, setEditingUser] = useState(null);
+  const [deleteUser, setDeleteUser] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [adminInfo, setAdminInfo] = useState(null);
 
   useEffect(() => {
     setMounted(true);
-    // Determine current admin info from local storage
     const user = JSON.parse(localStorage.getItem("user") || "{}");
     setAdminInfo(user);
   }, []);
@@ -32,11 +34,8 @@ export default function StaffManagementPage() {
     try {
       setLoading(true);
       const token = localStorage.getItem("authtoken");
-      const headers = { 
-        "Authorization": `Bearer ${token}` 
-      };
+      const headers = { "Authorization": `Bearer ${token}` };
       
-      // Fetch Users (Scoping is handled by backend JWT)
       const userParams = new URLSearchParams();
       if (roleFilter !== "All") userParams.append("role", roleFilter);
       if (searchQuery) userParams.append("search", searchQuery);
@@ -83,23 +82,27 @@ export default function StaffManagementPage() {
     toast.info(`Viewing profile for ${user.name}`);
   };
 
-  const handleDelete = async (user) => {
-    const confirmed = window.confirm(`Are you sure you want to delete ${user.name}?`);
-    if (confirmed) {
-      try {
-        const token = localStorage.getItem("authtoken");
-        const res = await fetch(`${API_BASE}/users/${user.id}`, {
-          method: "DELETE",
-          headers: { "Authorization": `Bearer ${token}` }
-        });
-        const json = await res.json();
-        if (json.success) {
-          toast.success("Staff member deleted successfully");
-          fetchData();
-        }
-      } catch (err) {
-        toast.error("Failed to delete staff member");
+  const confirmDelete = async () => {
+    if (!deleteUser) return;
+    try {
+      setIsDeleting(true);
+      const token = localStorage.getItem("authtoken");
+      const res = await fetch(`${API_BASE}/users/${deleteUser.id}`, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      const json = await res.json();
+      if (json.success) {
+        toast.success("Staff member removed from records");
+        fetchData();
+      } else {
+        toast.error(json.message || "Failed to remove staff member");
       }
+    } catch (err) {
+      toast.error("Network error during operation");
+    } finally {
+      setIsDeleting(false);
+      setDeleteUser(null);
     }
   };
 
@@ -128,7 +131,7 @@ export default function StaffManagementPage() {
           users={loading ? [] : users}
           onEdit={handleEdit}
           onView={handleView}
-          onDelete={handleDelete}
+          onDelete={(user) => setDeleteUser(user)}
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           roleFilter={roleFilter}
@@ -151,6 +154,51 @@ export default function StaffManagementPage() {
         branches={adminInfo?.branch ? [adminInfo.branch] : []}
         selectedBranchId={adminInfo?.branchId}
       />
+
+      {/* Standardized Delete Modal */}
+      <AnimatePresence>
+        {deleteUser && (
+          <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setDeleteUser(null)}
+              className="absolute inset-0 bg-slate-900/40 backdrop-blur-[4px]" 
+            />
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="relative bg-white dark:bg-[#101935] w-full max-w-[380px] rounded-[12px] overflow-hidden shadow-2xl border border-gray-100 dark:border-white/5"
+            >
+              <div className="p-8 flex flex-col items-center text-center">
+                <div className="w-14 h-14 bg-rose-50 dark:bg-rose-500/10 rounded-full flex items-center justify-center mb-4">
+                  <Trash2 className="w-7 h-7 text-rose-500" />
+                </div>
+                <h3 className="text-[18px] font-bold text-[#1e293b] dark:text-white mb-2">Delete Staff Member?</h3>
+                <p className="text-[13px] text-gray-500 dark:text-gray-400 leading-relaxed max-w-[280px]">
+                  Are you sure you want to delete <span className="font-bold text-gray-700 dark:text-gray-200">{deleteUser.name}</span>? This action will permanently remove their credentials.
+                </p>
+              </div>
+
+              <div className="flex border-t border-gray-100 dark:border-white/5">
+                <button 
+                  onClick={() => setDeleteUser(null)}
+                  className="flex-1 py-4 text-[13px] font-bold text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors border-r border-gray-100 dark:border-white/5"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={confirmDelete}
+                  disabled={isDeleting}
+                  className="flex-1 py-4 text-[13px] font-bold text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/5 transition-colors disabled:opacity-50"
+                >
+                  {isDeleting ? "Deleting..." : "Delete"}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

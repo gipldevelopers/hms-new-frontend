@@ -15,8 +15,19 @@ export function PromptModal({
   const [value, setValue] = useState(initialValue);
 
   useEffect(() => {
-    if (isOpen) setValue(initialValue);
-  }, [isOpen, initialValue]);
+    if (isOpen) {
+      setValue(initialValue);
+      document.body.style.overflow = "hidden";
+      const handleEsc = (e) => {
+        if (e.key === "Escape") onClose();
+      };
+      window.addEventListener("keydown", handleEsc);
+      return () => {
+        document.body.style.overflow = "unset";
+        window.removeEventListener("keydown", handleEsc);
+      };
+    }
+  }, [isOpen, initialValue, onClose]);
 
   if (!isOpen) return null;
 

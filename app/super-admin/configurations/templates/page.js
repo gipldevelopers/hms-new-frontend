@@ -16,6 +16,8 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { DeleteConfirmationModal } from "@/components/super-admin/branches/BranchComponents";
 
+import { Input } from "@/components/ui/input";
+
 function TemplateCard({ file, viewType, onDelete }) {
   const isList = viewType === "list";
   
@@ -208,11 +210,11 @@ export default function TemplatesPage() {
       {/* Filter Bar */}
       <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-white dark:bg-[#101935] p-3 rounded-[5px] border border-[#E7E8EB] dark:border-white/10 shadow-none">
         <div className="relative w-full md:w-[350px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input 
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 z-10" />
+          <Input 
             type="text" 
             placeholder="Search templates..."
-            className="w-full h-10 pl-10 pr-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-gray-100 dark:border-white/10 rounded-[5px] text-[13px] font-medium focus:border-primary transition-all font-semibold outline-none"
+            className="pl-12"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />

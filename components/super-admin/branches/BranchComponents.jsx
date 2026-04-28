@@ -63,6 +63,20 @@ export function BranchStats() {
 }
 
 export function DeleteConfirmationModal({ isOpen, onClose, onConfirm, itemName, title = "Delete Branch?" }) {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+      const handleEsc = (e) => {
+        if (e.key === "Escape") onClose();
+      };
+      window.addEventListener("keydown", handleEsc);
+      return () => {
+        document.body.style.overflow = "unset";
+        window.removeEventListener("keydown", handleEsc);
+      };
+    }
+  }, [isOpen, onClose]);
+
   if (!isOpen) return null;
 
   return (

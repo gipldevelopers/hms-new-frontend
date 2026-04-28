@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   Search, 
   Plus, 
@@ -13,7 +13,9 @@ import {
   Clock,
   LayoutGrid,
   Sparkles,
-  Edit3
+  Edit3,
+  X,
+  Check
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
@@ -23,375 +25,473 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
+import { API_URL } from "@/lib/api";
 
-const StatCard = ({ title, value, subValue, icon: Icon, iconBg, iconColor, badge, badgeBg, badgeText }) => (
-  <div className="bg-white dark:bg-[#1E293B] p-5 rounded-[5px] border border-[#E7E8EB] dark:border-white/10 flex flex-col justify-between h-[135px] transition-all">
-    <div className="flex justify-between items-start">
-      <div className={`p-2 rounded-[5px] ${iconBg} dark:bg-opacity-10`}>
-        <Icon className={`w-5 h-5 ${iconColor}`} />
-      </div>
-      <div className={cn("text-[10px] font-bold px-1.5 py-0.5 rounded-[3px] flex items-center gap-1", badgeBg, badgeText)}>
-        {badge}
-      </div>
+const StatCard = ({ title, value, icon: Icon, color }) => (
+  <div className="bg-card p-5 rounded-[5px] border border-border flex items-center gap-4 transition-all flex-1">
+    <div
+      className={cn(
+        "w-12 h-12 rounded-[5px] flex items-center justify-center shrink-0",
+        color === "blue" && "bg-primary/10 text-primary",
+        color === "rose" && "bg-rose-500/10 text-rose-500",
+        color === "emerald" && "bg-emerald-500/10 text-emerald-500",
+        color === "amber" && "bg-amber-500/10 text-amber-500"
+      )}
+    >
+      <Icon className="w-6 h-6" />
     </div>
-    <div className="mt-4">
-      <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">{title}</p>
-      <div className="flex justify-between items-end">
-        <h3 className="text-2xl font-bold text-[#1e293b] dark:text-white leading-none">{value}</h3>
-        <span className="text-[10px] text-gray-400 font-medium whitespace-nowrap ml-2">{subValue}</span>
-      </div>
+    <div>
+      <p className="text-[11px] font-bold text-muted-foreground leading-none mb-1.5 uppercase tracking-wider">
+        {title}
+      </p>
+      <p className="text-[20px] font-bold text-foreground leading-none">
+        {value}
+      </p>
     </div>
   </div>
 );
 
+
+
 export default function BedWardOverview() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeAccordion, setActiveAccordion] = useState(0);
+  const [activeAccordion, setActiveAccordion] = useState(null);
+  const [editingDeptId, setEditingDeptId] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [branchId, setBranchId] = useState(null);
+
+  const [departments, setDepartments] = useState([]);
+  const [deleteDept, setDeleteDept] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [statsData, setStatsData] = useState({
+    totalBeds: 0,
+    occupiedBeds: 0,
+    availableBeds: 0,
+    reservedBeds: 0,
+    totalDepts: 0
+  });
 
   const stats = [
     { 
-      title: "Total Beds", 
-      value: "320", 
-      subValue: "Across 12 depts", 
+      title: "Total beds", 
+      value: statsData.totalBeds.toString(), 
       icon: LayoutGrid, 
-      iconBg: "bg-blue-50",
-      iconColor: "text-blue-500",
-      badge: "All Wards",
-      badgeBg: "bg-emerald-100",
-      badgeText: "text-emerald-600"
+      color: "blue"
     },
     { 
       title: "Occupied", 
-      value: "236", 
-      subValue: "73.8% occupancy", 
+      value: statsData.occupiedBeds.toString(), 
       icon: Hotel, 
-      iconBg: "bg-red-50",
-      iconColor: "text-red-500",
-      badge: "+12 Today",
-      badgeBg: "bg-emerald-100",
-      badgeText: "text-emerald-600"
+      color: "rose"
     },
     { 
       title: "Available", 
-      value: "84", 
-      subValue: "26.2% capacity", 
+      value: statsData.availableBeds.toString(), 
       icon: CheckCircle2, 
-      iconBg: "bg-green-50",
-      iconColor: "text-green-500",
-      badge: "-8 Today",
-      badgeBg: "bg-red-100",
-      badgeText: "text-red-600"
+      color: "emerald"
     },
     { 
       title: "Reserved", 
-      value: "24", 
-      subValue: "Pre-surgical", 
+      value: statsData.reservedBeds.toString(), 
       icon: Clock, 
-      iconBg: "bg-orange-50",
-      iconColor: "text-orange-500",
-      badge: "+5 Scheduled",
-      badgeBg: "bg-blue-100",
-      badgeText: "text-blue-600"
+      color: "amber"
     }
   ];
 
-  const [departments, setDepartments] = useState([
-    {
-      id: 1,
-      name: "Emergency & Trauma",
-      status: "Active",
-      wards: [{ name: "ER-Main-South", code: "WD-ERS-01" }],
-      beds: [{ label: "e.g. Bed 101", equipmentId: "e.g. EQ-102" }]
-    },
-    {
-      id: 2,
-      name: "Emergency & Trauma",
-      status: "Active",
-      wards: [{ name: "ER-Main-South", code: "WD-ERS-01" }],
-      beds: [{ label: "e.g. Bed 101", equipmentId: "e.g. EQ-102" }]
-    },
-    {
-      id: 3,
-      name: "Intensive Care (ICU)",
-      status: "Active",
-      wards: [
-        { name: "ER-Main-South", code: "WD-ERS-01" },
-        { name: "ER-Main-South", code: "WD-ERS-01" },
-        { name: "ER-Main-South", code: "WD-ERS-01" }
-      ],
-      beds: [
-        { label: "e.g. Bed 101", equipmentId: "e.g. EQ-102" },
-        { label: "e.g. Bed 101", equipmentId: "e.g. EQ-102" },
-        { label: "e.g. Bed 101", equipmentId: "e.g. EQ-102" }
-      ]
-    },
-    {
-      id: 4,
-      name: "Intensive Care (ICU)",
-      status: "Inactive",
-      wards: [{ name: "ER-Main-South", code: "WD-ERS-01" }],
-      beds: [{ label: "e.g. Bed 101", equipmentId: "e.g. EQ-102" }]
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+    if (user.branchId) {
+      setBranchId(user.branchId);
+      fetchData(user.branchId);
     }
-  ]);
+  }, []);
 
-  const toggleAccordion = (index) => {
-    setActiveAccordion(activeAccordion === index ? null : index);
+  const fetchData = async (bid) => {
+    try {
+      setIsLoading(true);
+      const token = localStorage.getItem("authtoken");
+      const res = await fetch(`/api/wards/overview?branchId=${bid}`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setDepartments(data.map(d => ({
+          ...d,
+          status: d.active ? "Active" : "Inactive"
+        })));
+        fetchStats(bid);
+      } else {
+        toast.error(data.error || "Failed to fetch configurations");
+      }
+    } catch (error) {
+      toast.error("Error connecting to server");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const addField = (deptIdx, type) => {
-    const newDepts = [...departments];
-    if (type === 'ward') {
-      newDepts[deptIdx].wards.push({ name: "", code: "" });
-    } else {
-      newDepts[deptIdx].beds.push({ label: "", equipmentId: "" });
+  const fetchStats = async (bid) => {
+    try {
+      const token = localStorage.getItem("authtoken");
+      const res = await fetch(`/api/wards/stats?branchId=${bid}`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setStatsData(data);
+      }
+    } catch (error) {
+      console.error("Stats error:", error);
     }
-    setDepartments(newDepts);
   };
 
-  const removeField = (deptIdx, fieldIdx, type) => {
-    const newDepts = [...departments];
-    if (type === 'ward') {
-      newDepts[deptIdx].wards.splice(fieldIdx, 1);
-    } else {
-      newDepts[deptIdx].beds.splice(fieldIdx, 1);
+  const handleSave = async (deptIdx) => {
+    try {
+      setIsSaving(true);
+      const token = localStorage.getItem("authtoken");
+      const res = await fetch(`/api/wards/sync`, {
+        method: "POST",
+        headers: { 
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          branchId: branchId,
+          departments: [departments[deptIdx]]
+        })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        toast.success("Changes saved successfully");
+        fetchData(branchId);
+      } else {
+        toast.error(data.error || "Failed to save changes");
+      }
+    } catch (error) {
+      toast.error("Error saving changes");
+    } finally {
+      setIsSaving(false);
     }
-    setDepartments(newDepts);
   };
 
   const addDepartment = () => {
     const newDept = {
-      id: departments.length + 1,
-      name: "New Department",
+      id: `new-${Date.now()}`,
+      name: "New department",
       status: "Active",
-      wards: [{ name: "", code: "" }],
-      beds: [{ label: "", equipmentId: "" }]
+      active: true,
+      wards: []
     };
     setDepartments([...departments, newDept]);
-    setActiveAccordion(departments.length);
+    setActiveAccordion(newDept.id);
   };
 
-  const removeDepartment = (id) => {
-    setDepartments(departments.filter(dept => dept.id !== id));
+  const confirmRemoveDept = async () => {
+    if (!deleteDept) return;
+    const { id, idx } = deleteDept;
+
+    if (id.toString().startsWith('new-')) {
+      setDepartments(departments.filter((_, i) => i !== idx));
+      setDeleteDept(null);
+      return;
+    }
+
+    try {
+      setIsDeleting(true);
+      const token = localStorage.getItem("authtoken");
+      const res = await fetch(`/api/wards/${id}?branchId=${branchId}`, {
+        method: "DELETE",
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      if (res.ok) {
+        toast.success("Department removed from registry");
+        fetchData(branchId);
+      } else {
+        const data = await res.json();
+        toast.error(data.error || "Failed to delete");
+      }
+    } catch (error) {
+      toast.error("Error deleting");
+    } finally {
+      setIsDeleting(false);
+      setDeleteDept(null);
+    }
   };
+
+  const handleDeptChange = (idx, field, value) => {
+    const newDepts = [...departments];
+    newDepts[idx][field] = value;
+    setDepartments(newDepts);
+  };
+
+  const handleWardChange = (deptIdx, wardIdx, field, value) => {
+    const newDepts = [...departments];
+    newDepts[deptIdx].wards[wardIdx][field] = value;
+    setDepartments(newDepts);
+  };
+
+  const handleBedChange = (deptIdx, wardIdx, bedIdx, field, value) => {
+    const newDepts = [...departments];
+    newDepts[deptIdx].wards[wardIdx].beds[bedIdx][field] = value;
+    setDepartments(newDepts);
+  };
+
+  const addWard = (deptIdx) => {
+    const newDepts = [...departments];
+    newDepts[deptIdx].wards.push({
+      id: `new-w-${Date.now()}`,
+      name: "New ward",
+      code: "WD-" + Math.random().toString(36).substring(7).toUpperCase(),
+      beds: []
+    });
+    setDepartments(newDepts);
+  };
+
+  const addBed = (deptIdx, wardIdx) => {
+    const newDepts = [...departments];
+    newDepts[deptIdx].wards[wardIdx].beds.push({
+      id: `new-b-${Date.now()}`,
+      label: "New bed",
+      equipmentId: "",
+      status: "AVAILABLE"
+    });
+    setDepartments(newDepts);
+  };
+
+  const removeField = (deptIdx, wardIdx, bedIdx, type) => {
+    const newDepts = [...departments];
+    if (type === 'ward') {
+      newDepts[deptIdx].wards.splice(wardIdx, 1);
+    } else {
+      newDepts[deptIdx].wards[wardIdx].beds.splice(bedIdx, 1);
+    }
+    setDepartments(newDepts);
+  };
+
+  const toggleAccordion = (id) => {
+    setActiveAccordion(activeAccordion === id ? null : id);
+  };
+
+  const toggleDeptStatus = async (idx) => {
+    const dept = departments[idx];
+    const newStatus = dept.status === "Active" ? "Inactive" : "Active";
+    const isActive = newStatus === "Active";
+
+    const newDepts = [...departments];
+    newDepts[idx].status = newStatus;
+    newDepts[idx].active = isActive;
+    setDepartments(newDepts);
+
+    if (dept.id && !dept.id.toString().startsWith('new-')) {
+      try {
+        const token = localStorage.getItem("authtoken");
+        const res = await fetch(`/api/wards/${dept.id}/status`, {
+          method: "PATCH",
+          headers: { 
+            "Authorization": `Bearer ${token}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ 
+            branchId: branchId,
+            active: isActive 
+          })
+        });
+        if (!res.ok) {
+          const data = await res.json();
+          toast.error(data.error || "Failed to update status");
+          const revertDepts = [...departments];
+          revertDepts[idx].status = dept.status;
+          revertDepts[idx].active = dept.active;
+          setDepartments(revertDepts);
+        } else {
+          toast.success(`Department ${newStatus}`);
+        }
+      } catch (error) {
+        toast.error("Connection error");
+      }
+    }
+  };
+
+  const filteredDepartments = departments.filter(d => 
+    d.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    d.wards.some(w => w.name.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
 
   return (
-    <div className="p-4 md:p-6 bg-[#F8F9FC] dark:bg-[#0A0F1D] min-h-screen space-y-[20px] font-sans transition-colors duration-300">
+    <div className="p-6 bg-background min-h-screen space-y-[20px] flex flex-col transition-colors duration-300 font-sans pb-20 text-[#1e293b] dark:text-white">
       
       {/* Header */}
-      <div className="flex justify-between items-center mb-[10px]">
-        <h1 className="text-[18px] md:text-[20px] font-bold text-[#1e293b] dark:text-white tracking-tight">Bed & Ward Overview</h1>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <h1 className="text-[20px] font-bold text-foreground tracking-tight leading-none">Bed & Ward Overview</h1>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, i) => (
           <StatCard key={i} {...stat} />
         ))}
       </div>
 
-      {/* Control Bar */}
-      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-white dark:bg-[#1E293B] p-4 rounded-[5px] border border-[#E7E8EB] dark:border-white/10 shadow-none">
-        <h2 className="text-[16px] font-bold text-[#1e293b] dark:text-white px-1">Departments</h2>
-        
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
-          <div className="relative w-full sm:w-[280px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input 
-              type="text" 
-              placeholder="Search..."
-              className="w-full h-10 pl-10 pr-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] font-semibold text-[#1e293b] dark:text-white outline-none focus:border-primary transition-all placeholder:text-gray-400"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-
-          <div className="flex items-center gap-2">
-            <DropdownMenu modal={false}>
-              <DropdownMenuTrigger asChild>
-                <button className="flex-1 sm:flex-none h-[40px] px-4 rounded-[5px] bg-white dark:bg-[#1E293B] border border-[#E7E8EB] dark:border-white/10 text-[12px] font-bold text-[#64748B] dark:text-white flex items-center justify-between gap-2 hover:bg-gray-50 transition-all outline-none">
-                  All <ChevronDown className="w-4 h-4 text-gray-400" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-white dark:bg-[#1E293B] border-[#E7E8EB] dark:border-white/10 p-1 rounded-[5px]">
-                <DropdownMenuItem className="text-[12px] font-medium cursor-pointer rounded-[5px]">All Wards</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            <DropdownMenu modal={false}>
-              <DropdownMenuTrigger asChild>
-                <button className="flex-1 sm:flex-none h-[40px] px-4 rounded-[5px] bg-white dark:bg-[#1E293B] border border-[#E7E8EB] dark:border-white/10 text-[12px] font-bold text-[#64748B] dark:text-white flex items-center justify-between gap-2 hover:bg-gray-50 transition-all outline-none">
-                  All <ChevronDown className="w-4 h-4 text-gray-400" />
-                </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-white dark:bg-[#1E293B] border-[#E7E8EB] dark:border-white/10 p-1 rounded-[5px]">
-                <DropdownMenuItem className="text-[12px] font-medium cursor-pointer rounded-[5px]">All Beds</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-
-          <button 
-            onClick={addDepartment}
-            className="bg-primary text-white px-5 h-[40px] rounded-[5px] text-[12px] font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all shadow-none w-full sm:w-auto"
-          >
-            <Plus className="w-4 h-4" /> Add Department
-          </button>
+      {/* Filter Bar */}
+      <div className="flex flex-col md:flex-row justify-between items-center gap-4 bg-card p-3 rounded-[5px] border border-border shadow-none">
+        <div className="relative w-full md:w-[380px]">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+          <input
+            type="text"
+            placeholder="Search departments or wards..."
+            className="w-full h-11 pl-11 pr-4 bg-background border border-border rounded-[5px] text-[13px] font-medium outline-none focus:border-primary transition-all shadow-none"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
         </div>
+
+        <button 
+          onClick={addDepartment}
+          className="bg-primary text-white px-8 h-[48px] rounded-[5px] text-[13px] font-bold flex items-center justify-center gap-3 hover:opacity-90 transition-all shadow-none w-full md:w-auto"
+        >
+          <Plus className="w-4 h-4" /> Add Department
+        </button>
       </div>
 
       {/* Departments Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-20">
-        {departments.map((dept, idx) => (
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
+        {filteredDepartments.map((dept, idx) => (
           <div 
             key={dept.id}
-            className="bg-white dark:bg-[#1E293B] rounded-[5px] border border-[#E7E8EB] dark:border-white/10 overflow-hidden shadow-none h-fit"
+            className="bg-card rounded-[5px] border border-border overflow-hidden shadow-none h-fit"
           >
-            {/* Accordion Header */}
             <div 
               className={cn(
                 "px-5 py-3.5 flex items-center justify-between cursor-pointer transition-colors duration-300",
-                "bg-primary text-white"
+                "bg-[#2D3A8C] text-white"
               )}
-              onClick={() => toggleAccordion(idx)}
+              onClick={() => toggleAccordion(dept.id)}
             >
-              <div className="flex items-center gap-2.5">
-                <Sparkles className="w-4 h-4 text-white" />
-                <h3 className="text-[14px] font-bold">Department {dept.id}: {dept.name}</h3>
+              <div className="flex items-center gap-3 flex-1 min-w-0" onClick={(e) => e.stopPropagation()}>
+                {editingDeptId === dept.id ? (
+                  <div className="flex items-center gap-2 flex-1">
+                    <Input 
+                      autoFocus
+                      value={dept.name}
+                      onChange={(e) => handleDeptChange(idx, 'name', e.target.value)}
+                      onBlur={() => setEditingDeptId(null)}
+                      onKeyDown={(e) => e.key === 'Enter' && setEditingDeptId(null)}
+                      className={cn(
+                        "h-8 text-[14px] font-bold focus:ring-0 w-full max-w-[250px] transition-all",
+                        "bg-white/10 border-white/20 text-white placeholder:text-white/50"
+                      )}
+                    />
+                    <button onClick={() => setEditingDeptId(null)} className="p-1 rounded hover:bg-white/10 text-white">
+                      <Check className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <h3 className="text-[14px] font-bold text-white truncate max-w-[250px]">{dept.name}</h3>
+                )}
               </div>
               
-              <div className="flex items-center gap-3" onClick={(e) => e.stopPropagation()}>
-                <span className={cn(
-                  "text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider",
-                  dept.status === "Active" ? "bg-emerald-500 text-white" : "bg-red-500 text-white"
-                )}>
+              <div className="flex items-center gap-4" onClick={(e) => e.stopPropagation()}>
+                <button 
+                  onClick={() => toggleDeptStatus(idx)}
+                  className={cn(
+                    "text-[10px] font-bold px-4 py-1.5 rounded-full tracking-wider transition-all shadow-inner active:scale-95",
+                    dept.status === "Active" ? "bg-emerald-500 text-white" : "bg-red-500 text-white"
+                  )}
+                >
                   {dept.status}
-                </span>
+                </button>
                 <div className="flex items-center gap-1.5">
                   <button 
-                    onClick={() => removeDepartment(dept.id)}
+                    onClick={() => setEditingDeptId(dept.id)}
+                    className="p-1.5 hover:bg-white/10 rounded-[3px] transition-colors"
+                  >
+                    <Edit3 className="w-4 h-4 text-white" />
+                  </button>
+                  <button 
+                    onClick={() => setDeleteDept({ id: dept.id, idx, name: dept.name })}
                     className="p-1.5 hover:bg-white/10 rounded-[3px] transition-colors"
                   >
                     <Trash2 className="w-4 h-4 text-white" />
                   </button>
-                  <button className="p-1.5 hover:bg-white/10 rounded-[3px] transition-colors">
-                    <Edit3 className="w-4 h-4 text-white" />
-                  </button>
-                  <button className="p-1.5 hover:bg-white/10 rounded-[3px] transition-colors">
-                    {activeAccordion === idx ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                  <button onClick={() => toggleAccordion(dept.id)} className="p-1.5 hover:bg-white/10 rounded-[3px] transition-colors">
+                    {activeAccordion === dept.id ? <ChevronUp className="w-5 h-5 text-white" /> : <ChevronDown className="w-5 h-5 text-white" />}
                   </button>
                 </div>
               </div>
             </div>
 
-            {/* Accordion Content */}
             <AnimatePresence>
-              {activeAccordion === idx && (
+              {activeAccordion === dept.id && (
                 <motion.div 
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: "auto", opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="overflow-hidden"
+                  initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.3 }} className="overflow-hidden"
                 >
-                  <div className="p-6 space-y-8 bg-white dark:bg-[#101935]">
-                    
-                    {/* Wards Section */}
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between border-b border-gray-50 pb-2">
-                        <h4 className="text-[11px] font-bold text-[#1e293b] dark:text-white uppercase tracking-wider">Wards Configuration</h4>
-                        <button 
-                          onClick={() => addField(idx, 'ward')}
-                          className="text-[11px] font-bold text-primary flex items-center gap-1 hover:underline"
-                        >
-                          <Plus className="w-3.5 h-3.5" /> Add Ward
+                  <div className="p-6 space-y-8 bg-card max-h-[500px] overflow-y-auto custom-scrollbar">
+                    <div className="space-y-6">
+                      <div className="flex items-center justify-between border-b border-border pb-3.5 mb-2">
+                        <h4 className="text-[13px] font-bold text-muted-foreground flex items-center gap-2">
+                          <LayoutGrid className="w-3.5 h-3.5 opacity-50" />
+                          Wards configuration
+                        </h4>
+                        <button onClick={() => addWard(idx)} className="text-[12px] font-bold text-primary flex items-center gap-1.5 hover:underline decoration-2 underline-offset-4 tracking-wide">
+                          <Plus className="w-4 h-4" /> Add ward
                         </button>
                       </div>
                       
-                      <div className="space-y-4">
+                      <div className="space-y-8">
                         {dept.wards.map((ward, wIdx) => (
-                          <div key={wIdx} className="flex flex-col sm:flex-row items-stretch sm:items-end gap-3">
-                            <div className="flex-1 space-y-1.5">
-                              <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Ward Name <span className="text-red-500">*</span></label>
-                              <input 
-                                type="text"
-                                defaultValue={ward.name}
-                                placeholder="Enter Ward Name"
-                                className="w-full h-10 px-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[3px] text-[13px] font-medium text-[#1e293b] dark:text-white outline-none focus:border-primary transition-all"
-                              />
+                          <div key={wIdx} className="space-y-4 pb-6 border-b border-border/50 last:border-0 last:pb-0">
+                            <div className="flex flex-col sm:flex-row items-stretch sm:items-end gap-6">
+                              <div className="flex-1 space-y-2">
+                                <label className="text-[12px] font-bold text-muted-foreground ml-1">Ward name*</label>
+                                <Input value={ward.name} onChange={(e) => handleWardChange(idx, wIdx, 'name', e.target.value)} placeholder="Enter ward name" className="h-11 bg-background border-border shadow-none" />
+                              </div>
+                              <div className="flex-1 space-y-2">
+                                <label className="text-[12px] font-bold text-muted-foreground ml-1">Ward code*</label>
+                                <Input value={ward.code} onChange={(e) => handleWardChange(idx, wIdx, 'code', e.target.value)} placeholder="Enter ward code" className="h-11 bg-background border-border shadow-none" />
+                              </div>
+                              <button onClick={() => removeField(idx, wIdx, null, 'ward')} className="h-11 w-11 shrink-0 border border-border rounded-[5px] flex items-center justify-center text-muted-foreground hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition-all shadow-none">
+                                <Trash2 className="w-5 h-5" />
+                              </button>
                             </div>
-                            <div className="flex-1 space-y-1.5">
-                              <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Ward Code <span className="text-red-500">*</span></label>
-                              <input 
-                                type="text"
-                                defaultValue={ward.code}
-                                placeholder="Enter Ward Code"
-                                className="w-full h-10 px-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[3px] text-[13px] font-medium text-[#1e293b] dark:text-white outline-none focus:border-primary transition-all"
-                              />
+                            <div className="pl-6 space-y-4 border-l-2 border-primary/10">
+                              <div className="flex items-center justify-between">
+                                <h5 className="text-[11px] font-bold text-muted-foreground tracking-widest">Beds for {ward.name || 'this ward'}</h5>
+                                <button onClick={() => addBed(idx, wIdx)} className="text-[11px] font-bold text-primary/70 hover:text-primary flex items-center gap-1">
+                                  <Plus className="w-3 h-3" /> Add bed
+                                </button>
+                              </div>
+                              <div className="space-y-4">
+                                {ward.beds.map((bed, bIdx) => (
+                                  <div key={bIdx} className="flex flex-col sm:flex-row items-stretch sm:items-end gap-4">
+                                    <div className="flex-1 space-y-1">
+                                      <label className="text-[10px] font-bold text-muted-foreground ml-1">Bed label</label>
+                                      <Input value={bed.label} onChange={(e) => handleBedChange(idx, wIdx, bIdx, 'label', e.target.value)} placeholder="e.g. Bed 101" className="h-10 bg-background border-border shadow-none" />
+                                    </div>
+                                    <div className="flex-1 space-y-1">
+                                      <label className="text-[10px] font-bold text-muted-foreground ml-1">Equipment id</label>
+                                      <Input value={bed.equipmentId} onChange={(e) => handleBedChange(idx, wIdx, bIdx, 'equipmentId', e.target.value)} placeholder="e.g. EQ-102" className="h-10 bg-background border-border shadow-none" />
+                                    </div>
+                                    <button onClick={() => removeField(idx, wIdx, bIdx, 'bed')} className="h-10 w-10 shrink-0 border border-border rounded-[5px] flex items-center justify-center text-muted-foreground hover:text-red-500 transition-all shadow-none">
+                                      <Trash2 className="w-4 h-4" />
+                                    </button>
+                                  </div>
+                                ))}
+                              </div>
                             </div>
-                            <button 
-                              onClick={() => removeField(idx, wIdx, 'ward')}
-                              className="h-10 w-10 shrink-0 border border-[#E7E8EB] dark:border-white/10 rounded-[3px] flex items-center justify-center text-gray-300 hover:text-red-500 hover:bg-red-50 transition-all"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
                           </div>
                         ))}
                       </div>
                     </div>
-
-                    {/* Beds Section */}
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between border-b border-gray-50 pb-2">
-                        <h4 className="text-[11px] font-bold text-[#1e293b] dark:text-white uppercase tracking-wider">Bed Inventory</h4>
-                        <button 
-                          onClick={() => addField(idx, 'bed')}
-                          className="text-[11px] font-bold text-primary flex items-center gap-1 hover:underline"
-                        >
-                          <Plus className="w-3.5 h-3.5" /> Add Bed
-                        </button>
-                      </div>
-
-                      <div className="space-y-4">
-                        {dept.beds.map((bed, bIdx) => (
-                          <div key={bIdx} className="flex flex-col sm:flex-row items-stretch sm:items-end gap-3">
-                            <div className="flex-1 space-y-1.5">
-                              <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Bed Label <span className="text-red-500">*</span></label>
-                              <input 
-                                type="text"
-                                defaultValue={bed.label}
-                                placeholder="Enter Bed Label"
-                                className="w-full h-10 px-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[3px] text-[13px] font-medium text-[#1e293b] dark:text-white outline-none focus:border-primary transition-all"
-                              />
-                            </div>
-                            <div className="flex-1 space-y-1.5">
-                              <label className="text-[9px] font-bold text-gray-400 uppercase tracking-widest">Equipment ID <span className="text-red-500">*</span></label>
-                              <input 
-                                type="text"
-                                defaultValue={bed.equipmentId}
-                                placeholder="Enter Equipment ID"
-                                className="w-full h-10 px-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[3px] text-[13px] font-medium text-[#1e293b] dark:text-white outline-none focus:border-primary transition-all"
-                              />
-                            </div>
-                            <button 
-                              onClick={() => removeField(idx, bIdx, 'bed')}
-                              className="h-10 w-10 shrink-0 border border-[#E7E8EB] dark:border-white/10 rounded-[3px] flex items-center justify-center text-gray-300 hover:text-red-500 hover:bg-red-50 transition-all"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Footer Actions */}
-                    <div className="flex justify-end items-center gap-3 pt-4 border-t border-gray-50">
-                      <button className="px-6 h-10 rounded-[3px] text-[12px] font-bold text-gray-500 hover:bg-gray-50 transition-all border border-[#E7E8EB]">
-                        Discard
-                      </button>
-                      <button className="px-6 h-10 rounded-[3px] text-[12px] font-bold text-white bg-primary hover:opacity-90 transition-all">
-                        Save Changes
+                    <div className="flex justify-end items-center gap-4 pt-6 border-t border-border">
+                      <button onClick={() => fetchData(branchId)} className="px-8 h-12 bg-background border border-border text-muted-foreground font-bold text-[12px] rounded-[5px] transition-all hover:bg-muted tracking-widest shadow-none">Discard</button>
+                      <button onClick={() => handleSave(idx)} disabled={isSaving} className="px-10 h-12 bg-[#2D3A8C] text-white font-bold text-[12px] rounded-[5px] transition-all hover:opacity-90 shadow-none disabled:opacity-50 tracking-widest">
+                        {isSaving ? "Saving..." : "Save changes"}
                       </button>
                     </div>
-
                   </div>
                 </motion.div>
               )}
@@ -399,6 +499,51 @@ export default function BedWardOverview() {
           </div>
         ))}
       </div>
+
+      {/* Standardized Delete Modal */}
+      <AnimatePresence>
+        {deleteDept && (
+          <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              onClick={() => setDeleteDept(null)}
+              className="absolute inset-0 bg-slate-900/40 backdrop-blur-[4px]" 
+            />
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="relative bg-white dark:bg-[#101935] w-full max-w-[380px] rounded-[12px] overflow-hidden shadow-2xl border border-gray-100 dark:border-white/5"
+            >
+              <div className="p-8 flex flex-col items-center text-center">
+                <div className="w-14 h-14 bg-rose-50 dark:bg-rose-500/10 rounded-full flex items-center justify-center mb-4">
+                  <Trash2 className="w-7 h-7 text-rose-500" />
+                </div>
+                <h3 className="text-[18px] font-bold text-[#1e293b] dark:text-white mb-2">Delete Department?</h3>
+                <p className="text-[13px] text-gray-500 dark:text-gray-400 leading-relaxed max-w-[280px]">
+                  Are you sure you want to delete <span className="font-bold text-gray-700 dark:text-gray-200">{deleteDept.name}</span>? This will remove all associated wards and beds.
+                </p>
+              </div>
+
+              <div className="flex border-t border-gray-100 dark:border-white/5">
+                <button 
+                  onClick={() => setDeleteDept(null)}
+                  className="flex-1 py-4 text-[13px] font-bold text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors border-r border-gray-100 dark:border-white/5"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={confirmRemoveDept}
+                  disabled={isDeleting}
+                  className="flex-1 py-4 text-[13px] font-bold text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/5 transition-colors disabled:opacity-50"
+                >
+                  {isDeleting ? "Deleting..." : "Delete"}
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

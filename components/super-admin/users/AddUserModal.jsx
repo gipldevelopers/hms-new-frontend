@@ -171,6 +171,20 @@ export function AddUserModal({
     }
   }, [editingUser, isOpen, selectedBranchId]);
 
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+      const handleEsc = (e) => {
+        if (e.key === "Escape") onClose();
+      };
+      window.addEventListener("keydown", handleEsc);
+      return () => {
+        document.body.style.overflow = "unset";
+        window.removeEventListener("keydown", handleEsc);
+      };
+    }
+  }, [isOpen, onClose]);
+
   const [mounted, setMounted] = useState(false);
   const [isSuperAdmin, setIsSuperAdmin] = useState(true);
 

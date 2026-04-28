@@ -8,6 +8,7 @@ import { Lock, User, Eye, EyeOff, ShieldCheck, HeartPulse, ExternalLink, Globe, 
 import { cn } from "@/lib/utils";
 import { motion } from "framer-motion";
 
+import { Input } from "@/components/ui/input";
 import { API_URL } from "@/lib/api";
 
 export default function LoginPage() {
@@ -183,20 +184,16 @@ export default function LoginPage() {
                 Email Address
               </label>
               <div className="relative">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 z-10">
                   <User className="w-[17px] h-[17px] stroke-[2]" />
                 </div>
-                <input
+                <Input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="admin@gvoice.hms"
-                  className={cn(
-                    "w-full h-[52px] pl-11 pr-4 bg-[#F8F9FC] dark:bg-white/[0.03] border border-[#E7E8EB] dark:border-white/10 rounded-[5px]",
-                    "text-[14px] font-bold text-[#1e293b] dark:text-white outline-none transition-all duration-300 shadow-none",
-                    "focus:border-[#2E37A4] focus:bg-white transition-all"
-                  )}
+                  className="pl-11 h-[52px]"
                 />
               </div>
             </div>
@@ -209,25 +206,21 @@ export default function LoginPage() {
                 <Link href="/auth/forgot-password" className="text-[10px] font-bold text-[#2E37A4] hover:underline tracking-tighter cursor-pointer">Forgot Password?</Link>
               </div>
               <div className="relative">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 z-10">
                   <Lock className="w-[17px] h-[17px] stroke-[2]" />
                 </div>
-                <input
+                <Input
                   type={showPassword ? "text" : "password"}
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••••••"
-                  className={cn(
-                    "w-full h-[52px] pl-11 pr-11 bg-[#F8F9FC] dark:bg-white/[0.03] border border-[#E7E8EB] dark:border-white/10 rounded-[5px]",
-                    "text-[14px] font-bold text-[#1e293b] dark:text-white outline-none transition-all duration-300 shadow-none",
-                    "focus:border-[#2E37A4] focus:bg-white transition-all"
-                  )}
+                  className="pl-11 pr-11 h-[52px]"
                 />
                 <button 
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors z-10"
                 >
                   {showPassword ? <EyeOff className="w-[18px] h-[18px]" /> : <Eye className="w-[18px] h-[18px]" />}
                 </button>
