@@ -61,7 +61,7 @@ const roleMenus = {
     { name: "Manage Branches", icon: Building2, path: "/super-admin/branches", section: "MANAGEMENT" },
     { name: "Bed & Ward Management", icon: Hotel, path: "/super-admin/wards", section: "MANAGEMENT" },
     { name: "Admissions & Discharges", icon: ClipboardList, path: "/super-admin/admissions", section: "MANAGEMENT" },
-    { name: "Settings", icon: Settings, path: "/super-admin/configurations", section: "CONFIGURATION",
+    { name: "Configurations", icon: Settings, path: "/super-admin/configurations", section: "CONFIGURATION",
       subItems: [
         { name: "Master Data", path: "/super-admin/configurations/master-data" },
         { name: "Templates", path: "/super-admin/configurations/templates" },
@@ -73,11 +73,12 @@ const roleMenus = {
   ],
   "branch-admin": [
     { name: "Dashboard", icon: LayoutGrid, path: "/branch-admin", section: "none" },
-    { name: "Bed & Ward Overview", icon: Hotel, path: "/branch-admin/wards", section: "MAIN" },
-    { name: "Staff Management", icon: Users2, path: "/branch-admin/staff", section: "MAIN" },
-    { name: "Admissions & Discharges", icon: ClipboardList, path: "/branch-admin/admissions", section: "MAIN" },
-    { name: "Billing & Payments", icon: Wallet, path: "/branch-admin/billing", section: "OPERATIONS" },
-    { name: "Settings", icon: Settings, path: "/branch-admin/configuration", section: "ADMIN" },
+    { name: "Bed & Ward Overview", icon: Hotel, path: "/branch-admin/wards", section: "Main" },
+    { name: "Staff Management", icon: Users2, path: "/branch-admin/staff", section: "Main" },
+    { name: "Admissions & Discharges", icon: ClipboardList, path: "/branch-admin/admissions", section: "Main" },
+    { name: "Billing & Payments", icon: Wallet, path: "/branch-admin/billing", section: "Operations" },
+    { name: "Emergency Reports", icon: Stethoscope, path: "/branch-admin/emergency", section: "Admin" },
+    { name: "Configurations", icon: Settings, path: "/branch-admin/configuration", section: "Admin" },
   ],
   "doctor": [
     { name: "Dashboard", icon: LayoutGrid, path: "/doctor", section: "none" },
@@ -243,7 +244,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) 
               align={isCollapsed ? "start" : "center"}
               className="w-56 mt-2 dark:bg-[#101935] dark:border-white/10 z-[300]"
             >
-              <DropdownMenuLabel className="font-bold text-[11px] text-gray-400 uppercase tracking-widest px-3 py-2">
+              <DropdownMenuLabel className="font-bold text-[11px] text-gray-400 tracking-widest px-3 py-2">
                 User Account
               </DropdownMenuLabel>
               <DropdownMenuItem className="gap-3 h-11 cursor-pointer font-semibold text-[13px] px-3 focus:bg-primary/5 focus:text-primary">
