@@ -153,7 +153,7 @@ export default function Header({
                   4 New
                 </span>
               </div>
-              <div className="max-h-[320px] overflow-y-auto">
+              <div className="max-h-[320px] overflow-y-auto no-scrollbar">
                 {notifications.map((n) => (
                   <div
                     key={n.id}

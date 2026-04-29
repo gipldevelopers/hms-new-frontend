@@ -251,7 +251,7 @@ export default function EditAdmissionPage() {
   const handleWardChange = (wardId) => {
     const ward = wards.find(w => w.id === wardId);
     setFormData(prev => ({ ...prev, wardId, bedId: "" }));
-    setBeds(ward ? ward.beds.filter(b => b.status === 'AVAILABLE') : []);
+    setBeds(ward ? ward.beds.filter(b => b.status?.toUpperCase() === 'AVAILABLE') : []);
   };
 
   const handleSubmit = async (e) => {
@@ -274,7 +274,7 @@ export default function EditAdmissionPage() {
 
       if (res.ok) {
         toast.success("Record updated successfully");
-        router.push("/branch-admin/admissions");
+        router.push("/staff/admissions");
       } else {
         const data = await res.json();
         toast.error(data.error || "Update failed");
@@ -297,7 +297,7 @@ export default function EditAdmissionPage() {
 
       if (res.ok) {
         toast.success("Admission record purged");
-        router.push("/branch-admin/admissions");
+        router.push("/staff/admissions");
       } else {
         const data = await res.json();
         toast.error(data.error || "Purge failed");

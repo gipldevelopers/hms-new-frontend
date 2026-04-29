@@ -9,7 +9,7 @@ import {
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
@@ -154,8 +154,10 @@ function CustomTimePicker({ value, onChange, disabled }) {
   );
 }
 
+
 export default function AddAdmissionPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [loading, setLoading] = useState(false);
   const [departments, setDepartments] = useState([]);
   const [wards, setWards] = useState([]);
@@ -187,7 +189,8 @@ export default function AddAdmissionPage() {
       
       const infraRes = await fetch("/api/wards/overview", { headers });
       const infraData = await infraRes.json();
-      setDepartments(Array.isArray(infraData) ? infraData : []);
+      const depts = Array.isArray(infraData) ? infraData : [];
+      setDepartments(depts);
 
       const userRes = await fetch("/api/users?role=DOCTOR", { headers });
       const userData = await userRes.json();
@@ -199,17 +202,46 @@ export default function AddAdmissionPage() {
 
   useEffect(() => { fetchData(); }, []);
 
+  // Handle URL pre-selection
+  useEffect(() => {
+    if (departments.length > 0) {
+      const deptId = searchParams.get("departmentId");
+      const wardId = searchParams.get("wardId");
+      const bedId = searchParams.get("bedId");
+
+      if (deptId) {
+        const dept = departments.find(d => d.id === deptId);
+        if (dept) {
+          setWards(dept.wards || []);
+          setFormData(prev => ({ ...prev, departmentId: deptId }));
+          
+          if (wardId) {
+            const ward = dept.wards?.find(w => w.id === wardId);
+            if (ward) {
+              setBeds(ward.beds?.filter(b => b.status?.toUpperCase() === 'AVAILABLE' || b.id === bedId) || []);
+              setFormData(prev => ({ ...prev, wardId: wardId }));
+              
+              if (bedId) {
+                setFormData(prev => ({ ...prev, bedId: bedId }));
+              }
+            }
+          }
+        }
+      }
+    }
+  }, [departments, searchParams]);
+
   const handleDeptChange = (deptId) => {
     const dept = departments.find(d => d.id === deptId);
     setFormData(prev => ({ ...prev, departmentId: deptId, wardId: "", bedId: "" }));
     setWards(dept ? dept.wards : []);
-    setBeds(dept?.wards.flatMap(w => w.beds).filter(b => b.status === 'AVAILABLE') || []);
+    setBeds(dept?.wards.flatMap(w => w.beds).filter(b => b.status?.toUpperCase() === 'AVAILABLE') || []);
   };
 
   const handleWardChange = (wardId) => {
     const ward = wards.find(w => w.id === wardId);
     setFormData(prev => ({ ...prev, wardId, bedId: "" }));
-    setBeds(ward ? ward.beds.filter(b => b.status === 'AVAILABLE') : []);
+    setBeds(ward ? ward.beds.filter(b => b.status?.toUpperCase() === 'AVAILABLE') : []);
   };
 
   const handleSubmit = async (e) => {
@@ -239,7 +271,7 @@ export default function AddAdmissionPage() {
 
       if (res.ok) {
         toast.success("New admission registered");
-        router.push("/branch-admin/admissions");
+        router.push("/staff/admissions");
       } else {
         const data = await res.json();
         toast.error(data.error || "Admission failed");

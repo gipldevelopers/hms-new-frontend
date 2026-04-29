@@ -28,7 +28,12 @@ import {
   Settings as SettingsIcon,
   ChevronRight,
   MoreVertical,
-  Settings2
+  Settings2,
+  Activity,
+  ArrowLeftRight,
+  PlusSquare,
+  Wrench,
+  LogIn
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -60,6 +65,7 @@ const roleMenus = {
     { name: "Dashboard", icon: LayoutGrid, path: "/super-admin", section: "none" },
     { name: "Manage Branches", icon: Building2, path: "/super-admin/branches", section: "MANAGEMENT" },
     { name: "Bed & Ward Management", icon: Hotel, path: "/super-admin/wards", section: "MANAGEMENT" },
+    { name: "Bed Map Overview", icon: LayoutGrid, path: "/super-admin/bed-map", section: "MANAGEMENT" },
     { name: "Admissions & Discharges", icon: ClipboardList, path: "/super-admin/admissions", section: "MANAGEMENT" },
     { name: "Configurations", icon: Settings, path: "/super-admin/configurations", section: "CONFIGURATION",
       subItems: [
@@ -88,8 +94,14 @@ const roleMenus = {
   ],
   "staff": [
     { name: "Dashboard", icon: LayoutGrid, path: "/staff", section: "none" },
-    { name: "Attendance", icon: ClipboardList, path: "/staff/attendance", section: "WORK" },
-    { name: "My Tasks", icon: Target, path: "/staff/tasks", section: "WORK" },
+    { name: "Bed Map", icon: LayoutGrid, path: "/staff/bed-map", section: "WARD" },
+    { name: "Patient Detail", icon: Users2, path: "/staff/patients", section: "WARD" },
+    { name: "Vitals", icon: Activity, path: "/staff/vitals", section: "WARD" },
+    { name: "Tasks", icon: ClipboardList, path: "/staff/tasks", section: "WARD" },
+    { name: "Schedule", icon: ArrowLeftRight, path: "/staff/medication/schedule", section: "MEDICATION" },
+    { name: "MAR/ Administer", icon: PlusSquare, path: "/staff/medication/administer", section: "MEDICATION" },
+    { name: "Service Requests", icon: Wrench, path: "/staff/services", section: "SERVICES" },
+    {name: "Admissions & Discharges", icon: ClipboardList, path: "/staff/admissions", section: "CLINICAL" },
   ],
   "reception": [
     { name: "Dashboard", icon: LayoutGrid, path: "/reception", section: "none" },

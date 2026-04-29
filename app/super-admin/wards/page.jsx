@@ -354,7 +354,7 @@ export default function SuperAdminWards() {
       {/* Header */}
       <div className="flex flex-col xl:flex-row justify-between xl:items-center gap-4">
         <div>
-          <h1 className="text-[20px] font-bold text-foreground tracking-tight leading-none uppercase tracking-tight">Global Infrastructure Management</h1>
+          <h1 className="text-[20px] font-bold text-foreground tracking-tight leading-none tracking-tight">Global Infrastructure Management</h1>
         </div>
         
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
