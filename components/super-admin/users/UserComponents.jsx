@@ -109,6 +109,7 @@ export function UserTable({
   onEdit,
   onDelete,
   onView,
+  onAssignPatients,
   searchQuery,
   setSearchQuery,
   roleFilter,
@@ -297,12 +298,15 @@ export function UserTable({
                     </td>
                     <td className="px-8 py-3 text-right">
                       <div className="flex items-center justify-end gap-1">
-                        <button
-                          onClick={() => onView(user)}
-                          className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-[5px] transition-colors group/btn"
-                        >
-                          <Eye className="w-5 h-5 text-primary" />
-                        </button>
+                        {user.role === "STAFF" && onAssignPatients && (
+                          <button
+                            onClick={() => onAssignPatients(user)}
+                            title="Assign Patients"
+                            className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-[5px] transition-colors group/btn"
+                          >
+                            <Users2 className="w-5 h-5 text-primary" />
+                          </button>
+                        )}
                         <button
                           onClick={() => onEdit(user)}
                           className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-[5px] transition-colors group/btn"

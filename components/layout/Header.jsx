@@ -36,6 +36,13 @@ export default function Header({
     router.push("/auth/login");
   };
 
+  const [user, setUser] = React.useState(null);
+
+  React.useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+    setUser(storedUser);
+  }, []);
+
   // Close popovers on click outside
   React.useEffect(() => {
     const handleClickOutside = () => {
@@ -191,11 +198,9 @@ export default function Header({
             className="w-9 h-9 md:w-10 md:h-10 rounded-full border border-[#E7E8EB] dark:border-white/10 cursor-pointer overflow-hidden hover:opacity-90 transition-opacity relative shadow-sm"
           >
             <Avatar className="w-full h-full">
-              <AvatarImage
-                src="https://github.com/shadcn.png"
-                alt="User Profile"
-              />
-              <AvatarFallback>AS</AvatarFallback>
+              <AvatarFallback className="bg-primary text-white font-bold text-[12px]">
+                {user?.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2) : 'U'}
+              </AvatarFallback>
             </Avatar>
             <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white dark:border-[#101935] rounded-full"></span>
           </div>
@@ -207,10 +212,10 @@ export default function Header({
             >
               <div className="p-4 border-b border-[#E7E8EB] dark:border-white/10 bg-gray-50/30 dark:bg-white/[0.02]">
                 <p className="text-[13px] font-bold text-[#101935] dark:text-white truncate">
-                  Vraj Darji
+                  {user?.name || "Guest User"}
                 </p>
-                <p className="text-[10px] text-[#64748B] dark:text-slate-400 font-bold truncate">
-                  Administrator
+                <p className="text-[10px] text-[#64748B] dark:text-slate-400 font-bold truncate capitalize">
+                  {(user?.role || "User").toLowerCase().replace(/[-_]/g, ' ')}
                 </p>
               </div>
               <div className="p-1">

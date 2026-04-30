@@ -3,10 +3,7 @@
 import React from "react";
 import { 
   ChevronDown, 
-  Layers, 
-  Sun, 
-  User, 
-  ShieldCheck 
+  Layers
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -127,34 +124,6 @@ export default function BedHeader({ departments, selectedDept, selectedWard, onD
           </div>
         </div>
 
-        {/* Clinical Info Row - Matched to Highlighted UI */}
-        <div className="flex flex-wrap items-center gap-x-6 sm:gap-x-8 gap-y-3 px-1">
-          <div className="flex items-center gap-2">
-            <Layers className="w-4 h-4 text-[#A0AEC0]" />
-            <span className="text-[12px] font-medium text-[#64748B] dark:text-slate-400 whitespace-nowrap">Floor 3</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Sun className="w-4 h-4 text-[#A0AEC0]" />
-            <span className="text-[12px] font-medium text-[#64748B] dark:text-slate-400 whitespace-nowrap">Morning Shift</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <User className="w-4 h-4 text-[#A0AEC0]" />
-            <span className="text-[12px] font-medium text-[#64748B] dark:text-slate-400 whitespace-nowrap">Charge: Dr. Robert</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="w-full lg:w-auto bg-[#F3F4FF] dark:bg-indigo-500/5 border border-[#E0E2FF] dark:border-indigo-500/10 p-3 px-4 rounded-[5px] flex items-center gap-4">
-        <div className="w-9 h-9 rounded-full bg-white dark:bg-[#101935] border border-[#E0E2FF] dark:border-indigo-500/10 flex items-center justify-center text-[#2D3A8C] dark:text-primary shrink-0">
-          <ShieldCheck className="w-5 h-5" />
-        </div>
-        <div className="space-y-1">
-          <p className="text-[10px] font-bold text-[#2D3A8C] dark:text-primary tracking-wider uppercase-none">YOUR ASSIGNMENT</p>
-          <div className="space-y-0.5">
-            <p className="text-[14px] sm:text-[15px] font-bold text-[#1A1C23] dark:text-white leading-none">Nurse Sarah Jenkins (RN-402)</p>
-            <p className="text-[10px] sm:text-[11px] text-[#A0AEC0] dark:text-slate-500 font-medium leading-none">Dept: ICU • Default Ward: Block A</p>
-          </div>
-        </div>
       </div>
     </div>
   );

@@ -88,7 +88,8 @@ export default function BranchesPage() {
     try {
       setIsSyncingAll(true);
       const token = localStorage.getItem("authtoken");
-      const res = await fetch("/api/branches/sync/all", {
+      const isForce = outOfSyncBranches.length === 0;
+      const res = await fetch(`/api/branches/sync/all?force=${isForce}`, {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}` },
       });

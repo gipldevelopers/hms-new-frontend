@@ -115,15 +115,14 @@ export function DeleteConfirmationModal({ isOpen, onClose, onConfirm, itemName, 
 export function BranchCard({ branch, viewType = "grid", onEdit, onDelete, isGlobalSyncing = false }) {
   const isList = viewType === "list";
   const router = useRouter();
-  const [localInitializing, setLocalInitializing] = useState(false);
   const [progress, setProgress] = useState(0);
 
-  const isInitializing = localInitializing || isGlobalSyncing;
+  const isInitializing = isGlobalSyncing;
 
   useEffect(() => {
     let interval;
     if (isInitializing) {
-      if (progress === 100) setProgress(0); // Reset if re-triggering
+      if (progress === 100) setProgress(0); 
       interval = setInterval(() => {
         setProgress(prev => {
           if (prev < 30) return prev + Math.random() * 8;
@@ -137,33 +136,6 @@ export function BranchCard({ branch, viewType = "grid", onEdit, onDelete, isGlob
     }
     return () => clearInterval(interval);
   }, [isInitializing]);
-
-  const handleInitTables = async (e) => {
-    e.stopPropagation();
-    setLocalInitializing(true);
-    
-    try {
-      const token = localStorage.getItem("authtoken");
-      const res = await fetch(`/api/branches/${branch.id}/init-tables`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const json = await res.json();
-      
-      setProgress(100);
-      
-      setTimeout(() => {
-        if (json.success) {
-          window.location.reload(); 
-        } else {
-          setLocalInitializing(false);
-        }
-      }, 500);
-    } catch (error) {
-      setLocalInitializing(false);
-      console.error("Init tables error:", error);
-    }
-  };
 
   return (
     <div className={cn(
@@ -263,29 +235,6 @@ export function BranchCard({ branch, viewType = "grid", onEdit, onDelete, isGlob
         "flex items-center gap-2", 
         isList ? "pb-0 px-0 flex-row w-auto border-l border-gray-100 dark:border-white/5 pl-8 shrink-0" : "mt-6 pt-4 border-t border-gray-50 dark:border-white/5"
       )}>
-        {branch.dbName && (
-           <button 
-             onClick={handleInitTables}
-             className={cn(
-               "px-4 h-[40px] font-bold text-[11px] rounded-[5px] transition-all flex items-center justify-center gap-2 border shadow-none shrink-0", 
-               branch.schemaVersion === branch.currentSchemaVersion 
-                ? "bg-slate-50 text-slate-500 border-[#E7E8EB] hover:bg-slate-100 dark:bg-white/5 dark:border-white/10 dark:text-gray-400" 
-                : !branch.schemaVersion 
-                ? "bg-red-500 text-white border-red-600 hover:bg-red-600 animate-pulse" 
-                : "bg-amber-500 text-white border-amber-600 hover:bg-amber-600",
-               !isList && "flex-1"
-             )}
-           >
-             <Database className="w-3.5 h-3.5" /> 
-             <span className="truncate">
-               {branch.schemaVersion === branch.currentSchemaVersion 
-                 ? "Force Push" 
-                 : branch.schemaVersion 
-                 ? "Update Tables" 
-                 : "Push Tables"}
-             </span>
-           </button>
-        )}
         <button 
           onClick={() => router.push(`/super-admin/branches/${branch.id}`)}
           className={cn(

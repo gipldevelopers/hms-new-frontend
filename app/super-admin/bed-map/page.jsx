@@ -55,10 +55,12 @@ export default function SuperAdminBedMapPage() {
         cache: 'no-store'
       });
       const hierarchy = await res.json();
-      setData(hierarchy);
+      
+      if (res.ok && Array.isArray(hierarchy)) {
+        setData(hierarchy);
 
-      // Reset selection when branch changes
-      if (hierarchy.length > 0) {
+        // Reset selection when branch changes
+        if (hierarchy.length > 0) {
         setSelectedDeptId(hierarchy[0].id);
         if (hierarchy[0].wards && hierarchy[0].wards.length > 0) {
           setSelectedWardId(hierarchy[0].wards[0].id);
@@ -66,8 +68,11 @@ export default function SuperAdminBedMapPage() {
           setSelectedWardId(null);
         }
       } else {
-        setSelectedDeptId(null);
-        setSelectedWardId(null);
+          setSelectedDeptId(null);
+          setSelectedWardId(null);
+        }
+      } else {
+        toast.error(hierarchy.error || "Failed to fetch bed map data");
       }
     } catch (error) {
       toast.error("Failed to fetch bed map data");

@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { Plus, LayoutGrid, Search, UserPlus, Filter, Building2, ChevronDown, Check, ArrowLeft } from "lucide-react";
 import { UserTable, UserStats } from "@/components/super-admin/users/UserComponents";
 import { AddUserModal } from "@/components/super-admin/users/AddUserModal";
+import { PatientAssignmentModal } from "@/components/staff/PatientAssignmentModal";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -22,6 +23,9 @@ export default function BranchUserManagementPage() {
   const [branch, setBranch] = useState(null);
   const [editingUser, setEditingUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  
+  const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
+  const [assigningStaff, setAssigningStaff] = useState(null);
 
   const fetchData = async () => {
     try {
@@ -143,8 +147,11 @@ export default function BranchUserManagementPage() {
         <UserTable 
           users={loading ? [] : users}
           onEdit={handleEdit}
-          onView={handleView}
           onDelete={handleDelete}
+          onAssignPatients={(user) => {
+            setAssigningStaff(user);
+            setIsAssignModalOpen(true);
+          }}
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           roleFilter={roleFilter}
@@ -166,6 +173,13 @@ export default function BranchUserManagementPage() {
         editingUser={editingUser}
         branches={branch ? [branch] : []}
         selectedBranchId={branchId}
+      />
+
+      <PatientAssignmentModal 
+        isOpen={isAssignModalOpen}
+        onClose={() => setIsAssignModalOpen(false)}
+        staff={assigningStaff}
+        branchId={branchId}
       />
     </div>
   );

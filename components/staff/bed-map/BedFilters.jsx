@@ -8,14 +8,19 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export default function BedFilters() {
-  const [activeFilter, setActiveFilter] = React.useState("All");
+export default function BedFilters({ 
+  searchQuery, 
+  setSearchQuery, 
+  activeFilter, 
+  setActiveFilter,
+  stats
+}) {
 
   const statusFilters = [
-    { label: "All", count: null },
-    { label: "Occupied", count: "14" },
-    { label: "Vacant", count: "4" },
-    { label: "Critical", count: "3", variant: "danger" },
+    { label: "All", count: stats?.total },
+    { label: "Occupied", count: stats?.occupied },
+    { label: "Vacant", count: stats?.vacant },
+    { label: "Critical", count: stats?.critical, variant: "danger" },
   ];
 
   return (
@@ -26,6 +31,8 @@ export default function BedFilters() {
           type="text" 
           placeholder="Search..." 
           className="w-full pl-10 pr-4 py-2.5 bg-[#F4F5F7] dark:bg-white/5 border border-transparent focus:border-[#E7E8EB] rounded-[5px] text-[13px] placeholder:text-[#A0AEC0] outline-none transition-all"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
         />
       </div>
 

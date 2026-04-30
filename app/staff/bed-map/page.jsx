@@ -13,6 +13,8 @@ export default function BedMapPage() {
   const [selectedDeptId, setSelectedDeptId] = useState(null);
   const [selectedWardId, setSelectedWardId] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeFilter, setActiveFilter] = useState("All");
+  const [myPatientIds, setMyPatientIds] = useState([]);
 
   const fetchData = async () => {
     try {
@@ -23,10 +25,12 @@ export default function BedMapPage() {
         cache: 'no-store'
       });
       const hierarchy = await res.json();
-      setData(hierarchy);
+      
+      if (res.ok && Array.isArray(hierarchy)) {
+        setData(hierarchy);
 
-      // Only set initial selection if nothing is selected yet
-      if (hierarchy.length > 0) {
+        // Only set initial selection if nothing is selected yet
+        if (hierarchy.length > 0) {
         setSelectedDeptId(prev => {
           if (prev) return prev;
           return hierarchy[0].id;
@@ -38,6 +42,9 @@ export default function BedMapPage() {
           return (firstDept.wards && firstDept.wards.length > 0) ? firstDept.wards[0].id : null;
         });
       }
+    } else {
+        toast.error(hierarchy.error || "Failed to fetch bed map hierarchy");
+      }
     } catch (error) {
       toast.error("Failed to fetch bed map data");
     } finally {
@@ -45,17 +52,46 @@ export default function BedMapPage() {
     }
   };
 
+  const fetchMyAssignments = async () => {
+    try {
+      const token = localStorage.getItem("authtoken");
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      if (user.role !== 'STAFF') return;
+
+      const res = await fetch(`/api/staff/my-patients?branchId=${user.branchId}`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (Array.isArray(data)) {
+        setMyPatientIds(data.map(p => p.id));
+      }
+    } catch (error) {
+      console.error("Failed to fetch my patients:", error);
+    }
+  };
+
   useEffect(() => {
     fetchData();
+    fetchMyAssignments();
   }, []);
 
   const selectedDept = data.find(d => d.id === selectedDeptId);
   const selectedWard = selectedDept?.wards.find(w => w.id === selectedWardId);
   const beds = selectedWard?.beds || [];
 
-  const filteredBeds = beds.filter(bed => 
-    bed.label.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredBeds = beds.filter(bed => {
+    const matchesSearch = bed.label.toLowerCase().includes(searchQuery.toLowerCase());
+    if (!matchesSearch) return false;
+
+    if (activeFilter === "Occupied") return bed.status?.toUpperCase() === 'OCCUPIED';
+    if (activeFilter === "Vacant") return bed.status?.toUpperCase() === 'AVAILABLE';
+    if (activeFilter === "Critical") return bed.admissions?.some(a => a.status === 'Critical');
+    if (activeFilter === "My Patients") {
+      return bed.admissions?.some(a => myPatientIds.includes(a.patientId));
+    }
+
+    return true;
+  });
 
   // Dynamic Stats calculation
   const stats = {
@@ -99,7 +135,13 @@ export default function BedMapPage() {
       />
 
       {/* Filters & Search */}
-      <BedFilters searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
+      <BedFilters 
+        searchQuery={searchQuery} 
+        setSearchQuery={setSearchQuery} 
+        activeFilter={activeFilter}
+        setActiveFilter={setActiveFilter}
+        stats={stats}
+      />
 
       {/* Main Bed Grid */}
       <BedGrid 

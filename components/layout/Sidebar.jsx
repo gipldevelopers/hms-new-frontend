@@ -95,13 +95,14 @@ const roleMenus = {
   "staff": [
     { name: "Dashboard", icon: LayoutGrid, path: "/staff", section: "none" },
     { name: "Bed Map", icon: LayoutGrid, path: "/staff/bed-map", section: "WARD" },
-    { name: "Patient Detail", icon: Users2, path: "/staff/patients", section: "WARD" },
+    { name: "Patients", icon: Users2, path: "/staff/patients", section: "WARD" },
     { name: "Vitals", icon: Activity, path: "/staff/vitals", section: "WARD" },
     { name: "Tasks", icon: ClipboardList, path: "/staff/tasks", section: "WARD" },
     { name: "Schedule", icon: ArrowLeftRight, path: "/staff/medication/schedule", section: "MEDICATION" },
     { name: "MAR/ Administer", icon: PlusSquare, path: "/staff/medication/administer", section: "MEDICATION" },
     { name: "Service Requests", icon: Wrench, path: "/staff/services", section: "SERVICES" },
-    {name: "Admissions & Discharges", icon: ClipboardList, path: "/staff/admissions", section: "CLINICAL" },
+    { name: "Admission/Transfer", icon: ClipboardList, path: "/staff/admissions", section: "ADMISSION" },
+    { name: "Discharge", icon: LogOut, path: "/staff/discharges", section: "DISCHARGE" },
   ],
   "reception": [
     { name: "Dashboard", icon: LayoutGrid, path: "/reception", section: "none" },
@@ -143,8 +144,31 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) 
   const [user, setUser] = React.useState(null);
 
   React.useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
-    setUser(storedUser);
+    const fetchUser = async () => {
+      try {
+        const token = localStorage.getItem("authtoken");
+        if (!token) return;
+
+        const res = await fetch("/api/auth/me", {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        const result = await res.json();
+        
+        if (res.ok && result.success) {
+          setUser(result.data);
+          localStorage.setItem("user", JSON.stringify(result.data));
+        } else {
+          // Fallback to localStorage if API fails
+          const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+          setUser(storedUser);
+        }
+      } catch (error) {
+        const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+        setUser(storedUser);
+      }
+    };
+
+    fetchUser();
   }, []);
 
   const handleLogout = () => {
@@ -214,8 +238,8 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) 
 
         {/* User Profile Section - Now at Top */}
         <div className={cn(
-          "px-4 pb-0 shrink-0 transition-all duration-300",
-          isCollapsed ? "lg:px-2 lg:pt-2" : "px-4 pt-[20px]"
+          "px-4 shrink-0 transition-all duration-300 border-b border-transparent",
+          isCollapsed ? "lg:px-2 lg:pt-2 mb-2" : "px-4 pt-[20px] mb-4"
         )}>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -227,27 +251,27 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) 
                 )}>
                   {/* Avatar */}
                   <div className={cn(
-                    "bg-[#2D3A8C] rounded-full shrink-0 flex items-center justify-center transition-all",
+                    "bg-primary rounded-full shrink-0 flex items-center justify-center transition-all shadow-sm shadow-primary/20",
                     isCollapsed ? "w-8 h-8" : "w-10 h-10"
                   )}>
                     <span className={cn("text-white font-bold", isCollapsed ? "text-[10px]" : "text-[12px]")}>
-                      {user?.name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'VD'}
+                      {user?.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2) : 'U'}
                     </span>
                   </div>
                   
                   {!isCollapsed && (
                     <div className="flex-1 min-w-0 transition-all duration-300">
                       <p className="text-[13px] font-bold text-[#1A1C23] dark:text-white truncate">
-                        {user?.name || "Vraj Darji"}
+                        {user?.name || "Guest User"}
                       </p>
-                      <p className="text-[11px] text-gray-400 dark:text-slate-500 font-medium truncate capitalize tracking-tight">
+                      <p className="text-[11px] text-gray-400 dark:text-slate-500 font-bold truncate capitalize tracking-tight opacity-80">
                         {(user?.role || currentRole).toLowerCase().replace(/[-_]/g, ' ')}
                       </p>
                     </div>
                   )}
                   
                   {!isCollapsed && (
-                    <Settings2 className="w-4 h-4 text-gray-400" />
+                    <ChevronRight className="w-3.5 h-3.5 text-gray-300 dark:text-slate-600" />
                   )}
                 </div>
             </DropdownMenuTrigger>

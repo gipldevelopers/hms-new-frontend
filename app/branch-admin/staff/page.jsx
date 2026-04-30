@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { Search, UserPlus, ArrowLeft, Trash2 } from "lucide-react";
 import { UserTable, UserStats } from "@/components/super-admin/users/UserComponents";
 import { AddUserModal } from "@/components/super-admin/users/AddUserModal";
+import { PatientAssignmentModal } from "@/components/staff/PatientAssignmentModal";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -23,6 +24,9 @@ export default function StaffManagementPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [loading, setLoading] = useState(true);
   const [adminInfo, setAdminInfo] = useState(null);
+  
+  const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
+  const [assigningStaff, setAssigningStaff] = useState(null);
 
   useEffect(() => {
     setMounted(true);
@@ -130,8 +134,11 @@ export default function StaffManagementPage() {
         <UserTable 
           users={loading ? [] : users}
           onEdit={handleEdit}
-          onView={handleView}
           onDelete={(user) => setDeleteUser(user)}
+          onAssignPatients={(user) => {
+            setAssigningStaff(user);
+            setIsAssignModalOpen(true);
+          }}
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
           roleFilter={roleFilter}
@@ -153,6 +160,13 @@ export default function StaffManagementPage() {
         editingUser={editingUser}
         branches={adminInfo?.branch ? [adminInfo.branch] : []}
         selectedBranchId={adminInfo?.branchId}
+      />
+
+      <PatientAssignmentModal 
+        isOpen={isAssignModalOpen}
+        onClose={() => setIsAssignModalOpen(false)}
+        staff={assigningStaff}
+        branchId={adminInfo?.branchId}
       />
 
       {/* Standardized Delete Modal */}
