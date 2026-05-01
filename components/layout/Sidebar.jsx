@@ -99,7 +99,7 @@ const roleMenus = {
     { name: "Patients", icon: Users2, path: "/staff/patients", section: "WARD" },
     { name: "Vitals", icon: Activity, path: "/staff/vitals", section: "WARD" },
     { name: "Tasks", icon: ClipboardList, path: "/staff/tasks", section: "WARD" },
-    { name: "Schedule", icon: ArrowLeftRight, path: "/staff/medication/schedule", section: "MEDICATION" },
+    { name: "Schedule", icon: ArrowLeftRight, path: "/staff/schedule", section: "MEDICATION" },
     { name: "MAR/ Administer", icon: PlusSquare, path: "/staff/medication/administer", section: "MEDICATION" },
     { name: "Service Requests", icon: Wrench, path: "/staff/services", section: "SERVICES" },
     { name: "Admission/Transfer", icon: ClipboardList, path: "/staff/admissions", section: "ADMISSION" },

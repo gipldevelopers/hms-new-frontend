@@ -23,6 +23,11 @@ import {
 // --- CUSTOM SELECT COMPONENT ---
 function CustomSelect({ value, onChange, options, placeholder, className, minWidth = "160px" }) {
   const selectedOption = options.find(opt => opt.value === value);
+  const [mounted, setMounted] = useState(false);
+  
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   
   return (
     <DropdownMenu>
@@ -34,7 +39,7 @@ function CustomSelect({ value, onChange, options, placeholder, className, minWid
             !value && "text-muted-foreground",
             className
           )}
-          style={{ minWidth: typeof window !== 'undefined' && window.innerWidth > 640 ? minWidth : '100%' }}
+          style={mounted && window.innerWidth > 640 ? { minWidth } : {}}
         >
           <span className="truncate">{selectedOption ? selectedOption.label : placeholder}</span>
           <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />

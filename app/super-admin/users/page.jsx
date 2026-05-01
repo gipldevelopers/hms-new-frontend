@@ -182,7 +182,7 @@ export default function UserManagementPage() {
 
       <UserStats />
 
-      <div className="space-y-[30px] pb-20 relative">
+      <div className="space-y-[30px] pb-20 relative mt-5">
         <UserTable 
           users={loading ? [] : filteredUsers}
           onEdit={handleEdit}
