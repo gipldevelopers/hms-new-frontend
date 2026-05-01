@@ -114,7 +114,7 @@ export function AddBranchModal({ isOpen, onClose, onSuccess, editingBranch }) {
 
   return (
     <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-black/60 backdrop-blur-[6px] animate-in fade-in duration-200">
-      <div className="bg-white dark:bg-[#0F172A] w-full max-w-[720px] rounded-[5px] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-gray-100 dark:border-white/5">
+      <div className="bg-white dark:bg-[#0F172A] w-full max-w-[720px] rounded-[5px] shadow-none overflow-hidden animate-in zoom-in-95 duration-200 border border-gray-100 dark:border-white/5">
         
         {/* Header */}
         <div className="px-8 py-6 flex justify-between items-center border-b border-gray-100 dark:border-white/5">
@@ -135,7 +135,7 @@ export function AddBranchModal({ isOpen, onClose, onSuccess, editingBranch }) {
           {/* General Information Section */}
           <div className="space-y-6">
             <div className="flex items-center gap-3 border-b border-gray-50 dark:border-white/5 pb-2">
-              <span className="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[11px] font-bold">01</span>
+              <span className="text-[13px] font-bold text-[#1e293b] dark:text-white leading-none">Branch Information</span>
             </div>
             
             <div className="grid grid-cols-2 gap-x-8 gap-y-6">
@@ -214,7 +214,7 @@ export function AddBranchModal({ isOpen, onClose, onSuccess, editingBranch }) {
           {/* Contact Person Section */}
           <div className="space-y-6">
             <div className="flex items-center gap-3 border-b border-gray-50 dark:border-white/5 pb-2">
-              <span className="w-6 h-6 rounded-full bg-primary/10 text-primary flex items-center justify-center text-[11px] font-bold">02</span>
+              <span className="text-[13px] font-bold text-[#1e293b] dark:text-white leading-none">Contact Person Information</span>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">

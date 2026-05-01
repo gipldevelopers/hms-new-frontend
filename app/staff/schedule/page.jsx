@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import {
-  Search, Plus, Eye, Check, X, ChevronDown,
+  Search, Plus, Eye, Check, X, ChevronDown, MoreVertical,
   Calendar, Clock, CheckCircle2, AlertCircle, ListTodo, Activity, MapPin
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -228,13 +228,30 @@ export default function SchedulePage() {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-center">
-                      <button
-                        onClick={() => router.push(`/staff/schedule/${patient.id}`)}
-                        className="p-2 hover:bg-muted rounded-[var(--radius)] transition-all inline-flex text-foreground shadow-none"
-                        title="View details"
-                      >
-                        <Eye className="w-4.5 h-4.5" />
-                      </button>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button
+                            className="p-2 hover:bg-muted rounded-[var(--radius)] transition-all inline-flex text-foreground shadow-none"
+                            title="Actions"
+                          >
+                            <MoreVertical className="w-4.5 h-4.5" />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="min-w-[150px] bg-card text-card-foreground border border-border rounded-[var(--radius)] p-1 z-[500] shadow-none">
+                          <DropdownMenuItem
+                            onClick={() => router.push(`/staff/schedule/${patient.id}`)}
+                            className="text-[13px] font-medium px-3 py-2 text-foreground hover:bg-muted cursor-pointer rounded-[var(--radius)]"
+                          >
+                            View Schedule
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => router.push(`/staff/schedule/${patient.id}/mar`)}
+                            className="text-[13px] font-medium px-3 py-2 text-foreground hover:bg-muted cursor-pointer rounded-[var(--radius)]"
+                          >
+                            MAR / Administer
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </td>
                   </tr>
                 ))}
@@ -268,12 +285,30 @@ export default function SchedulePage() {
                   <p className="text-[11px] font-medium text-muted-foreground leading-tight">Next due dose</p>
                   <p className="text-[13px] font-medium text-foreground mt-0.5">{patient.dose}</p>
                 </div>
-                <button
-                  onClick={() => router.push(`/staff/schedule/${patient.id}`)}
-                  className="p-2 hover:bg-muted rounded-[var(--radius)] transition-all shadow-none shrink-0"
-                >
-                  <Eye className="w-4.5 h-4.5 text-foreground" />
-                </button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      className="p-2 hover:bg-muted rounded-[var(--radius)] transition-all inline-flex text-foreground shadow-none shrink-0"
+                      title="Actions"
+                    >
+                      <MoreVertical className="w-4.5 h-4.5" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="min-w-[150px] bg-card text-card-foreground border border-border rounded-[var(--radius)] p-1 z-[500] shadow-none">
+                    <DropdownMenuItem
+                      onClick={() => router.push(`/staff/schedule/${patient.id}`)}
+                      className="text-[13px] font-medium px-3 py-2 text-foreground hover:bg-muted cursor-pointer rounded-[var(--radius)]"
+                    >
+                      View Schedule
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => router.push(`/staff/schedule/${patient.id}/mar`)}
+                      className="text-[13px] font-medium px-3 py-2 text-foreground hover:bg-muted cursor-pointer rounded-[var(--radius)]"
+                    >
+                      MAR / Administer
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
           ))}
