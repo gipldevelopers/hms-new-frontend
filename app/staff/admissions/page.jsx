@@ -44,7 +44,7 @@ function CustomSelect({ value, onChange, options, placeholder, minWidth = "130px
       <DropdownMenuTrigger asChild>
         <button
           type="button"
-          className="h-11 px-4 bg-white dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] flex items-center justify-between gap-2 text-[13px] font-medium outline-none transition-all shadow-none select-none text-foreground w-full sm:w-auto hover:bg-muted"
+          className="h-11 px-4 bg-white dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] flex items-center justify-between gap-2 text-[13px] font-medium outline-none transition-all shadow-none  text-foreground w-full sm:w-auto hover:bg-muted"
           style={{ minWidth }}
         >
           <span className="truncate">{selected ? selected.label : placeholder}</span>
@@ -57,7 +57,7 @@ function CustomSelect({ value, onChange, options, placeholder, minWidth = "130px
             key={opt.value}
             onClick={() => onChange(opt.value)}
             className={cn(
-              "rounded-[5px] text-[13px] font-medium px-3 py-2 cursor-pointer transition-colors outline-none select-none",
+              "rounded-[5px] text-[13px] font-medium px-3 py-2 cursor-pointer transition-colors outline-none ",
               value === opt.value
                 ? "bg-primary/5 text-primary font-bold dark:bg-primary/10"
                 : "text-foreground hover:bg-[#F8F9FC] dark:hover:bg-white/5"
@@ -121,43 +121,43 @@ export default function WardPatientsPage() {
   const statusBadge = (status) => {
     switch (status) {
       case "Pending Discharge":
-        return "bg-amber-500/10 text-amber-600 border border-amber-500/20 px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold select-none leading-tight";
+        return "bg-amber-500/10 text-amber-600 border border-amber-500/20 px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold  leading-tight";
       case "Admitted":
-        return "bg-blue-500/10 text-blue-600 border border-blue-500/20 px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold select-none leading-tight";
+        return "bg-blue-500/10 text-blue-600 border border-blue-500/20 px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold  leading-tight";
       case "Discharged":
-        return "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold select-none leading-tight";
+        return "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold  leading-tight";
       default:
-        return "bg-gray-100 text-gray-600 border border-border px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold select-none leading-tight";
+        return "bg-gray-100 text-gray-600 border border-border px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold  leading-tight";
     }
   };
 
   return (
-    <div className="p-4 md:p-6 bg-[#F8F9FC] dark:bg-[#0A0F1D] min-h-screen flex flex-col space-y-[20px] transition-colors duration-300 font-sans pb-20 select-none">
+    <div className="p-[20px] bg-[#F8F9FC] dark:bg-[#0A0F1D] min-h-screen flex flex-col space-y-[20px] transition-colors duration-300 font-sans pb-20 ">
       {/* ── Header Section ── */}
-      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 select-none">
+      <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 ">
         <div>
-          <h1 className="text-[22px] md:text-[24px] font-bold text-[#1e293b] dark:text-white tracking-tight leading-none">
+          <h1 className="text-[20px] font-bold text-[#1e293b] dark:text-white tracking-tight leading-none">
             Ward Patients
           </h1>
         </div>
         <button
           onClick={() => router.push("/staff/admissions/add")}
-          className="bg-primary hover:bg-primary/90 text-white h-11 px-6 rounded-[5px] text-[13px] font-bold flex items-center justify-center gap-2 transition-all shadow-none w-full sm:w-auto outline-none select-none"
+          className="bg-primary hover:bg-primary/90 text-white h-11 px-6 rounded-[5px] text-[13px] font-bold flex items-center justify-center gap-2 transition-all shadow-none w-full sm:w-auto outline-none "
         >
           <Plus className="w-4 h-4" /> New Admission
         </button>
       </div>
 
       {/* ── Filter Toolbar ── */}
-      <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 p-3.5 rounded-[5px] shadow-none select-none">
+      <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 p-3.5 rounded-[5px] shadow-none ">
         <div className="relative flex-1">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground select-none pointer-events-none" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground  pointer-events-none" />
           <input
             type="text"
             placeholder="Search patients..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full h-11 pl-10 pr-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] font-medium outline-none transition-all shadow-none select-none text-foreground focus:border-primary"
+            className="w-full h-11 pl-10 pr-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] font-medium outline-none transition-all shadow-none  text-foreground focus:border-primary"
           />
         </div>
 
@@ -191,13 +191,13 @@ export default function WardPatientsPage() {
       </div>
 
       {/* ── Dynamic Layout Grid or Table ── */}
-      <div className="flex flex-col flex-1 select-none">
+      <div className="flex flex-col flex-1 ">
         {/* Mobile Responsive Grid Layout */}
         <div className="grid grid-cols-1 gap-4 md:hidden">
           {filtered.map((item) => (
             <div
               key={item.id}
-              className="bg-white dark:bg-[#101935] p-5 rounded-[5px] border border-[#E7E8EB] dark:border-white/10 shadow-none select-none"
+              className="bg-white dark:bg-[#101935] p-5 rounded-[5px] border border-[#E7E8EB] dark:border-white/10 shadow-none "
             >
               <div className="flex justify-between items-start mb-3">
                 <div>
@@ -210,28 +210,28 @@ export default function WardPatientsPage() {
                 </div>
                 <span className={statusBadge(item.status)}>{item.status}</span>
               </div>
-              <p className="text-[13px] font-medium text-muted-foreground leading-tight select-none mt-1">
+              <p className="text-[13px] font-medium text-muted-foreground leading-tight  mt-1">
                 Age/Gender: {item.ageGender}
               </p>
               <p className="text-[14px] font-bold text-foreground leading-tight mt-2.5">
                 {item.diagnosis}
               </p>
-              <div className="flex items-center justify-end pt-4 border-t border-[#E7E8EB] dark:border-white/10 mt-4 select-none">
+              <div className="flex items-center justify-end pt-4 border-t border-[#E7E8EB] dark:border-white/10 mt-4 ">
                 {item.status === "Pending Discharge" && (
                   <button
                     onClick={() => setDischargeItem(item)}
-                    className="p-2.5 hover:bg-muted bg-white dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] flex items-center justify-center gap-1.5 transition-all text-[12px] font-bold text-foreground select-none shadow-none outline-none"
+                    className="p-2.5 hover:bg-muted bg-white dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] flex items-center justify-center gap-1.5 transition-all text-[12px] font-bold text-foreground  shadow-none outline-none"
                   >
-                    <LogOut className="w-4 h-4 text-emerald-600 shrink-0 select-none" />
+                    <LogOut className="w-4 h-4 text-emerald-600 shrink-0 " />
                     <span>Discharge</span>
                   </button>
                 )}
                 {item.status === "Admitted" && (
                   <button
                     onClick={() => router.push(`/staff/admissions/transfer/${item.id}`)}
-                    className="p-2.5 hover:bg-muted bg-white dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] flex items-center justify-center gap-1.5 transition-all text-[12px] font-bold text-foreground select-none shadow-none outline-none"
+                    className="p-2.5 hover:bg-muted bg-white dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] flex items-center justify-center gap-1.5 transition-all text-[12px] font-bold text-foreground  shadow-none outline-none"
                   >
-                    <Send className="w-4 h-4 text-blue-600 shrink-0 select-none rotate-45" />
+                    <Send className="w-4 h-4 text-blue-600 shrink-0  rotate-45" />
                     <span>Transfer</span>
                   </button>
                 )}
@@ -239,75 +239,75 @@ export default function WardPatientsPage() {
             </div>
           ))}
           {filtered.length === 0 && (
-            <div className="bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] p-10 text-center text-muted-foreground font-medium italic text-[13px] select-none">
+            <div className="bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] p-10 text-center text-muted-foreground font-medium italic text-[13px] ">
               No patients found matching current criteria.
             </div>
           )}
         </div>
 
         {/* High Density Desktop Table Layout */}
-        <div className="hidden md:block bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] overflow-hidden flex-1 shadow-none select-none">
-          <div className="overflow-x-auto no-scrollbar select-none">
-            <table className="w-full text-left border-collapse select-none">
+        <div className="hidden md:block bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] overflow-hidden flex-1 shadow-none ">
+          <div className="overflow-x-auto no-scrollbar ">
+            <table className="w-full text-left border-collapse ">
               <thead>
-                <tr className="bg-[#F8F9FC] dark:bg-[#1e293b] select-none">
-                  <th className="px-6 py-4 text-[11px] font-bold text-muted-foreground tracking-wider select-none uppercase">
+                <tr className="bg-[#F8F9FC] dark:bg-[#1e293b] ">
+                  <th className="px-6 py-4 text-[11px] font-bold text-muted-foreground tracking-wider  uppercase">
                     Patient Name
                   </th>
-                  <th className="px-6 py-4 text-[11px] font-bold text-muted-foreground tracking-wider select-none uppercase">
+                  <th className="px-6 py-4 text-[11px] font-bold text-muted-foreground tracking-wider  uppercase">
                     Age/Gender
                   </th>
-                  <th className="px-6 py-4 text-[11px] font-bold text-muted-foreground tracking-wider select-none uppercase">
+                  <th className="px-6 py-4 text-[11px] font-bold text-muted-foreground tracking-wider  uppercase">
                     Bed No
                   </th>
-                  <th className="px-6 py-4 text-[11px] font-bold text-muted-foreground tracking-wider select-none uppercase">
+                  <th className="px-6 py-4 text-[11px] font-bold text-muted-foreground tracking-wider  uppercase">
                     Diagnosis
                   </th>
-                  <th className="px-6 py-4 text-[11px] font-bold text-muted-foreground tracking-wider select-none uppercase">
+                  <th className="px-6 py-4 text-[11px] font-bold text-muted-foreground tracking-wider  uppercase">
                     Status
                   </th>
-                  <th className="px-6 py-4 text-[11px] font-bold text-muted-foreground tracking-wider select-none uppercase text-right">
+                  <th className="px-6 py-4 text-[11px] font-bold text-muted-foreground tracking-wider  uppercase text-right">
                     Action
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#E7E8EB] dark:divide-white/5 select-none">
+              <tbody className="divide-y divide-[#E7E8EB] dark:divide-white/5 ">
                 {filtered.map((item) => (
-                  <tr key={item.id} className="hover:bg-[#F8F9FC] dark:hover:bg-white/[0.01] transition-all group select-none">
-                    <td className="px-6 py-4 text-[14px] font-bold text-[#1e293b] dark:text-white select-none">
+                  <tr key={item.id} className="hover:bg-[#F8F9FC] dark:hover:bg-white/[0.01] transition-all group ">
+                    <td className="px-6 py-4 text-[14px] font-bold text-[#1e293b] dark:text-white ">
                       {item.name}
                     </td>
-                    <td className="px-6 py-4 text-[13px] font-medium text-muted-foreground select-none">
+                    <td className="px-6 py-4 text-[13px] font-medium text-muted-foreground ">
                       {item.ageGender}
                     </td>
-                    <td className="px-6 py-4 text-[13px] font-bold text-blue-600 dark:text-blue-400 select-none">
+                    <td className="px-6 py-4 text-[13px] font-bold text-blue-600 dark:text-blue-400 ">
                       {item.bed}
                     </td>
-                    <td className="px-6 py-4 text-[13px] font-medium text-foreground select-none max-w-[220px] truncate leading-snug">
+                    <td className="px-6 py-4 text-[13px] font-medium text-foreground  max-w-[220px] truncate leading-snug">
                       {item.diagnosis}
                     </td>
-                    <td className="px-6 py-4 select-none">
+                    <td className="px-6 py-4 ">
                       <span className={statusBadge(item.status)}>{item.status}</span>
                     </td>
-                    <td className="px-6 py-4 text-right select-none">
-                      <div className="flex items-center justify-end gap-2 select-none">
+                    <td className="px-6 py-4 text-right ">
+                      <div className="flex items-center justify-end gap-2 ">
                         {item.status === "Pending Discharge" && (
                           <button
                             onClick={() => setDischargeItem(item)}
-                            className="px-3.5 h-9 hover:bg-muted bg-white dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] flex items-center justify-center gap-1.5 transition-all text-[12px] font-bold text-foreground select-none shadow-none outline-none select-none"
+                            className="px-3.5 h-9 hover:bg-muted bg-white dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] flex items-center justify-center gap-1.5 transition-all text-[12px] font-bold text-foreground  shadow-none outline-none "
                             title="Discharge Patient"
                           >
-                            <LogOut className="w-3.5 h-3.5 text-emerald-600 shrink-0 select-none" />
+                            <LogOut className="w-3.5 h-3.5 text-emerald-600 shrink-0 " />
                             <span>Discharge</span>
                           </button>
                         )}
                         {item.status === "Admitted" && (
                           <button
                             onClick={() => router.push(`/staff/admissions/transfer/${item.id}`)}
-                            className="px-3.5 h-9 hover:bg-muted bg-white dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] flex items-center justify-center gap-1.5 transition-all text-[12px] font-bold text-foreground select-none shadow-none outline-none select-none"
+                            className="px-3.5 h-9 hover:bg-muted bg-white dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] flex items-center justify-center gap-1.5 transition-all text-[12px] font-bold text-foreground  shadow-none outline-none "
                             title="Transfer Patient"
                           >
-                            <Send className="w-3.5 h-3.5 text-blue-600 shrink-0 select-none rotate-45" />
+                            <Send className="w-3.5 h-3.5 text-blue-600 shrink-0  rotate-45" />
                             <span>Transfer</span>
                           </button>
                         )}
@@ -319,7 +319,7 @@ export default function WardPatientsPage() {
                   <tr>
                     <td
                       colSpan={6}
-                      className="px-6 py-16 text-center text-[13px] font-medium text-muted-foreground italic select-none"
+                      className="px-6 py-16 text-center text-[13px] font-medium text-muted-foreground italic "
                     >
                       No patients found.
                     </td>
@@ -340,37 +340,37 @@ export default function WardPatientsPage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setDischargeItem(null)}
-              className="absolute inset-0 bg-slate-900/40 backdrop-blur-[4px] select-none"
+              className="absolute inset-0 bg-slate-900/40 backdrop-blur-[4px] "
             />
             <motion.div
               initial={{ scale: 0.95, opacity: 0, y: 16 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 16 }}
-              className="relative bg-white dark:bg-[#101935] w-full max-w-[520px] rounded-[5px] overflow-hidden shadow-none border border-[#E7E8EB] dark:border-white/10 flex flex-col select-none"
+              className="relative bg-white dark:bg-[#101935] w-full max-w-[520px] rounded-[5px] overflow-hidden shadow-none border border-[#E7E8EB] dark:border-white/10 flex flex-col "
             >
               {/* Header */}
-              <div className="p-5 flex justify-between items-start border-b border-[#E7E8EB] dark:border-white/10 select-none">
+              <div className="p-5 flex justify-between items-start border-b border-[#E7E8EB] dark:border-white/10 ">
                 <div>
-                  <h3 className="text-[17px] font-bold text-[#1e293b] dark:text-white leading-tight select-none">
+                  <h3 className="text-[17px] font-bold text-[#1e293b] dark:text-white leading-tight ">
                     Discharge Patient
                   </h3>
-                  <p className="text-[12px] text-gray-500 dark:text-gray-400 font-medium mt-0.5 leading-tight select-none">
+                  <p className="text-[12px] text-gray-500 dark:text-gray-400 font-medium mt-0.5 leading-tight ">
                     Initiate discharge process
                   </p>
                 </div>
                 <button
                   onClick={() => setDischargeItem(null)}
-                  className="p-1 hover:bg-muted rounded-[5px] text-muted-foreground transition-all outline-none select-none"
+                  className="p-1 hover:bg-muted rounded-[5px] text-muted-foreground transition-all outline-none "
                 >
-                  <X className="w-4 h-4 select-none" />
+                  <X className="w-4 h-4 " />
                 </button>
               </div>
 
               {/* Patient Card Subheader */}
-              <div className="p-5 select-none">
-                <div className="p-4 bg-white dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] flex items-center justify-between gap-4 select-none">
+              <div className="p-5 ">
+                <div className="p-4 bg-white dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] flex items-center justify-between gap-4 ">
                   <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 bg-blue-500/10 dark:bg-blue-500/5 text-blue-600 border border-blue-500/10 rounded-full flex items-center justify-center select-none shrink-0 overflow-hidden">
+                    <div className="w-11 h-11 bg-blue-500/10 dark:bg-blue-500/5 text-blue-600 border border-blue-500/10 rounded-full flex items-center justify-center  shrink-0 overflow-hidden">
                       <img
                         src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=100"
                         alt="Patient"
@@ -378,23 +378,23 @@ export default function WardPatientsPage() {
                       />
                     </div>
                     <div>
-                      <h4 className="text-[14px] font-bold text-[#1e293b] dark:text-white leading-tight select-none">
+                      <h4 className="text-[14px] font-bold text-[#1e293b] dark:text-white leading-tight ">
                         {dischargeItem.name}
                       </h4>
-                      <p className="text-[11px] font-medium text-muted-foreground mt-0.5 select-none leading-tight">
+                      <p className="text-[11px] font-medium text-muted-foreground mt-0.5  leading-tight">
                         MRN: 884728 • Bed: {dischargeItem.bed}
                       </p>
                     </div>
                   </div>
-                  <span className="bg-amber-500/10 text-amber-600 border border-amber-500/20 px-2 py-0.5 rounded-[5px] text-[10px] font-bold select-none leading-tight">
+                  <span className="bg-amber-500/10 text-amber-600 border border-amber-500/20 px-2 py-0.5 rounded-[5px] text-[10px] font-bold  leading-tight">
                     Pending Discharge
                   </span>
                 </div>
               </div>
 
               {/* Discharge Checklist */}
-              <div className="px-5 space-y-4 select-none flex flex-col">
-                <h4 className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider select-none leading-none">
+              <div className="px-5 space-y-4  flex flex-col">
+                <h4 className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider  leading-none">
                   Discharge Checklist
                 </h4>
 
@@ -402,22 +402,22 @@ export default function WardPatientsPage() {
                   {/* Checklist item 1 */}
                   <div
                     onClick={() => setDischargeSummaryChecked(!dischargeSummaryChecked)}
-                    className="p-3.5 border border-[#E7E8EB] dark:border-white/10 rounded-[5px] bg-white dark:bg-[#101935] flex items-center justify-between cursor-pointer select-none hover:bg-muted/50 transition-all"
+                    className="p-3.5 border border-[#E7E8EB] dark:border-white/10 rounded-[5px] bg-white dark:bg-[#101935] flex items-center justify-between cursor-pointer  hover:bg-muted/50 transition-all"
                   >
                     <div className="flex items-center gap-3">
                       <div className={cn(
-                        "w-4.5 h-4.5 rounded-[3px] border flex items-center justify-center shrink-0 transition-all select-none",
+                        "w-4.5 h-4.5 rounded-[3px] border flex items-center justify-center shrink-0 transition-all ",
                         dischargeSummaryChecked
                           ? "bg-blue-600 border-blue-600 text-white"
                           : "border-gray-300 dark:border-white/20 bg-transparent"
                       )}>
-                        {dischargeSummaryChecked && <Check className="w-3 h-3 select-none" />}
+                        {dischargeSummaryChecked && <Check className="w-3 h-3 " />}
                       </div>
                       <div>
-                        <p className="text-[12.5px] font-bold text-foreground select-none leading-tight">
+                        <p className="text-[12.5px] font-bold text-foreground  leading-tight">
                           Discharge Summary Completed
                         </p>
-                        <p className="text-[11px] font-medium text-muted-foreground mt-0.5 select-none leading-tight">
+                        <p className="text-[11px] font-medium text-muted-foreground mt-0.5  leading-tight">
                           Signed by Dr. Evans
                         </p>
                       </div>
@@ -427,22 +427,22 @@ export default function WardPatientsPage() {
                   {/* Checklist item 2 */}
                   <div
                     onClick={() => setMedReconciliationChecked(!medReconciliationChecked)}
-                    className="p-3.5 border border-[#E7E8EB] dark:border-white/10 rounded-[5px] bg-white dark:bg-[#101935] flex items-center justify-between cursor-pointer select-none hover:bg-muted/50 transition-all"
+                    className="p-3.5 border border-[#E7E8EB] dark:border-white/10 rounded-[5px] bg-white dark:bg-[#101935] flex items-center justify-between cursor-pointer  hover:bg-muted/50 transition-all"
                   >
                     <div className="flex items-center gap-3">
                       <div className={cn(
-                        "w-4.5 h-4.5 rounded-[3px] border flex items-center justify-center shrink-0 transition-all select-none",
+                        "w-4.5 h-4.5 rounded-[3px] border flex items-center justify-center shrink-0 transition-all ",
                         medReconciliationChecked
                           ? "bg-blue-600 border-blue-600 text-white"
                           : "border-gray-300 dark:border-white/20 bg-transparent"
                       )}>
-                        {medReconciliationChecked && <Check className="w-3 h-3 select-none" />}
+                        {medReconciliationChecked && <Check className="w-3 h-3 " />}
                       </div>
                       <div>
-                        <p className="text-[12.5px] font-bold text-foreground select-none leading-tight">
+                        <p className="text-[12.5px] font-bold text-foreground  leading-tight">
                           Medication Reconciliation
                         </p>
-                        <p className="text-[11px] font-medium text-muted-foreground mt-0.5 select-none leading-tight">
+                        <p className="text-[11px] font-medium text-muted-foreground mt-0.5  leading-tight">
                           Take-home meds prescribed
                         </p>
                       </div>
@@ -452,22 +452,22 @@ export default function WardPatientsPage() {
                   {/* Checklist item 3 */}
                   <div
                     onClick={() => setPatientEducationChecked(!patientEducationChecked)}
-                    className="p-3.5 border border-[#E7E8EB] dark:border-white/10 rounded-[5px] bg-white dark:bg-[#101935] flex items-center justify-between cursor-pointer select-none hover:bg-muted/50 transition-all"
+                    className="p-3.5 border border-[#E7E8EB] dark:border-white/10 rounded-[5px] bg-white dark:bg-[#101935] flex items-center justify-between cursor-pointer  hover:bg-muted/50 transition-all"
                   >
                     <div className="flex items-center gap-3">
                       <div className={cn(
-                        "w-4.5 h-4.5 rounded-[3px] border flex items-center justify-center shrink-0 transition-all select-none",
+                        "w-4.5 h-4.5 rounded-[3px] border flex items-center justify-center shrink-0 transition-all ",
                         patientEducationChecked
                           ? "bg-blue-600 border-blue-600 text-white"
                           : "border-gray-300 dark:border-white/20 bg-transparent"
                       )}>
-                        {patientEducationChecked && <Check className="w-3 h-3 select-none" />}
+                        {patientEducationChecked && <Check className="w-3 h-3 " />}
                       </div>
                       <div>
-                        <p className="text-[12.5px] font-bold text-foreground select-none leading-tight">
+                        <p className="text-[12.5px] font-bold text-foreground  leading-tight">
                           Patient Education & Instructions
                         </p>
-                        <p className="text-[11px] font-medium text-muted-foreground mt-0.5 select-none leading-tight">
+                        <p className="text-[11px] font-medium text-muted-foreground mt-0.5  leading-tight">
                           Review follow-up care with patient
                         </p>
                       </div>
@@ -477,31 +477,31 @@ export default function WardPatientsPage() {
               </div>
 
               {/* Discharge Notes */}
-              <div className="p-5 space-y-2 select-none">
-                <h4 className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider select-none leading-none mb-1">
+              <div className="p-5 space-y-2 ">
+                <h4 className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider  leading-none mb-1">
                   Discharge Notes (Optional)
                 </h4>
                 <textarea
                   placeholder="Add final nursing notes..."
                   value={dischargeNotes}
                   onChange={(e) => setDischargeNotes(e.target.value)}
-                  className="w-full min-h-[80px] p-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] font-medium text-foreground outline-none transition-all shadow-none resize-none select-none focus:border-primary"
+                  className="w-full min-h-[80px] p-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] font-medium text-foreground outline-none transition-all shadow-none resize-none  focus:border-primary"
                 />
               </div>
 
               {/* Action Footer */}
-              <div className="flex items-center justify-end gap-3 px-6 py-4 bg-[#F8F9FC] dark:bg-[#101935] border-t border-[#E7E8EB] dark:border-white/10 select-none">
+              <div className="flex items-center justify-end gap-3 px-6 py-4 bg-[#F8F9FC] dark:bg-[#101935] border-t border-[#E7E8EB] dark:border-white/10 ">
                 <button
                   onClick={() => setDischargeItem(null)}
-                  className="h-10 px-5 border border-[#E7E8EB] dark:border-white/10 bg-white dark:bg-[#101935] hover:bg-muted text-foreground font-semibold rounded-[5px] text-[13px] transition-all select-none shadow-none outline-none"
+                  className="h-10 px-5 border border-[#E7E8EB] dark:border-white/10 bg-white dark:bg-[#101935] hover:bg-muted text-foreground font-semibold rounded-[5px] text-[13px] transition-all  shadow-none outline-none"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={() => handleDischarge(dischargeItem.id)}
-                  className="h-10 px-5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-[5px] text-[13px] transition-all flex items-center justify-center gap-1.5 select-none shadow-none outline-none disabled:opacity-50"
+                  className="h-10 px-5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-[5px] text-[13px] transition-all flex items-center justify-center gap-1.5  shadow-none outline-none disabled:opacity-50"
                 >
-                  <LogOut className="w-3.5 h-3.5 select-none rotate-180" />
+                  <LogOut className="w-3.5 h-3.5  rotate-180" />
                   <span>Confirm Discharge</span>
                 </button>
               </div>
@@ -519,29 +519,29 @@ export default function WardPatientsPage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setTransferItem(null)}
-              className="absolute inset-0 bg-slate-900/40 backdrop-blur-[4px] select-none"
+              className="absolute inset-0 bg-slate-900/40 backdrop-blur-[4px] "
             />
             <motion.div
               initial={{ scale: 0.95, opacity: 0, y: 16 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 16 }}
-              className="relative bg-white dark:bg-[#101935] w-full max-w-[420px] rounded-[5px] overflow-hidden shadow-none border border-[#E7E8EB] dark:border-white/10 flex flex-col select-none"
+              className="relative bg-white dark:bg-[#101935] w-full max-w-[420px] rounded-[5px] overflow-hidden shadow-none border border-[#E7E8EB] dark:border-white/10 flex flex-col "
             >
-              <div className="p-6 flex flex-col items-center text-center select-none">
-                <div className="w-12 h-12 bg-blue-500/10 dark:bg-blue-500/5 text-blue-600 border border-blue-500/10 rounded-full flex items-center justify-center mb-4 select-none shrink-0">
-                  <Send className="w-6 h-6 select-none rotate-45" />
+              <div className="p-6 flex flex-col items-center text-center ">
+                <div className="w-12 h-12 bg-blue-500/10 dark:bg-blue-500/5 text-blue-600 border border-blue-500/10 rounded-full flex items-center justify-center mb-4  shrink-0">
+                  <Send className="w-6 h-6  rotate-45" />
                 </div>
-                <h3 className="text-[17px] font-bold text-[#1e293b] dark:text-white mb-1.5 leading-tight select-none">
+                <h3 className="text-[17px] font-bold text-[#1e293b] dark:text-white mb-1.5 leading-tight ">
                   Transfer Patient
                 </h3>
-                <p className="text-[12.5px] text-gray-500 dark:text-gray-400 font-medium leading-relaxed select-none">
+                <p className="text-[12.5px] text-gray-500 dark:text-gray-400 font-medium leading-relaxed ">
                   Transfer <span className="font-bold text-foreground">{transferItem.name}</span> to a different ward or bed.
                 </p>
               </div>
 
-              <div className="px-6 py-1 space-y-4 select-none">
+              <div className="px-6 py-1 space-y-4 ">
                 <div>
-                  <label className="block text-[11px] font-bold text-muted-foreground uppercase leading-none mb-1.5 select-none">
+                  <label className="block text-[11px] font-bold text-muted-foreground uppercase leading-none mb-1.5 ">
                     Target Ward
                   </label>
                   <CustomSelect
@@ -558,7 +558,7 @@ export default function WardPatientsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-[11px] font-bold text-muted-foreground uppercase leading-none mb-1.5 select-none">
+                  <label className="block text-[11px] font-bold text-muted-foreground uppercase leading-none mb-1.5 ">
                     Target Bed Number
                   </label>
                   <input
@@ -566,22 +566,22 @@ export default function WardPatientsPage() {
                     placeholder="e.g. B01, B02"
                     value={targetBed}
                     onChange={(e) => setTargetBed(e.target.value)}
-                    className="w-full h-11 px-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] font-medium text-foreground outline-none transition-all shadow-none select-none focus:border-primary"
+                    className="w-full h-11 px-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] font-medium text-foreground outline-none transition-all shadow-none  focus:border-primary"
                   />
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 px-6 py-4 mt-5 bg-[#F8F9FC] dark:bg-[#101935] border-t border-[#E7E8EB] dark:border-white/10 select-none">
+              <div className="flex items-center gap-3 px-6 py-4 mt-5 bg-[#F8F9FC] dark:bg-[#101935] border-t border-[#E7E8EB] dark:border-white/10 ">
                 <button
                   onClick={() => setTransferItem(null)}
-                  className="flex-1 h-10 border border-[#E7E8EB] dark:border-white/10 bg-white dark:bg-[#101935] hover:bg-muted text-foreground font-semibold rounded-[5px] text-[13px] transition-all select-none shadow-none outline-none"
+                  className="flex-1 h-10 border border-[#E7E8EB] dark:border-white/10 bg-white dark:bg-[#101935] hover:bg-muted text-foreground font-semibold rounded-[5px] text-[13px] transition-all  shadow-none outline-none"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={() => handleTransfer(transferItem.id)}
                   disabled={!targetWard || !targetBed}
-                  className="flex-1 h-10 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-[5px] text-[13px] transition-all select-none shadow-none outline-none disabled:opacity-50"
+                  className="flex-1 h-10 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-[5px] text-[13px] transition-all  shadow-none outline-none disabled:opacity-50"
                 >
                   Transfer
                 </button>

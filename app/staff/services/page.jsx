@@ -334,7 +334,7 @@ function LiveTrackingModal({ item, onClose }) {
         initial={{ scale: 0.95, opacity: 0, y: 16 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.95, opacity: 0, y: 16 }}
-        className="relative bg-white dark:bg-[#101935] w-full max-w-[720px] rounded-[5px] border border-[#E7E8EB] dark:border-white/10 overflow-hidden shadow-none flex flex-col max-h-[90vh] select-none"
+        className="relative bg-white dark:bg-[#101935] w-full max-w-[720px] rounded-[5px] border border-[#E7E8EB] dark:border-white/10 overflow-hidden shadow-none flex flex-col max-h-[90vh] "
       >
         {/* Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-[#E7E8EB] dark:border-white/10 shrink-0 bg-white dark:bg-[#101935]">
@@ -342,19 +342,19 @@ function LiveTrackingModal({ item, onClose }) {
             <h2 className="text-[16px] md:text-[18px] font-bold text-foreground">
               Live Tracking: #SR-8921
             </h2>
-            <span className="bg-blue-500/10 text-blue-600 border border-blue-500/20 rounded-[5px] px-2 py-0.5 text-[10px] font-bold select-none leading-tight">
+            <span className="bg-blue-500/10 text-blue-600 border border-blue-500/20 rounded-[5px] px-2 py-0.5 text-[10px] font-bold  leading-tight">
               In Progress
             </span>
           </div>
           <div className="flex items-center gap-3">
             <button
               onClick={() => alert("Tracking status refreshed.")}
-              className="h-9 px-3.5 border border-[#E7E8EB] dark:border-white/10 hover:bg-muted text-foreground rounded-[5px] text-[12px] font-bold flex items-center justify-center gap-2 transition-all bg-white dark:bg-[#101935] shadow-none outline-none select-none"
+              className="h-9 px-3.5 border border-[#E7E8EB] dark:border-white/10 hover:bg-muted text-foreground rounded-[5px] text-[12px] font-bold flex items-center justify-center gap-2 transition-all bg-white dark:bg-[#101935] shadow-none outline-none "
             >
               <RefreshCw className="w-3.5 h-3.5 text-foreground shrink-0" />
               <span>Refresh Status</span>
             </button>
-            <button onClick={onClose} className="p-1.5 hover:bg-muted rounded-[5px] transition-all select-none">
+            <button onClick={onClose} className="p-1.5 hover:bg-muted rounded-[5px] transition-all ">
               <X className="w-4.5 h-4.5 text-muted-foreground" />
             </button>
           </div>
@@ -363,7 +363,7 @@ function LiveTrackingModal({ item, onClose }) {
         {/* Body */}
         <div className="px-5 py-5 space-y-5 overflow-y-auto flex-1 no-scrollbar bg-white dark:bg-[#101935]">
           {/* Light Blue Banner */}
-          <div className="bg-blue-500/5 dark:bg-blue-950/20 border border-blue-500/20 dark:border-blue-500/10 p-4 rounded-[5px] flex items-center justify-between shadow-none select-none">
+          <div className="bg-blue-500/5 dark:bg-blue-950/20 border border-blue-500/20 dark:border-blue-500/10 p-4 rounded-[5px] flex items-center justify-between shadow-none ">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-blue-500/15 border border-blue-500/20 flex items-center justify-center shrink-0">
                 <Truck className="w-5 h-5 text-blue-600" />
@@ -381,7 +381,7 @@ function LiveTrackingModal({ item, onClose }) {
               <p className="text-[20px] font-bold text-blue-600 leading-none">
                 5 Min
               </p>
-              <p className="text-[9px] font-black text-blue-700/60 dark:text-blue-300/60 uppercase tracking-wider mt-1 select-none">
+              <p className="text-[9px] font-black text-blue-700/60 dark:text-blue-300/60 uppercase tracking-wider mt-1 ">
                 Est. Time
               </p>
             </div>
@@ -391,64 +391,64 @@ function LiveTrackingModal({ item, onClose }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-1">
             {/* Left: Timeline */}
             <div className="flex flex-col space-y-4">
-              <h4 className="text-[11px] font-bold text-gray-400 uppercase tracking-widest leading-none select-none">
+              <h4 className="text-[11px] font-bold text-gray-400 uppercase tracking-widest leading-none ">
                 Status Timeline
               </h4>
 
-              <div className="relative flex flex-col space-y-5 pl-2 select-none">
+              <div className="relative flex flex-col space-y-5 pl-2 ">
                 {/* Timeline background vertical connector */}
                 <div className="absolute top-3 bottom-4 left-5 w-[1.5px] bg-gray-100 dark:bg-white/5 z-0" />
 
                 {/* Point 1 */}
-                <div className="relative flex items-start gap-4 z-10 select-none">
+                <div className="relative flex items-start gap-4 z-10 ">
                   <div className="w-6 h-6 rounded-full bg-emerald-500 border border-emerald-600 flex items-center justify-center shrink-0 text-white">
                     <Check className="w-3.5 h-3.5" />
                   </div>
                   <div>
                     <h5 className="text-[13px] font-bold text-foreground leading-tight">Request Created</h5>
-                    <p className="text-[11px] text-muted-foreground font-bold mt-1 leading-none select-none">
+                    <p className="text-[11px] text-muted-foreground font-bold mt-1 leading-none ">
                       10:45 AM • Nurse Joy
                     </p>
                   </div>
                 </div>
 
                 {/* Point 2 */}
-                <div className="relative flex items-start gap-4 z-10 select-none">
+                <div className="relative flex items-start gap-4 z-10 ">
                   <div className="w-6 h-6 rounded-full bg-emerald-500 border border-emerald-600 flex items-center justify-center shrink-0 text-white">
                     <Check className="w-3.5 h-3.5" />
                   </div>
                   <div>
                     <h5 className="text-[13px] font-bold text-foreground leading-tight">Accepted by Dept</h5>
-                    <p className="text-[11px] text-muted-foreground font-bold mt-1 leading-none select-none">
+                    <p className="text-[11px] text-muted-foreground font-bold mt-1 leading-none ">
                       10:52 AM • Central Lab
                     </p>
                   </div>
                 </div>
 
                 {/* Point 3 */}
-                <div className="relative flex items-start gap-4 z-10 select-none">
+                <div className="relative flex items-start gap-4 z-10 ">
                   <div className="w-6 h-6 rounded-full bg-white dark:bg-[#101935] border-2 border-blue-600 flex items-center justify-center shrink-0">
                     <div className="w-2.5 h-2.5 bg-blue-600 rounded-full" />
                   </div>
                   <div>
                     <h5 className="text-[13px] font-bold text-blue-600 leading-tight">In Transit to Ward</h5>
-                    <p className="text-[12px] font-bold text-foreground mt-1 leading-tight select-none">
+                    <p className="text-[12px] font-bold text-foreground mt-1 leading-tight ">
                       Currently moving to W1-B12
                     </p>
-                    <p className="text-[11px] text-muted-foreground font-bold mt-1 leading-none select-none">
+                    <p className="text-[11px] text-muted-foreground font-bold mt-1 leading-none ">
                       10:55 AM • Alex Turner
                     </p>
                   </div>
                 </div>
 
                 {/* Point 4 */}
-                <div className="relative flex items-start gap-4 z-10 select-none opacity-50">
+                <div className="relative flex items-start gap-4 z-10  opacity-50">
                   <div className="w-6 h-6 rounded-full bg-white dark:bg-[#101935] border border-gray-200 dark:border-white/10 flex items-center justify-center shrink-0">
                     <div className="w-2 h-2 bg-transparent rounded-full" />
                   </div>
                   <div>
                     <h5 className="text-[13px] font-bold text-foreground leading-tight">Sample Collected</h5>
-                    <p className="text-[11px] text-muted-foreground font-bold mt-1 leading-none select-none">
+                    <p className="text-[11px] text-muted-foreground font-bold mt-1 leading-none ">
                       Pending...
                     </p>
                   </div>
@@ -457,29 +457,29 @@ function LiveTrackingModal({ item, onClose }) {
             </div>
 
             {/* Right: Assigned Personnel & Location Details */}
-            <div className="flex flex-col space-y-5 select-none">
+            <div className="flex flex-col space-y-5 ">
               {/* Assigned Personnel */}
               <div className="space-y-3">
-                <h4 className="text-[11px] font-bold text-gray-400 uppercase tracking-widest leading-none select-none">
+                <h4 className="text-[11px] font-bold text-gray-400 uppercase tracking-widest leading-none ">
                   Assigned Personnel
                 </h4>
-                <div className="p-4 bg-white dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] flex items-center justify-between shadow-none select-none">
+                <div className="p-4 bg-white dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] flex items-center justify-between shadow-none ">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-muted border border-border flex items-center justify-center text-[12px] font-black text-foreground shrink-0 select-none">
+                    <div className="w-10 h-10 rounded-full bg-muted border border-border flex items-center justify-center text-[12px] font-black text-foreground shrink-0 ">
                       AT
                     </div>
                     <div>
-                      <h5 className="text-[13px] font-bold text-foreground leading-tight select-none">
+                      <h5 className="text-[13px] font-bold text-foreground leading-tight ">
                         Alex Turner
                       </h5>
-                      <p className="text-[11px] text-muted-foreground font-medium mt-1 leading-none select-none">
+                      <p className="text-[11px] text-muted-foreground font-medium mt-1 leading-none ">
                         Senior Lab Technician
                       </p>
                     </div>
                   </div>
                   <button
                     onClick={() => alert("Calling personnel...")}
-                    className="h-8 px-3.5 border border-[#E7E8EB] dark:border-white/10 hover:bg-muted text-foreground rounded-[5px] text-[11px] font-bold flex items-center justify-center gap-1.5 bg-white dark:bg-[#101935] transition-all shadow-none select-none outline-none"
+                    className="h-8 px-3.5 border border-[#E7E8EB] dark:border-white/10 hover:bg-muted text-foreground rounded-[5px] text-[11px] font-bold flex items-center justify-center gap-1.5 bg-white dark:bg-[#101935] transition-all shadow-none  outline-none"
                   >
                     <Phone className="w-3.5 h-3.5 text-foreground shrink-0" />
                     <span>Connect</span>
@@ -488,29 +488,29 @@ function LiveTrackingModal({ item, onClose }) {
               </div>
 
               {/* Location Details */}
-              <div className="space-y-3 select-none">
-                <h4 className="text-[11px] font-bold text-gray-400 uppercase tracking-widest leading-none select-none">
+              <div className="space-y-3 ">
+                <h4 className="text-[11px] font-bold text-gray-400 uppercase tracking-widest leading-none ">
                   Location Details
                 </h4>
-                <div className="p-4 bg-white dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] flex flex-col space-y-4 shadow-none select-none">
+                <div className="p-4 bg-white dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] flex flex-col space-y-4 shadow-none ">
                   <div className="flex items-start gap-3">
-                    <MapPin className="w-4 h-4 text-primary mt-1 shrink-0 select-none" />
+                    <MapPin className="w-4 h-4 text-primary mt-1 shrink-0 " />
                     <div>
-                      <p className="text-[10px] font-bold text-muted-foreground leading-tight uppercase select-none">
+                      <p className="text-[10px] font-bold text-muted-foreground leading-tight uppercase ">
                         Destination
                       </p>
-                      <p className="text-[13px] font-bold text-[#1e293b] dark:text-white mt-1 leading-tight select-none">
+                      <p className="text-[13px] font-bold text-[#1e293b] dark:text-white mt-1 leading-tight ">
                         Ward 1, Bed 12 (W1-B12)
                       </p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3 pt-4 border-t border-[#E7E8EB] dark:border-white/10">
-                    <Building className="w-4 h-4 text-primary mt-1 shrink-0 select-none" />
+                    <Building className="w-4 h-4 text-primary mt-1 shrink-0 " />
                     <div>
-                      <p className="text-[10px] font-bold text-muted-foreground leading-tight uppercase select-none">
+                      <p className="text-[10px] font-bold text-muted-foreground leading-tight uppercase ">
                         Origin
                       </p>
-                      <p className="text-[13px] font-bold text-[#1e293b] dark:text-white mt-1 leading-tight select-none">
+                      <p className="text-[13px] font-bold text-[#1e293b] dark:text-white mt-1 leading-tight ">
                         Central Laboratory (Ground Floor)
                       </p>
                     </div>
@@ -519,7 +519,7 @@ function LiveTrackingModal({ item, onClose }) {
               </div>
 
               {/* Realtime Alert Subtext */}
-              <div className="flex items-center gap-1.5 pt-1 text-muted-foreground select-none">
+              <div className="flex items-center gap-1.5 pt-1 text-muted-foreground ">
                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                 <p className="text-[11px] font-medium leading-none">
                   This tracking data is updated in real-time.
@@ -636,11 +636,11 @@ export default function ServicesPage() {
   };
 
   return (
-    <div className="p-4 md:p-6 bg-[#F8F9FC] dark:bg-[#0A0F1D] min-h-screen flex flex-col space-y-[20px] transition-colors duration-300 font-sans pb-20 select-none">
+    <div className="p-[20px] bg-[#F8F9FC] dark:bg-[#0A0F1D] min-h-screen flex flex-col space-y-[20px] transition-colors duration-300 font-sans pb-20 ">
       
       {/* ── Header ── */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-        <h1 className="text-[20px] md:text-[24px] font-bold text-[#1e293b] dark:text-white tracking-tight leading-none">
+        <h1 className="text-[20px] font-bold text-[#1e293b] dark:text-white tracking-tight leading-none">
           Service Request
         </h1>
         <button
@@ -726,7 +726,7 @@ export default function ServicesPage() {
                   </button>
                   <button
                     onClick={() => setTrackingItem(item)}
-                    className="p-2 hover:bg-muted rounded-[5px] transition-all flex items-center gap-1 bg-white dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 text-[12px] font-medium shadow-none select-none"
+                    className="p-2 hover:bg-muted rounded-[5px] transition-all flex items-center gap-1 bg-white dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 text-[12px] font-medium shadow-none "
                     title="Track / Advance"
                   >
                     <Sparkles className="w-4 h-4 text-primary shrink-0" />
@@ -772,7 +772,7 @@ export default function ServicesPage() {
               </thead>
               <tbody className="divide-y divide-[#E7E8EB] dark:divide-white/5">
                 {filtered.map((item) => (
-                  <tr key={item.id} className="hover:bg-[#F8F9FC] dark:hover:bg-white/[0.01] transition-all group select-none">
+                  <tr key={item.id} className="hover:bg-[#F8F9FC] dark:hover:bg-white/[0.01] transition-all group ">
                     <td className="px-6 py-4">
                       <div className="text-[14px] font-bold text-[#1e293b] dark:text-white leading-tight">
                         {item.patientName}
@@ -811,14 +811,14 @@ export default function ServicesPage() {
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => router.push(`/staff/services/${item.id}`)}
-                          className="p-2 hover:bg-muted rounded-[5px] border border-[#E7E8EB] dark:border-white/10 flex items-center justify-center transition-all text-foreground select-none shadow-none bg-white dark:bg-[#1e293b]"
+                          className="p-2 hover:bg-muted rounded-[5px] border border-[#E7E8EB] dark:border-white/10 flex items-center justify-center transition-all text-foreground  shadow-none bg-white dark:bg-[#1e293b]"
                           title="View details"
                         >
                           <Eye className="w-4 h-4 text-foreground shrink-0" />
                         </button>
                         <button
                           onClick={() => setTrackingItem(item)}
-                          className="px-3.5 h-9 hover:bg-muted bg-white dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] flex items-center gap-1.5 transition-all text-[12px] font-medium text-foreground select-none shadow-none"
+                          className="px-3.5 h-9 hover:bg-muted bg-white dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] flex items-center gap-1.5 transition-all text-[12px] font-medium text-foreground  shadow-none"
                           title="Track Request"
                         >
                           <Sparkles className="w-3.5 h-3.5 text-primary" />

@@ -200,13 +200,13 @@ export default function FullSchedulePage() {
       </div>
 
       {/* ── Main Schedule Calendar Visual Grid ── */}
-      <div className="bg-card text-card-foreground border border-border rounded-[var(--radius)] overflow-hidden flex flex-col shadow-none relative select-none">
+      <div className="bg-card text-card-foreground border border-border rounded-[var(--radius)] overflow-hidden flex flex-col shadow-none relative ">
         <div
           ref={containerRef}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
           onPointerLeave={handlePointerUp}
-          className="overflow-x-auto no-scrollbar relative w-full select-none select-none"
+          className="overflow-x-auto no-scrollbar relative w-full  "
         >
           <table className="w-full border-collapse min-w-[1250px] relative">
             
@@ -235,7 +235,7 @@ export default function FullSchedulePage() {
                 </td>
                 {/* 06:00 */}
                 <td className="p-2 border-r border-border text-center">
-                  <span className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 rounded-[var(--radius)] p-1 text-[11px] font-bold select-none cursor-default inline-flex items-center gap-1 leading-none shadow-none">
+                  <span className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 rounded-[var(--radius)] p-1 text-[11px] font-bold  cursor-default inline-flex items-center gap-1 leading-none shadow-none">
                     <Check className="w-3.5 h-3.5" /> 06:10
                   </span>
                 </td>
@@ -256,7 +256,7 @@ export default function FullSchedulePage() {
                 <td className="p-2 border-r border-border text-center h-[52px]" />
                 {/* 08:00 */}
                 <td className="p-2 border-r border-border text-center">
-                  <span className="bg-amber-500/10 border border-amber-500/30 text-amber-600 rounded-[var(--radius)] p-1 px-2.5 text-[11px] font-bold select-none cursor-default inline-flex items-center gap-1 leading-none shadow-none">
+                  <span className="bg-amber-500/10 border border-amber-500/30 text-amber-600 rounded-[var(--radius)] p-1 px-2.5 text-[11px] font-bold  cursor-default inline-flex items-center gap-1 leading-none shadow-none">
                     08:00
                   </span>
                 </td>
@@ -266,7 +266,7 @@ export default function FullSchedulePage() {
                 ))}
                 {/* 20:00 */}
                 <td className="p-2 border-r border-border text-center">
-                  <span className="bg-card border border-border text-foreground rounded-[var(--radius)] p-1 px-2.5 text-[11px] font-bold select-none cursor-default inline-flex items-center gap-1 leading-none shadow-none">
+                  <span className="bg-card border border-border text-foreground rounded-[var(--radius)] p-1 px-2.5 text-[11px] font-bold  cursor-default inline-flex items-center gap-1 leading-none shadow-none">
                     20:00
                   </span>
                 </td>
@@ -286,7 +286,7 @@ export default function FullSchedulePage() {
                 <td className="p-2 border-r border-border text-center h-[52px]" />
                 {/* 08:00 */}
                 <td className="p-2 border-r border-border text-center">
-                  <span className="bg-amber-500/10 border border-amber-500/30 text-amber-600 rounded-[var(--radius)] p-1 px-2.5 text-[11px] font-bold select-none cursor-default inline-flex items-center gap-1 leading-none shadow-none">
+                  <span className="bg-amber-500/10 border border-amber-500/30 text-amber-600 rounded-[var(--radius)] p-1 px-2.5 text-[11px] font-bold  cursor-default inline-flex items-center gap-1 leading-none shadow-none">
                     08:00
                   </span>
                 </td>
@@ -296,7 +296,7 @@ export default function FullSchedulePage() {
                 ))}
                 {/* 13:00 */}
                 <td className="p-2 border-r border-border text-center">
-                  <span className="bg-card border border-border text-foreground rounded-[var(--radius)] p-1 px-2.5 text-[11px] font-bold select-none cursor-default inline-flex items-center gap-1 leading-none shadow-none">
+                  <span className="bg-card border border-border text-foreground rounded-[var(--radius)] p-1 px-2.5 text-[11px] font-bold  cursor-default inline-flex items-center gap-1 leading-none shadow-none">
                     13:00
                   </span>
                 </td>
@@ -306,7 +306,7 @@ export default function FullSchedulePage() {
                 ))}
                 {/* 20:00 */}
                 <td className="p-2 border-r border-border text-center">
-                  <span className="bg-card border border-border text-foreground rounded-[var(--radius)] p-1 px-2.5 text-[11px] font-bold select-none cursor-default inline-flex items-center gap-1 leading-none shadow-none">
+                  <span className="bg-card border border-border text-foreground rounded-[var(--radius)] p-1 px-2.5 text-[11px] font-bold  cursor-default inline-flex items-center gap-1 leading-none shadow-none">
                     20:00
                   </span>
                 </td>

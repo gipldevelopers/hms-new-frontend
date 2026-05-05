@@ -182,7 +182,7 @@ export default function ScheduleDetailPage() {
                       <p className="text-[11px] font-semibold text-muted-foreground uppercase leading-tight">Generated Schedule</p>
                       <div className="flex items-center gap-2 mt-1.5">
                         {["08:00 AM", "02:00 PM", "08:00 PM"].map((t) => (
-                          <span key={t} className="px-2.5 py-1 bg-muted border border-border rounded-[var(--radius)] text-[11px] font-bold text-foreground shadow-none select-none">
+                          <span key={t} className="px-2.5 py-1 bg-muted border border-border rounded-[var(--radius)] text-[11px] font-bold text-foreground shadow-none ">
                             {t}
                           </span>
                         ))}
@@ -212,7 +212,7 @@ export default function ScheduleDetailPage() {
                     <div>
                       <p className="text-[11px] font-semibold text-muted-foreground uppercase leading-tight">Generated Schedule</p>
                       <div className="flex items-center gap-2 mt-1.5">
-                        <span className="px-2.5 py-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 rounded-[var(--radius)] text-[11px] font-bold shadow-none select-none">
+                        <span className="px-2.5 py-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 rounded-[var(--radius)] text-[11px] font-bold shadow-none ">
                           08:00 AM ⚠️
                         </span>
                       </div>
@@ -246,7 +246,7 @@ export default function ScheduleDetailPage() {
                       <p className="text-[11px] font-semibold text-muted-foreground uppercase leading-tight">Generated Schedule</p>
                       <div className="flex items-center gap-2 mt-1.5">
                         {["08:00 AM", "08:00 PM"].map((t) => (
-                          <span key={t} className="px-2.5 py-1 bg-muted border border-border rounded-[var(--radius)] text-[11px] font-bold text-foreground shadow-none select-none">
+                          <span key={t} className="px-2.5 py-1 bg-muted border border-border rounded-[var(--radius)] text-[11px] font-bold text-foreground shadow-none ">
                             {t}
                           </span>
                         ))}

@@ -33,7 +33,9 @@ import {
   ArrowLeftRight,
   PlusSquare,
   Wrench,
-  LogIn
+  LogIn,
+  Bell,
+  Siren
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -89,9 +91,12 @@ const roleMenus = {
   ],
   "doctor": [
     { name: "Dashboard", icon: LayoutGrid, path: "/doctor", section: "none" },
-    { name: "Appointments", icon: CalendarDays, path: "/doctor/appointments", section: "CLINICAL" },
-    { name: "Patients", icon: UserRound, path: "/doctor/patients", section: "CLINICAL" },
-    { name: "Prescriptions", icon: Pill, path: "/doctor/prescriptions", section: "CLINICAL" },
+    { name: "OPD Queue / Tokens", icon: Siren, path: "/doctor/opd", section: "none" },
+    { name: "IPD Patients", icon: Hotel, path: "/doctor/ipd", section: "none" },
+    { name: "My Schedule", icon: CalendarDays, path: "/doctor/schedule", section: "WORK" },
+    { name: "Alerts", icon: Bell, path: "/doctor/alerts", section: "WORK" },
+    { name: "Reports", icon: BarChart3, path: "/doctor/reports", section: "REPORTS" },
+    { name: "Profile & Settings", icon: User, path: "/doctor/profile", section: "REPORTS" },
   ],
   "staff": [
     { name: "Dashboard", icon: LayoutGrid, path: "/staff", section: "none" },
@@ -103,7 +108,6 @@ const roleMenus = {
     { name: "MAR/ Administer", icon: PlusSquare, path: "/staff/medication/administer", section: "MEDICATION" },
     { name: "Service Requests", icon: Wrench, path: "/staff/services", section: "SERVICES" },
     { name: "Admission/Transfer", icon: ClipboardList, path: "/staff/admissions", section: "ADMISSION" },
-    { name: "Discharge", icon: LogOut, path: "/staff/discharges", section: "DISCHARGE" },
   ],
   "reception": [
     { name: "Dashboard", icon: LayoutGrid, path: "/reception", section: "none" },

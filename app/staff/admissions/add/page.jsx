@@ -284,7 +284,7 @@ export default function AddAdmissionPage() {
   };
 
   return (
-    <div className="p-6 bg-[#F8F9FC] dark:bg-[#0A0F1D] min-h-screen flex flex-col font-sans gap-5">
+    <div className="p-[20px] bg-[#F8F9FC] dark:bg-[#0A0F1D] min-h-screen flex flex-col font-sans gap-[20px]">
       
       {/* Page Header */}
       <div className="flex items-center justify-between mb-2">

@@ -121,7 +121,7 @@ export default function PrescriptionDetailPage() {
                 <p className="text-[11px] font-semibold text-muted-foreground leading-tight">DOSE, ROUTE & FREQ</p>
                 <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                   <span className="text-[14px] font-bold text-foreground">Sliding Scale</span>
-                  <span className="text-muted-foreground select-none">•</span>
+                  <span className="text-muted-foreground ">•</span>
                   <span className="text-[13px] font-bold text-foreground">TDS</span>
                 </div>
               </div>

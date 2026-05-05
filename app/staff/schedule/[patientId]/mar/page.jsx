@@ -179,7 +179,7 @@ export default function MARAdministerPage() {
         <div className="flex flex-col space-y-5">
           <div className="bg-card text-card-foreground border border-border p-6 rounded-[var(--radius)] flex flex-col space-y-4 shadow-none">
             <div>
-              <span className="bg-muted px-2 py-1 rounded-[var(--radius)] text-[10px] font-bold text-muted-foreground tracking-wider select-none border border-border">
+              <span className="bg-muted px-2 py-1 rounded-[var(--radius)] text-[10px] font-bold text-muted-foreground tracking-wider  border border-border">
                 SCHEDULED MEDICATION
               </span>
               <h2 className="text-[28px] font-bold text-foreground tracking-tight mt-3 leading-tight">
@@ -213,7 +213,7 @@ export default function MARAdministerPage() {
                     Scheduled Time
                   </span>
                 </div>
-                <span className="bg-red-500 text-white font-bold text-[11px] px-2.5 py-0.5 rounded-[var(--radius)] leading-none select-none shadow-none">
+                <span className="bg-red-500 text-white font-bold text-[11px] px-2.5 py-0.5 rounded-[var(--radius)] leading-none  shadow-none">
                   45 mins overdue
                 </span>
               </div>
@@ -238,12 +238,12 @@ export default function MARAdministerPage() {
         </div>
 
         {/* ── Column 2: Rights Verification ── */}
-        <div className="bg-card text-card-foreground border border-border p-6 rounded-[var(--radius)] flex flex-col space-y-5 shadow-none select-none">
+        <div className="bg-card text-card-foreground border border-border p-6 rounded-[var(--radius)] flex flex-col space-y-5 shadow-none ">
           <div className="flex items-center justify-between">
             <h3 className="text-[18px] font-bold text-foreground leading-none">
               Rights Verification
             </h3>
-            <span className="bg-muted px-2.5 py-1 text-[12px] font-bold text-muted-foreground border border-border rounded-[var(--radius)] leading-none select-none">
+            <span className="bg-muted px-2.5 py-1 text-[12px] font-bold text-muted-foreground border border-border rounded-[var(--radius)] leading-none ">
               {verifiedCount}/5 Verified
             </span>
           </div>
@@ -280,7 +280,7 @@ export default function MARAdministerPage() {
                 key={item.key}
                 onClick={() => toggleRight(item.key)}
                 className={cn(
-                  "flex items-center justify-between p-3.5 border rounded-[var(--radius)] transition-all cursor-pointer select-none",
+                  "flex items-center justify-between p-3.5 border rounded-[var(--radius)] transition-all cursor-pointer ",
                   rights[item.key]
                     ? "bg-emerald-500/5 dark:bg-emerald-950/20 border-emerald-500/20"
                     : "bg-muted/30 border-border hover:bg-muted/40"
@@ -328,7 +328,7 @@ export default function MARAdministerPage() {
         </div>
 
         {/* ── Column 3: Administration Details ── */}
-        <div className="bg-card text-card-foreground border border-border p-6 rounded-[var(--radius)] flex flex-col space-y-5 shadow-none select-none">
+        <div className="bg-card text-card-foreground border border-border p-6 rounded-[var(--radius)] flex flex-col space-y-5 shadow-none ">
           <h3 className="text-[18px] font-bold text-foreground leading-none">
             Administration Details
           </h3>
@@ -373,7 +373,7 @@ export default function MARAdministerPage() {
               <span className="text-[11px] font-bold text-muted-foreground tracking-wide ml-1">
                 CONFIRM WITH PIN
               </span>
-              <div className="flex items-center gap-1.5 bg-muted/60 px-2 py-1 rounded-[var(--radius)] border border-border shrink-0 select-none">
+              <div className="flex items-center gap-1.5 bg-muted/60 px-2 py-1 rounded-[var(--radius)] border border-border shrink-0 ">
                 <img
                   src="https://i.pravatar.cc/100?u=drjenkins"
                   alt="Avatar"
@@ -406,7 +406,7 @@ export default function MARAdministerPage() {
                       document.getElementById(`pin-${index - 1}`)?.focus();
                     }
                   }}
-                  className="bg-card border border-border rounded-[var(--radius)] h-12 w-full text-center font-bold text-[18px] text-foreground focus:border-primary outline-none transition-all shadow-none select-none select-all"
+                  className="bg-card border border-border rounded-[var(--radius)] h-12 w-full text-center font-bold text-[18px] text-foreground focus:border-primary outline-none transition-all shadow-none  select-all"
                 />
               ))}
             </div>
@@ -415,7 +415,7 @@ export default function MARAdministerPage() {
             <div className="flex justify-end items-center gap-3 pt-3">
               <button
                 onClick={() => router.back()}
-                className="px-6 h-11 bg-card border border-red-200 dark:border-red-950/40 text-red-600 hover:bg-red-500/10 text-[13px] font-bold rounded-[var(--radius)] transition-all shadow-none select-none outline-none"
+                className="px-6 h-11 bg-card border border-red-200 dark:border-red-950/40 text-red-600 hover:bg-red-500/10 text-[13px] font-bold rounded-[var(--radius)] transition-all shadow-none  outline-none"
               >
                 Cancel
               </button>
@@ -424,7 +424,7 @@ export default function MARAdministerPage() {
                   alert("Administration Submitted Successfully!");
                   router.push(`/staff/schedule/${patientId}`);
                 }}
-                className="px-6 h-11 bg-primary text-white text-[13px] font-bold rounded-[var(--radius)] hover:opacity-90 transition-all shadow-none select-none outline-none"
+                className="px-6 h-11 bg-primary text-white text-[13px] font-bold rounded-[var(--radius)] hover:opacity-90 transition-all shadow-none  outline-none"
               >
                 Confirm & submit
               </button>
