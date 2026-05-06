@@ -16,19 +16,19 @@ export default function PendingTasks() {
   const [activeTab, setActiveTab] = React.useState("Personal");
 
   return (
-    <div className="bg-white dark:bg-[#101935] p-5 rounded-[5px] border border-[#E7E8EB] dark:border-white/10 shadow-none h-full flex flex-col">
+    <div className="bg-card p-5 rounded-lg border border-border shadow-none h-full flex flex-col">
       <div className="flex justify-between items-center mb-6">
-        <h3 className="text-[16px] font-bold text-[#1A1C23] dark:text-white uppercase-none">Pending Tasks</h3>
-        <div className="flex bg-[#F4F5F7] dark:bg-white/5 p-1 rounded-full shrink-0">
+        <h3 className="text-[16px] font-bold text-foreground uppercase tracking-wider">Pending Tasks</h3>
+        <div className="flex bg-muted p-1 rounded-full shrink-0">
           {["Ward", "Personal"].map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={cn(
-                "px-3 py-1 rounded-full text-[9px] font-bold transition-all uppercase-none",
+                "px-3 py-1 rounded-full text-[10px] font-bold transition-all tracking-wider",
                 activeTab === tab 
-                  ? "bg-[#2D3A8C] text-white shadow-none" 
-                  : "text-[#A0AEC0] hover:text-[#2D3A8C]"
+                  ? "bg-primary text-primary-foreground shadow-none" 
+                  : "text-muted-foreground hover:text-primary"
               )}
             >
               {tab}
@@ -40,25 +40,25 @@ export default function PendingTasks() {
       <div className="space-y-6 flex-1 overflow-y-auto no-scrollbar">
         {tasks.map((task) => (
           <div key={task.id} className="flex items-start gap-3 group cursor-pointer">
-            <div className="w-4 h-4 rounded-[3px] border-[1.5px] border-[#E7E8EB] dark:border-white/20 mt-0.5 flex items-center justify-center group-hover:border-[#2D3A8C] transition-colors shrink-0">
-               <div className="w-2 h-2 bg-[#2D3A8C] rounded-[1px] opacity-0 group-hover:opacity-10" />
+            <div className="w-5 h-5 rounded-[4px] border-[1.5px] border-border mt-0.5 flex items-center justify-center group-hover:border-primary transition-colors shrink-0">
+               <div className="w-2.5 h-2.5 bg-primary rounded-[2px] opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
             
             <div className="flex-1 min-w-0">
               <div className="flex justify-between items-start gap-2 mb-1">
-                <p className="text-[12px] font-bold text-[#1A1C23] dark:text-white truncate">
+                <p className="text-[13px] font-bold text-foreground truncate">
                   {task.patient} - {task.action}
                 </p>
                 <span className={cn(
-                  "px-1.5 py-0.5 rounded-[2px] text-[8px] font-bold shrink-0 uppercase-none",
+                  "px-2 py-0.5 rounded-[4px] text-[9px] font-bold shrink-0 tracking-wider",
                   task.status === "Overdue" 
-                    ? "bg-[#FEF2F2] text-[#EF4444]" 
-                    : "bg-[#F3F4FF] text-[#2D3A8C]"
+                    ? "bg-destructive/10 text-destructive" 
+                    : "bg-primary/10 text-primary"
                 )}>
                   {task.status === "Overdue" ? "OVERDUE" : task.time}
                 </span>
               </div>
-              <p className="text-[10px] text-[#A0AEC0] font-medium leading-tight line-clamp-1">
+              <p className="text-[11px] text-muted-foreground font-medium leading-tight line-clamp-1">
                 {task.note}
               </p>
             </div>

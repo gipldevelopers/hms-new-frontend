@@ -32,24 +32,24 @@ function CustomSelect({ value, onChange, options, placeholder, required, classNa
         <button 
           type="button"
           className={cn(
-            "w-full h-[48px] px-4 bg-[#F8F9FC] dark:bg-[#1E293B] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[14px] font-bold text-left flex items-center justify-between outline-none focus:border-primary transition-all",
-            !value && "text-gray-400",
-            value && "text-[#1e293b] dark:text-white",
+            "w-full h-[48px] px-4 bg-muted/50 border border-border rounded-lg text-[14px] font-bold text-left flex items-center justify-between outline-none focus:border-primary transition-all",
+            !value && "text-muted-foreground",
+            value && "text-foreground",
             className
           )}
         >
           <span>{selectedOption ? selectedOption.label : placeholder}</span>
-          <ChevronDown className="w-4 h-4 text-gray-400" />
+          <ChevronDown className="w-4 h-4 text-muted-foreground" />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="w-[var(--radix-dropdown-menu-trigger-width)] border-[#E7E8EB] dark:border-white/10 shadow-xl rounded-[5px] p-1 z-[500]">
+      <DropdownMenuContent align="start" className="w-[var(--radix-dropdown-menu-trigger-width)] border-border shadow-none rounded-lg p-1 z-[500]">
         {options.map((opt) => (
           <DropdownMenuItem 
             key={opt.value} 
             onClick={() => onChange(opt.value)}
             className={cn(
-              "rounded-[5px] text-[13px] font-medium px-3 py-2 cursor-pointer transition-colors",
-              value === opt.value ? "bg-primary/5 text-primary font-bold" : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5"
+              "rounded-lg text-[13px] font-medium px-3 py-2 cursor-pointer transition-colors",
+              value === opt.value ? "bg-primary/5 text-primary font-bold" : "text-muted-foreground hover:bg-muted"
             )}
           >
             {opt.label}
@@ -69,9 +69,9 @@ function CustomDatePicker({ value, onChange, placeholder }) {
         <button 
           type="button"
           className={cn(
-            "w-full h-[48px] px-4 bg-[#F8F9FC] dark:bg-[#1E293B] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[14px] font-bold text-left flex items-center gap-3 outline-none focus:border-primary transition-all",
-            !value && "text-gray-400",
-            value && "text-[#1e293b] dark:text-white"
+            "w-full h-[48px] px-4 bg-muted/50 border border-border rounded-lg text-[14px] font-bold text-left flex items-center gap-3 outline-none focus:border-primary transition-all",
+            !value && "text-muted-foreground",
+            value && "text-foreground"
           )}
         >
           <Calendar className="w-4 h-4 text-primary/50" />
@@ -118,35 +118,35 @@ function CustomTimePicker({ value, onChange, disabled }) {
         <button 
           type="button"
           disabled={disabled}
-          className="w-full h-[48px] px-4 bg-[#F8F9FC] dark:bg-[#1E293B] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[14px] font-bold text-left flex items-center gap-3 outline-none focus:border-primary transition-all disabled:opacity-50"
+          className="w-full h-[48px] px-4 bg-muted/50 border border-border rounded-lg text-[14px] font-bold text-left flex items-center gap-3 outline-none focus:border-primary transition-all disabled:opacity-50"
         >
           <Clock className="w-4 h-4 text-primary/50" />
           {value || "Select Time"}
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="p-0 border-[#E7E8EB] dark:border-white/10 bg-card shadow-2xl z-[600]">
+      <DropdownMenuContent align="start" className="p-0 border-border bg-card shadow-none z-[600]">
         <div className="flex h-[200px]">
-          <div className="w-16 overflow-y-auto border-r border-[#E7E8EB] dark:border-white/10 custom-scrollbar py-1">
+          <div className="w-16 overflow-y-auto border-r border-border custom-scrollbar py-1">
             {hours.map((h) => (
-              <button key={h} type="button" className={cn("w-full py-2 text-[12px] font-bold transition-all", hour === h ? "bg-primary text-white" : "text-muted-foreground hover:bg-muted")} onClick={() => handleSelect(h, minute, period)}>
+              <button key={h} type="button" className={cn("w-full py-2 text-[12px] font-bold transition-all", hour === h ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted")} onClick={() => handleSelect(h, minute, period)}>
                 {h.toString().padStart(2, "0")}
               </button>
             ))}
           </div>
-          <div className="w-16 overflow-y-auto border-r border-[#E7E8EB] dark:border-white/10 custom-scrollbar py-1">
+          <div className="w-16 overflow-y-auto border-r border-border custom-scrollbar py-1">
             {minutes.map((m) => (
-              <button key={m} type="button" className={cn("w-full py-2 text-[12px] font-bold transition-all", minute === parseInt(m) ? "bg-primary text-white" : "text-muted-foreground hover:bg-muted")} onClick={() => handleSelect(hour, parseInt(m), period)}>
+              <button key={m} type="button" className={cn("w-full py-2 text-[12px] font-bold transition-all", minute === parseInt(m) ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted")} onClick={() => handleSelect(hour, parseInt(m), period)}>
                 {m}
               </button>
             ))}
           </div>
           <div className="w-16 flex flex-col py-1">
             {["AM", "PM"].map((p) => (
-              <button key={p} type="button" className={cn("w-full flex-1 text-[11px] font-bold transition-all", period === p ? "bg-primary text-white" : "text-muted-foreground hover:bg-muted")} onClick={() => handleSelect(hour, minute, p)}>
+              <button key={p} type="button" className={cn("w-full flex-1 text-[11px] font-bold transition-all", period === p ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted")} onClick={() => handleSelect(hour, minute, p)}>
                 {p}
               </button>
             ))}
-            <button type="button" className="h-10 border-t border-[#E7E8EB] bg-primary/5 text-primary flex items-center justify-center hover:bg-primary/10" onClick={() => setIsOpen(false)}>
+            <button type="button" className="h-10 border-t border-border bg-primary/5 text-primary flex items-center justify-center hover:bg-primary/10" onClick={() => setIsOpen(false)}>
               <CheckCircle2 className="w-4 h-4" />
             </button>
           </div>
@@ -310,17 +310,17 @@ export default function EditAdmissionPage() {
     }
   };
 
-  if (fetching) return <div className="p-6 text-center text-gray-400 font-bold py-40">Loading patient record...</div>;
+  if (fetching) return <div className="p-6 text-center text-muted-foreground font-bold py-40">Loading patient record...</div>;
 
   return (
-    <div className="p-6 bg-[#F8F9FC] dark:bg-[#0A0F1D] min-h-screen flex flex-col font-sans gap-5">
+    <div className="p-6 bg-background min-h-screen flex flex-col font-sans gap-5">
       
       {/* Page Header */}
       <div className="flex items-center justify-between mb-2">
-        <h1 className="text-[20px] font-bold text-[#1e293b] dark:text-white tracking-tight leading-none">Edit Clinical Admission</h1>
+        <h1 className="text-[20px] font-bold text-foreground tracking-tight leading-none">Edit Clinical Admission</h1>
         <button 
           onClick={() => router.back()}
-          className="h-[44px] px-6 border border-[#E7E8EB] dark:border-white/10 bg-white dark:bg-[#101935] rounded-[5px] text-[13px] font-bold text-gray-500 flex items-center gap-3 hover:bg-gray-50 transition-all shadow-none"
+          className="h-[44px] px-6 border border-border bg-card rounded-lg text-[13px] font-bold text-muted-foreground flex items-center gap-3 hover:bg-muted transition-all shadow-none"
         >
           <ArrowLeft className="w-4 h-4" />
           Back
@@ -328,23 +328,23 @@ export default function EditAdmissionPage() {
       </div>
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-        <div className="bg-white dark:bg-[#101935] rounded-[5px] border border-[#E7E8EB] dark:border-white/10 overflow-hidden shadow-none">
+        <div className="bg-card rounded-lg border border-border overflow-hidden shadow-none">
           <div className="p-5 space-y-12">
             
             {/* Patient Information Section */}
             <div className="space-y-6">
-              <h2 className="text-[16px] font-bold text-[#1e293b] dark:text-white tracking-wider">Patient Information</h2>
+              <h2 className="text-[16px] font-bold text-foreground tracking-wider">Patient Information</h2>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-x-8 gap-y-5">
                 <div className="md:col-span-2 space-y-2">
-                  <label className="text-[12px] font-bold text-gray-600 dark:text-gray-400 ml-1">Patient Full Name</label>
-                  <input required placeholder="Enter patient's full name" className="w-full h-[48px] px-4 bg-[#F8F9FC] dark:bg-[#1E293B] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[14px] font-bold text-[#1e293b] dark:text-white outline-none focus:border-primary transition-all shadow-none" value={formData.patientName} onChange={(e) => setFormData({...formData, patientName: e.target.value})} />
+                  <label className="text-[12px] font-bold text-muted-foreground ml-1">Patient Full Name</label>
+                  <input required placeholder="Enter patient's full name" className="w-full h-[48px] px-4 bg-muted/50 border border-border rounded-lg text-[14px] font-bold text-foreground outline-none focus:border-primary transition-all shadow-none placeholder:text-muted-foreground" value={formData.patientName} onChange={(e) => setFormData({...formData, patientName: e.target.value})} />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[12px] font-bold text-gray-600 dark:text-gray-400 ml-1">Age</label>
-                  <input required type="number" placeholder="e.g. 45" className="w-full h-[48px] px-4 bg-[#F8F9FC] dark:bg-[#1E293B] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[14px] font-bold text-[#1e293b] dark:text-white outline-none focus:border-primary transition-all shadow-none" value={formData.patientAge} onChange={(e) => setFormData({...formData, patientAge: e.target.value})} />
+                  <label className="text-[12px] font-bold text-muted-foreground ml-1">Age</label>
+                  <input required type="number" placeholder="e.g. 45" className="w-full h-[48px] px-4 bg-muted/50 border border-border rounded-lg text-[14px] font-bold text-foreground outline-none focus:border-primary transition-all shadow-none placeholder:text-muted-foreground" value={formData.patientAge} onChange={(e) => setFormData({...formData, patientAge: e.target.value})} />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[12px] font-bold text-gray-600 dark:text-gray-400 ml-1">Gender</label>
+                  <label className="text-[12px] font-bold text-muted-foreground ml-1">Gender</label>
                   <CustomSelect 
                     value={formData.patientGender}
                     onChange={(val) => setFormData({...formData, patientGender: val})}
@@ -358,31 +358,31 @@ export default function EditAdmissionPage() {
                 </div>
                 
                 <div className="md:col-span-2 space-y-2">
-                  <label className="text-[12px] font-bold text-gray-600 dark:text-gray-400 ml-1">Contact Number</label>
-                  <input required placeholder="+1 (000) 000-0000" className="w-full h-[48px] px-4 bg-[#F8F9FC] dark:bg-[#1E293B] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[14px] font-bold text-[#1e293b] dark:text-white outline-none focus:border-primary transition-all shadow-none" value={formData.patientContact} onChange={(e) => setFormData({...formData, patientContact: e.target.value})} />
+                  <label className="text-[12px] font-bold text-muted-foreground ml-1">Contact Number</label>
+                  <input required placeholder="+1 (000) 000-0000" className="w-full h-[48px] px-4 bg-muted/50 border border-border rounded-lg text-[14px] font-bold text-foreground outline-none focus:border-primary transition-all shadow-none placeholder:text-muted-foreground" value={formData.patientContact} onChange={(e) => setFormData({...formData, patientContact: e.target.value})} />
                 </div>
                 <div className="md:col-span-2 space-y-2">
-                  <label className="text-[12px] font-bold text-gray-600 dark:text-gray-400 ml-1">Email Address (Optional)</label>
-                  <input type="email" placeholder="patient@email.com" className="w-full h-[48px] px-4 bg-[#F8F9FC] dark:bg-[#1E293B] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[14px] font-bold text-[#1e293b] dark:text-white outline-none focus:border-primary transition-all shadow-none" value={formData.patientEmail} onChange={(e) => setFormData({...formData, patientEmail: e.target.value})} />
+                  <label className="text-[12px] font-bold text-muted-foreground ml-1">Email Address (Optional)</label>
+                  <input type="email" placeholder="patient@email.com" className="w-full h-[48px] px-4 bg-muted/50 border border-border rounded-lg text-[14px] font-bold text-foreground outline-none focus:border-primary transition-all shadow-none placeholder:text-muted-foreground" value={formData.patientEmail} onChange={(e) => setFormData({...formData, patientEmail: e.target.value})} />
                 </div>
 
                 <div className="md:col-span-2 space-y-2">
-                  <label className="text-[12px] font-bold text-gray-600 dark:text-gray-400 ml-1">Emergency Contact Name</label>
-                  <input placeholder="Name of relative" className="w-full h-[48px] px-4 bg-[#F8F9FC] dark:bg-[#1E293B] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[14px] font-bold text-[#1e293b] dark:text-white outline-none focus:border-primary transition-all shadow-none" value={formData.emergencyContactName} onChange={(e) => setFormData({...formData, emergencyContactName: e.target.value})} />
+                  <label className="text-[12px] font-bold text-muted-foreground ml-1">Emergency Contact Name</label>
+                  <input placeholder="Name of relative" className="w-full h-[48px] px-4 bg-muted/50 border border-border rounded-lg text-[14px] font-bold text-foreground outline-none focus:border-primary transition-all shadow-none placeholder:text-muted-foreground" value={formData.emergencyContactName} onChange={(e) => setFormData({...formData, emergencyContactName: e.target.value})} />
                 </div>
                 <div className="md:col-span-2 space-y-2">
-                  <label className="text-[12px] font-bold text-gray-600 dark:text-gray-400 ml-1">Emergency Contact Phone</label>
-                  <input placeholder="+1 (000) 000-0000" className="w-full h-[48px] px-4 bg-[#F8F9FC] dark:bg-[#1E293B] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[14px] font-bold text-[#1e293b] dark:text-white outline-none focus:border-primary transition-all shadow-none" value={formData.emergencyContactPhone} onChange={(e) => setFormData({...formData, emergencyContactPhone: e.target.value})} />
+                  <label className="text-[12px] font-bold text-muted-foreground ml-1">Emergency Contact Phone</label>
+                  <input placeholder="+1 (000) 000-0000" className="w-full h-[48px] px-4 bg-muted/50 border border-border rounded-lg text-[14px] font-bold text-foreground outline-none focus:border-primary transition-all shadow-none placeholder:text-muted-foreground" value={formData.emergencyContactPhone} onChange={(e) => setFormData({...formData, emergencyContactPhone: e.target.value})} />
                 </div>
               </div>
             </div>
 
             {/* Admission Details Section */}
             <div className="space-y-6">
-              <h2 className="text-[16px] font-bold text-[#1e293b] dark:text-white tracking-wider">Admission Details</h2>
+              <h2 className="text-[16px] font-bold text-foreground tracking-wider">Admission Details</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
                 <div className="space-y-2">
-                  <label className="text-[12px] font-bold text-gray-600 dark:text-gray-400 ml-1">Department</label>
+                  <label className="text-[12px] font-bold text-muted-foreground ml-1">Department</label>
                   <CustomSelect 
                     value={formData.departmentId}
                     onChange={handleDeptChange}
@@ -391,7 +391,7 @@ export default function EditAdmissionPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[12px] font-bold text-gray-600 dark:text-gray-400 ml-1">Assigned Doctor</label>
+                  <label className="text-[12px] font-bold text-muted-foreground ml-1">Assigned Doctor</label>
                   <CustomSelect 
                     value={formData.doctorId}
                     onChange={(val) => setFormData({...formData, doctorId: val})}
@@ -402,7 +402,7 @@ export default function EditAdmissionPage() {
                 
                 <div className="grid grid-cols-2 gap-5">
                    <div className="space-y-2">
-                    <label className="text-[12px] font-bold text-gray-600 dark:text-gray-400 ml-1">Admission Date & Time</label>
+                    <label className="text-[12px] font-bold text-muted-foreground ml-1">Admission Date & Time</label>
                     <CustomDatePicker 
                       value={formData.admissionDate}
                       onChange={(date) => setFormData({...formData, admissionDate: date})}
@@ -418,7 +418,7 @@ export default function EditAdmissionPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[12px] font-bold text-gray-600 dark:text-gray-400 ml-1">Admission Status</label>
+                  <label className="text-[12px] font-bold text-muted-foreground ml-1">Admission Status</label>
                   <CustomSelect 
                     value={formData.status}
                     onChange={(val) => setFormData({...formData, status: val})}
@@ -433,7 +433,7 @@ export default function EditAdmissionPage() {
 
                 {/* Ward and Bed - kept for functionality */}
                 <div className="space-y-2">
-                  <label className="text-[12px] font-bold text-gray-600 dark:text-gray-400 ml-1">Select Ward</label>
+                  <label className="text-[12px] font-bold text-muted-foreground ml-1">Select Ward</label>
                   <CustomSelect 
                     value={formData.wardId}
                     onChange={handleWardChange}
@@ -442,7 +442,7 @@ export default function EditAdmissionPage() {
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[12px] font-bold text-gray-600 dark:text-gray-400 ml-1">Available Bed</label>
+                  <label className="text-[12px] font-bold text-muted-foreground ml-1">Available Bed</label>
                   <CustomSelect 
                     value={formData.bedId}
                     onChange={(val) => setFormData({...formData, bedId: val})}
@@ -452,26 +452,26 @@ export default function EditAdmissionPage() {
                 </div>
 
                 <div className="col-span-1 md:col-span-2 space-y-2">
-                  <label className="text-[12px] font-bold text-gray-600 dark:text-gray-400 ml-1">Reason for Admission & Notes</label>
-                  <textarea placeholder="Enter diagnosis, symptoms, or special instructions here..." className="w-full min-h-[120px] p-4 bg-[#F8F9FC] dark:bg-[#1E293B] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[14px] font-bold text-[#1e293b] dark:text-white outline-none focus:border-primary transition-all shadow-none resize-none" value={formData.reason} onChange={(e) => setFormData({...formData, reason: e.target.value})} />
+                  <label className="text-[12px] font-bold text-muted-foreground ml-1">Reason for Admission & Notes</label>
+                  <textarea placeholder="Enter diagnosis, symptoms, or special instructions here..." className="w-full min-h-[120px] p-4 bg-muted/50 border border-border rounded-lg text-[14px] font-bold text-foreground outline-none focus:border-primary transition-all shadow-none resize-none placeholder:text-muted-foreground" value={formData.reason} onChange={(e) => setFormData({...formData, reason: e.target.value})} />
                 </div>
               </div>
             </div>
           </div>
 
           {/* Action Footer */}
-          <div className="p-6 bg-gray-50 dark:bg-white/[0.02] border-t border-[#E7E8EB] dark:border-white/5 flex justify-between items-center">
+          <div className="p-6 bg-muted/30 border-t border-border flex justify-between items-center">
             <button 
               type="button" 
               onClick={() => setShowDeleteModal(true)}
-              className="flex items-center gap-2 text-[12px] font-bold text-rose-500 hover:text-rose-600 transition-colors tracking-wider"
+              className="flex items-center gap-2 text-[12px] font-bold text-destructive hover:text-destructive/90 transition-colors tracking-wider"
             >
               <Trash2 className="w-4 h-4" />
               Delete Record
             </button>
             <div className="flex items-center gap-4">
-              <button type="button" onClick={() => router.back()} className="h-[48px] px-8 bg-white dark:bg-transparent border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[12px] font-bold text-gray-500 hover:bg-gray-50 transition-all shadow-none">Cancel</button>
-              <button type="submit" disabled={loading} className="h-[48px] px-10 bg-[#2D3A8C] text-white rounded-[5px] text-[12px] font-bold flex items-center justify-center gap-3 hover:opacity-95 transition-all disabled:opacity-50 shadow-none"><Check className="w-4 h-4" />{loading ? "Updating..." : "Update Record"}</button>
+              <button type="button" onClick={() => router.back()} className="h-[48px] px-8 bg-transparent border border-border rounded-lg text-[12px] font-bold text-muted-foreground hover:bg-muted transition-all shadow-none">Cancel</button>
+              <button type="submit" disabled={loading} className="h-[48px] px-10 bg-primary text-primary-foreground rounded-lg text-[12px] font-bold flex items-center justify-center gap-3 hover:bg-primary/90 transition-all disabled:opacity-50 shadow-none"><Check className="w-4 h-4" />{loading ? "Updating..." : "Update Record"}</button>
             </div>
           </div>
         </div>
@@ -490,29 +490,29 @@ export default function EditAdmissionPage() {
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="relative bg-white dark:bg-[#101935] w-full max-w-[380px] rounded-[12px] overflow-hidden shadow-2xl border border-gray-100 dark:border-white/5"
+              className="relative bg-card w-full max-w-[380px] rounded-[12px] overflow-hidden shadow-none border border-border"
             >
               <div className="p-8 flex flex-col items-center text-center">
-                <div className="w-14 h-14 bg-rose-50 dark:bg-rose-500/10 rounded-full flex items-center justify-center mb-4">
-                  <Trash2 className="w-7 h-7 text-rose-500" />
+                <div className="w-14 h-14 bg-destructive/10 rounded-full flex items-center justify-center mb-4">
+                  <Trash2 className="w-7 h-7 text-destructive" />
                 </div>
-                <h3 className="text-[18px] font-bold text-[#1e293b] dark:text-white mb-2">Delete Admission Record?</h3>
-                <p className="text-[13px] text-gray-500 dark:text-gray-400 leading-relaxed max-w-[280px]">
-                  Are you sure you want to delete this clinical record? <span className="font-bold text-gray-700 dark:text-gray-200">This action cannot be undone.</span>
+                <h3 className="text-[18px] font-bold text-foreground mb-2">Delete Admission Record?</h3>
+                <p className="text-[13px] text-muted-foreground leading-relaxed max-w-[280px]">
+                  Are you sure you want to delete this clinical record? <span className="font-bold text-foreground">This action cannot be undone.</span>
                 </p>
               </div>
 
-              <div className="flex border-t border-gray-100 dark:border-white/5">
+              <div className="flex border-t border-border">
                 <button 
                   onClick={() => setShowDeleteModal(false)}
-                  className="flex-1 py-4 text-[13px] font-bold text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors border-r border-gray-100 dark:border-white/5"
+                  className="flex-1 py-4 text-[13px] font-bold text-muted-foreground hover:bg-muted transition-colors border-r border-border"
                 >
                   Cancel
                 </button>
                 <button 
                   onClick={handleDelete}
                   disabled={isDeleting}
-                  className="flex-1 py-4 text-[13px] font-bold text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/5 transition-colors disabled:opacity-50"
+                  className="flex-1 py-4 text-[13px] font-bold text-destructive hover:bg-destructive/5 transition-colors disabled:opacity-50"
                 >
                   {isDeleting ? "Deleting..." : "Delete"}
                 </button>

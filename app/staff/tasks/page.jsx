@@ -24,7 +24,7 @@ function CustomSelect({ value, onChange, options, placeholder, minWidth = "140px
       <DropdownMenuTrigger asChild>
         <button
           type="button"
-          className="h-10 px-3 bg-card border border-border rounded-[var(--radius)] text-[13px] font-medium text-foreground flex items-center gap-2 hover:bg-muted transition-all outline-none w-full sm:w-auto shadow-none"
+          className="h-10 px-3 bg-card border border-border rounded-lg text-[13px] font-medium text-foreground flex items-center gap-2 hover:bg-muted transition-all outline-none w-full sm:w-auto shadow-none"
           style={{ minWidth }}
         >
           {Icon && <Icon className="w-4 h-4 text-muted-foreground shrink-0" />}
@@ -32,10 +32,10 @@ function CustomSelect({ value, onChange, options, placeholder, minWidth = "140px
           <ChevronDown className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="min-w-[140px] border border-border bg-card rounded-[var(--radius)] p-1 z-[500] shadow-none">
+      <DropdownMenuContent align="end" className="min-w-[140px] border border-border bg-card rounded-lg p-1 z-[500] shadow-none">
         <DropdownMenuItem
           onClick={() => onChange("")}
-          className={cn("rounded-[var(--radius)] text-[13px] font-medium px-3 py-2 cursor-pointer", !value ? "bg-accent text-accent-foreground font-semibold" : "text-foreground hover:bg-muted")}
+          className={cn("rounded-lg text-[13px] font-medium px-3 py-2 cursor-pointer", !value ? "bg-accent text-accent-foreground font-semibold" : "text-foreground hover:bg-muted")}
         >
           All
         </DropdownMenuItem>
@@ -43,7 +43,7 @@ function CustomSelect({ value, onChange, options, placeholder, minWidth = "140px
           <DropdownMenuItem
             key={opt.value}
             onClick={() => onChange(opt.value)}
-            className={cn("rounded-[var(--radius)] text-[13px] font-medium px-3 py-2 cursor-pointer flex items-center justify-between", value === opt.value ? "bg-accent text-accent-foreground font-semibold" : "text-foreground hover:bg-muted")}
+            className={cn("rounded-lg text-[13px] font-medium px-3 py-2 cursor-pointer flex items-center justify-between", value === opt.value ? "bg-accent text-accent-foreground font-semibold" : "text-foreground hover:bg-muted")}
           >
             {opt.label}
             {value === opt.value && <Check className="w-3.5 h-3.5 text-foreground" />}
@@ -55,15 +55,15 @@ function CustomSelect({ value, onChange, options, placeholder, minWidth = "140px
 }
 
 const priorityClass = (p) => ({
-  HIGH:   "bg-destructive/10 text-destructive border border-destructive/20 font-medium text-[11px] px-2.5 py-0.5 rounded-[var(--radius)] inline-flex shadow-none",
-  MEDIUM: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 font-medium text-[11px] px-2.5 py-0.5 rounded-[var(--radius)] inline-flex shadow-none",
-  LOW:    "bg-muted text-muted-foreground border border-border font-medium text-[11px] px-2.5 py-0.5 rounded-[var(--radius)] inline-flex shadow-none",
+  HIGH:   "bg-destructive/10 text-destructive border border-destructive/20 font-medium text-[11px] px-2.5 py-0.5 rounded-lg inline-flex shadow-none",
+  MEDIUM: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 font-medium text-[11px] px-2.5 py-0.5 rounded-lg inline-flex shadow-none",
+  LOW:    "bg-muted text-muted-foreground border border-border font-medium text-[11px] px-2.5 py-0.5 rounded-lg inline-flex shadow-none",
 }[p] ?? "text-muted-foreground text-[11px]");
 
 const statusBadge = (s) => ({
-  "In Progress": "bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 rounded-[var(--radius)] font-medium px-2.5 py-0.5 text-[11px] inline-flex shadow-none",
-  "Pending":     "bg-muted text-muted-foreground border border-border rounded-[var(--radius)] font-medium px-2.5 py-0.5 text-[11px] inline-flex shadow-none",
-  "Completed":   "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 rounded-[var(--radius)] font-medium px-2.5 py-0.5 text-[11px] inline-flex shadow-none",
+  "In Progress": "bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 rounded-lg font-medium px-2.5 py-0.5 text-[11px] inline-flex shadow-none",
+  "Pending":     "bg-muted text-muted-foreground border border-border rounded-lg font-medium px-2.5 py-0.5 text-[11px] inline-flex shadow-none",
+  "Completed":   "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 rounded-lg font-medium px-2.5 py-0.5 text-[11px] inline-flex shadow-none",
 }[s] ?? "bg-muted text-muted-foreground border-border");
 
 const dueClass = (due, status) => {
@@ -154,18 +154,18 @@ function AddTaskModal({ onClose, onSave }) {
       <motion.div
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
         onClick={onClose}
-        className="absolute inset-0 bg-slate-900/40 backdrop-blur-[4px]"
+        className="absolute inset-0 bg-background/80 backdrop-blur-[4px]"
       />
       <motion.div
         initial={{ scale: 0.95, opacity: 0, y: 16 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.95, opacity: 0, y: 16 }}
-        className="relative bg-card w-full max-w-[520px] rounded-[var(--radius)] border border-border overflow-hidden shadow-none"
+        className="relative bg-card w-full max-w-[520px] rounded-lg border border-border overflow-hidden shadow-none"
       >
         {/* Modal Header */}
         <div className="flex items-center justify-between px-5 py-4 border-b border-border">
           <h2 className="text-[16px] font-bold text-foreground">Create New Task</h2>
-          <button onClick={onClose} className="p-1.5 hover:bg-muted rounded-[var(--radius)] transition-colors">
+          <button onClick={onClose} className="p-1.5 hover:bg-muted rounded-lg transition-colors">
             <X className="w-4 h-4 text-muted-foreground" />
           </button>
         </div>
@@ -182,7 +182,7 @@ function AddTaskModal({ onClose, onSave }) {
               <button
                 type="button"
                 onClick={() => setPatientOpen(!patientOpen)}
-                className="w-full h-11 px-4 bg-muted border border-border rounded-[var(--radius)] text-[13px] font-medium text-left flex items-center justify-between outline-none focus:border-primary transition-all shadow-none"
+                className="w-full h-11 px-4 bg-muted border border-border rounded-lg text-[13px] font-medium text-left flex items-center justify-between outline-none focus:border-primary transition-all shadow-none"
               >
                 <span className={selectedPatient ? "text-foreground font-semibold" : "text-muted-foreground"}>
                   {selectedPatient ? `${selectedPatient.name} — Bed ${selectedPatient.bed}` : "Search by name or bed..."}
@@ -190,7 +190,7 @@ function AddTaskModal({ onClose, onSave }) {
                 <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
               </button>
               {patientOpen && (
-                <div className="absolute top-12 left-0 right-0 z-50 bg-card border border-border rounded-[var(--radius)] overflow-hidden shadow-none">
+                <div className="absolute top-12 left-0 right-0 z-50 bg-card border border-border rounded-lg overflow-hidden shadow-none">
                   <div className="p-2 border-b border-border">
                     <input
                       autoFocus
@@ -198,7 +198,7 @@ function AddTaskModal({ onClose, onSave }) {
                       placeholder="Search by name or bed..."
                       value={patientSearch}
                       onChange={(e) => setPatientSearch(e.target.value)}
-                      className="w-full h-9 px-3 bg-muted border border-border rounded-[var(--radius)] text-[13px] outline-none shadow-none text-foreground"
+                      className="w-full h-9 px-3 bg-muted border border-border rounded-lg text-[13px] outline-none shadow-none text-foreground"
                     />
                   </div>
                   <div className="max-h-[180px] overflow-y-auto no-scrollbar">
@@ -228,7 +228,7 @@ function AddTaskModal({ onClose, onSave }) {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Administer Medication"
-              className="w-full h-11 px-4 bg-muted border border-border rounded-[var(--radius)] text-[13px] font-medium text-foreground outline-none focus:border-primary transition-all shadow-none"
+              className="w-full h-11 px-4 bg-muted border border-border rounded-lg text-[13px] font-medium text-foreground outline-none focus:border-primary transition-all shadow-none"
             />
           </div>
 
@@ -242,7 +242,7 @@ function AddTaskModal({ onClose, onSave }) {
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Add details about the task..."
               rows={3}
-              className="w-full px-4 py-3 bg-muted border border-border rounded-[var(--radius)] text-[13px] font-medium text-foreground outline-none focus:border-primary transition-all resize-none shadow-none"
+              className="w-full px-4 py-3 bg-muted border border-border rounded-lg text-[13px] font-medium text-foreground outline-none focus:border-primary transition-all resize-none shadow-none"
             />
           </div>
 
@@ -257,7 +257,7 @@ function AddTaskModal({ onClose, onSave }) {
                 value={bedLabel}
                 onChange={(e) => setBedLabel(e.target.value)}
                 placeholder="e.g. A-12"
-                className="w-full h-11 px-4 bg-muted border border-border rounded-[var(--radius)] text-[13px] font-medium text-foreground outline-none focus:border-primary transition-all shadow-none"
+                className="w-full h-11 px-4 bg-muted border border-border rounded-lg text-[13px] font-medium text-foreground outline-none focus:border-primary transition-all shadow-none"
               />
             </div>
 
@@ -269,13 +269,13 @@ function AddTaskModal({ onClose, onSave }) {
                 <button
                   type="button"
                   onClick={() => setPriorityOpen(!priorityOpen)}
-                  className="w-full h-11 px-4 bg-muted border border-border rounded-[var(--radius)] text-[13px] font-medium text-left flex items-center justify-between outline-none focus:border-primary transition-all shadow-none text-foreground"
+                  className="w-full h-11 px-4 bg-muted border border-border rounded-lg text-[13px] font-medium text-left flex items-center justify-between outline-none focus:border-primary transition-all shadow-none text-foreground"
                 >
                   {priority}
                   <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
                 </button>
                 {priorityOpen && (
-                  <div className="absolute top-12 left-0 right-0 z-50 bg-card border border-border rounded-[var(--radius)] overflow-hidden shadow-none">
+                  <div className="absolute top-12 left-0 right-0 z-50 bg-card border border-border rounded-lg overflow-hidden shadow-none">
                     {["HIGH", "MEDIUM", "LOW"].map((p) => (
                       <button
                         key={p}
@@ -302,7 +302,7 @@ function AddTaskModal({ onClose, onSave }) {
                 value={dueDate}
                 onChange={(e) => setDueDate(e.target.value)}
                 placeholder="e.g. Today, 10:30 AM"
-                className="w-full h-11 px-4 bg-muted border border-border rounded-[var(--radius)] text-[13px] font-medium text-foreground outline-none focus:border-primary transition-all shadow-none"
+                className="w-full h-11 px-4 bg-muted border border-border rounded-lg text-[13px] font-medium text-foreground outline-none focus:border-primary transition-all shadow-none"
               />
             </div>
 
@@ -314,13 +314,13 @@ function AddTaskModal({ onClose, onSave }) {
                 <button
                   type="button"
                   onClick={() => setNurseOpen(!nurseOpen)}
-                  className="w-full h-11 px-4 bg-muted border border-border rounded-[var(--radius)] text-[13px] font-medium text-left flex items-center justify-between outline-none focus:border-primary transition-all shadow-none text-foreground"
+                  className="w-full h-11 px-4 bg-muted border border-border rounded-lg text-[13px] font-medium text-left flex items-center justify-between outline-none focus:border-primary transition-all shadow-none text-foreground"
                 >
                   <span className="truncate">{assignNurse}</span>
                   <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
                 </button>
                 {nurseOpen && (
-                  <div className="absolute top-12 left-0 right-0 z-50 bg-card border border-border rounded-[var(--radius)] overflow-hidden shadow-none">
+                  <div className="absolute top-12 left-0 right-0 z-50 bg-card border border-border rounded-lg overflow-hidden shadow-none">
                     <button
                       onClick={() => { setAssignNurse("Unassigned"); setNurseOpen(false); }}
                       className="w-full px-4 py-2 text-left text-[13px] font-medium hover:bg-muted text-foreground"
@@ -348,13 +348,13 @@ function AddTaskModal({ onClose, onSave }) {
         <div className="flex items-center justify-end gap-3 px-5 py-4 border-t border-border bg-muted/30">
           <button
             onClick={onClose}
-            className="h-10 px-4 border border-border hover:bg-muted text-foreground rounded-[var(--radius)] text-[13px] font-semibold transition-all shadow-none"
+            className="h-10 px-4 border border-border hover:bg-muted text-foreground rounded-lg text-[13px] font-semibold transition-all shadow-none"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
-            className="h-10 px-4 bg-primary hover:bg-primary/90 text-primary-foreground rounded-[var(--radius)] text-[13px] font-semibold transition-all shadow-none"
+            className="h-10 px-4 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg text-[13px] font-semibold transition-all shadow-none"
           >
             Create Task
           </button>
@@ -416,20 +416,20 @@ export default function TasksPage() {
         </h1>
         <button
           onClick={() => setShowModal(true)}
-          className="bg-primary hover:bg-primary/90 text-primary-foreground h-10 px-4 rounded-[var(--radius)] text-[13px] font-semibold flex items-center justify-center gap-1.5 transition-all w-full sm:w-auto shadow-none"
+          className="bg-primary hover:bg-primary/90 text-primary-foreground h-10 px-4 rounded-lg text-[13px] font-semibold flex items-center justify-center gap-1.5 transition-all w-full sm:w-auto shadow-none"
         >
           <Plus className="w-4 h-4" /> Add Task
         </button>
       </div>
 
       {/* ── Filter Bar ── */}
-      <div className="flex flex-col xl:flex-row justify-between items-stretch xl:items-center gap-5 bg-card text-card-foreground p-4 border border-border rounded-[var(--radius)] shadow-none">
+      <div className="flex flex-col xl:flex-row justify-between items-stretch xl:items-center gap-5 bg-card text-card-foreground p-4 border border-border rounded-lg shadow-none">
         <div className="relative w-full sm:w-[240px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
           <input
             type="text"
             placeholder="Search..."
-            className="w-full h-10 pl-9 pr-4 bg-background border border-border rounded-[var(--radius)] text-[13px] font-normal focus:border-primary transition-all outline-none text-foreground placeholder:text-muted-foreground shadow-none"
+            className="w-full h-10 pl-9 pr-4 bg-background border border-border rounded-lg text-[13px] font-normal focus:border-primary transition-all outline-none text-foreground placeholder:text-muted-foreground shadow-none"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -445,13 +445,13 @@ export default function TasksPage() {
       {/* ── Mobile Card View ── */}
       <div className="grid grid-cols-1 gap-5 md:hidden">
         {filtered.map((task) => (
-          <div key={task.id} className="bg-card text-card-foreground p-5 rounded-[var(--radius)] border border-border shadow-none">
+          <div key={task.id} className="bg-card text-card-foreground p-5 rounded-lg border border-border shadow-none">
             <div className="flex justify-between items-start mb-3">
               <div>
                 <p className="text-[15px] font-bold text-foreground leading-tight">{task.patient}</p>
-                <p className="text-[11px] text-blue-600 dark:text-blue-400 font-bold mt-0.5">{task.bed}</p>
+                <p className="text-[11px] text-primary font-bold mt-0.5">{task.bed}</p>
               </div>
-              <span className={cn("px-2.5 py-1 rounded-[var(--radius)] text-[11px] font-medium border inline-flex", statusBadge(task.status))}>
+              <span className={cn("px-2.5 py-1 rounded-lg text-[11px] font-medium border inline-flex", statusBadge(task.status))}>
                 {task.status}
               </span>
             </div>
@@ -463,7 +463,7 @@ export default function TasksPage() {
               </div>
               <button
                 onClick={() => router.push(`/staff/tasks/${task.id}`)}
-                className="p-2 hover:bg-muted rounded-[var(--radius)] transition-colors shadow-none"
+                className="p-2 hover:bg-muted rounded-lg transition-colors shadow-none"
               >
                 <Eye className="w-4 h-4 text-foreground" />
               </button>
@@ -473,7 +473,7 @@ export default function TasksPage() {
       </div>
 
       {/* ── Desktop Table View ── */}
-      <div className="hidden md:block bg-card text-card-foreground rounded-[var(--radius)] border border-border overflow-hidden shadow-none">
+      <div className="hidden md:block bg-card text-card-foreground rounded-lg border border-border overflow-hidden shadow-none">
         <div className="overflow-x-auto no-scrollbar">
           <table className="w-full border-collapse">
             <thead>
@@ -495,7 +495,7 @@ export default function TasksPage() {
                     <span className="text-[14px] font-semibold text-foreground">{task.patient}</span>
                   </td>
                   <td className="px-6 py-4">
-                    <span className="text-[13px] font-semibold text-blue-600 dark:text-blue-400">{task.bed}</span>
+                    <span className="text-[13px] font-semibold text-primary">{task.bed}</span>
                   </td>
                   <td className="px-6 py-4">
                     <span className="text-[14px] font-semibold text-foreground">{task.title}</span>
@@ -517,7 +517,7 @@ export default function TasksPage() {
                   <td className="px-6 py-4 text-center">
                     <button
                       onClick={() => router.push(`/staff/tasks/${task.id}`)}
-                      className="p-2 hover:bg-muted rounded-[var(--radius)] transition-colors inline-flex text-foreground shadow-none"
+                      className="p-2 hover:bg-muted rounded-lg transition-colors inline-flex text-foreground shadow-none"
                       title="View task"
                     >
                       <Eye className="w-4.5 h-4.5" />

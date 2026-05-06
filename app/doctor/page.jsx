@@ -12,15 +12,15 @@ import AdmittedPatientsTable from "@/components/doctor/dashboard/AdmittedPatient
 
 export default function DoctorDashboard() {
   return (
-    <div className="p-4 sm:p-5 bg-[#F8F9FA] dark:bg-[#0B1121] min-h-screen flex flex-col space-y-6 transition-colors duration-300 font-sans pb-20">
+    <div className="p-4 sm:p-5 bg-background min-h-screen flex flex-col gap-6 transition-colors duration-300 font-sans pb-20">
       
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-        <h1 className="text-[20px] font-bold text-[#1A1C23] dark:text-white tracking-tight leading-none">
+        <h1 className="text-[20px] font-bold text-foreground tracking-tight leading-none">
           Doctor Dashboard
         </h1>
         <button 
-          className="h-[40px] px-4 rounded-[5px] text-[13px] font-bold flex items-center justify-center gap-2 bg-[#2D3A8C] text-white hover:opacity-90 transition-all shadow-none"
+          className="h-10 px-4 rounded-lg text-[13px] font-bold flex items-center justify-center gap-2 bg-primary text-primary-foreground hover:opacity-90 transition-all shadow-none"
         >
           <Plus className="w-4 h-4" />
           New Appointment

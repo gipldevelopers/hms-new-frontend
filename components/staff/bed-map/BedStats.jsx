@@ -24,18 +24,18 @@ export default function BedStats({ stats }) {
       {displayStats.map((stat, idx) => (
         <div 
           key={idx} 
-          className="bg-white dark:bg-[#101935] p-5 rounded-[5px] border border-[#E7E8EB] dark:border-white/10 flex items-center justify-between group transition-all"
+          className="bg-card p-5 rounded-lg border border-border flex items-center justify-between group transition-all"
         >
           <div className="space-y-1">
-            <p className="text-[12px] font-medium text-[#5E6C84] dark:text-slate-400 uppercase-none leading-none">
+            <p className="text-[12px] font-medium text-muted-foreground uppercase-none leading-none">
               {stat.label}
             </p>
-            <p className="text-[28px] font-bold text-[#1A1C23] dark:text-white leading-none">
+            <p className="text-[28px] font-bold text-foreground leading-none">
               {stat.value}
             </p>
           </div>
           <div className={cn(
-            "w-10 h-10 rounded-[5px] flex items-center justify-center transition-colors",
+            "w-10 h-10 rounded-lg flex items-center justify-center transition-colors",
             stat.color === "indigo" && "bg-indigo-50 text-indigo-600 dark:bg-indigo-500/10 dark:text-indigo-400",
             stat.color === "rose" && "bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400",
             stat.color === "blue" && "bg-blue-50 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400",

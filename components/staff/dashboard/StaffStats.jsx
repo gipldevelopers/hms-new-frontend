@@ -13,61 +13,61 @@ import { cn } from "@/lib/utils";
 
 function StatCard({ title, value, icon: Icon, percentage, details, trend, iconBg, iconColor }) {
   return (
-    <div className="bg-white dark:bg-[#101935] p-3.5 rounded-[5px] border border-[#E7E8EB] dark:border-white/10 flex flex-col justify-between shadow-none transition-all h-full">
-      <div className="flex justify-between items-start mb-2">
-        <div className={cn("w-7 h-7 rounded-full flex items-center justify-center", iconBg, iconColor)}>
-          <Icon className="w-3.5 h-3.5" />
+    <div className="bg-card p-4 rounded-lg border border-border flex flex-col justify-between shadow-none transition-all h-full">
+      <div className="flex justify-between items-start mb-3">
+        <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center", iconBg, iconColor)}>
+          <Icon className="w-4 h-4" />
         </div>
         {trend && (
-          <div className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#F0F3FF] dark:bg-primary/10 text-[#2D3A8C] dark:text-primary border border-blue-50 dark:border-primary/20">
+          <div className="flex items-center gap-1 px-2.5 py-0.5 rounded-lg text-[10px] font-bold bg-accent text-accent-foreground border border-border">
             {trend}
             <TrendingUp className="w-3 h-3" />
           </div>
         )}
       </div>
       
-      <div className="space-y-0.5 mb-3">
-        <p className="text-[12px] font-medium text-[#5E6C84] dark:text-slate-400 uppercase-none">{title}</p>
-        <p className="text-[22px] font-bold text-[#1A1C23] dark:text-white leading-tight">{value}</p>
+      <div className="space-y-0.5 mb-4">
+        <p className="text-[12px] font-medium text-muted-foreground uppercase tracking-wider">{title}</p>
+        <p className="text-[24px] font-bold text-foreground leading-tight">{value}</p>
       </div>
 
-      <div className="pt-3 border-t border-[#F8F9FA] dark:border-white/5">
+      <div className="pt-4 border-t border-border">
         {percentage !== undefined ? (
-          <div className="space-y-1.5">
-            <div className="h-1 w-full bg-[#F4F5F7] dark:bg-white/5 rounded-full overflow-hidden">
+          <div className="space-y-2">
+            <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
                <div 
-                 className="h-full bg-[#FF7D3F] rounded-full transition-all duration-500" 
+                 className="h-full bg-primary rounded-full transition-all duration-500" 
                  style={{ width: `${percentage}%` }} 
                />
             </div>
-            <p className="text-[11px] text-[#A0AEC0] font-medium uppercase-none leading-none">{percentage}% capacity utilized</p>
+            <p className="text-[11px] text-muted-foreground font-medium leading-none">{percentage}% capacity utilized</p>
           </div>
         ) : title === "Active Alerts" ? (
           <div className="flex items-center gap-2">
-             <div className="flex -space-x-1.5">
+             <div className="flex -space-x-2">
                 {["RK", "PS"].map((name, i) => (
-                  <div key={i} className={cn(
-                    "w-6 h-6 rounded-full border border-white dark:border-[#101935] flex items-center justify-center text-[8px] font-bold text-white",
-                    i === 0 ? "bg-[#B0B8E8]" : "bg-[#C4C9F2]"
-                  )}>
-                    {name}
-                  </div>
+                   <div key={i} className={cn(
+                     "w-7 h-7 rounded-lg border border-card flex items-center justify-center text-[10px] font-bold text-white",
+                     i === 0 ? "bg-blue-500" : "bg-purple-500"
+                   )}>
+                     {name}
+                   </div>
                 ))}
-                <div className="w-6 h-6 rounded-full border border-white dark:border-[#101935] bg-[#F4F5F7] dark:bg-white/10 flex items-center justify-center text-[8px] font-bold text-[#A0AEC0]">
+                <div className="w-7 h-7 rounded-lg border border-card bg-muted flex items-center justify-center text-[10px] font-bold text-muted-foreground">
                   +12
                 </div>
              </div>
-             <p className="text-[12px] text-[#5E6C84] dark:text-slate-500 font-medium uppercase-none">New critical alerts today</p>
+             <p className="text-[12px] text-muted-foreground font-medium">New critical alerts</p>
            </div>
         ) : (
           <div className="flex items-center">
             {details.map((detail, idx) => (
               <React.Fragment key={idx}>
                 <div className="flex-1">
-                  <p className="text-[10px] font-bold text-[#A0AEC0] uppercase-none mb-0.5 leading-none">{detail.label}</p>
-                  <p className="text-[14px] font-bold text-[#1A1C23] dark:text-white leading-none">{detail.value}</p>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase mb-1 leading-none">{detail.label}</p>
+                  <p className="text-[15px] font-bold text-foreground leading-none">{detail.value}</p>
                 </div>
-                {idx === 0 && <div className="w-[1px] h-4 bg-[#F0F2F5] dark:bg-white/5 mx-3" />}
+                {idx === 0 && <div className="w-[1px] h-5 bg-border mx-4" />}
               </React.Fragment>
             ))}
           </div>

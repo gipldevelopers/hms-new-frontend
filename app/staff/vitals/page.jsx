@@ -28,22 +28,22 @@ function CustomSelect({ value, onChange, options, placeholder, minWidth = "140px
       <DropdownMenuTrigger asChild>
         <button
           type="button"
-          className="h-11 px-5 bg-[#F8F9FC] dark:bg-[#1e293b] border border-gray-100 dark:border-white/10 rounded-[5px] text-[13px] font-bold text-foreground flex items-center justify-between gap-3 hover:bg-muted transition-all outline-none w-full sm:w-auto"
+          className="h-11 px-5 bg-card border border-border rounded-lg text-[13px] font-bold text-foreground flex items-center justify-between gap-3 hover:bg-muted transition-all outline-none w-full sm:w-auto shadow-none"
           style={{ minWidth }}
         >
           <span className="truncate">{selected ? selected.label : placeholder}</span>
-          <ChevronDown className="w-4 h-4 text-gray-400 shrink-0" />
+          <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className="w-[calc(100vw-48px)] sm:w-[var(--radix-dropdown-menu-trigger-width)] sm:min-w-[140px] border-border shadow-xl rounded-[5px] p-1 z-[500]"
+        className="w-[calc(100vw-48px)] sm:w-[var(--radix-dropdown-menu-trigger-width)] sm:min-w-[140px] border-border shadow-xl rounded-lg p-1 z-[500]"
       >
         <DropdownMenuItem
           onClick={() => onChange("")}
           className={cn(
-            "rounded-[5px] text-[12px] font-medium px-3 py-2 cursor-pointer transition-colors",
-            !value ? "bg-primary/5 text-primary font-bold" : "text-gray-600 dark:text-gray-300 hover:bg-muted"
+            "rounded-lg text-[12px] font-medium px-3 py-2 cursor-pointer transition-colors",
+            !value ? "bg-primary/5 text-primary font-bold" : "text-muted-foreground hover:bg-muted"
           )}
         >
           All
@@ -53,10 +53,10 @@ function CustomSelect({ value, onChange, options, placeholder, minWidth = "140px
             key={opt.value}
             onClick={() => onChange(opt.value)}
             className={cn(
-              "rounded-[5px] text-[12px] font-medium px-3 py-2 cursor-pointer transition-colors",
+              "rounded-lg text-[12px] font-medium px-3 py-2 cursor-pointer transition-colors",
               value === opt.value
                 ? "bg-primary/5 text-primary font-bold"
-                : "text-gray-600 dark:text-gray-300 hover:bg-muted"
+                : "text-muted-foreground hover:bg-muted"
             )}
           >
             {opt.label}
@@ -71,12 +71,12 @@ function CustomSelect({ value, onChange, options, placeholder, minWidth = "140px
 // ─── Stat Card ────────────────────────────────────────────────────────────────
 function StatCard({ label, value, icon: Icon, color }) {
   return (
-    <div className="bg-white dark:bg-[#101935] p-5 rounded-[5px] border border-[#E7E8EB] dark:border-white/10 flex items-center gap-4">
+    <div className="bg-card p-5 rounded-lg border border-border flex items-center gap-4 shadow-none">
       <div
         className={cn(
-          "w-12 h-12 rounded-[5px] flex items-center justify-center shrink-0",
+          "w-12 h-12 rounded-lg flex items-center justify-center shrink-0",
           color === "blue"    && "bg-primary/10 text-primary",
-          color === "red"     && "bg-rose-500/10 text-rose-500",
+          color === "red"     && "bg-destructive/10 text-destructive",
           color === "amber"   && "bg-amber-500/10 text-amber-500",
           color === "emerald" && "bg-emerald-500/10 text-emerald-500"
         )}
@@ -84,10 +84,10 @@ function StatCard({ label, value, icon: Icon, color }) {
         <Icon className="w-6 h-6" />
       </div>
       <div>
-        <p className="text-[10px] md:text-[11px] font-bold text-gray-400 leading-none mb-1.5 uppercase tracking-wider">
+        <p className="text-[10px] md:text-[11px] font-bold text-muted-foreground leading-none mb-1.5 uppercase tracking-wider">
           {label}
         </p>
-        <p className="text-[18px] md:text-[20px] font-bold text-[#1e293b] dark:text-white leading-none">
+        <p className="text-[18px] md:text-[20px] font-bold text-foreground leading-none">
           {value}
         </p>
       </div>
@@ -139,11 +139,11 @@ export default function VitalsPage() {
   });
 
   return (
-    <div className="p-4 md:p-6 bg-[#F8F9FC] dark:bg-[#0A0F1D] min-h-screen flex flex-col space-y-[15px] md:space-y-[20px] transition-colors duration-300 font-sans pb-20">
+    <div className="p-5 bg-background min-h-screen flex flex-col space-y-5 transition-colors duration-300 font-sans pb-20">
 
       {/* ── Header ── */}
       <div className="flex justify-between items-center">
-        <h1 className="text-[20px] md:text-[24px] font-bold text-[#1e293b] dark:text-white tracking-tight leading-none">
+        <h1 className="text-[20px] md:text-[24px] font-bold text-foreground tracking-tight leading-none">
           Vitals
         </h1>
       </div>
@@ -160,13 +160,13 @@ export default function VitalsPage() {
       <div className="space-y-[15px] md:space-y-[20px]">
 
         {/* Filter Bar */}
-        <div className="flex flex-col xl:flex-row justify-between items-stretch xl:items-center gap-4 bg-white dark:bg-[#101935] p-3 rounded-[5px] border border-[#E7E8EB] dark:border-white/10 shadow-none">
+        <div className="flex flex-col xl:flex-row justify-between items-stretch xl:items-center gap-4 bg-card p-3 rounded-lg border border-border shadow-none">
           <div className="relative w-full xl:w-[380px]">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-muted-foreground" />
             <input
               type="text"
               placeholder="Search..."
-              className="w-full h-11 pl-11 pr-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-gray-100 dark:border-white/10 rounded-[5px] text-[13px] font-semibold focus:border-primary transition-all outline-none text-[#1e293b] dark:text-white placeholder:font-medium placeholder:text-gray-400"
+              className="w-full h-11 pl-11 pr-4 bg-muted border border-border rounded-lg text-[13px] font-medium focus:border-primary transition-all outline-none text-foreground placeholder:text-muted-foreground shadow-none"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -194,21 +194,21 @@ export default function VitalsPage() {
           {filtered.map((v) => (
             <div
               key={v.id}
-              className="bg-white dark:bg-[#101935] p-5 rounded-[5px] border border-[#E7E8EB] dark:border-white/10 active:scale-[0.98] transition-all"
+              className="bg-card p-5 rounded-lg border border-border active:scale-[0.98] transition-all shadow-none"
             >
               {/* Card Header */}
               <div className="flex justify-between items-start mb-4">
-                <h3 className="text-[16px] font-bold text-[#1A1C23] dark:text-white leading-tight">{v.name}</h3>
+                <h3 className="text-[16px] font-bold text-foreground leading-tight">{v.name}</h3>
                 <button
                   onClick={() => router.push(`/staff/vitals/${v.id}`)}
-                  className="w-9 h-9 rounded-full bg-primary/5 flex items-center justify-center shrink-0 ml-2"
+                  className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 ml-2 shadow-none"
                 >
                   <Eye className="w-4 h-4 text-primary" />
                 </button>
               </div>
 
               {/* Vitals Grid */}
-              <div className="grid grid-cols-3 gap-x-4 gap-y-3 mb-4">
+              <div className="grid grid-cols-3 gap-x-4 gap-y-4 mb-4">
                 {[
                   { label: "BP",   value: v.bp,   status: v.bpStatus   },
                   { label: "HR",   value: v.hr,   status: "normal"     },
@@ -218,12 +218,12 @@ export default function VitalsPage() {
                   { label: "Pain", value: v.pain, status: "normal"     },
                 ].map(({ label, value, status }) => (
                   <div key={label}>
-                    <p className="text-[9px] font-bold text-gray-400 uppercase tracking-widest mb-1">{label}</p>
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">{label}</p>
                     <p className={cn(
                       "text-[13px] font-bold",
-                      status === "critical" && "text-rose-500",
+                      status === "critical" && "text-destructive",
                       status === "abnormal" && "text-amber-500",
-                      status === "normal"   && "text-[#1e293b] dark:text-white"
+                      status === "normal"   && "text-foreground"
                     )}>
                       {value}
                     </p>
@@ -232,25 +232,25 @@ export default function VitalsPage() {
               </div>
 
               {/* Footer */}
-              <div className="pt-3 border-t border-gray-50 dark:border-white/5">
-                <p className="text-[11px] font-medium text-gray-400">{v.recordedBy}</p>
-                {v.notes && <p className="text-[10px] text-gray-400 italic mt-0.5">Notes attached</p>}
+              <div className="pt-4 border-t border-border">
+                <p className="text-[12px] font-medium text-muted-foreground">{v.recordedBy}</p>
+                {v.notes && <p className="text-[11px] text-muted-foreground italic mt-0.5">Notes attached</p>}
               </div>
             </div>
           ))}
         </div>
 
         {/* ── Desktop Table View ── */}
-        <div className="hidden md:block bg-white dark:bg-[#101935] rounded-[5px] border border-[#E7E8EB] dark:border-white/10 shadow-none overflow-hidden">
+        <div className="hidden md:block bg-card rounded-lg border border-border shadow-none overflow-hidden">
           <div className="overflow-x-auto no-scrollbar">
             <table className="w-full border-collapse">
               <thead>
-                <tr className="bg-[#F8F9FC] dark:bg-white/[0.02]">
+                <tr className="bg-muted/30">
                   {["PATIENT NAME", "BP (mmHg)", "HR", "SpO2", "Temp", "Resp", "Pain", "Recorded By", "Actions"].map((col, i) => (
                     <th
                       key={i}
                       className={cn(
-                        "px-8 py-4 text-[11px] font-bold text-gray-400 border-b border-[#E7E8EB] dark:border-white/10 uppercase tracking-widest",
+                        "px-8 py-4 text-[11px] font-bold text-muted-foreground border-b border-border uppercase tracking-widest",
                         i === 8 ? "text-center" : "text-left"
                       )}
                     >
@@ -259,70 +259,70 @@ export default function VitalsPage() {
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#E7E8EB] dark:divide-white/5">
+              <tbody className="divide-y divide-border">
                 {filtered.map((v) => (
-                  <tr key={v.id} className="hover:bg-gray-50/50 dark:hover:bg-white/[0.01] transition-all">
+                  <tr key={v.id} className="hover:bg-muted/30 transition-all">
 
                     {/* Patient Name */}
                     <td className="px-8 py-5">
-                      <span className="text-[14px] font-bold text-[#1e293b] dark:text-white">{v.name}</span>
+                      <span className="text-[14px] font-bold text-foreground">{v.name}</span>
                     </td>
 
                     {/* BP */}
                     <td className="px-8 py-5">
                       {v.bpStatus === "critical" ? (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-[5px] bg-rose-50 dark:bg-rose-500/10 border border-rose-100 dark:border-rose-500/20 text-rose-500 text-[12px] font-bold">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-[12px] font-bold">
                           <AlertTriangle className="w-3 h-3 shrink-0" />{v.bp}
                         </span>
                       ) : v.bpStatus === "abnormal" ? (
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-[5px] bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20 text-amber-500 text-[12px] font-bold">
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[12px] font-bold">
                           {v.bp}
                         </span>
                       ) : (
-                        <span className="text-[14px] font-medium text-[#1e293b] dark:text-white">{v.bp}</span>
+                        <span className="text-[14px] font-medium text-foreground">{v.bp}</span>
                       )}
                     </td>
 
                     {/* HR */}
                     <td className="px-8 py-5">
-                      <span className="text-[14px] font-medium text-[#1e293b] dark:text-white">{v.hr}</span>
+                      <span className="text-[14px] font-medium text-foreground">{v.hr}</span>
                     </td>
 
                     {/* SpO2 */}
                     <td className="px-8 py-5">
                       {v.spo2Status === "critical" ? (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-[5px] bg-rose-50 dark:bg-rose-500/10 border border-rose-100 dark:border-rose-500/20 text-rose-500 text-[12px] font-bold">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-[12px] font-bold">
                           ↓ {v.spo2}
                         </span>
                       ) : v.spo2Status === "abnormal" ? (
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-[5px] bg-amber-50 dark:bg-amber-500/10 border border-amber-100 dark:border-amber-500/20 text-amber-500 text-[12px] font-bold">
+                        <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[12px] font-bold">
                           {v.spo2}
                         </span>
                       ) : (
-                        <span className="text-[14px] font-medium text-[#1e293b] dark:text-white">{v.spo2}</span>
+                        <span className="text-[14px] font-medium text-foreground">{v.spo2}</span>
                       )}
                     </td>
 
                     {/* Temp */}
                     <td className="px-8 py-5">
-                      <span className="text-[14px] font-medium text-[#1e293b] dark:text-white">{v.temp}</span>
+                      <span className="text-[14px] font-medium text-foreground">{v.temp}</span>
                     </td>
 
                     {/* Resp */}
                     <td className="px-8 py-5">
-                      <span className="text-[14px] font-medium text-[#1e293b] dark:text-white">{v.resp}</span>
+                      <span className="text-[14px] font-medium text-foreground">{v.resp}</span>
                     </td>
 
                     {/* Pain */}
                     <td className="px-8 py-5">
-                      <span className="text-[14px] font-medium text-[#1e293b] dark:text-white">{v.pain}</span>
+                      <span className="text-[14px] font-medium text-foreground">{v.pain}</span>
                     </td>
 
                     {/* Recorded By */}
                     <td className="px-8 py-5">
-                      <p className="text-[13px] font-medium text-[#1e293b] dark:text-white leading-tight">{v.recordedBy}</p>
+                      <p className="text-[13px] font-medium text-foreground leading-tight">{v.recordedBy}</p>
                       {v.notes && (
-                        <p className="text-[11px] text-gray-400 font-medium mt-0.5">Notes attached</p>
+                        <p className="text-[11px] text-muted-foreground font-medium mt-0.5">Notes attached</p>
                       )}
                     </td>
 
@@ -330,7 +330,7 @@ export default function VitalsPage() {
                     <td className="px-8 py-5 text-center">
                       <button
                         onClick={() => router.push(`/staff/vitals/${v.id}`)}
-                        className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-[5px] transition-colors inline-flex"
+                        className="p-2 hover:bg-muted rounded-lg transition-colors inline-flex shadow-none"
                         title="View vitals history"
                       >
                         <Eye className="w-5 h-5 text-primary" />

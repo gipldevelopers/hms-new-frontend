@@ -31,23 +31,23 @@ function CustomSelect({ value, onChange, options, placeholder, minWidth = "100%"
       <DropdownMenuTrigger asChild>
         <button
           type="button"
-          className="h-11 px-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] flex items-center justify-between gap-2 text-[13px] font-bold outline-none transition-all shadow-none  text-foreground hover:bg-muted"
+          className="h-11 px-4 bg-muted/50 border border-border rounded-lg flex items-center justify-between gap-2 text-[13px] font-bold outline-none transition-all shadow-none text-foreground hover:bg-muted"
           style={{ minWidth }}
         >
           <span className="truncate">{selected ? selected.label : placeholder}</span>
           <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-[130px] border border-[#E7E8EB] dark:border-white/10 bg-white dark:bg-[#101935] p-1 rounded-[5px] shadow-none z-50">
+      <DropdownMenuContent align="end" className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-[130px] border border-border bg-card p-1 rounded-lg shadow-none z-50">
         {options.map((opt) => (
           <DropdownMenuItem
             key={opt.value}
             onClick={() => onChange(opt.value)}
             className={cn(
-              "rounded-[5px] text-[13px] font-medium px-3 py-2 cursor-pointer transition-colors outline-none ",
+              "rounded-lg text-[13px] font-medium px-3 py-2 cursor-pointer transition-colors outline-none ",
               value === opt.value
-                ? "bg-primary/5 text-primary font-bold dark:bg-primary/10"
-                : "text-foreground hover:bg-[#F8F9FC] dark:hover:bg-white/5"
+                ? "bg-primary/5 text-primary font-bold"
+                : "text-foreground hover:bg-muted"
             )}
           >
             {opt.label}
@@ -93,25 +93,25 @@ export default function PatientTransferPage() {
   };
 
   return (
-    <div className="p-[20px] bg-[#F8F9FC] dark:bg-[#0A0F1D] min-h-screen flex flex-col space-y-[20px] transition-colors duration-300 font-sans pb-20 ">
+    <div className="p-[20px] bg-background min-h-screen flex flex-col space-y-[20px] transition-colors duration-300 font-sans pb-20 ">
       
       {/* ── Header Area ── */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 ">
         <div>
-          <h1 className="text-[20px] font-bold text-[#1e293b] dark:text-white tracking-tight leading-none ">
+          <h1 className="text-[20px] font-bold text-foreground tracking-tight leading-none ">
             Patient Transfers
           </h1>
         </div>
         <div className="flex items-center gap-3">
           <button
             onClick={() => router.back()}
-            className="h-11 px-5 border border-[#E7E8EB] dark:border-white/10 bg-white dark:bg-[#101935] hover:bg-muted text-foreground rounded-[5px] text-[13px] font-bold flex items-center justify-center transition-all shadow-none  outline-none"
+            className="h-11 px-5 border border-border bg-card hover:bg-muted text-foreground rounded-lg text-[13px] font-bold flex items-center justify-center transition-all shadow-none outline-none"
           >
             Cancel
           </button>
           <button
             onClick={handleInitiateTransfer}
-            className="h-11 px-5 bg-primary hover:bg-primary/90 text-white font-bold rounded-[5px] text-[13px] transition-all flex items-center justify-center gap-1.5 shadow-none outline-none "
+            className="h-11 px-5 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-lg text-[13px] transition-all flex items-center justify-center gap-1.5 shadow-none outline-none "
           >
             <span>Initiate Transfer</span>
             <ArrowRight className="w-4 h-4" />
@@ -120,9 +120,9 @@ export default function PatientTransferPage() {
       </div>
 
       {/* ── Patient Profile Banner ── */}
-      <div className="p-5 bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] shadow-none  flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="p-5 bg-card border border-border rounded-lg shadow-none flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 bg-blue-500/10 dark:bg-blue-500/5 rounded-full flex items-center justify-center text-blue-600 border border-blue-500/10  overflow-hidden shrink-0">
+          <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center text-primary border border-primary/10 overflow-hidden shrink-0">
             <img
               src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=100"
               alt="Avatar"
@@ -131,11 +131,11 @@ export default function PatientTransferPage() {
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h2 className="text-[17px] font-bold text-[#1e293b] dark:text-white leading-tight">
+              <h2 className="text-[17px] font-bold text-foreground leading-tight">
                 James Wilson
               </h2>
               <span className="text-[12px] text-muted-foreground font-medium">62 yrs • Male</span>
-              <span className="bg-rose-500/10 border border-rose-500/20 text-rose-600 text-[10px] font-bold px-2 py-0.5 rounded-[5px] tracking-wider ">
+              <span className="bg-destructive/10 border border-destructive/20 text-destructive text-[10px] font-bold px-2 py-0.5 rounded-lg tracking-wider ">
                 CRITICAL
               </span>
             </div>
@@ -144,7 +144,7 @@ export default function PatientTransferPage() {
                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider leading-none">
                   UHID
                 </p>
-                <p className="text-[13px] font-bold text-[#1e293b] dark:text-white mt-1 leading-tight ">
+                <p className="text-[13px] font-bold text-foreground mt-1 leading-tight ">
                   UHID-839211
                 </p>
               </div>
@@ -152,7 +152,7 @@ export default function PatientTransferPage() {
                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider leading-none">
                   Bed No.
                 </p>
-                <p className="text-[13px] font-bold text-[#1e293b] dark:text-white mt-1 leading-tight ">
+                <p className="text-[13px] font-bold text-foreground mt-1 leading-tight ">
                   ICU-04
                 </p>
               </div>
@@ -160,7 +160,7 @@ export default function PatientTransferPage() {
                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider leading-none">
                   Admission Date
                 </p>
-                <p className="text-[13px] font-bold text-[#1e293b] dark:text-white mt-1 leading-tight ">
+                <p className="text-[13px] font-bold text-foreground mt-1 leading-tight ">
                   12 Oct 2023
                 </p>
               </div>
@@ -168,7 +168,7 @@ export default function PatientTransferPage() {
                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider leading-none">
                   Attending Doctor
                 </p>
-                <p className="text-[13px] font-bold text-[#1e293b] dark:text-white mt-1 leading-tight ">
+                <p className="text-[13px] font-bold text-foreground mt-1 leading-tight ">
                   Dr. Sarah Jenkins
                 </p>
               </div>
@@ -176,7 +176,7 @@ export default function PatientTransferPage() {
                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider leading-none">
                   Diagnosis
                 </p>
-                <p className="text-[13px] font-bold text-[#1e293b] dark:text-white mt-1 leading-tight  truncate max-w-[160px]">
+                <p className="text-[13px] font-bold text-foreground mt-1 leading-tight truncate max-w-[160px]">
                   Acute Myocardial Infarction
                 </p>
               </div>
@@ -186,8 +186,8 @@ export default function PatientTransferPage() {
       </div>
 
       {/* ── Destination Details Section ── */}
-      <div className="bg-white dark:bg-[#101935] p-5 rounded-[5px] border border-[#E7E8EB] dark:border-white/10 shadow-none  flex flex-col space-y-[20px]">
-        <h3 className="text-[15px] font-bold text-[#1e293b] dark:text-white leading-tight">
+      <div className="bg-card p-5 rounded-lg border border-border shadow-none flex flex-col space-y-[20px]">
+        <h3 className="text-[15px] font-bold text-foreground leading-tight">
           Destination Details
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
@@ -244,42 +244,42 @@ export default function PatientTransferPage() {
               placeholder="Select Date & Time"
               value={transferDateTime}
               onChange={(e) => setTransferDateTime(e.target.value)}
-              className="w-full h-11 px-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] font-medium text-foreground outline-none transition-all shadow-none  focus:border-primary"
+              className="w-full h-11 px-4 bg-muted/50 border border-border rounded-lg text-[13px] font-medium text-foreground outline-none transition-all shadow-none focus:border-primary"
             />
           </div>
         </div>
       </div>
 
       {/* ── Clinical Handover Card ── */}
-      <div className="bg-white dark:bg-[#101935] p-5 rounded-[5px] border border-[#E7E8EB] dark:border-white/10 shadow-none  flex flex-col space-y-[20px]">
-        <h3 className="text-[15px] font-bold text-[#1e293b] dark:text-white leading-tight">
+      <div className="bg-card p-5 rounded-lg border border-border shadow-none flex flex-col space-y-[20px]">
+        <h3 className="text-[15px] font-bold text-foreground leading-tight">
           Clinical Handover
         </h3>
 
         {/* Active Medications Subcard */}
         <div className="flex flex-col space-y-3 ">
           <div className="flex justify-between items-center ">
-            <h4 className="text-[12px] font-bold text-[#1e293b] dark:text-white leading-tight">
+            <h4 className="text-[12px] font-bold text-foreground leading-tight">
               Active Medications
             </h4>
-            <span className="bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 text-[10px] font-bold text-muted-foreground px-2 py-0.5 rounded-[5px] tracking-wide ">
+            <span className="bg-muted/50 border border-border text-[10px] font-bold text-muted-foreground px-2 py-0.5 rounded-lg tracking-wide ">
               {meds.filter(m => m.checked).length} Included
             </span>
           </div>
 
-          <div className="border border-[#E7E8EB] dark:border-white/10 rounded-[5px] overflow-hidden bg-white dark:bg-[#101935]  flex flex-col divide-y divide-[#E7E8EB] dark:divide-white/5">
+          <div className="border border-border rounded-lg overflow-hidden bg-card flex flex-col divide-y divide-border">
             {meds.map((med) => (
               <div
                 key={med.id}
                 onClick={() => toggleMed(med.id)}
-                className="p-4 flex items-center justify-between cursor-pointer hover:bg-[#F8F9FC] dark:hover:bg-white/[0.01] transition-all "
+                className="p-4 flex items-center justify-between cursor-pointer hover:bg-muted transition-all "
               >
                 <div className="flex items-center gap-3">
                   <div className={cn(
                     "w-4.5 h-4.5 rounded-[3px] border flex items-center justify-center shrink-0 transition-all ",
                     med.checked
-                      ? "bg-blue-600 border-blue-600 text-white"
-                      : "border-gray-300 dark:border-white/20 bg-transparent"
+                      ? "bg-primary border-primary text-primary-foreground"
+                      : "border-border bg-transparent"
                   )}>
                     {med.checked && <Check className="w-3 h-3 " />}
                   </div>
@@ -304,7 +304,7 @@ export default function PatientTransferPage() {
             placeholder="Enter diagnosis, symptoms, or special instructions here..."
             value={nursingNotes}
             onChange={(e) => setNursingNotes(e.target.value)}
-            className="w-full min-h-[100px] p-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] font-medium text-foreground outline-none transition-all shadow-none resize-none  focus:border-primary"
+            className="w-full min-h-[100px] p-4 bg-muted/50 border border-border rounded-lg text-[13px] font-medium text-foreground outline-none transition-all shadow-none resize-none focus:border-primary"
           />
         </div>
       </div>
@@ -324,21 +324,21 @@ export default function PatientTransferPage() {
               initial={{ scale: 0.95, opacity: 0, y: 16 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 16 }}
-              className="relative bg-white dark:bg-[#101935] w-full max-w-[580px] rounded-[5px] overflow-hidden shadow-none border border-[#E7E8EB] dark:border-white/10 flex flex-col "
+              className="relative bg-card w-full max-w-[580px] rounded-lg overflow-hidden shadow-none border border-border flex flex-col "
             >
               <div className="p-6 flex flex-col space-y-5 ">
                 <div className="flex justify-between items-start ">
                   <div>
-                    <h3 className="text-[17px] font-bold text-[#1e293b] dark:text-white leading-tight ">
+                    <h3 className="text-[17px] font-bold text-foreground leading-tight ">
                       Confirm Transfer Request
                     </h3>
-                    <p className="text-[12.5px] text-gray-500 dark:text-gray-400 font-medium mt-1 leading-relaxed ">
+                    <p className="text-[12.5px] text-muted-foreground font-medium mt-1 leading-relaxed ">
                       Review details before notifying ICU
                     </p>
                   </div>
                   <button
                     onClick={() => setShowConfirmModal(false)}
-                    className="p-1 hover:bg-muted rounded-[5px] text-muted-foreground transition-all outline-none "
+                    className="p-1 hover:bg-muted rounded-lg text-muted-foreground transition-all outline-none "
                   >
                     <X className="w-4 h-4 " />
                   </button>
@@ -349,7 +349,7 @@ export default function PatientTransferPage() {
                 </p>
 
                 {/* Patient & Destination Box */}
-                <div className="border border-[#E7E8EB] dark:border-white/10 rounded-[5px] bg-[#F8F9FC] dark:bg-[#1e293b] overflow-hidden divide-y divide-[#E7E8EB] dark:divide-white/5 ">
+                <div className="border border-border rounded-lg bg-muted/50 overflow-hidden divide-y divide-border ">
                   <div className="grid grid-cols-2 p-4 gap-4 ">
                     <div>
                       <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider leading-none ">
@@ -374,7 +374,7 @@ export default function PatientTransferPage() {
                       </p>
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 p-4 gap-4  bg-white/50 dark:bg-[#101935]">
+                  <div className="grid grid-cols-2 p-4 gap-4 bg-muted/30">
                     <div>
                       <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider leading-none ">
                         Current Bed Action
@@ -400,13 +400,13 @@ export default function PatientTransferPage() {
                 {/* Handover Confirmed Checkbox */}
                 <div
                   onClick={() => setConfirmedCheckbox(!confirmedCheckbox)}
-                  className="p-3.5 border border-[#E7E8EB] dark:border-white/10 rounded-[5px] bg-white dark:bg-[#101935] flex items-center gap-3 cursor-pointer  hover:bg-muted/50 transition-all"
+                  className="p-3.5 border border-border rounded-lg bg-card flex items-center gap-3 cursor-pointer hover:bg-muted/50 transition-all"
                 >
                   <div className={cn(
                     "w-4.5 h-4.5 rounded-[3px] border flex items-center justify-center shrink-0 transition-all ",
                     confirmedCheckbox
-                      ? "bg-blue-600 border-blue-600 text-white"
-                      : "border-gray-300 dark:border-white/20 bg-transparent"
+                      ? "bg-primary border-primary text-primary-foreground"
+                      : "border-border bg-transparent"
                   )}>
                     {confirmedCheckbox && <Check className="w-3 h-3 " />}
                   </div>
@@ -417,17 +417,17 @@ export default function PatientTransferPage() {
               </div>
 
               {/* Action Footer */}
-              <div className="flex items-center justify-end gap-3 px-6 py-4 bg-[#F8F9FC] dark:bg-[#101935] border-t border-[#E7E8EB] dark:border-white/10 ">
+              <div className="flex items-center justify-end gap-3 px-6 py-4 bg-muted/30 border-t border-border ">
                 <button
                   onClick={() => setShowConfirmModal(false)}
-                  className="h-10 px-5 border border-[#E7E8EB] dark:border-white/10 bg-white dark:bg-[#101935] hover:bg-muted text-foreground font-semibold rounded-[5px] text-[13px] transition-all  shadow-none outline-none"
+                  className="h-10 px-5 border border-border bg-card hover:bg-muted text-foreground font-semibold rounded-lg text-[13px] transition-all shadow-none outline-none"
                 >
                   Cancel
                 </button>
                 <button
                   disabled={!confirmedCheckbox}
                   onClick={handleConfirmAndTransfer}
-                  className="h-10 px-5 bg-primary hover:bg-primary/90 text-white font-bold rounded-[5px] text-[13px] transition-all  shadow-none outline-none disabled:opacity-50"
+                  className="h-10 px-5 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-lg text-[13px] transition-all shadow-none outline-none disabled:opacity-50"
                 >
                   Confirm & Transfer
                 </button>

@@ -16,10 +16,10 @@ const meds = [
 
 export default function MedicationsList() {
   return (
-    <div className="bg-white dark:bg-[#101935] p-5 rounded-[5px] border border-[#E7E8EB] dark:border-white/10 shadow-none h-full flex flex-col">
+    <div className="bg-card p-5 rounded-lg border border-border shadow-none h-full flex flex-col">
       <div className="flex justify-between items-center mb-6 shrink-0">
-        <h3 className="text-[16px] font-bold text-[#1A1C23] dark:text-white uppercase-none">Medications Due</h3>
-        <button className="text-[11px] font-bold text-[#2D3A8C] dark:text-primary hover:underline uppercase-none">VIEW ALL</button>
+        <h3 className="text-[16px] font-bold text-foreground uppercase tracking-wider">Medications Due</h3>
+        <button className="text-[11px] font-bold text-primary hover:underline">VIEW ALL</button>
       </div>
       
       <div className="space-y-4 flex-1">
@@ -27,38 +27,38 @@ export default function MedicationsList() {
           <div 
             key={med.id} 
             className={cn(
-              "flex items-center justify-between p-3.5 rounded-[5px] border transition-all cursor-pointer",
+              "flex items-center justify-between p-4 rounded-lg border transition-all cursor-pointer hover:bg-muted/30",
               med.status === "overdue" 
-                ? "bg-[#FEF2F2] border-[#FDE2E2] dark:bg-rose-500/5 dark:border-rose-500/10" 
-                : "bg-white dark:bg-[#0B1121] border-[#F4F5F7] dark:border-white/5"
+                ? "bg-destructive/5 border-destructive/20" 
+                : "bg-card border-border"
             )}
           >
             <div className="flex items-center gap-4">
                <div className={cn(
-                 "w-12 h-12 rounded-[5px] flex items-center justify-center shrink-0",
+                 "w-12 h-12 rounded-lg flex items-center justify-center shrink-0 border",
                  med.status === "overdue" 
-                  ? "bg-white border border-[#FDE2E2] text-[#D92D20]" 
-                  : "bg-[#F3F4FF] text-[#2D3A8C]"
+                  ? "bg-destructive/10 border-destructive/20 text-destructive" 
+                  : "bg-primary/10 border-primary/20 text-primary"
                )}>
                   <Pill className="w-5 h-5" />
                </div>
                <div>
-                  <p className="text-[13px] font-bold text-[#1A1C23] dark:text-white">{med.name}</p>
+                  <p className="text-[14px] font-bold text-foreground">{med.name}</p>
                   <p className={cn(
-                    "text-[11px] font-bold mt-0.5 uppercase-none",
-                    med.status === "overdue" ? "text-[#D92D20]" : "text-[#A0AEC0]"
+                    "text-[12px] font-bold mt-0.5 tracking-wider",
+                    med.status === "overdue" ? "text-destructive" : "text-muted-foreground"
                   )}>
                     {med.detail}
                   </p>
                </div>
             </div>
             <div className={cn(
-              "w-6 h-6 rounded-[4px] flex items-center justify-center shrink-0",
-              med.status === "overdue" ? "bg-[#D92D20]" : "bg-[#F3F4FF]"
+              "w-7 h-7 rounded-[5px] flex items-center justify-center shrink-0 transition-colors",
+              med.status === "overdue" ? "bg-destructive" : "bg-muted border border-border group-hover:bg-primary/10"
             )}>
                <Check className={cn(
                  "w-4 h-4",
-                 med.status === "overdue" ? "text-white" : "text-[#A0AEC0]"
+                 med.status === "overdue" ? "text-destructive-foreground" : "text-muted-foreground"
                )} strokeWidth={3} />
             </div>
           </div>

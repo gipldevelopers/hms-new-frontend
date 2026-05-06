@@ -207,23 +207,23 @@ function CustomSelect({ value, onChange, options, placeholder, minWidth = "100px
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
-          className="h-10 px-4 bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] flex items-center justify-between gap-2 text-[13px] font-medium outline-none transition-all shadow-none"
+          className="h-10 px-4 bg-card border border-border rounded-lg flex items-center justify-between gap-2 text-[13px] font-medium outline-none transition-all shadow-none"
           style={{ minWidth }}
         >
-          <span className="truncate">{selected ? selected.label : placeholder}</span>
+          <span className="truncate text-foreground">{selected ? selected.label : placeholder}</span>
           <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-[120px] border border-[#E7E8EB] dark:border-white/10 bg-white dark:bg-[#101935] p-1 rounded-[5px] shadow-none z-50">
+      <DropdownMenuContent align="end" className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-[120px] border border-border bg-card p-1 rounded-lg shadow-none z-50">
         {options.map((opt) => (
           <DropdownMenuItem
             key={opt.value}
             onClick={() => onChange(opt.value)}
             className={cn(
-              "rounded-[5px] text-[13px] font-medium px-3 py-2 cursor-pointer transition-colors outline-none",
+              "rounded-lg text-[13px] font-medium px-3 py-2 cursor-pointer transition-colors outline-none",
               value === opt.value
                 ? "bg-primary/5 text-primary font-bold dark:bg-primary/10"
-                : "text-foreground hover:bg-[#F8F9FC] dark:hover:bg-white/5"
+                : "text-foreground hover:bg-muted dark:hover:bg-muted/50"
             )}
           >
             {opt.label}
@@ -251,35 +251,35 @@ export default function PatientChartPage() {
   const tabs = ["Summary", "Vitals", "Lab Results", "Notes"];
 
   return (
-    <div className="p-[20px] bg-[#F8F9FC] dark:bg-[#0A0F1D] min-h-screen flex flex-col space-y-[20px] transition-colors duration-300 font-sans pb-20">
+    <div className="p-5 bg-background min-h-screen flex flex-col gap-5 transition-colors duration-300 font-sans pb-20">
       
       {/* ── Back Navigation ── */}
       <div className="flex items-center gap-2">
         <Link 
           href="/doctor/ipd" 
-          className="w-8 h-8 flex items-center justify-center rounded-full bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 hover:bg-gray-50 dark:hover:bg-white/5 transition-all"
+          className="w-8 h-8 flex items-center justify-center rounded-full bg-card border border-border hover:bg-muted dark:hover:bg-muted/50 transition-all"
         >
-          <ArrowLeft className="w-4 h-4 text-[#1A1C23] dark:text-white" />
+          <ArrowLeft className="w-4 h-4 text-foreground" />
         </Link>
-        <span className="text-[14px] font-bold text-[#5E6C84] dark:text-slate-400">Back to Patients</span>
+        <span className="text-[14px] font-bold text-muted-foreground">Back to Patients</span>
       </div>
 
       {/* ── Allergy Banner ── */}
-      <div className="bg-[#FFF5F5] dark:bg-rose-500/5 border border-rose-200 dark:border-rose-500/20 p-4 rounded-[5px] flex items-center gap-3">
-        <div className="w-10 h-10 bg-white dark:bg-rose-500/10 rounded-full flex items-center justify-center border border-rose-100 dark:border-rose-500/20">
-          <AlertTriangle className="w-5 h-5 text-rose-500" />
+      <div className="bg-destructive/5 border border-destructive/20 p-4 rounded-lg flex items-center gap-3">
+        <div className="w-10 h-10 bg-card rounded-full flex items-center justify-center border border-destructive/10">
+          <AlertTriangle className="w-5 h-5 text-destructive" />
         </div>
         <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-          <span className="text-[14px] font-bold text-rose-600 tracking-tight">ALLERGIES:</span>
-          <span className="text-[14px] font-medium text-rose-500">{PATIENT_DATA.allergies}</span>
+          <span className="text-[14px] font-bold text-destructive tracking-tight">ALLERGIES:</span>
+          <span className="text-[14px] font-medium text-destructive/80">{PATIENT_DATA.allergies}</span>
         </div>
       </div>
 
       {/* ── Patient Header Card ── */}
-      <div className="bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 p-6 rounded-[5px] shadow-none flex flex-col lg:flex-row gap-8">
+      <div className="bg-card border border-border p-6 rounded-lg shadow-none flex flex-col lg:flex-row gap-8">
         {/* Profile Info */}
         <div className="flex items-center gap-5 min-w-[280px]">
-          <div className="w-20 h-20 rounded-[5px] overflow-hidden bg-gray-100 dark:bg-white/10 border border-[#E7E8EB] dark:border-white/10 relative">
+          <div className="w-20 h-20 rounded-lg overflow-hidden bg-muted border border-border relative">
             <img 
               src={PATIENT_DATA.avatar} 
               alt={PATIENT_DATA.name} 
@@ -288,23 +288,23 @@ export default function PatientChartPage() {
           </div>
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-3">
-              <h1 className="text-[24px] font-bold text-[#1A1C23] dark:text-white leading-none">
+              <h1 className="text-[24px] font-bold text-foreground leading-none">
                 {PATIENT_DATA.name}
               </h1>
-              <span className="px-3 py-1 bg-rose-50 dark:bg-rose-500/10 text-rose-500 text-[10px] font-bold rounded-full border border-rose-100 dark:border-rose-500/20">
+              <span className="px-3 py-1 bg-destructive/10 text-destructive text-[10px] font-bold rounded-full border border-destructive/20">
                 {PATIENT_DATA.status}
               </span>
             </div>
-            <p className="text-[14px] text-[#5E6C84] dark:text-slate-400 font-medium">{PATIENT_DATA.ageGender}</p>
+            <p className="text-[14px] text-muted-foreground font-medium">{PATIENT_DATA.ageGender}</p>
             <div className="mt-2">
-              <p className="text-[10px] font-bold text-[#5E6C84] dark:text-slate-500 uppercase tracking-wider">UHID</p>
-              <p className="text-[14px] font-bold text-[#1A1C23] dark:text-white tracking-tight">{PATIENT_DATA.uhid}</p>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">UHID</p>
+              <p className="text-[14px] font-bold text-foreground tracking-tight">{PATIENT_DATA.uhid}</p>
             </div>
           </div>
         </div>
 
         {/* Divider for Desktop */}
-        <div className="hidden lg:block w-[1px] bg-[#E7E8EB] dark:bg-white/10 self-stretch" />
+        <div className="hidden lg:block w-[1px] bg-border self-stretch" />
 
         {/* Info Grid */}
         <div className="flex-1 grid grid-cols-2 md:grid-cols-4 gap-6">
@@ -317,17 +317,17 @@ export default function PatientChartPage() {
 
       {/* ── Section Title & Action Buttons ── */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-        <h2 className="text-[18px] font-bold text-[#1A1C23] dark:text-white tracking-tight">
+        <h2 className="text-[18px] font-bold text-foreground tracking-tight">
           {activeTab === "Summary" ? "Patient Profile" : activeTab}
         </h2>
         <div className="flex items-center gap-3">
-          <button className="h-10 px-4 bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] font-bold text-[#1A1C23] dark:text-white flex items-center gap-2 hover:bg-gray-50 dark:hover:bg-white/5 transition-all shadow-none">
+          <button className="h-10 px-4 bg-card border border-border rounded-lg text-[13px] font-bold text-foreground flex items-center gap-2 hover:bg-muted transition-all shadow-none">
             <Printer className="w-4 h-4" />
             Print Chart
           </button>
           <Link 
             href={`/doctor/ipd/${patientId}/notes/add`}
-            className="h-10 px-4 bg-[#2D3A8C] text-white rounded-[5px] text-[13px] font-bold flex items-center gap-2 hover:opacity-90 transition-all shadow-none"
+            className="h-10 px-4 bg-primary text-primary-foreground rounded-lg text-[13px] font-bold flex items-center gap-2 hover:opacity-90 transition-all shadow-none"
           >
             <Plus className="w-4 h-4" />
             Add Note
@@ -336,16 +336,16 @@ export default function PatientChartPage() {
       </div>
 
       {/* ── Custom Tabs ── */}
-      <div className="flex items-center gap-2 bg-[#EEF0F8] dark:bg-white/5 p-1 rounded-[5px] w-fit">
+      <div className="flex items-center gap-2 bg-muted p-1 rounded-lg w-fit">
         {tabs.map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={cn(
-              "px-6 py-2 rounded-[5px] text-[13px] font-bold transition-all",
+              "px-6 py-2 rounded-lg text-[13px] font-bold transition-all",
               activeTab === tab
-                ? "bg-[#2D3A8C] text-white"
-                : "text-[#5E6C84] dark:text-slate-400 hover:text-[#2D3A8C] dark:hover:text-white"
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:text-primary dark:hover:text-white"
             )}
           >
             {tab}
@@ -355,25 +355,25 @@ export default function PatientChartPage() {
 
       {/* ── Tab Content ── */}
       {activeTab === "Summary" && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-[20px]">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
           {/* Left Column (8/12) */}
-          <div className="lg:col-span-8 space-y-[20px]">
+          <div className="lg:col-span-8 space-y-5">
             {/* Latest Vitals */}
-            <div className="bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 p-6 rounded-[5px] shadow-none">
+            <div className="bg-card border border-border p-6 rounded-lg shadow-none">
               <div className="flex justify-between items-center mb-6">
-                <h3 className="text-[14px] font-bold text-[#1A1C23] dark:text-white">Latest Vitals</h3>
-                <span className="text-[11px] font-medium text-[#5E6C84] dark:text-slate-500">Recorded 2 hours ago</span>
+                <h3 className="text-[14px] font-bold text-foreground">Latest Vitals</h3>
+                <span className="text-[11px] font-medium text-muted-foreground">Recorded 2 hours ago</span>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {VITALS.map((vital, idx) => (
-                  <div key={idx} className="bg-white dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 p-4 rounded-[5px] shadow-none flex flex-col gap-3">
+                  <div key={idx} className="bg-card border border-border p-4 rounded-lg shadow-none flex flex-col gap-3">
                     <div className="flex items-center gap-2">
                       <vital.icon className={cn("w-4 h-4", vital.color)} />
-                      <span className="text-[10px] font-bold text-[#5E6C84] dark:text-slate-500 uppercase tracking-wider">{vital.label}</span>
+                      <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{vital.label}</span>
                     </div>
                     <div className="flex items-baseline gap-1">
-                      <span className="text-[20px] font-bold text-[#1A1C23] dark:text-white leading-none">{vital.value}</span>
-                      <span className="text-[11px] font-medium text-[#5E6C84] dark:text-slate-500">{vital.unit}</span>
+                      <span className="text-[20px] font-bold text-foreground leading-none">{vital.value}</span>
+                      <span className="text-[11px] font-medium text-muted-foreground">{vital.unit}</span>
                     </div>
                   </div>
                 ))}
@@ -381,19 +381,19 @@ export default function PatientChartPage() {
             </div>
 
             {/* Recent Progress Notes */}
-            <div className="bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 p-6 rounded-[5px] shadow-none">
-              <h3 className="text-[14px] font-bold text-[#1A1C23] dark:text-white mb-6">Recent Progress Notes</h3>
+            <div className="bg-card border border-border p-6 rounded-lg shadow-none">
+              <h3 className="text-[14px] font-bold text-foreground mb-6">Recent Progress Notes</h3>
               <div className="space-y-6">
                 {PROGRESS_NOTES.map((note, idx) => (
-                  <div key={idx} className="relative pl-4 border-l-2 border-[#2D3A8C]">
+                  <div key={idx} className="relative pl-4 border-l-2 border-primary">
                     <div className="flex justify-between items-start mb-1">
-                      <p className="text-[13px] font-bold text-[#1A1C23] dark:text-white">{note.author}</p>
-                      <p className="text-[11px] font-medium text-[#5E6C84] dark:text-slate-500 flex items-center gap-1">
+                      <p className="text-[13px] font-bold text-foreground">{note.author}</p>
+                      <p className="text-[11px] font-medium text-muted-foreground flex items-center gap-1">
                         <Clock className="w-3 h-3" />
                         {note.time}
                       </p>
                     </div>
-                    <p className="text-[13px] text-[#5E6C84] dark:text-slate-400 leading-relaxed font-medium">
+                    <p className="text-[13px] text-muted-foreground leading-relaxed font-medium">
                       {note.text}
                     </p>
                   </div>
@@ -403,31 +403,31 @@ export default function PatientChartPage() {
           </div>
 
           {/* Right Column (4/12) */}
-          <div className="lg:col-span-4 space-y-[20px]">
+          <div className="lg:col-span-4 space-y-5">
             {/* Active Medications */}
-            <div className="bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 p-6 rounded-[5px] shadow-none">
+            <div className="bg-card border border-border p-6 rounded-lg shadow-none">
               <div className="flex justify-between items-center mb-5">
-                <h3 className="text-[14px] font-bold text-[#1A1C23] dark:text-white">Active Medications</h3>
-                <Plus className="w-4 h-4 text-[#5E6C84] cursor-pointer" />
+                <h3 className="text-[14px] font-bold text-foreground">Active Medications</h3>
+                <Plus className="w-4 h-4 text-muted-foreground cursor-pointer" />
               </div>
               <div className="space-y-3">
                 {MEDICATIONS.map((med, idx) => (
-                  <div key={idx} className="bg-[#F8F9FC] dark:bg-white/5 border border-[#E7E8EB] dark:border-white/10 p-4 rounded-[5px]">
-                    <p className="text-[13px] font-bold text-[#1A1C23] dark:text-white mb-1">{med.name}</p>
-                    <p className="text-[11px] font-medium text-[#5E6C84] dark:text-slate-400">{med.dose}</p>
+                  <div key={idx} className="bg-muted border border-border p-4 rounded-lg">
+                    <p className="text-[13px] font-bold text-foreground mb-1">{med.name}</p>
+                    <p className="text-[11px] font-medium text-muted-foreground">{med.dose}</p>
                   </div>
                 ))}
               </div>
             </div>
 
             {/* Care & Diet */}
-            <div className="bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 p-6 rounded-[5px] shadow-none">
-              <h3 className="text-[14px] font-bold text-[#1A1C23] dark:text-white mb-5">Care & Diet</h3>
+            <div className="bg-card border border-border p-6 rounded-lg shadow-none">
+              <h3 className="text-[14px] font-bold text-foreground mb-5">Care & Diet</h3>
               <div className="space-y-3">
                 {CARE_DIET.map((item, idx) => (
                   <div key={idx} className="flex items-start gap-3">
                     <item.icon className={cn("w-4 h-4 mt-0.5 flex-shrink-0", item.color)} />
-                    <p className="text-[13px] font-medium text-[#5E6C84] dark:text-slate-400 leading-snug">
+                    <p className="text-[13px] font-medium text-muted-foreground leading-snug">
                       {item.text}
                     </p>
                   </div>
@@ -439,9 +439,9 @@ export default function PatientChartPage() {
       )}
 
       {activeTab === "Vitals" && (
-        <div className="space-y-[20px]">
+        <div className="space-y-5">
           {/* Filters */}
-          <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 p-3.5 rounded-[5px] shadow-none">
+          <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 bg-card border border-border p-3.5 rounded-lg shadow-none">
             <div className="relative flex-1 max-w-[240px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input
@@ -449,7 +449,7 @@ export default function PatientChartPage() {
                 placeholder="Search..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="w-full h-10 pl-10 pr-10 bg-white dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] font-medium outline-none focus:border-primary transition-all shadow-none placeholder:text-muted-foreground"
+                className="w-full h-10 pl-10 pr-10 bg-card border border-border rounded-lg text-[13px] font-medium outline-none focus:border-primary transition-all shadow-none placeholder:text-muted-foreground"
               />
             </div>
             <div className="flex items-center gap-3">
@@ -471,10 +471,10 @@ export default function PatientChartPage() {
           </div>
 
           {/* Vitals History Table */}
-          <div className="bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] overflow-hidden shadow-none overflow-x-auto no-scrollbar">
+          <div className="bg-card border border-border rounded-lg overflow-hidden shadow-none overflow-x-auto no-scrollbar">
             <table className="w-full text-left border-collapse min-w-[1000px]">
               <thead>
-                <tr className="bg-[#F8F9FC] dark:bg-white/[0.02] border-b border-[#E7E8EB] dark:border-white/10 text-[11px] font-bold text-[#5E6C84] dark:text-slate-400">
+                <tr className="bg-muted/50 border-b border-border text-[11px] font-bold text-muted-foreground">
                   <th className="px-6 py-5">Date & Time</th>
                   <th className="px-6 py-5">BP (mmHg)</th>
                   <th className="px-6 py-5">HR</th>
@@ -485,36 +485,36 @@ export default function PatientChartPage() {
                   <th className="px-6 py-5">Recorded By</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#E7E8EB] dark:divide-white/5">
+              <tbody className="divide-y divide-border">
                 {VITALS_HISTORY.map((entry) => (
-                  <tr key={entry.id} className="hover:bg-[#F8F9FC] dark:hover:bg-white/[0.01] transition-colors">
+                  <tr key={entry.id} className="hover:bg-muted/30 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex flex-col">
-                        <span className="text-[13px] font-bold text-[#1A1C23] dark:text-white">{entry.date}</span>
-                        <span className="text-[11px] font-medium text-[#5E6C84] dark:text-slate-500">{entry.time}</span>
+                        <span className="text-[13px] font-bold text-foreground">{entry.date}</span>
+                        <span className="text-[11px] font-medium text-muted-foreground">{entry.time}</span>
                       </div>
                     </td>
-                    <td className="px-6 py-4 text-[13px] font-medium text-[#1A1C23] dark:text-white">
+                    <td className="px-6 py-4 text-[13px] font-medium text-foreground">
                       {entry.bp}
                     </td>
-                    <td className="px-6 py-4 text-[13px] font-medium text-[#1A1C23] dark:text-white">
+                    <td className="px-6 py-4 text-[13px] font-medium text-foreground">
                       {entry.hr}
                     </td>
-                    <td className="px-6 py-4 text-[13px] font-medium text-[#1A1C23] dark:text-white">
+                    <td className="px-6 py-4 text-[13px] font-medium text-foreground">
                       {entry.spo2}
                     </td>
-                    <td className="px-6 py-4 text-[13px] font-medium text-[#1A1C23] dark:text-white">
+                    <td className="px-6 py-4 text-[13px] font-medium text-foreground">
                       {entry.temp}
                     </td>
-                    <td className="px-6 py-4 text-[13px] font-medium text-[#1A1C23] dark:text-white">
+                    <td className="px-6 py-4 text-[13px] font-medium text-foreground">
                       {entry.resp}
                     </td>
-                    <td className="px-6 py-4 text-[13px] font-medium text-[#1A1C23] dark:text-white">
+                    <td className="px-6 py-4 text-[13px] font-medium text-foreground">
                       {entry.pain}
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex flex-col">
-                        <span className="text-[13px] font-bold text-[#1A1C23] dark:text-white">{entry.recordedBy}</span>
+                        <span className="text-[13px] font-bold text-foreground">{entry.recordedBy}</span>
                         {entry.notes && (
                           <span className="text-[11px] font-bold text-primary cursor-pointer hover:underline">Notes attached</span>
                         )}
@@ -529,21 +529,21 @@ export default function PatientChartPage() {
       )}
 
       {activeTab === "Lab Results" && (
-        <div className="space-y-[20px]">
+        <div className="space-y-5">
           {LAB_RESULTS.map((result) => (
-            <div key={result.id} className="bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 p-5 rounded-[5px] flex items-center justify-between gap-4 shadow-none">
+            <div key={result.id} className="bg-card border border-border p-5 rounded-lg flex items-center justify-between gap-4 shadow-none">
               <div className="flex items-center gap-4">
                 {/* Icon */}
-                <div className="w-12 h-12 bg-gray-50 dark:bg-white/5 rounded-[5px] flex items-center justify-center border border-[#E7E8EB] dark:border-white/10">
-                  <FileText className="w-6 h-6 text-gray-400" />
+                <div className="w-12 h-12 bg-muted rounded-lg flex items-center justify-center border border-border">
+                  <FileText className="w-6 h-6 text-muted-foreground" />
                 </div>
                 {/* Info */}
                 <div className="flex flex-col gap-1">
-                  <h3 className="text-[15px] font-bold text-[#1A1C23] dark:text-white leading-none">
+                  <h3 className="text-[15px] font-bold text-foreground leading-none">
                     {result.name}
                   </h3>
                   <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-1">
-                    <span className="text-[12px] font-medium text-[#5E6C84] dark:text-slate-400">
+                    <span className="text-[12px] font-medium text-muted-foreground">
                       Ordered: {result.date}
                     </span>
                     <div className="flex items-center gap-1.5">
@@ -563,7 +563,7 @@ export default function PatientChartPage() {
               
               <Link 
                 href={`/doctor/ipd/${patientId}/lab/${result.id}`}
-                className="h-9 px-5 bg-white dark:bg-[#101935] border border-[#2D3A8C] text-[#2D3A8C] dark:text-primary-foreground rounded-[5px] text-[12px] font-bold flex items-center justify-center hover:bg-gray-50 dark:hover:bg-white/5 transition-all shadow-none outline-none"
+                className="h-9 px-5 bg-card border border-primary text-primary rounded-lg text-[12px] font-bold flex items-center justify-center hover:bg-muted transition-all shadow-none outline-none"
               >
                 View Result
               </Link>
@@ -573,46 +573,46 @@ export default function PatientChartPage() {
       )}
 
       {activeTab === "Notes" && (
-        <div className="space-y-[20px]">
+        <div className="space-y-5">
           {CLINICAL_NOTES.map((note) => (
-            <div key={note.id} className="bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] shadow-none overflow-hidden">
+            <div key={note.id} className="bg-card border border-border rounded-lg shadow-none overflow-hidden">
               {/* Note Header */}
-              <div className="p-5 border-b border-[#E7E8EB] dark:border-white/10 flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+              <div className="p-5 border-b border-border flex flex-col sm:flex-row justify-between sm:items-center gap-3">
                 <div className="flex items-center gap-3">
-                  <span className="px-2 py-0.5 bg-[#F1F2F4] dark:bg-white/5 text-[#5E6C84] text-[10px] font-bold rounded-[3px] tracking-wider uppercase">
+                  <span className="px-2 py-0.5 bg-muted text-muted-foreground text-[10px] font-bold rounded-[3px] tracking-wider uppercase">
                     {note.type}
                   </span>
                   <div className="flex items-center gap-1.5">
-                    <span className="text-[14px] font-bold text-[#1A1C23] dark:text-white">
+                    <span className="text-[14px] font-bold text-foreground">
                       {note.author}
                     </span>
-                    <span className="text-[12px] font-medium text-[#5E6C84] dark:text-slate-400">
+                    <span className="text-[12px] font-medium text-muted-foreground">
                       {note.role}
                     </span>
                   </div>
                 </div>
-                <span className="text-[12px] font-medium text-[#5E6C84] dark:text-slate-500">
+                <span className="text-[12px] font-medium text-muted-foreground">
                   {note.date}
                 </span>
               </div>
               
               {/* Note Content */}
               <div className="p-5">
-                <p className="text-[13px] text-[#5E6C84] dark:text-slate-400 leading-relaxed font-medium">
+                <p className="text-[13px] text-muted-foreground leading-relaxed font-medium">
                   {note.content}
                 </p>
               </div>
 
-              <div className="p-4 border-t border-[#E7E8EB] dark:border-white/10 bg-[#F8F9FC] dark:bg-white/[0.01] flex justify-end gap-3">
+              <div className="p-4 border-t border-border bg-muted/30 flex justify-end gap-3">
                 <Link 
                   href={`/doctor/ipd/${patientId}/notes/${note.id}/edit`}
-                  className="h-9 px-5 bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 text-[#1A1C23] dark:text-white rounded-[5px] text-[12px] font-bold flex items-center justify-center hover:bg-gray-50 dark:hover:bg-white/5 transition-all shadow-none outline-none"
+                  className="h-9 px-5 bg-card border border-border text-foreground rounded-lg text-[12px] font-bold flex items-center justify-center hover:bg-muted transition-all shadow-none outline-none"
                 >
                   Edit Note
                 </Link>
                 <Link 
                   href={`/doctor/ipd/${patientId}/notes/${note.id}/history`}
-                  className="h-9 px-5 bg-[#2D3A8C] text-white rounded-[5px] text-[12px] font-bold flex items-center justify-center hover:opacity-90 transition-all shadow-none outline-none"
+                  className="h-9 px-5 bg-primary text-primary-foreground rounded-lg text-[12px] font-bold flex items-center justify-center hover:opacity-90 transition-all shadow-none outline-none"
                 >
                   View History
                 </Link>
@@ -624,12 +624,12 @@ export default function PatientChartPage() {
 
       {/* ── Placeholder for other tabs ── */}
       {activeTab !== "Summary" && activeTab !== "Vitals" && activeTab !== "Lab Results" && activeTab !== "Notes" && (
-        <div className="bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 p-12 rounded-[5px] flex flex-col items-center justify-center text-center">
-           <div className="w-16 h-16 bg-gray-50 dark:bg-white/5 rounded-full flex items-center justify-center mb-4">
-              <Clock className="w-8 h-8 text-gray-300" />
+        <div className="bg-card border border-border p-12 rounded-lg flex flex-col items-center justify-center text-center">
+           <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mb-4">
+              <Clock className="w-8 h-8 text-muted-foreground/30" />
            </div>
-           <h3 className="text-[16px] font-bold text-[#1A1C23] dark:text-white">{activeTab} Details</h3>
-           <p className="text-[14px] text-[#5E6C84] dark:text-slate-400 mt-2">Comprehensive {activeTab.toLowerCase()} data for the patient will be displayed here.</p>
+           <h3 className="text-[16px] font-bold text-foreground">{activeTab} Details</h3>
+           <p className="text-[14px] text-muted-foreground mt-2">Comprehensive {activeTab.toLowerCase()} data for the patient will be displayed here.</p>
         </div>
       )}
     </div>
@@ -639,8 +639,8 @@ export default function PatientChartPage() {
 function InfoItem({ label, value }) {
   return (
     <div className="flex flex-col gap-1">
-      <p className="text-[10px] font-bold text-[#5E6C84] dark:text-slate-500 uppercase tracking-wider">{label}</p>
-      <p className="text-[14px] font-bold text-[#1A1C23] dark:text-white tracking-tight leading-tight">{value}</p>
+      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">{label}</p>
+      <p className="text-[14px] font-bold text-foreground tracking-tight leading-tight">{value}</p>
     </div>
   );
 }

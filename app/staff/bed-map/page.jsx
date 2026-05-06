@@ -105,11 +105,11 @@ export default function BedMapPage() {
   if (loading) return <div className="p-10 text-center text-gray-400 font-bold py-40">Initializing Bed Map...</div>;
 
   return (
-    <div className="p-4 sm:p-5 bg-[#F8F9FA] dark:bg-[#0B1121] min-h-screen flex flex-col space-y-5 transition-colors duration-300 font-sans pb-20">
+    <div className="p-4 sm:p-5 bg-background min-h-screen flex flex-col space-y-5 transition-colors duration-300 font-sans pb-20">
       
       {/* Page Header */}
       <div className="flex items-center justify-between">
-        <h1 className="text-[22px] font-bold text-[#1A1C23] dark:text-white tracking-tight leading-none">
+        <h1 className="text-[22px] font-bold text-foreground tracking-tight leading-none">
           Bed Management
         </h1>
       </div>

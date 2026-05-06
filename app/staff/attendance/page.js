@@ -161,9 +161,9 @@ export default function StaffAttendancePage() {
 
   if (loading) {
     return (
-      <div className="h-screen flex flex-col items-center justify-center bg-[#F8F9FC] dark:bg-[#0A0F1D]">
+      <div className="h-screen flex flex-col items-center justify-center bg-background">
         <Loader2 className="w-10 h-10 text-primary animate-spin mb-4" />
-        <p className="text-[11px] font-bold uppercase tracking-widest text-gray-400">Loading attendance...</p>
+        <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">Loading attendance...</p>
       </div>
     );
   }
@@ -172,17 +172,17 @@ export default function StaffAttendancePage() {
   const isCheckedOut = attendanceToday?.checkOut;
 
   return (
-    <div className="p-6 bg-[#F8F9FC] dark:bg-[#0A0F1D] min-h-screen space-y-[25px] flex flex-col transition-colors duration-300 font-sans">
+    <div className="p-6 bg-background min-h-screen space-y-[25px] flex flex-col transition-colors duration-300 font-sans">
       
       {/* Header Section */}
       <div className="flex justify-between items-center mb-[25px]">
         <div>
-          <h1 className="text-[20px] font-bold text-[#1e293b] dark:text-white leading-tight">My Attendance</h1>
+          <h1 className="text-[20px] font-bold text-foreground leading-tight">My Attendance</h1>
         </div>
         <div className="flex items-center gap-3">
-          <div className="bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 h-[44px] px-5 rounded-[5px] flex items-center gap-3 shadow-none">
+          <div className="bg-card border border-border h-[44px] px-5 rounded-lg flex items-center gap-3 shadow-none">
             <Clock className="w-4 h-4 text-primary" />
-            <span className="text-[14px] font-bold text-[#1e293b] dark:text-white tabular-nums">
+            <span className="text-[14px] font-bold text-foreground tabular-nums">
               {currentTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
             </span>
           </div>
@@ -193,18 +193,18 @@ export default function StaffAttendancePage() {
         
         {/* Check-In Card */}
         <div className="lg:col-span-2 space-y-6">
-          <div className="bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] p-10 flex flex-col items-center text-center shadow-none relative overflow-hidden">
+          <div className="bg-card border border-border rounded-lg p-10 flex flex-col items-center text-center shadow-none relative overflow-hidden">
             <div className={cn(
               "w-20 h-20 rounded-full flex items-center justify-center mb-6 transition-all border-4",
-              isCheckedIn ? "bg-emerald-50 border-emerald-100 text-emerald-500" : "bg-primary/5 border-primary/10 text-primary"
+              isCheckedIn ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-600" : "bg-primary/5 border-primary/10 text-primary"
             )}>
               <Fingerprint className="w-10 h-10" />
             </div>
 
-            <h2 className="text-[22px] font-bold text-[#1e293b] dark:text-white mb-2">
+            <h2 className="text-[22px] font-bold text-foreground mb-2">
               {isCheckedIn ? "Shift Started" : isCheckedOut ? "Shift Finished" : "Ready to Start"}
             </h2>
-            <p className="text-[13px] text-gray-500 dark:text-gray-400 mb-8 max-w-sm font-medium">
+            <p className="text-[13px] text-muted-foreground mb-8 max-w-sm font-medium">
               {rosterToday 
                 ? `Active Shift: ${rosterToday.startTime} - ${rosterToday.endTime} (${rosterToday.department})`
                 : "No active shift scheduled for today."}
@@ -215,7 +215,7 @@ export default function StaffAttendancePage() {
                 <button
                   disabled={submitting}
                   onClick={handleCheckIn}
-                  className="flex-1 bg-primary text-white h-[48px] rounded-[5px] font-bold text-[13px] flex items-center justify-center gap-2 hover:bg-primary/90 disabled:opacity-50 transition-all uppercase tracking-widest border border-primary"
+                  className="flex-1 bg-primary text-primary-foreground h-[48px] rounded-lg font-bold text-[13px] flex items-center justify-center gap-2 hover:bg-primary/90 disabled:opacity-50 transition-all uppercase tracking-widest shadow-none"
                 >
                   {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <ArrowRight className="w-4 h-4" />}
                   Check In
@@ -224,13 +224,13 @@ export default function StaffAttendancePage() {
                 <button
                   disabled={submitting}
                   onClick={handleCheckOut}
-                  className="flex-1 bg-red-500 text-white h-[48px] rounded-[5px] font-bold text-[13px] flex items-center justify-center gap-2 hover:bg-red-600 disabled:opacity-50 transition-all uppercase tracking-widest border border-red-600"
+                  className="flex-1 bg-destructive text-destructive-foreground h-[48px] rounded-lg font-bold text-[13px] flex items-center justify-center gap-2 hover:bg-destructive/90 disabled:opacity-50 transition-all uppercase tracking-widest shadow-none"
                 >
                   {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <LogOut className="w-4 h-4" />}
                   Check Out
                 </button>
               ) : (
-                <div className="flex-1 bg-emerald-50 text-emerald-600 h-[48px] rounded-[5px] font-bold text-[13px] flex items-center justify-center gap-2 border border-emerald-100 uppercase tracking-widest">
+                <div className="flex-1 bg-emerald-500/10 text-emerald-600 h-[48px] rounded-lg font-bold text-[13px] flex items-center justify-center gap-2 border border-emerald-500/20 uppercase tracking-widest">
                   <CheckCircle2 className="w-4 h-4" />
                   Completed
                 </div>
@@ -238,16 +238,16 @@ export default function StaffAttendancePage() {
             </div>
 
             {attendanceToday && (
-              <div className="mt-10 grid grid-cols-2 gap-10 w-full border-t border-[#E7E8EB] dark:border-white/10 pt-8">
+              <div className="mt-10 grid grid-cols-2 gap-10 w-full border-t border-border pt-8">
                 <div className="text-center">
-                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Check In Time</p>
-                  <p className="text-[18px] font-bold text-[#1e293b] dark:text-white leading-none">
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1.5">Check In Time</p>
+                  <p className="text-[18px] font-bold text-foreground leading-none">
                     {attendanceToday.checkIn ? new Date(attendanceToday.checkIn).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "--:--"}
                   </p>
                 </div>
                 <div className="text-center">
-                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1.5">Check Out Time</p>
-                  <p className="text-[18px] font-bold text-[#1e293b] dark:text-white leading-none">
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1.5">Check Out Time</p>
+                  <p className="text-[18px] font-bold text-foreground leading-none">
                     {attendanceToday.checkOut ? new Date(attendanceToday.checkOut).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "--:--"}
                   </p>
                 </div>
@@ -256,22 +256,22 @@ export default function StaffAttendancePage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] p-5 flex items-center gap-4 shadow-none">
-              <div className="p-2.5 bg-amber-50 text-amber-500 rounded-[5px] border border-amber-100">
+            <div className="bg-card border border-border rounded-lg p-5 flex items-center gap-4 shadow-none">
+              <div className="p-2.5 bg-amber-500/10 text-amber-600 rounded-lg border border-amber-500/20">
                 <MapPin className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Work Location</p>
-                <p className="text-[13px] font-bold text-[#1e293b] dark:text-white">Main Hospital Campus</p>
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Work Location</p>
+                <p className="text-[13px] font-bold text-foreground">Main Hospital Campus</p>
               </div>
             </div>
-            <div className="bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] p-5 flex items-center gap-4 shadow-none">
-              <div className="p-2.5 bg-blue-50 text-blue-500 rounded-[5px] border border-blue-100">
+            <div className="bg-card border border-border rounded-lg p-5 flex items-center gap-4 shadow-none">
+              <div className="p-2.5 bg-blue-500/10 text-blue-600 rounded-lg border border-blue-500/20">
                 <ShieldCheck className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Device Status</p>
-                <p className="text-[13px] font-bold text-[#1e293b] dark:text-white truncate max-w-[150px]">Verified Device</p>
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Device Status</p>
+                <p className="text-[13px] font-bold text-foreground truncate max-w-[150px]">Verified Device</p>
               </div>
             </div>
           </div>
@@ -279,37 +279,37 @@ export default function StaffAttendancePage() {
 
         {/* History Column */}
         <div className="space-y-6">
-          <div className="bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] h-full flex flex-col overflow-hidden shadow-none">
-            <div className="p-5 border-b border-[#E7E8EB] dark:border-white/10 flex justify-between items-center bg-[#F8F9FC] dark:bg-[#1e293b]/50">
-              <h3 className="text-[12px] font-bold text-[#1e293b] dark:text-white uppercase tracking-widest">Recent Records</h3>
-              <Calendar className="w-4 h-4 text-gray-400" />
+          <div className="bg-card border border-border rounded-lg h-full flex flex-col overflow-hidden shadow-none">
+            <div className="p-5 border-b border-border flex justify-between items-center bg-muted/50">
+              <h3 className="text-[12px] font-bold text-foreground uppercase tracking-widest">Recent Records</h3>
+              <Calendar className="w-4 h-4 text-muted-foreground" />
             </div>
             <div className="flex-1 overflow-y-auto p-5 space-y-4 no-scrollbar">
               {history.length === 0 ? (
                 <div className="h-40 flex flex-col items-center justify-center opacity-40">
                   <Clock className="w-8 h-8 mb-2" />
-                  <p className="text-[10px] font-bold uppercase tracking-widest">No Records</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-foreground">No Records</p>
                 </div>
               ) : (
                 history.map((log, i) => (
-                  <div key={i} className="flex gap-4 p-3 rounded-[5px] border border-transparent hover:border-[#E7E8EB] dark:hover:border-white/10 hover:bg-gray-50/50 dark:hover:bg-white/[0.02] transition-all group">
+                  <div key={i} className="flex gap-4 p-3 rounded-lg border border-transparent hover:border-border hover:bg-muted transition-all group">
                     <div className="flex flex-col items-center gap-1">
                       <div className={cn("w-2 h-2 rounded-full", log.checkOut ? "bg-emerald-500" : "bg-amber-500 animate-pulse")} />
-                      <div className="w-[1px] h-full bg-[#E7E8EB] dark:bg-white/10 rounded-full" />
+                      <div className="w-[1px] h-full bg-border rounded-full" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex justify-between items-center">
-                        <p className="text-[13px] font-bold text-[#1e293b] dark:text-white">
+                        <p className="text-[13px] font-bold text-foreground">
                           {new Date(log.date).toLocaleDateString('en-US', { day: 'numeric', month: 'short' })}
                         </p>
                         <span className={cn(
                           "text-[9px] font-black uppercase px-2 py-0.5 rounded-[3px] border",
-                          log.checkOut ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-amber-50 text-amber-600 border-amber-100"
+                          log.checkOut ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20" : "bg-amber-500/10 text-amber-600 border-amber-500/20"
                         )}>
                           {log.checkOut ? "Complete" : "Active"}
                         </span>
                       </div>
-                      <p className="text-[11px] text-gray-400 font-bold mt-1 tabular-nums">
+                      <p className="text-[11px] text-muted-foreground font-bold mt-1 tabular-nums">
                         {new Date(log.checkIn).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} 
                         {log.checkOut && ` - ${new Date(log.checkOut).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
                       </p>

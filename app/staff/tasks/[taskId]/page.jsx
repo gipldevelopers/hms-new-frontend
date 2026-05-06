@@ -56,10 +56,10 @@ export default function TaskDetailPage() {
       </div>
 
       {/* ── Allergies Alert Banner ── */}
-      <div className="bg-[#FFF5F5] dark:bg-red-950/20 border border-[#FFE2E2] dark:border-red-500/10 border-l-4 border-l-red-500 p-4 rounded-[var(--radius)] flex items-center gap-3 shadow-none">
-        <AlertTriangle className="w-5 h-5 text-red-500 shrink-0" />
-        <span className="text-[13px] font-bold text-red-600 leading-none">Allergies:</span>
-        <span className="text-[13px] font-medium text-red-500 leading-none">Penicillin, Sulfa Drugs</span>
+      <div className="bg-destructive/10 border border-destructive/20 border-l-4 border-l-destructive p-4 rounded-[var(--radius)] flex items-center gap-3 shadow-none">
+        <AlertTriangle className="w-5 h-5 text-destructive shrink-0" />
+        <span className="text-[13px] font-bold text-destructive/90 leading-none">Allergies:</span>
+        <span className="text-[13px] font-medium text-destructive leading-none">Penicillin, Sulfa Drugs</span>
       </div>
 
       {/* ── Patient Profile Info Card ── */}

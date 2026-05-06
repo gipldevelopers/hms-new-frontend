@@ -111,7 +111,7 @@ export default function BedCard({ bed, refresh, deptId, wardId, branchId }) {
   };
 
   // Base card styles
-  const baseClasses = "bg-white dark:bg-[#101935] rounded-[5px] border border-[#E7E8EB] dark:border-white/10 shadow-none h-full flex flex-col overflow-hidden transition-all relative";
+  const baseClasses = "bg-card rounded-lg border border-border shadow-none h-full flex flex-col overflow-hidden transition-all relative";
 
   const upperStatus = status?.toUpperCase();
 
@@ -120,26 +120,26 @@ export default function BedCard({ bed, refresh, deptId, wardId, branchId }) {
       <>
         <div className={baseClasses}>
           {assigning && (
-            <div className="absolute inset-0 bg-white/50 dark:bg-black/50 z-10 flex items-center justify-center">
-              <div className="w-6 h-6 border-2 border-[#2D3A8C] border-t-transparent rounded-full animate-spin" />
+            <div className="absolute inset-0 bg-background/50 z-10 flex items-center justify-center backdrop-blur-[2px]">
+              <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
             </div>
           )}
-          <div className="p-4 border-b border-[#F4F5F7] dark:border-white/5 flex items-center gap-2">
+          <div className="p-4 border-b border-border flex items-center gap-2">
             <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-            <span className="text-[13px] font-bold text-[#1A1C23] dark:text-white">{label}</span>
+            <span className="text-[13px] font-bold text-foreground">{label}</span>
           </div>
           <div className="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-4">
-            <div className="w-12 h-12 rounded-full bg-emerald-50 dark:bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+            <div className="w-12 h-12 rounded-full bg-emerald-500/10 flex items-center justify-center text-emerald-500">
               <BedIcon className="w-6 h-6" />
             </div>
             <div className="space-y-1">
-              <p className="text-[14px] font-bold text-[#1A1C23] dark:text-white">Vacant</p>
-              <p className="text-[11px] text-[#A0AEC0] font-medium leading-tight">Bed is clean and ready for a<br/>new patient.</p>
+              <p className="text-[14px] font-bold text-foreground">Vacant</p>
+              <p className="text-[11px] text-muted-foreground font-medium leading-tight">Bed is clean and ready for a<br/>new patient.</p>
             </div>
             <button 
               onClick={handleAssignClick}
               disabled={assigning}
-              className="mt-2 px-4 py-2 rounded-[5px] border border-[#E7E8EB] dark:border-white/10 text-[11px] font-bold text-[#1A1C23] dark:text-white hover:bg-gray-50 dark:hover:bg-white/5 transition-all disabled:opacity-50"
+              className="mt-2 px-4 py-2 rounded-lg border border-border text-[11px] font-bold text-foreground hover:bg-muted transition-all disabled:opacity-50"
             >
               Assign Patient
             </button>
@@ -160,17 +160,17 @@ export default function BedCard({ bed, refresh, deptId, wardId, branchId }) {
   if (upperStatus === "CLEANING") {
     return (
       <div className={baseClasses}>
-        <div className="p-4 border-b border-[#F4F5F7] dark:border-white/5 flex items-center gap-2">
+        <div className="p-4 border-b border-border flex items-center gap-2">
           <div className="w-2.5 h-2.5 rounded-full bg-orange-400" />
-          <span className="text-[13px] font-bold text-[#1A1C23] dark:text-white">{label}</span>
+          <span className="text-[13px] font-bold text-foreground">{label}</span>
         </div>
         <div className="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-4">
-          <div className="w-12 h-12 rounded-full bg-orange-50 dark:bg-orange-500/10 flex items-center justify-center text-orange-500">
+          <div className="w-12 h-12 rounded-full bg-orange-500/10 flex items-center justify-center text-orange-500">
             <RefreshCw className="w-6 h-6" />
           </div>
           <div className="space-y-1">
-            <p className="text-[14px] font-bold text-[#1A1C23] dark:text-white">Under Cleaning</p>
-            <p className="text-[11px] text-[#A0AEC0] font-medium leading-tight">Bed is currently unavailable.</p>
+            <p className="text-[14px] font-bold text-foreground">Under Cleaning</p>
+            <p className="text-[11px] text-muted-foreground font-medium leading-tight">Bed is currently unavailable.</p>
           </div>
         </div>
       </div>
@@ -180,17 +180,17 @@ export default function BedCard({ bed, refresh, deptId, wardId, branchId }) {
   if (upperStatus === "RESERVED") {
     return (
       <div className={baseClasses}>
-        <div className="p-4 border-b border-[#F4F5F7] dark:border-white/5 flex items-center gap-2">
+        <div className="p-4 border-b border-border flex items-center gap-2">
           <div className="w-2.5 h-2.5 rounded-full bg-slate-400" />
-          <span className="text-[13px] font-bold text-[#1A1C23] dark:text-white">{label}</span>
+          <span className="text-[13px] font-bold text-foreground">{label}</span>
         </div>
         <div className="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-4">
-          <div className="w-12 h-12 rounded-full bg-slate-50 dark:bg-slate-500/10 flex items-center justify-center text-slate-500">
+          <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center text-muted-foreground">
             <Lock className="w-6 h-6" />
           </div>
           <div className="space-y-1">
-            <p className="text-[14px] font-bold text-[#1A1C23] dark:text-white">Reserved</p>
-            <p className="text-[11px] text-[#A0AEC0] font-medium leading-tight">Bed is currently unavailable.</p>
+            <p className="text-[14px] font-bold text-foreground">Reserved</p>
+            <p className="text-[11px] text-muted-foreground font-medium leading-tight">Bed is currently unavailable.</p>
           </div>
         </div>
       </div>
@@ -202,16 +202,16 @@ export default function BedCard({ bed, refresh, deptId, wardId, branchId }) {
 
   return (
     <div className={baseClasses}>
-      <div className="p-4 border-b border-[#F4F5F7] dark:border-white/5 flex items-center justify-between">
+      <div className="p-4 border-b border-border flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className={cn(
             "w-2.5 h-2.5 rounded-full",
-            !isCritical ? "bg-[#2D3A8C]" : "bg-rose-500"
+            !isCritical ? "bg-primary" : "bg-destructive"
           )} />
-          <span className="text-[13px] font-bold text-[#1A1C23] dark:text-white">{label}</span>
+          <span className="text-[13px] font-bold text-foreground">{label}</span>
         </div>
         <div className="flex items-center gap-2">
-           <button className="w-7 h-7 rounded-full bg-rose-50 dark:bg-rose-500/10 flex items-center justify-center text-rose-500 border border-rose-100 dark:border-rose-500/20">
+           <button className="w-7 h-7 rounded-lg bg-destructive/10 flex items-center justify-center text-destructive border border-destructive/20 transition-all hover:bg-destructive/20">
              <Bell className="w-3.5 h-3.5" />
            </button>
         </div>
@@ -221,28 +221,28 @@ export default function BedCard({ bed, refresh, deptId, wardId, branchId }) {
         <div className="space-y-4">
           <div className="space-y-1">
             <p className={cn(
-              "text-[9px] font-bold uppercase-none tracking-widest",
-              !isCritical ? "text-[#2D3A8C]" : "text-rose-500"
+              "text-[9px] font-bold tracking-widest",
+              !isCritical ? "text-primary" : "text-destructive"
             )}>
               {isCritical ? "OCCUPIED (CRITICAL)" : "OCCUPIED (STABLE)"}
             </p>
-            <h3 className="text-[16px] font-bold text-[#1A1C23] dark:text-white leading-tight">{patient?.name || "Unknown Patient"}</h3>
-            <p className="text-[11px] text-[#A0AEC0] font-medium">
+            <h3 className="text-[16px] font-bold text-foreground leading-tight">{patient?.name || "Unknown Patient"}</h3>
+            <p className="text-[11px] text-muted-foreground font-medium">
               {patient?.age}y • {patient?.gender} • {currentAdmission?.reason || "General Admission"}
             </p>
           </div>
 
           <div className="space-y-2.5 pt-1">
             <div className="flex items-center gap-2.5">
-               <Calendar className="w-3.5 h-3.5 text-[#A0AEC0]" />
-               <p className="text-[11px] text-[#5E6C84] dark:text-slate-500 font-medium">
-                 <span className="font-bold text-[#1A1C23] dark:text-slate-300">Admitted:</span> {currentAdmission?.admissionDate ? format(new Date(currentAdmission.admissionDate), "dd MMM, hh:mm a") : "N/A"}
+               <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
+               <p className="text-[11px] text-muted-foreground font-medium">
+                 <span className="font-bold text-foreground">Admitted:</span> {currentAdmission?.admissionDate ? format(new Date(currentAdmission.admissionDate), "dd MMM, hh:mm a") : "N/A"}
                </p>
             </div>
             <div className="flex items-center gap-2.5">
-               <User className="w-3.5 h-3.5 text-[#A0AEC0]" />
-               <p className="text-[11px] text-[#5E6C84] dark:text-slate-500 font-medium">
-                 <span className="font-bold text-[#1A1C23] dark:text-slate-300">Doctor:</span> {doctor?.name || "Unassigned"}
+               <User className="w-3.5 h-3.5 text-muted-foreground" />
+               <p className="text-[11px] text-muted-foreground font-medium">
+                 <span className="font-bold text-foreground">Doctor:</span> {doctor?.name || "Unassigned"}
                </p>
             </div>
           </div>

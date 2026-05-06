@@ -37,19 +37,19 @@ function CustomSelect({ value, onChange, options, placeholder, minWidth = "120px
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button className={cn(
-          "flex items-center justify-between px-3 h-11 bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] font-medium text-foreground outline-none transition-all hover:bg-gray-50 dark:hover:bg-white/5",
+          "flex items-center justify-between px-3 h-11 bg-card border border-border rounded-lg text-[13px] font-medium text-foreground outline-none transition-all hover:bg-muted",
           className
         )} style={{ minWidth }}>
           <span className="truncate">{selected ? selected.label : placeholder}</span>
           <ChevronDown className="w-4 h-4 text-muted-foreground ml-2 flex-shrink-0" />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[200px] z-[10000]">
+      <DropdownMenuContent align="end" className="w-[200px] z-[10000] border border-border bg-card p-1 rounded-lg shadow-none">
         {options.map((opt) => (
           <DropdownMenuItem 
             key={opt.value} 
             onClick={() => onChange(opt.value)}
-            className="text-[13px] font-medium py-2.5"
+            className="text-[13px] font-medium py-2.5 rounded-lg cursor-pointer transition-colors outline-none hover:bg-muted"
           >
             {opt.label}
           </DropdownMenuItem>
@@ -107,11 +107,11 @@ function AddMedicineModal({ onClose, onAdd }) {
       />
       
       {/* Modal Container */}
-      <div className="relative bg-white dark:bg-[#101935] w-full max-w-lg rounded-[5px] border border-[#E7E8EB] dark:border-white/10 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 z-50">
+      <div className="relative bg-card w-full max-w-lg rounded-lg border border-border shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 z-50">
         {/* Header */}
-        <div className="p-5 border-b border-[#E7E8EB] dark:border-white/5 flex items-center justify-between">
+        <div className="p-5 border-b border-border flex items-center justify-between">
           <h3 className="text-[16px] font-bold text-foreground">Add New Medicine</h3>
-          <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-full transition-colors">
+          <button onClick={onClose} className="p-2 hover:bg-muted rounded-full transition-colors">
             <X className="w-5 h-5 text-muted-foreground" />
           </button>
         </div>
@@ -126,7 +126,7 @@ function AddMedicineModal({ onClose, onAdd }) {
                 required
                 autoFocus
                 placeholder="Search medicine..."
-                className="w-full h-11 pl-10 pr-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] font-medium outline-none focus:border-primary transition-all"
+                className="w-full h-11 pl-10 pr-4 bg-muted border border-border rounded-lg text-[13px] font-medium text-foreground outline-none focus:border-primary transition-all"
                 value={formData.name}
                 onChange={(e) => setFormData({...formData, name: e.target.value})}
               />
@@ -139,7 +139,7 @@ function AddMedicineModal({ onClose, onAdd }) {
               <input 
                 required
                 placeholder="e.g. 1 Tablet"
-                className="w-full h-11 px-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] font-medium outline-none focus:border-primary transition-all"
+                className="w-full h-11 px-4 bg-muted border border-border rounded-lg text-[13px] font-medium text-foreground outline-none focus:border-primary transition-all"
                 value={formData.dosage}
                 onChange={(e) => setFormData({...formData, dosage: e.target.value})}
               />
@@ -182,7 +182,7 @@ function AddMedicineModal({ onClose, onAdd }) {
                 <input 
                   required
                   type="number"
-                  className="w-20 h-11 px-3 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] font-medium outline-none focus:border-primary transition-all"
+                  className="w-20 h-11 px-3 bg-muted border border-border rounded-lg text-[13px] font-medium text-foreground outline-none focus:border-primary transition-all"
                   value={formData.duration}
                   onChange={(e) => setFormData({...formData, duration: e.target.value})}
                 />
@@ -206,7 +206,7 @@ function AddMedicineModal({ onClose, onAdd }) {
             <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Special Instructions (Optional)</label>
             <textarea 
               placeholder="Any specific notes..."
-              className="w-full min-h-[80px] p-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] font-medium text-foreground outline-none focus:border-primary transition-all resize-none"
+              className="w-full min-h-[80px] p-4 bg-muted border border-border rounded-lg text-[13px] font-medium text-foreground outline-none focus:border-primary transition-all resize-none"
               value={formData.instructions}
               onChange={(e) => setFormData({...formData, instructions: e.target.value})}
             />
@@ -216,13 +216,13 @@ function AddMedicineModal({ onClose, onAdd }) {
             <button 
               type="button"
               onClick={onClose}
-              className="flex-1 h-11 border border-[#E7E8EB] dark:border-white/10 bg-white dark:bg-transparent text-foreground rounded-[5px] text-[13px] font-bold hover:bg-gray-50 dark:hover:bg-white/5 transition-all"
+              className="flex-1 h-11 border border-border bg-card text-foreground rounded-lg text-[13px] font-bold hover:bg-muted transition-all"
             >
               Cancel
             </button>
             <button 
               type="submit"
-              className="flex-1 h-11 bg-[#2D3A8C] hover:opacity-95 text-white rounded-[5px] text-[13px] font-bold transition-all shadow-none"
+              className="flex-1 h-11 bg-primary hover:opacity-95 text-primary-foreground rounded-lg text-[13px] font-bold transition-all shadow-none"
             >
               Add Medicine
             </button>
@@ -312,13 +312,13 @@ function PatientHistoryDrawer({ onClose }) {
       
       {/* Drawer Container */}
       <div className={cn(
-        "relative w-full max-w-[480px] h-full bg-[#F8F9FC] dark:bg-[#0A0F1D] border-l border-[#E7E8EB] dark:border-white/10 shadow-2xl flex flex-col duration-300",
+        "relative w-full max-w-[480px] h-full bg-background border-l border-border shadow-2xl flex flex-col duration-300",
         closing ? "animate-out slide-out-to-right" : "animate-in slide-in-from-right"
       )}>
         {/* Header */}
-        <div className="p-6 bg-white dark:bg-[#101935] border-b border-[#E7E8EB] dark:border-white/5 flex items-center justify-between">
+        <div className="p-6 bg-card border-b border-border flex items-center justify-between">
           <h2 className="text-[20px] font-bold text-foreground">Patient History</h2>
-          <button onClick={handleClose} className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-full transition-colors">
+          <button onClick={handleClose} className="p-2 hover:bg-muted rounded-full transition-colors">
             <X className="w-5 h-5 text-muted-foreground" />
           </button>
         </div>
@@ -331,11 +331,11 @@ function PatientHistoryDrawer({ onClose }) {
                 {/* Left Timeline Column */}
                 <div className="flex flex-col items-center shrink-0">
                   {/* Timeline Indicator */}
-                  <div className="w-[16px] h-[16px] rounded-full border-[2px] border-[#2D3A8C] bg-white dark:bg-[#0A0F1D] z-10 mt-[5px]" />
+                  <div className="w-[16px] h-[16px] rounded-full border-[2px] border-primary bg-card z-10 mt-[5px]" />
                   
                   {/* Vertical Line Segment */}
                   {idx < historyData.length - 1 && (
-                    <div className="w-[1px] bg-[#E2E4E9] dark:bg-white/10 flex-1 my-[2px]" />
+                    <div className="w-[1px] bg-border flex-1 my-[2px]" />
                   )}
                 </div>
 
@@ -347,13 +347,13 @@ function PatientHistoryDrawer({ onClose }) {
                       <h3 className="text-[20px] font-bold text-foreground leading-none">{visit.date}</h3>
                       <p className="text-[13px] font-medium text-muted-foreground mt-1.5">{visit.doctor}</p>
                     </div>
-                    <span className="px-2.5 py-0.5 bg-primary/5 dark:bg-primary/10 border border-primary/20 text-primary text-[10px] font-bold rounded-[5px] w-fit">
+                    <span className="px-2.5 py-0.5 bg-primary/5 dark:bg-primary/10 border border-primary/20 text-primary text-[10px] font-bold rounded-lg w-fit">
                       {visit.diagnosis}
                     </span>
                   </div>
 
                   {/* Visit Details Card */}
-                  <div className="bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] p-6 space-y-6 shadow-none">
+                  <div className="bg-card border border-border rounded-lg p-6 space-y-6 shadow-none">
                     {/* Notes */}
                     <div className="space-y-2.5">
                       <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Notes</p>
@@ -368,7 +368,7 @@ function PatientHistoryDrawer({ onClose }) {
                         <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Investigations</p>
                         <div className="flex flex-wrap gap-2.5">
                           {visit.investigations.map((test, i) => (
-                            <span key={i} className="px-3.5 py-1.5 bg-[#F8F9FC] dark:bg-white/5 border border-[#E7E8EB] dark:border-white/10 text-[12px] font-bold text-foreground rounded-[5px]">
+                            <span key={i} className="px-3.5 py-1.5 bg-muted border border-border text-[12px] font-bold text-foreground rounded-lg">
                               {test}
                             </span>
                           ))}
@@ -382,7 +382,7 @@ function PatientHistoryDrawer({ onClose }) {
                         <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">Prescription</p>
                         <div className="space-y-2.5">
                           {visit.prescriptions.map((med, i) => (
-                            <div key={i} className="flex items-center justify-between p-4 bg-gray-50/50 dark:bg-white/[0.02] border border-[#E7E8EB] dark:border-white/5 rounded-[5px]">
+                            <div key={i} className="flex items-center justify-between p-4 bg-muted/50 border border-border rounded-lg">
                               <div className="flex flex-col">
                                 <span className="text-[13px] font-bold text-foreground">{med.name}</span>
                                 <span className="text-[12px] text-muted-foreground font-medium">{med.dosage}</span>
@@ -441,28 +441,28 @@ export default function ConsultationPage() {
   };
 
   return (
-    <div className="p-[20px] bg-[#F8F9FC] dark:bg-[#0A0F1D] min-h-screen flex flex-col space-y-[20px] transition-colors duration-300 font-sans pb-20">
+    <div className="p-5 bg-background min-h-screen flex flex-col gap-5 transition-colors duration-300 font-sans pb-20">
       
       {/* ── Header Area ── */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
         <div className="flex items-center gap-3">
           <button 
             onClick={() => router.back()}
-            className="p-2 hover:bg-white dark:hover:bg-white/5 rounded-full transition-colors"
+            className="p-2 hover:bg-card rounded-full transition-colors"
           >
             <ArrowLeft className="w-5 h-5 text-muted-foreground" />
           </button>
-          <h1 className="text-[20px] font-bold text-[#1e293b] dark:text-white tracking-tight leading-none">
+          <h1 className="text-[20px] font-bold text-foreground tracking-tight leading-none">
             Consultation
           </h1>
         </div>
         <div className="flex items-center gap-3">
-          <button className="h-10 px-4 bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 text-foreground rounded-[5px] text-[13px] font-bold flex items-center gap-2 hover:bg-muted transition-all shadow-none outline-none">
+          <button className="h-10 px-4 bg-card border border-border text-foreground rounded-lg text-[13px] font-bold flex items-center gap-2 hover:bg-muted transition-all shadow-none outline-none">
             <Printer className="w-4 h-4" /> Print Prescription
           </button>
           <button 
             onClick={() => setShowCallNext(true)}
-            className="h-10 px-4 bg-[#2D3A8C] hover:opacity-95 text-white rounded-[5px] text-[13px] font-bold flex items-center gap-2 transition-all shadow-none outline-none"
+            className="h-10 px-4 bg-primary hover:opacity-95 text-primary-foreground rounded-lg text-[13px] font-bold flex items-center gap-2 transition-all shadow-none outline-none"
           >
             <CheckCircle2 className="w-4 h-4" /> Complete Consultation
           </button>
@@ -470,15 +470,15 @@ export default function ConsultationPage() {
       </div>
 
       {/* ── Patient Profile Card ── */}
-      <div className="bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 p-5 rounded-[5px] flex flex-col md:flex-row md:items-center justify-between gap-5 shadow-none transition-all">
+      <div className="bg-card border border-border p-5 rounded-lg flex flex-col md:flex-row md:items-center justify-between gap-5 shadow-none transition-all">
         <div className="flex items-center gap-4">
           <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-primary/10">
             <img src={patient.avatar} alt={patient.name} className="w-full h-full object-cover" />
           </div>
           <div>
             <div className="flex items-center gap-3">
-              <h2 className="text-[18px] font-bold text-[#1e293b] dark:text-white">{patient.name}</h2>
-              <span className="px-2 py-0.5 bg-amber-50 dark:bg-amber-500/10 text-amber-600 text-[10px] font-bold rounded-[5px] border border-amber-200/50 dark:border-amber-500/20">
+              <h2 className="text-[18px] font-bold text-foreground">{patient.name}</h2>
+              <span className="px-2 py-0.5 bg-amber-50 dark:bg-amber-500/10 text-amber-600 text-[10px] font-bold rounded-lg border border-amber-200/50 dark:border-amber-500/20">
                 {patient.status}
               </span>
             </div>
@@ -497,7 +497,7 @@ export default function ConsultationPage() {
         </div>
         <button 
           onClick={() => setShowHistory(true)}
-          className="h-10 px-4 bg-white dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 text-foreground rounded-[5px] text-[13px] font-bold flex items-center gap-2 hover:bg-muted transition-all shadow-none outline-none w-full md:w-auto justify-center"
+          className="h-10 px-4 bg-card border border-border text-foreground rounded-lg text-[13px] font-bold flex items-center gap-2 hover:bg-muted transition-all shadow-none outline-none w-full md:w-auto justify-center"
         >
           <History className="w-4 h-4" /> View History
         </button>
@@ -505,7 +505,7 @@ export default function ConsultationPage() {
 
 
       {/* ── Vitals Grid ── */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-[20px]">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-5">
         {[
           { label: "BLOOD PRESSURE", value: "120/80", unit: "mmHg", icon: Activity, color: "text-emerald-500", bgColor: "bg-emerald-50 dark:bg-emerald-500/10" },
           { label: "HEART RATE", value: "84", unit: "bpm", icon: Heart, color: "text-rose-500", bgColor: "bg-rose-50 dark:bg-rose-500/10" },
@@ -513,7 +513,7 @@ export default function ConsultationPage() {
           { label: "SPO2", value: "98", unit: "%", icon: Wind, color: "text-cyan-500", bgColor: "bg-cyan-50 dark:bg-cyan-500/10" },
           { label: "WEIGHT", value: "64", unit: "kg", icon: Scale, color: "text-indigo-500", bgColor: "bg-indigo-50 dark:bg-indigo-500/10" },
         ].map((v, i) => (
-          <div key={i} className="bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 p-5 rounded-[5px] shadow-none flex items-center justify-between">
+          <div key={i} className="bg-card border border-border p-5 rounded-lg shadow-none flex items-center justify-between">
             <div>
               <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">{v.label}</p>
               <div className="flex items-baseline gap-1">
@@ -521,7 +521,7 @@ export default function ConsultationPage() {
                 <span className="text-[11px] font-medium text-muted-foreground">{v.unit}</span>
               </div>
             </div>
-            <div className={cn("p-2 rounded-[5px]", v.bgColor)}>
+            <div className={cn("p-2 rounded-lg", v.bgColor)}>
               <v.icon className={cn("w-5 h-5", v.color)} />
             </div>
           </div>
@@ -529,18 +529,18 @@ export default function ConsultationPage() {
       </div>
 
       {/* ── Main Consultation Content ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-[20px]">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
         
         {/* Left Column: Clinical Notes & Investigations */}
-        <div className="lg:col-span-5 flex flex-col gap-[20px]">
-          <div className="bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] shadow-none flex flex-col">
-            <div className="p-5 border-b border-[#E7E8EB] dark:border-white/5">
+        <div className="lg:col-span-5 flex flex-col gap-5">
+          <div className="bg-card border border-border rounded-lg shadow-none flex flex-col">
+            <div className="p-5 border-b border-border">
               <h3 className="text-[15px] font-bold text-foreground">Clinical Notes</h3>
             </div>
             <div className="p-5 space-y-6">
               <div className="space-y-2">
                 <label className="text-[12px] font-bold text-muted-foreground">Chief Complaints</label>
-                <div className="p-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] text-foreground min-h-[80px]">
+                <div className="p-4 bg-muted border border-border rounded-lg text-[13px] text-foreground min-h-[80px]">
                   Patient complains of mild fever (100.4*F) since 2 days. Associated with dry cough and mild headache. No history of chills or rigors.
                 </div>
               </div>
@@ -548,26 +548,26 @@ export default function ConsultationPage() {
                 <label className="text-[12px] font-bold text-muted-foreground">Clinical History / Examination</label>
                 <textarea 
                   placeholder="Enter details..."
-                  className="w-full min-h-[100px] p-4 bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] font-medium text-foreground outline-none focus:border-primary transition-all resize-none"
+                  className="w-full min-h-[100px] p-4 bg-card border border-border rounded-lg text-[13px] font-medium text-foreground outline-none focus:border-primary transition-all resize-none"
                 />
               </div>
               <div className="space-y-3">
                 <label className="text-[12px] font-bold text-muted-foreground">Diagnosis</label>
                 <div className="flex flex-wrap gap-2">
-                  <div className="flex-1 min-w-[200px] h-11 px-4 bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] flex items-center gap-2">
+                  <div className="flex-1 min-w-[200px] h-11 px-4 bg-card border border-border rounded-lg flex items-center gap-2">
                     <Activity className="w-4 h-4 text-muted-foreground" />
                     <span className="text-[13px] font-medium">Viral Pharyngitis</span>
                   </div>
                 </div>
                 <div className="flex flex-wrap gap-2 mt-2">
                   {diagnoses.map((d, idx) => (
-                    <div key={idx} className="flex items-center gap-1.5 px-3 py-1 bg-primary/5 dark:bg-primary/10 border border-primary/20 text-primary text-[11px] font-bold rounded-[5px]">
+                    <div key={idx} className="flex items-center gap-1.5 px-3 py-1 bg-primary/5 dark:bg-primary/10 border border-primary/20 text-primary text-[11px] font-bold rounded-lg">
                       <Activity className="w-3 h-3" />
                       {d}
                       <button onClick={() => removeDiagnosis(d)} className="ml-1 hover:text-primary/70 transition-colors"><X className="w-3 h-3" /></button>
                     </div>
                   ))}
-                  <button className="flex items-center gap-1.5 px-3 py-1 bg-gray-100 dark:bg-white/5 border border-[#E7E8EB] dark:border-white/10 text-muted-foreground text-[11px] font-bold rounded-[5px] hover:bg-muted transition-all">
+                  <button className="flex items-center gap-1.5 px-3 py-1 bg-muted border border-border text-muted-foreground text-[11px] font-bold rounded-lg hover:bg-muted/80 transition-all">
                     <Plus className="w-3 h-3" /> Add another
                   </button>
                 </div>
@@ -575,8 +575,8 @@ export default function ConsultationPage() {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] shadow-none flex flex-col">
-            <div className="p-5 border-b border-[#E7E8EB] dark:border-white/5">
+          <div className="bg-card border border-border rounded-lg shadow-none flex flex-col">
+            <div className="p-5 border-b border-border">
               <h3 className="text-[15px] font-bold text-foreground">Lab Investigations</h3>
             </div>
             <div className="p-5 space-y-4">
@@ -585,13 +585,13 @@ export default function ConsultationPage() {
                 <input 
                   type="text" 
                   placeholder="Search and add lab tests..." 
-                  className="w-full h-11 pl-10 pr-10 bg-white dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] font-medium outline-none focus:border-primary transition-all shadow-none"
+                  className="w-full h-11 pl-10 pr-10 bg-card border border-border rounded-lg text-[13px] font-medium outline-none focus:border-primary transition-all shadow-none"
                 />
                 <ChevronDown className="absolute right-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               </div>
               <div className="flex flex-wrap gap-2">
                 {labTests.map((t, idx) => (
-                  <div key={idx} className="flex items-center gap-1.5 px-3 py-1 bg-white dark:bg-white/5 border border-[#E7E8EB] dark:border-white/10 text-foreground text-[11px] font-bold rounded-[5px]">
+                  <div key={idx} className="flex items-center gap-1.5 px-3 py-1 bg-muted border border-border text-foreground text-[11px] font-bold rounded-lg">
                     {t}
                     <button onClick={() => removeLabTest(t)}><X className="w-3 h-3" /></button>
                   </div>
@@ -602,16 +602,16 @@ export default function ConsultationPage() {
         </div>
 
         {/* Right Column: Prescription & Follow-up */}
-        <div className="lg:col-span-7 flex flex-col gap-[20px]">
-          <div className="bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] shadow-none flex flex-col h-full">
-            <div className="p-5 border-b border-[#E7E8EB] dark:border-white/5">
+        <div className="lg:col-span-7 flex flex-col gap-5">
+          <div className="bg-card border border-border rounded-lg shadow-none flex flex-col h-full">
+            <div className="p-5 border-b border-border">
               <h3 className="text-[15px] font-bold text-foreground">Prescription</h3>
             </div>
             <div className="p-5 space-y-6">
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="bg-[#F8F9FC] dark:bg-white/[0.02] border-b border-[#E7E8EB] dark:border-white/10 uppercase tracking-wider text-[10px] font-bold text-muted-foreground">
+                    <tr className="bg-muted/50 border-b border-border uppercase tracking-wider text-[10px] font-bold text-muted-foreground">
                       <th className="px-4 py-3">Medicine</th>
                       <th className="px-4 py-3">Dosage</th>
                       <th className="px-4 py-3">Timing</th>
@@ -619,7 +619,7 @@ export default function ConsultationPage() {
                       <th className="px-4 py-3 text-right">Actions</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-[#E7E8EB] dark:divide-white/5">
+                  <tbody className="divide-y divide-border">
                     {medicines.map((m) => (
                       <tr key={m.id} className="text-[13px] font-medium text-foreground">
                         <td className="px-4 py-4">{m.name}</td>
@@ -627,7 +627,7 @@ export default function ConsultationPage() {
                         <td className="px-4 py-4">{m.timing}</td>
                         <td className="px-4 py-4">{m.duration}</td>
                         <td className="px-4 py-4 text-right">
-                          <button onClick={() => removeMedicine(m.id)} className="p-1.5 hover:bg-rose-50 dark:hover:bg-rose-500/10 text-rose-500 rounded transition-colors">
+                          <button onClick={() => removeMedicine(m.id)} className="p-1.5 hover:bg-destructive/10 text-destructive rounded transition-colors">
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </td>
@@ -639,19 +639,19 @@ export default function ConsultationPage() {
               
               <button 
                 onClick={() => setShowAddMedicine(true)}
-                className="w-full h-12 border-2 border-dashed border-[#E7E8EB] dark:border-white/10 rounded-[5px] flex items-center justify-center gap-2 text-[13px] font-bold text-muted-foreground hover:bg-[#F8F9FC] dark:hover:bg-white/5 transition-all"
+                className="w-full h-12 border-2 border-dashed border-border rounded-lg flex items-center justify-center gap-2 text-[13px] font-bold text-muted-foreground hover:bg-muted/50 transition-all"
               >
                 <Plus className="w-4 h-4" /> Add Medicine
               </button>
 
               <div className="space-y-2">
                 <label className="text-[12px] font-bold text-muted-foreground">Advice / Instructions</label>
-                <div className="p-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] text-foreground min-h-[80px]">
+                <div className="p-4 bg-muted border border-border rounded-lg text-[13px] text-foreground min-h-[80px]">
                   Drink plenty of warm fluids. Rest for 2 days. Review after 3 days if symptoms persist.
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-[20px] pt-2">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-2">
                 <div className="space-y-2">
                   <label className="text-[12px] font-bold text-muted-foreground">Follow-up</label>
                   <div className="relative">
@@ -673,7 +673,7 @@ export default function ConsultationPage() {
                     <input 
                       type="text" 
                       placeholder="Search doctor or department..."
-                      className="w-full h-11 pl-10 pr-4 bg-white dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] font-medium outline-none focus:border-primary transition-all"
+                      className="w-full h-11 pl-10 pr-4 bg-card border border-border rounded-lg text-[13px] font-medium text-foreground outline-none focus:border-primary transition-all"
                     />
                   </div>
                 </div>
@@ -747,15 +747,15 @@ function CallNextModal({ onClose }) {
       
       {/* Modal Container */}
       <div className={cn(
-        "relative bg-white dark:bg-[#101935] w-full max-w-[440px] rounded-[5px] border border-[#E7E8EB] dark:border-white/10 flex flex-col p-8 items-center text-center duration-300 shadow-none z-10",
+        "relative bg-card w-full max-w-[440px] rounded-lg border border-border flex flex-col p-8 items-center text-center duration-300 shadow-none z-10",
         closing ? "animate-out zoom-out-95 fade-out" : "animate-in zoom-in-95 fade-in"
       )}>
         {/* Bell Icon with Badge */}
         <div className="relative mb-6">
-          <div className="w-16 h-16 bg-[#F8F9FC] dark:bg-white/5 rounded-full flex items-center justify-center">
-            <Bell className="w-8 h-8 text-[#2D3A8C] dark:text-white" />
+          <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center">
+            <Bell className="w-8 h-8 text-primary dark:text-foreground" />
           </div>
-          <div className="absolute top-0 right-0 w-4 h-4 bg-rose-500 border-2 border-white dark:border-[#101935] rounded-full" />
+          <div className="absolute top-0 right-0 w-4 h-4 bg-destructive border-2 border-card rounded-full" />
         </div>
 
         {/* Text Content */}
@@ -768,13 +768,13 @@ function CallNextModal({ onClose }) {
         <div className="flex items-center gap-4 w-full">
           <button 
             onClick={handleClose}
-            className="flex-1 h-11 border border-[#E7E8EB] dark:border-white/10 bg-white dark:bg-transparent text-foreground rounded-[5px] text-[13px] font-bold hover:bg-gray-50 dark:hover:bg-white/5 transition-all outline-none"
+            className="flex-1 h-11 border border-border bg-card text-foreground rounded-lg text-[13px] font-bold hover:bg-muted transition-all outline-none"
           >
             Cancel
           </button>
           <button 
             onClick={handleClose}
-            className="flex-1 h-11 bg-[#2D3A8C] hover:opacity-95 text-white rounded-[5px] text-[13px] font-bold flex items-center justify-center gap-2 transition-all shadow-none outline-none"
+            className="flex-1 h-11 bg-primary hover:opacity-95 text-primary-foreground rounded-lg text-[13px] font-bold flex items-center justify-center gap-2 transition-all shadow-none outline-none"
           >
             <Bell className="w-4 h-4" />
             Call Next

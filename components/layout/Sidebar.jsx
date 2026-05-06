@@ -90,13 +90,13 @@ const roleMenus = {
     { name: "Configurations", icon: Settings, path: "/branch-admin/configuration", section: "Admin" },
   ],
   "doctor": [
-    { name: "Dashboard", icon: LayoutGrid, path: "/doctor", section: "none" },
-    { name: "OPD Queue / Tokens", icon: Siren, path: "/doctor/opd", section: "none" },
-    { name: "IPD Patients", icon: Hotel, path: "/doctor/ipd", section: "none" },
-    { name: "My Schedule", icon: CalendarDays, path: "/doctor/schedule", section: "WORK" },
-    { name: "Alerts", icon: Bell, path: "/doctor/alerts", section: "WORK" },
-    { name: "Reports", icon: BarChart3, path: "/doctor/reports", section: "REPORTS" },
-    { name: "Profile & Settings", icon: User, path: "/doctor/profile", section: "REPORTS" },
+    { name: "Dashboard", icon: LayoutGrid, path: "/doctor", section: "Main" },
+    { name: "OPD Queue / Tokens", icon: Siren, path: "/doctor/opd", section: "Main" },
+    { name: "IPD Patients", icon: Hotel, path: "/doctor/ipd", section: "Main" },
+    { name: "My Schedule", icon: CalendarDays, path: "/doctor/schedule", section: "Work" },
+    { name: "Alerts", icon: Bell, path: "/doctor/alerts", section: "Work" },
+    { name: "Reports", icon: BarChart3, path: "/doctor/reports", section: "Reports" },
+    { name: "Profile & Settings", icon: User, path: "/doctor/profile", section: "Reports" },
   ],
   "staff": [
     { name: "Dashboard", icon: LayoutGrid, path: "/staff", section: "none" },
@@ -195,8 +195,8 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) 
   }, [pathname, menuItems]);
 
   const sections = [...new Set(menuItems.map(item => item.section))];
-  // Reorder sections so "none" is first
-  const orderedSections = ["none", ...sections.filter(s => s !== "none")];
+  // Reorder sections so "Main" or "none" is first
+  const orderedSections = ["Main", "none", ...sections.filter(s => s !== "Main" && s !== "none")];
 
   return (
     <TooltipProvider delayDuration={0}>
@@ -256,11 +256,11 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) 
                 )}>
                   {/* Avatar */}
                   <div className={cn(
-                    "bg-primary rounded-full shrink-0 flex items-center justify-center transition-all shadow-sm shadow-primary/20",
+                    "bg-primary rounded-full shrink-0 flex items-center justify-center transition-all",
                     isCollapsed ? "w-8 h-8" : "w-10 h-10"
                   )}>
                     <span className={cn("text-white font-bold", isCollapsed ? "text-[10px]" : "text-[12px]")}>
-                      {user?.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2) : 'U'}
+                      {user?.name ? user.name.split(' ').map(n => n[0]).join('').substring(0, 2) : 'U'}
                     </span>
                   </div>
                   
@@ -328,7 +328,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) 
                       <NavItem
                         item={item}
                         isCollapsed={isCollapsed}
-                        isActive={pathname === item.path || item.subItems?.some(s => pathname === s.path)}
+                        isActive={pathname === item.path || (item.path !== "/" && item.path !== "/doctor" && item.path !== "/super-admin" && pathname.startsWith(item.path + "/")) || item.subItems?.some(s => pathname === s.path)}
                         hasSubItems={!!item.subItems}
                         isOpen={openSubMenu === item.name}
                         onClick={() => {
@@ -431,7 +431,7 @@ function NavItem({ item, isCollapsed, isActive, hasSubItems, isOpen, onClick, pa
            
            {isCollapsed && hasSubItems && (
              <div className="absolute left-full top-0 pl-3 hidden lg:group-hover/collapsed-parent:block z-[250]">
-                <div className="bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] p-2 min-w-[220px] shadow-2xl animate-in fade-in slide-in-from-left-2 duration-200">
+                <div className="bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] p-2 min-w-[220px] shadow-none animate-in fade-in slide-in-from-left-2 duration-200">
                      <div className="px-3 py-2.5 mb-1 bg-primary/5 dark:bg-primary/10 rounded-[5px]">
                         <p className="text-[11px] font-bold text-primary">{item.name}</p>
                      </div>
@@ -460,7 +460,7 @@ function NavItem({ item, isCollapsed, isActive, hasSubItems, isOpen, onClick, pa
         <TooltipContent 
           side="right" 
           sideOffset={20}
-          className="bg-[#1e293b] text-white border-none text-[12px] font-bold shadow-xl animate-in fade-in zoom-in-95 duration-150"
+          className="bg-[#1e293b] text-white border-none text-[12px] font-bold shadow-none animate-in fade-in zoom-in-95 duration-150"
         >
           {item.name}
         </TooltipContent>

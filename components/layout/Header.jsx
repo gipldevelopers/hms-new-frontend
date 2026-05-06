@@ -149,7 +149,7 @@ export default function Header({
 
           {isNotificationsOpen && (
             <div
-              className="absolute right-[-60px] md:right-0 mt-3 w-72 md:w-80 bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] overflow-hidden z-[60] animate-in fade-in zoom-in-95 duration-200 shadow-2xl"
+              className="absolute right-[-60px] md:right-0 mt-3 w-72 md:w-80 bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] overflow-hidden z-[60] animate-in fade-in zoom-in-95 duration-200 shadow-none"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="px-4 py-3 border-b border-[#E7E8EB] dark:border-white/10 flex justify-between items-center bg-gray-50/50 dark:bg-white/[0.02]">
@@ -195,11 +195,11 @@ export default function Header({
               setIsProfileOpen(!isProfileOpen);
               setIsNotificationsOpen(false);
             }}
-            className="w-9 h-9 md:w-10 md:h-10 rounded-full border border-[#E7E8EB] dark:border-white/10 cursor-pointer overflow-hidden hover:opacity-90 transition-opacity relative shadow-sm"
+            className="w-9 h-9 md:w-10 md:h-10 rounded-full border border-[#E7E8EB] dark:border-white/10 cursor-pointer overflow-hidden hover:opacity-90 transition-opacity relative"
           >
             <Avatar className="w-full h-full">
               <AvatarFallback className="bg-primary text-white font-bold text-[12px]">
-                {user?.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2) : 'U'}
+                {user?.name ? user.name.split(' ').map(n => n[0]).join('').substring(0, 2) : 'U'}
               </AvatarFallback>
             </Avatar>
             <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white dark:border-[#101935] rounded-full"></span>
@@ -207,7 +207,7 @@ export default function Header({
 
           {isProfileOpen && (
             <div
-              className="absolute right-0 mt-3 w-48 bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] overflow-hidden z-[60] animate-in fade-in zoom-in-95 duration-200 shadow-2xl"
+              className="absolute right-0 mt-3 w-48 bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] overflow-hidden z-[60] animate-in fade-in zoom-in-95 duration-200 shadow-none"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="p-4 border-b border-[#E7E8EB] dark:border-white/10 bg-gray-50/30 dark:bg-white/[0.02]">

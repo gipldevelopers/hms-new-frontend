@@ -31,10 +31,10 @@ export default function PrescriptionDetailPage() {
     <div className="p-5 bg-background text-foreground min-h-screen flex flex-col space-y-5 transition-colors duration-300 font-sans pb-20 shadow-none">
       
       {/* ── Allergies Alert Banner ── */}
-      <div className="bg-red-500/10 dark:bg-red-950/20 border border-red-500/20 dark:border-red-500/10 border-l-4 border-l-red-500 p-4 rounded-[var(--radius)] flex items-center gap-3 shadow-none">
-        <AlertTriangle className="w-5 h-5 text-red-500 shrink-0" />
-        <span className="text-[13px] font-bold text-red-600 leading-none">ALLERGIES:</span>
-        <span className="text-[13px] font-medium text-red-500 leading-none">Penicillin, Sulfa Drugs</span>
+      <div className="bg-destructive/10 border border-destructive/20 border-l-4 border-l-destructive p-4 rounded-[var(--radius)] flex items-center gap-3 shadow-none">
+        <AlertTriangle className="w-5 h-5 text-destructive shrink-0" />
+        <span className="text-[13px] font-bold text-destructive/90 leading-none">ALLERGIES:</span>
+        <span className="text-[13px] font-medium text-destructive leading-none">Penicillin, Sulfa Drugs</span>
       </div>
 
       {/* ── Patient Profile Info Card ── */}
@@ -91,7 +91,7 @@ export default function PrescriptionDetailPage() {
         </h3>
         <button
           onClick={() => router.back()}
-          className="h-9 px-4 bg-[#3d4fa8] dark:bg-[#34449c] hover:opacity-90 text-white rounded-[var(--radius)] text-[12px] font-bold flex items-center justify-center gap-1.5 transition-all w-full sm:w-auto shadow-none shrink-0"
+          className="h-9 px-4 bg-primary hover:bg-primary/90 text-primary-foreground rounded-[var(--radius)] text-[12px] font-bold flex items-center justify-center gap-1.5 transition-all w-full sm:w-auto shadow-none shrink-0"
         >
           <Edit3 className="w-4 h-4" /> Edit Schedule
         </button>
@@ -103,7 +103,7 @@ export default function PrescriptionDetailPage() {
         {/* Left Side: Prescription Order Details */}
         <div className="xl:col-span-2 bg-card text-card-foreground border border-border rounded-[var(--radius)] flex flex-col shadow-none h-fit overflow-hidden">
           {/* Grey Banner Header */}
-          <div className="bg-[#f8fafc] dark:bg-[#1e293b] border-b border-border p-3 px-5">
+          <div className="bg-muted/50 border-b border-border p-3 px-5">
             <p className="text-[11px] font-bold text-muted-foreground uppercase leading-none tracking-tight">
               Prescription Order Details
             </p>
@@ -114,7 +114,7 @@ export default function PrescriptionDetailPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5 border-b border-border pb-5">
               <div>
                 <p className="text-[11px] font-semibold text-muted-foreground leading-tight">DRUG NAME & GENERIC</p>
-                <p className="text-[14px] font-bold text-blue-600 mt-1 leading-tight">Novorapid Flexpen</p>
+                <p className="text-[14px] font-bold text-primary mt-1 leading-tight">Novorapid Flexpen</p>
                 <p className="text-[12px] font-medium text-muted-foreground mt-1 leading-tight">Insulin Aspart (rDNA origin)</p>
               </div>
               <div>
@@ -130,8 +130,8 @@ export default function PrescriptionDetailPage() {
             {/* Special instructions Section */}
             <div className="border-b border-border pb-5">
               <p className="text-[11px] font-semibold text-muted-foreground leading-tight uppercase">Special Instructions / Pre-checks</p>
-              <div className="bg-amber-500/10 dark:bg-amber-950/20 border border-amber-500/20 dark:border-amber-500/10 border-l-4 border-l-amber-500 p-4 rounded-[var(--radius)] mt-3">
-                <p className="text-[13px] font-bold text-amber-700 dark:text-amber-300 leading-tight">
+              <div className="bg-amber-500/10 border border-amber-500/20 border-l-4 border-l-amber-500 p-4 rounded-[var(--radius)] mt-3">
+                <p className="text-[13px] font-bold text-amber-700 dark:text-amber-400 leading-tight">
                   MANDATORY: Check Capillary Blood Glucose (CBG) before giving.
                 </p>
               </div>
@@ -159,7 +159,7 @@ export default function PrescriptionDetailPage() {
         {/* Right Side: Compliance Summary */}
         <div className="bg-card text-card-foreground border border-border rounded-[var(--radius)] flex flex-col shadow-none h-fit overflow-hidden">
           {/* Grey Banner Header */}
-          <div className="bg-[#f8fafc] dark:bg-[#1e293b] border-b border-border p-3 px-5">
+          <div className="bg-muted/50 border-b border-border p-3 px-5">
             <p className="text-[11px] font-bold text-muted-foreground uppercase leading-none tracking-tight">
               Compliance (This Admission)
             </p>

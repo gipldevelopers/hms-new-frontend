@@ -33,19 +33,19 @@ function CustomSelect({ value, onChange, options, placeholder, minWidth = "130px
       <DropdownMenuTrigger asChild>
         <button
           type="button"
-          className="h-11 px-4 bg-white dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] font-medium text-foreground flex items-center justify-between gap-3 hover:bg-muted transition-all outline-none w-full sm:w-auto shadow-none"
+          className="h-11 px-4 bg-card border border-border rounded-lg text-[13px] font-medium text-foreground flex items-center justify-between gap-3 hover:bg-muted transition-all outline-none w-full sm:w-auto shadow-none"
           style={{ minWidth }}
         >
           <span className="truncate flex-1 text-left font-medium">
             {selected ? selected.label : placeholder}
           </span>
-          <ChevronDown className="w-4 h-4 text-gray-400 shrink-0" />
+          <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="min-w-[140px] border border-[#E7E8EB] dark:border-white/10 bg-white dark:bg-[#101935] rounded-[5px] p-1 z-[500] shadow-none">
+      <DropdownMenuContent align="end" className="min-w-[140px] border border-border bg-card rounded-lg p-1 z-[500] shadow-none">
         <DropdownMenuItem
           onClick={() => onChange("")}
-          className={cn("rounded-[5px] text-[13px] font-medium px-3 py-2.5 cursor-pointer", !value ? "bg-accent text-accent-foreground font-semibold" : "text-foreground hover:bg-muted")}
+          className={cn("rounded-lg text-[13px] font-medium px-3 py-2.5 cursor-pointer", !value ? "bg-accent text-accent-foreground font-semibold" : "text-foreground hover:bg-muted")}
         >
           All
         </DropdownMenuItem>
@@ -53,7 +53,7 @@ function CustomSelect({ value, onChange, options, placeholder, minWidth = "130px
           <DropdownMenuItem
             key={opt.value}
             onClick={() => onChange(opt.value)}
-            className={cn("rounded-[5px] text-[13px] font-medium px-3 py-2.5 cursor-pointer flex items-center justify-between", value === opt.value ? "bg-accent text-accent-foreground font-semibold" : "text-foreground hover:bg-muted")}
+            className={cn("rounded-lg text-[13px] font-medium px-3 py-2.5 cursor-pointer flex items-center justify-between", value === opt.value ? "bg-accent text-accent-foreground font-semibold" : "text-foreground hover:bg-muted")}
           >
             {opt.label}
             {value === opt.value && <Check className="w-3.5 h-3.5 text-foreground" />}
@@ -66,15 +66,15 @@ function CustomSelect({ value, onChange, options, placeholder, minWidth = "130px
 
 // Badge color helpers
 const priorityBadge = (p) => ({
-  Urgent: "bg-red-500/10 text-red-600 dark:text-red-400 border border-red-500/20 font-medium text-[11px] px-2.5 py-0.5 rounded-[5px] inline-flex shadow-none",
-  Normal: "bg-muted text-muted-foreground border border-border font-medium text-[11px] px-2.5 py-0.5 rounded-[5px] inline-flex shadow-none",
-}[p] ?? "bg-muted text-muted-foreground border border-border rounded-[5px] font-medium text-[11px] px-2.5 py-0.5 inline-flex shadow-none");
+  Urgent: "bg-destructive/10 text-destructive border border-destructive/20 font-medium text-[11px] px-2.5 py-0.5 rounded-lg inline-flex shadow-none",
+  Normal: "bg-muted text-muted-foreground border border-border font-medium text-[11px] px-2.5 py-0.5 rounded-lg inline-flex shadow-none",
+}[p] ?? "bg-muted text-muted-foreground border border-border rounded-lg font-medium text-[11px] px-2.5 py-0.5 inline-flex shadow-none");
 
 const statusBadge = (s) => ({
-  Pending: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 rounded-[5px] font-medium px-2.5 py-0.5 text-[11px] inline-flex shadow-none",
-  Accepted: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 rounded-[5px] font-medium px-2.5 py-0.5 text-[11px] inline-flex shadow-none",
-  Completed: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 rounded-[5px] font-medium px-2.5 py-0.5 text-[11px] inline-flex shadow-none",
-}[s] ?? "bg-muted text-muted-foreground border border-border rounded-[5px] font-medium px-2.5 py-0.5 text-[11px] inline-flex shadow-none");
+  Pending: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 rounded-lg font-medium px-2.5 py-0.5 text-[11px] inline-flex shadow-none",
+  Accepted: "bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 rounded-lg font-medium px-2.5 py-0.5 text-[11px] inline-flex shadow-none",
+  Completed: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 rounded-lg font-medium px-2.5 py-0.5 text-[11px] inline-flex shadow-none",
+}[s] ?? "bg-muted text-muted-foreground border border-border rounded-lg font-medium px-2.5 py-0.5 text-[11px] inline-flex shadow-none");
 
 // Predefined mock patients to add new request
 const MOCK_PATIENTS = [
@@ -137,50 +137,50 @@ function NewRequestModal({ onClose, onSave }) {
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
-        className="absolute inset-0 bg-slate-900/40 backdrop-blur-[4px]"
+        className="absolute inset-0 bg-background/80 backdrop-blur-[4px]"
       />
       <motion.div
         initial={{ scale: 0.95, opacity: 0, y: 16 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.95, opacity: 0, y: 16 }}
-        className="relative bg-white dark:bg-[#101935] w-full max-w-[500px] rounded-[5px] border border-[#E7E8EB] dark:border-white/10 overflow-hidden shadow-none flex flex-col max-h-[90vh]"
+        className="relative bg-card w-full max-w-[500px] rounded-lg border border-border overflow-hidden shadow-none flex flex-col max-h-[90vh]"
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#E7E8EB] dark:border-white/10 shrink-0 bg-white dark:bg-[#101935]">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border shrink-0 bg-card">
           <h2 className="text-[16px] font-bold text-foreground">Create New Request</h2>
-          <button onClick={onClose} className="p-1.5 hover:bg-muted rounded-[5px] transition-colors">
+          <button onClick={onClose} className="p-1.5 hover:bg-muted rounded-lg transition-colors">
             <X className="w-4 h-4 text-muted-foreground" />
           </button>
         </div>
 
         {/* Body */}
-        <div className="px-5 py-5 space-y-5 overflow-y-auto flex-1 no-scrollbar bg-white dark:bg-[#101935]">
+        <div className="px-5 py-5 space-y-5 overflow-y-auto flex-1 no-scrollbar bg-card">
           {/* Patient */}
           <div>
-            <label className="block text-[12px] font-bold text-muted-foreground mb-2">
+            <label className="block text-[12px] font-bold text-muted-foreground mb-2 uppercase tracking-wide">
               Select Patient <span className="text-destructive">*</span>
             </label>
             <div className="relative">
               <button
                 type="button"
                 onClick={() => setPatientOpen(!patientOpen)}
-                className="w-full h-11 px-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] font-medium text-left flex items-center justify-between outline-none transition-all shadow-none"
+                className="w-full h-11 px-4 bg-muted border border-border rounded-lg text-[13px] font-medium text-left flex items-center justify-between outline-none transition-all shadow-none"
               >
                 <span className={selectedPatient ? "text-foreground font-semibold" : "text-muted-foreground"}>
                   {selectedPatient ? `${selectedPatient.name} — Bed ${selectedPatient.bed}` : "Search by name or bed..."}
                 </span>
-                <ChevronDown className="w-4 h-4 text-gray-400 shrink-0" />
+                <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
               </button>
               {patientOpen && (
-                <div className="absolute top-12 left-0 right-0 z-50 bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] overflow-hidden shadow-none">
-                  <div className="p-2 border-b border-[#E7E8EB] dark:border-white/10">
+                <div className="absolute top-12 left-0 right-0 z-50 bg-card border border-border rounded-lg overflow-hidden shadow-none">
+                  <div className="p-2 border-b border-border">
                     <input
                       autoFocus
                       type="text"
                       placeholder="Search by name or bed..."
                       value={patientSearch}
                       onChange={(e) => setPatientSearch(e.target.value)}
-                      className="w-full h-9 px-3 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] outline-none shadow-none text-foreground"
+                      className="w-full h-9 px-3 bg-muted border border-border rounded-lg text-[13px] outline-none shadow-none text-foreground"
                     />
                   </div>
                   <div className="max-h-[160px] overflow-y-auto no-scrollbar">
@@ -202,7 +202,7 @@ function NewRequestModal({ onClose, onSave }) {
 
           {/* Request Details Title */}
           <div>
-            <label className="block text-[12px] font-bold text-muted-foreground mb-2">
+            <label className="block text-[12px] font-bold text-muted-foreground mb-2 uppercase tracking-wide">
               Request Title / Type <span className="text-destructive">*</span>
             </label>
             <input
@@ -210,13 +210,13 @@ function NewRequestModal({ onClose, onSave }) {
               value={requestType}
               onChange={(e) => setRequestType(e.target.value)}
               placeholder="e.g. Lab Pickup, X-ray, Housekeeping"
-              className="w-full h-11 px-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] font-medium text-foreground outline-none transition-all shadow-none"
+              className="w-full h-11 px-4 bg-muted border border-border rounded-lg text-[13px] font-medium text-foreground outline-none transition-all shadow-none"
             />
           </div>
 
           {/* Specific Details */}
           <div>
-            <label className="block text-[12px] font-bold text-muted-foreground mb-2">
+            <label className="block text-[12px] font-bold text-muted-foreground mb-2 uppercase tracking-wide">
               Details
             </label>
             <textarea
@@ -224,27 +224,27 @@ function NewRequestModal({ onClose, onSave }) {
               onChange={(e) => setDescription(e.target.value)}
               placeholder="e.g. CBC Blood Sample, Post-op mobility"
               rows={2}
-              className="w-full px-4 py-3 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] font-medium text-foreground outline-none transition-all resize-none shadow-none"
+              className="w-full px-4 py-3 bg-muted border border-border rounded-lg text-[13px] font-medium text-foreground outline-none transition-all resize-none shadow-none"
             />
           </div>
 
           {/* Assigned Dept + Priority */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-5">
             <div>
-              <label className="block text-[12px] font-bold text-muted-foreground mb-2">
+              <label className="block text-[12px] font-bold text-muted-foreground mb-2 uppercase tracking-wide">
                 Assigned Dept
               </label>
               <div className="relative">
                 <button
                   type="button"
                   onClick={() => setDeptOpen(!deptOpen)}
-                  className="w-full h-11 px-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] font-medium text-left flex items-center justify-between outline-none transition-all shadow-none text-foreground"
+                  className="w-full h-11 px-4 bg-muted border border-border rounded-lg text-[13px] font-medium text-left flex items-center justify-between outline-none transition-all shadow-none text-foreground"
                 >
                   <span className="truncate">{dept}</span>
-                  <ChevronDown className="w-4 h-4 text-gray-400 shrink-0" />
+                  <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
                 </button>
                 {deptOpen && (
-                  <div className="absolute top-12 left-0 right-0 z-50 bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] overflow-hidden shadow-none">
+                  <div className="absolute top-12 left-0 right-0 z-50 bg-card border border-border rounded-lg overflow-hidden shadow-none">
                     {DEPARTMENTS.map((d) => (
                       <button
                         key={d}
@@ -260,20 +260,20 @@ function NewRequestModal({ onClose, onSave }) {
             </div>
 
             <div>
-              <label className="block text-[12px] font-bold text-muted-foreground mb-2">
+              <label className="block text-[12px] font-bold text-muted-foreground mb-2 uppercase tracking-wide">
                 Priority
               </label>
               <div className="relative">
                 <button
                   type="button"
                   onClick={() => setPriorityOpen(!priorityOpen)}
-                  className="w-full h-11 px-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] font-medium text-left flex items-center justify-between outline-none transition-all shadow-none text-foreground"
+                  className="w-full h-11 px-4 bg-muted border border-border rounded-lg text-[13px] font-medium text-left flex items-center justify-between outline-none transition-all shadow-none text-foreground"
                 >
                   {priority}
-                  <ChevronDown className="w-4 h-4 text-gray-400 shrink-0" />
+                  <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
                 </button>
                 {priorityOpen && (
-                  <div className="absolute top-12 left-0 right-0 z-50 bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] overflow-hidden shadow-none">
+                  <div className="absolute top-12 left-0 right-0 z-50 bg-card border border-border rounded-lg overflow-hidden shadow-none">
                     {["Normal", "Urgent"].map((p) => (
                       <button
                         key={p}
@@ -291,16 +291,16 @@ function NewRequestModal({ onClose, onSave }) {
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-3 px-5 py-4 border-t border-[#E7E8EB] dark:border-white/10 bg-[#F8F9FC] dark:bg-[#101935] shrink-0">
+        <div className="flex items-center justify-end gap-3 px-5 py-4 border-t border-border bg-muted/30 shrink-0">
           <button
             onClick={onClose}
-            className="h-10 px-4 border border-[#E7E8EB] dark:border-white/10 hover:bg-muted text-foreground rounded-[5px] text-[13px] font-semibold transition-all shadow-none bg-white dark:bg-[#101935]"
+            className="h-10 px-4 border border-border hover:bg-muted text-foreground rounded-lg text-[13px] font-semibold transition-all shadow-none bg-card"
           >
             Cancel
           </button>
           <button
             onClick={handleSave}
-            className="h-10 px-4 bg-primary hover:bg-primary/90 text-white rounded-[5px] text-[13px] font-bold flex items-center justify-center transition-all shadow-none"
+            className="h-10 px-4 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg text-[13px] font-bold flex items-center justify-center transition-all shadow-none"
           >
             Create Request
           </button>
@@ -328,60 +328,60 @@ function LiveTrackingModal({ item, onClose }) {
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         onClick={onClose}
-        className="absolute inset-0 bg-slate-900/40 backdrop-blur-[4px]"
+        className="absolute inset-0 bg-background/80 backdrop-blur-[4px]"
       />
       <motion.div
         initial={{ scale: 0.95, opacity: 0, y: 16 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.95, opacity: 0, y: 16 }}
-        className="relative bg-white dark:bg-[#101935] w-full max-w-[720px] rounded-[5px] border border-[#E7E8EB] dark:border-white/10 overflow-hidden shadow-none flex flex-col max-h-[90vh] "
+        className="relative bg-card w-full max-w-[720px] rounded-lg border border-border overflow-hidden shadow-none flex flex-col max-h-[90vh] "
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#E7E8EB] dark:border-white/10 shrink-0 bg-white dark:bg-[#101935]">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-border shrink-0 bg-card">
           <div className="flex items-center gap-3">
             <h2 className="text-[16px] md:text-[18px] font-bold text-foreground">
               Live Tracking: #SR-8921
             </h2>
-            <span className="bg-blue-500/10 text-blue-600 border border-blue-500/20 rounded-[5px] px-2 py-0.5 text-[10px] font-bold  leading-tight">
+            <span className="bg-blue-500/10 text-blue-600 border border-blue-500/20 rounded-lg px-2 py-0.5 text-[10px] font-bold  leading-tight">
               In Progress
             </span>
           </div>
           <div className="flex items-center gap-3">
             <button
               onClick={() => alert("Tracking status refreshed.")}
-              className="h-9 px-3.5 border border-[#E7E8EB] dark:border-white/10 hover:bg-muted text-foreground rounded-[5px] text-[12px] font-bold flex items-center justify-center gap-2 transition-all bg-white dark:bg-[#101935] shadow-none outline-none "
+              className="h-9 px-3.5 border border-border hover:bg-muted text-foreground rounded-lg text-[12px] font-bold flex items-center justify-center gap-2 transition-all bg-card shadow-none outline-none "
             >
               <RefreshCw className="w-3.5 h-3.5 text-foreground shrink-0" />
               <span>Refresh Status</span>
             </button>
-            <button onClick={onClose} className="p-1.5 hover:bg-muted rounded-[5px] transition-all ">
+            <button onClick={onClose} className="p-1.5 hover:bg-muted rounded-lg transition-all ">
               <X className="w-4.5 h-4.5 text-muted-foreground" />
             </button>
           </div>
         </div>
 
         {/* Body */}
-        <div className="px-5 py-5 space-y-5 overflow-y-auto flex-1 no-scrollbar bg-white dark:bg-[#101935]">
+        <div className="px-5 py-5 space-y-5 overflow-y-auto flex-1 no-scrollbar bg-card">
           {/* Light Blue Banner */}
-          <div className="bg-blue-500/5 dark:bg-blue-950/20 border border-blue-500/20 dark:border-blue-500/10 p-4 rounded-[5px] flex items-center justify-between shadow-none ">
+          <div className="bg-primary/5 border border-primary/20 p-4 rounded-lg flex items-center justify-between shadow-none ">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-blue-500/15 border border-blue-500/20 flex items-center justify-center shrink-0">
-                <Truck className="w-5 h-5 text-blue-600" />
+              <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
+                <Truck className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <h4 className="text-[14px] font-bold text-blue-600 leading-tight">
+                <h4 className="text-[14px] font-bold text-primary leading-tight">
                   Technician is on the way
                 </h4>
-                <p className="text-[12px] font-medium text-blue-700/80 dark:text-blue-300/80 mt-0.5 leading-tight">
+                <p className="text-[12px] font-medium text-primary/80 mt-0.5 leading-tight">
                   Expected arrival in approx. 5 minutes
                 </p>
               </div>
             </div>
             <div className="text-right shrink-0">
-              <p className="text-[20px] font-bold text-blue-600 leading-none">
+              <p className="text-[20px] font-bold text-primary leading-none">
                 5 Min
               </p>
-              <p className="text-[9px] font-black text-blue-700/60 dark:text-blue-300/60 uppercase tracking-wider mt-1 ">
+              <p className="text-[9px] font-black text-primary/60 uppercase tracking-wider mt-1 ">
                 Est. Time
               </p>
             </div>
@@ -391,13 +391,13 @@ function LiveTrackingModal({ item, onClose }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 pt-1">
             {/* Left: Timeline */}
             <div className="flex flex-col space-y-4">
-              <h4 className="text-[11px] font-bold text-gray-400 uppercase tracking-widest leading-none ">
+              <h4 className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest leading-none ">
                 Status Timeline
               </h4>
 
               <div className="relative flex flex-col space-y-5 pl-2 ">
                 {/* Timeline background vertical connector */}
-                <div className="absolute top-3 bottom-4 left-5 w-[1.5px] bg-gray-100 dark:bg-white/5 z-0" />
+                <div className="absolute top-3 bottom-4 left-5 w-[1.5px] bg-border z-0" />
 
                 {/* Point 1 */}
                 <div className="relative flex items-start gap-4 z-10 ">
@@ -427,11 +427,11 @@ function LiveTrackingModal({ item, onClose }) {
 
                 {/* Point 3 */}
                 <div className="relative flex items-start gap-4 z-10 ">
-                  <div className="w-6 h-6 rounded-full bg-white dark:bg-[#101935] border-2 border-blue-600 flex items-center justify-center shrink-0">
-                    <div className="w-2.5 h-2.5 bg-blue-600 rounded-full" />
+                  <div className="w-6 h-6 rounded-full bg-card border-2 border-primary flex items-center justify-center shrink-0">
+                    <div className="w-2.5 h-2.5 bg-primary rounded-full" />
                   </div>
                   <div>
-                    <h5 className="text-[13px] font-bold text-blue-600 leading-tight">In Transit to Ward</h5>
+                    <h5 className="text-[13px] font-bold text-primary leading-tight">In Transit to Ward</h5>
                     <p className="text-[12px] font-bold text-foreground mt-1 leading-tight ">
                       Currently moving to W1-B12
                     </p>
@@ -443,7 +443,7 @@ function LiveTrackingModal({ item, onClose }) {
 
                 {/* Point 4 */}
                 <div className="relative flex items-start gap-4 z-10  opacity-50">
-                  <div className="w-6 h-6 rounded-full bg-white dark:bg-[#101935] border border-gray-200 dark:border-white/10 flex items-center justify-center shrink-0">
+                  <div className="w-6 h-6 rounded-full bg-card border border-border flex items-center justify-center shrink-0">
                     <div className="w-2 h-2 bg-transparent rounded-full" />
                   </div>
                   <div>
@@ -460,10 +460,10 @@ function LiveTrackingModal({ item, onClose }) {
             <div className="flex flex-col space-y-5 ">
               {/* Assigned Personnel */}
               <div className="space-y-3">
-                <h4 className="text-[11px] font-bold text-gray-400 uppercase tracking-widest leading-none ">
+                <h4 className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest leading-none ">
                   Assigned Personnel
                 </h4>
-                <div className="p-4 bg-white dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] flex items-center justify-between shadow-none ">
+                <div className="p-4 bg-card border border-border rounded-lg flex items-center justify-between shadow-none ">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-muted border border-border flex items-center justify-center text-[12px] font-black text-foreground shrink-0 ">
                       AT
@@ -479,7 +479,7 @@ function LiveTrackingModal({ item, onClose }) {
                   </div>
                   <button
                     onClick={() => alert("Calling personnel...")}
-                    className="h-8 px-3.5 border border-[#E7E8EB] dark:border-white/10 hover:bg-muted text-foreground rounded-[5px] text-[11px] font-bold flex items-center justify-center gap-1.5 bg-white dark:bg-[#101935] transition-all shadow-none  outline-none"
+                    className="h-8 px-3.5 border border-border hover:bg-muted text-foreground rounded-lg text-[11px] font-bold flex items-center justify-center gap-1.5 bg-card transition-all shadow-none  outline-none"
                   >
                     <Phone className="w-3.5 h-3.5 text-foreground shrink-0" />
                     <span>Connect</span>
@@ -489,28 +489,28 @@ function LiveTrackingModal({ item, onClose }) {
 
               {/* Location Details */}
               <div className="space-y-3 ">
-                <h4 className="text-[11px] font-bold text-gray-400 uppercase tracking-widest leading-none ">
+                <h4 className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest leading-none ">
                   Location Details
                 </h4>
-                <div className="p-4 bg-white dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] flex flex-col space-y-4 shadow-none ">
+                <div className="p-4 bg-card border border-border rounded-lg flex flex-col space-y-4 shadow-none ">
                   <div className="flex items-start gap-3">
                     <MapPin className="w-4 h-4 text-primary mt-1 shrink-0 " />
                     <div>
                       <p className="text-[10px] font-bold text-muted-foreground leading-tight uppercase ">
                         Destination
                       </p>
-                      <p className="text-[13px] font-bold text-[#1e293b] dark:text-white mt-1 leading-tight ">
+                      <p className="text-[13px] font-bold text-foreground mt-1 leading-tight ">
                         Ward 1, Bed 12 (W1-B12)
                       </p>
                     </div>
                   </div>
-                  <div className="flex items-start gap-3 pt-4 border-t border-[#E7E8EB] dark:border-white/10">
+                  <div className="flex items-start gap-3 pt-4 border-t border-border">
                     <Building className="w-4 h-4 text-primary mt-1 shrink-0 " />
                     <div>
                       <p className="text-[10px] font-bold text-muted-foreground leading-tight uppercase ">
                         Origin
                       </p>
-                      <p className="text-[13px] font-bold text-[#1e293b] dark:text-white mt-1 leading-tight ">
+                      <p className="text-[13px] font-bold text-foreground mt-1 leading-tight ">
                         Central Laboratory (Ground Floor)
                       </p>
                     </div>
@@ -636,31 +636,31 @@ export default function ServicesPage() {
   };
 
   return (
-    <div className="p-[20px] bg-[#F8F9FC] dark:bg-[#0A0F1D] min-h-screen flex flex-col space-y-[20px] transition-colors duration-300 font-sans pb-20 ">
+    <div className="p-5 bg-background min-h-screen flex flex-col space-y-5 transition-colors duration-300 font-sans pb-20 ">
       
       {/* ── Header ── */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-        <h1 className="text-[20px] font-bold text-[#1e293b] dark:text-white tracking-tight leading-none">
+        <h1 className="text-[20px] font-bold text-foreground tracking-tight leading-none">
           Service Request
         </h1>
         <button
           onClick={() => setShowModal(true)}
-          className="bg-primary hover:bg-primary/90 text-white h-11 px-5 rounded-[5px] text-[13px] font-bold flex items-center justify-center gap-2 transition-all w-full sm:w-auto shadow-none"
+          className="bg-primary hover:bg-primary/90 text-primary-foreground h-11 px-5 rounded-lg text-[13px] font-bold flex items-center justify-center gap-2 transition-all w-full sm:w-auto shadow-none"
         >
           <Plus className="w-4.5 h-4.5" /> New Request
         </button>
       </div>
 
       {/* ── Main Content Area (Filter + List) ── */}
-      <div className="space-y-[20px]">
+      <div className="space-y-5">
         {/* ── Filter Bar ── */}
-        <div className="flex flex-col xl:flex-row justify-between items-stretch xl:items-center gap-4 bg-white dark:bg-[#101935] p-3 border border-[#E7E8EB] dark:border-white/10 rounded-[5px] shadow-none">
+        <div className="flex flex-col xl:flex-row justify-between items-stretch xl:items-center gap-4 bg-card p-3 border border-border rounded-lg shadow-none">
           <div className="relative w-full xl:w-[380px]">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-gray-400 pointer-events-none" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-muted-foreground pointer-events-none" />
             <input
               type="text"
               placeholder="Search..."
-              className="w-full h-11 pl-11 pr-4 bg-[#F8F9FC] dark:bg-[#1e293b] border border-gray-100 dark:border-white/10 rounded-[5px] text-[13px] font-medium focus:border-primary transition-all outline-none text-foreground placeholder:text-muted-foreground shadow-none"
+              className="w-full h-11 pl-11 pr-4 bg-muted border border-border rounded-lg text-[13px] font-medium focus:border-primary transition-all outline-none text-foreground placeholder:text-muted-foreground shadow-none"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -688,14 +688,14 @@ export default function ServicesPage() {
           {filtered.map((item) => (
             <div
               key={item.id}
-              className="bg-white dark:bg-[#101935] p-5 rounded-[5px] border border-[#E7E8EB] dark:border-white/10 shadow-none"
+              className="bg-card p-5 rounded-lg border border-border shadow-none"
             >
               <div className="flex justify-between items-start mb-3">
                 <div>
-                  <p className="text-[15px] font-bold text-[#1e293b] dark:text-white leading-tight">
+                  <p className="text-[15px] font-bold text-foreground leading-tight">
                     {item.patientName}
                   </p>
-                  <p className="text-[11px] text-blue-600 dark:text-blue-400 font-bold mt-0.5">
+                  <p className="text-[11px] text-primary font-bold mt-0.5">
                     {item.bed}
                   </p>
                 </div>
@@ -709,7 +709,7 @@ export default function ServicesPage() {
               <p className="text-[12px] font-medium text-muted-foreground mt-1 leading-tight">
                 {item.requestDescription}
               </p>
-              <div className="flex items-center justify-between pt-4 border-t border-[#E7E8EB] dark:border-white/10 mt-4">
+              <div className="flex items-center justify-between pt-4 border-t border-border mt-4">
                 <div className="flex items-center gap-3">
                   <span className={priorityBadge(item.priority)}>{item.priority}</span>
                   <span className="text-muted-foreground text-[12px] font-medium">
@@ -719,14 +719,14 @@ export default function ServicesPage() {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => router.push(`/staff/services/${item.id}`)}
-                    className="p-2 hover:bg-muted rounded-[5px] border border-[#E7E8EB] dark:border-white/10 flex items-center justify-center transition-all text-foreground shadow-none bg-white dark:bg-[#1e293b]"
+                    className="p-2 hover:bg-muted rounded-lg border border-border flex items-center justify-center transition-all text-foreground shadow-none bg-card"
                     title="View details"
                   >
                     <Eye className="w-4 h-4 text-foreground shrink-0" />
                   </button>
                   <button
                     onClick={() => setTrackingItem(item)}
-                    className="p-2 hover:bg-muted rounded-[5px] transition-all flex items-center gap-1 bg-white dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 text-[12px] font-medium shadow-none "
+                    className="p-2 hover:bg-muted rounded-lg transition-all flex items-center gap-1 bg-card border border-border text-[12px] font-medium shadow-none "
                     title="Track / Advance"
                   >
                     <Sparkles className="w-4 h-4 text-primary shrink-0" />
@@ -737,18 +737,18 @@ export default function ServicesPage() {
             </div>
           ))}
           {filtered.length === 0 && (
-            <div className="bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] p-10 text-center text-muted-foreground font-medium italic text-[13px]">
+            <div className="bg-card border border-border rounded-lg p-10 text-center text-muted-foreground font-medium italic text-[13px]">
               No service requests found.
             </div>
           )}
         </div>
 
         {/* ── Desktop Table View ── */}
-        <div className="hidden md:block bg-white dark:bg-[#101935] rounded-[5px] border border-[#E7E8EB] dark:border-white/10 overflow-hidden shadow-none">
+        <div className="hidden md:block bg-card rounded-lg border border-border overflow-hidden shadow-none">
           <div className="overflow-x-auto no-scrollbar">
             <table className="w-full border-collapse">
               <thead>
-                <tr className="bg-[#F8F9FC] dark:bg-white/[0.02]">
+                <tr className="bg-muted/30">
                   {[
                     "Patient & Bed",
                     "Request Details",
@@ -761,7 +761,7 @@ export default function ServicesPage() {
                     <th
                       key={i}
                       className={cn(
-                        "px-6 py-4 text-[11px] font-bold text-gray-400 border-b border-[#E7E8EB] dark:border-white/10 text-left uppercase tracking-widest",
+                        "px-6 py-4 text-[11px] font-bold text-muted-foreground border-b border-border text-left uppercase tracking-widest",
                         i === 6 && "text-right"
                       )}
                     >
@@ -770,22 +770,22 @@ export default function ServicesPage() {
                   ))}
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#E7E8EB] dark:divide-white/5">
+              <tbody className="divide-y divide-border">
                 {filtered.map((item) => (
-                  <tr key={item.id} className="hover:bg-[#F8F9FC] dark:hover:bg-white/[0.01] transition-all group ">
+                  <tr key={item.id} className="hover:bg-muted/30 transition-all group ">
                     <td className="px-6 py-4">
-                      <div className="text-[14px] font-bold text-[#1e293b] dark:text-white leading-tight">
+                      <div className="text-[14px] font-bold text-foreground leading-tight">
                         {item.patientName}
                       </div>
-                      <div className="text-[11px] font-bold text-blue-600 dark:text-blue-400 mt-1">
+                      <div className="text-[11px] font-bold text-primary mt-1">
                         {item.bed}
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="text-[14px] font-bold text-[#1e293b] dark:text-white leading-tight">
+                      <div className="text-[14px] font-bold text-foreground leading-tight">
                         {item.requestType}
                       </div>
-                      <div className="text-[12px] text-gray-500 dark:text-gray-400 font-medium mt-0.5 truncate max-w-[200px]">
+                      <div className="text-[12px] text-muted-foreground font-medium mt-0.5 truncate max-w-[200px]">
                         {item.requestDescription}
                       </div>
                     </td>
@@ -793,12 +793,12 @@ export default function ServicesPage() {
                       <span className={priorityBadge(item.priority)}>{item.priority}</span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="text-[13px] font-medium text-gray-500 dark:text-gray-400">
+                      <span className="text-[13px] font-medium text-muted-foreground">
                         {item.time}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className="text-[14px] font-bold text-[#1e293b] dark:text-white">
+                      <span className="text-[13px] font-medium text-foreground">
                         {item.dept}
                       </span>
                     </td>
@@ -811,17 +811,16 @@ export default function ServicesPage() {
                       <div className="flex items-center justify-end gap-2">
                         <button
                           onClick={() => router.push(`/staff/services/${item.id}`)}
-                          className="p-2 hover:bg-muted rounded-[5px] border border-[#E7E8EB] dark:border-white/10 flex items-center justify-center transition-all text-foreground  shadow-none bg-white dark:bg-[#1e293b]"
+                          className="p-2 hover:bg-muted rounded-lg transition-all text-foreground shadow-none"
                           title="View details"
                         >
-                          <Eye className="w-4 h-4 text-foreground shrink-0" />
+                          <Eye className="w-4.5 h-4.5" />
                         </button>
                         <button
                           onClick={() => setTrackingItem(item)}
-                          className="px-3.5 h-9 hover:bg-muted bg-white dark:bg-[#1e293b] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] flex items-center gap-1.5 transition-all text-[12px] font-medium text-foreground  shadow-none"
-                          title="Track Request"
+                          className="h-8 px-3 hover:bg-primary/10 rounded-lg transition-all flex items-center gap-1.5 text-primary text-[12px] font-bold shadow-none"
                         >
-                          <Sparkles className="w-3.5 h-3.5 text-primary" />
+                          <Sparkles className="w-4 h-4 shrink-0" />
                           <span>Track</span>
                         </button>
                       </div>

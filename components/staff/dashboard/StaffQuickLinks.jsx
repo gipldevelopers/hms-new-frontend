@@ -22,14 +22,14 @@ const links = [
 
 function QuickLinkItem({ label, icon: Icon }) {
   return (
-    <div className="flex flex-col items-center justify-center p-3 border border-[#F1F5F9] dark:border-white/10 rounded-[5px] transition-all cursor-pointer bg-white dark:bg-[#101935] hover:bg-gray-50 dark:hover:bg-[#1e293b] group h-full">
-      <div className="w-full h-[60px] bg-[#F4F7FA] dark:bg-[#1e293b] rounded-[5px] flex items-center justify-center mb-3">
+    <div className="flex flex-col items-center justify-center p-4 border border-border rounded-lg transition-all cursor-pointer bg-card hover:bg-muted group h-full shadow-none">
+      <div className="w-full h-[64px] bg-muted rounded-lg flex items-center justify-center mb-4">
         <Icon 
-          className="w-[24px] h-[24px] text-[#0F172A] dark:text-blue-400 group-hover:scale-110 transition-transform" 
+          className="w-6 h-6 text-foreground group-hover:scale-110 transition-transform" 
           strokeWidth={2} 
         />
       </div>
-      <span className="text-[13px] font-bold text-[#101935] dark:text-slate-200 text-center leading-tight">
+      <span className="text-[13px] font-bold text-foreground text-center leading-tight">
         {label}
       </span>
     </div>
@@ -38,10 +38,10 @@ function QuickLinkItem({ label, icon: Icon }) {
 
 export default function StaffQuickLinks() {
   return (
-    <div className="bg-white dark:bg-[#101935] rounded-[5px] border border-[#E7E8EB] dark:border-white/10 overflow-hidden font-sans transition-all h-full flex flex-col">
+    <div className="bg-card rounded-lg border border-border overflow-hidden font-sans transition-all h-full flex flex-col shadow-none">
       {/* Header section */}
-      <div className="px-6 py-4 border-b border-[#E7E8EB] dark:border-white/10 shrink-0">
-        <h3 className="text-[16px] font-bold text-[#101935] dark:text-white uppercase-none">Quick Links</h3>
+      <div className="px-6 py-5 border-b border-border shrink-0">
+        <h3 className="text-[16px] font-bold text-foreground uppercase tracking-wider">Quick Links</h3>
       </div>
 
       {/* Grid Container */}
