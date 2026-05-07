@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import { X, Search, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Badge } from "@/components/ui/badge";
 
 export default function OrderTestModal({ isOpen, onClose }) {
   const [priority, setPriority] = useState("STAT");
@@ -26,56 +25,67 @@ export default function OrderTestModal({ isOpen, onClose }) {
 
   return (
     <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-black/40 backdrop-blur-[2px] animate-in fade-in duration-200">
-      <div className="bg-white dark:bg-[#101935] w-full max-w-[650px] rounded-[5px] shadow-none overflow-hidden animate-in zoom-in-95 duration-200 border border-border">
+      <div className="bg-card w-full max-w-[650px] rounded-lg shadow-none overflow-hidden animate-in zoom-in-95 duration-200 border border-border max-h-[95vh] flex flex-col">
         
         {/* Modal Header */}
-        <div className="p-5 pb-0 flex justify-between items-start">
-          <div className="flex flex-col gap-1 w-full">
-            <label className="text-[12px] font-bold text-gray-700 dark:text-gray-300">Search & Add Tests</label>
+        <div className="p-5 md:p-6 pb-4 sticky top-0 bg-card z-10 border-b border-border/10">
+          <div className="flex flex-col gap-3 w-full">
+            <div className="flex justify-between items-center">
+              <label className="text-[12px] font-bold text-muted-foreground uppercase tracking-wider">Search & Add Tests</label>
+              <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors p-1 md:hidden">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
             <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <input 
                 type="text" 
                 placeholder="Search by test name, code, or panel..."
-                className="w-full h-11 pl-10 pr-4 bg-white dark:bg-white/5 border border-border rounded-[5px] text-[13px] outline-none focus:border-primary transition-all"
+                className="w-full h-11 pl-10 pr-10 bg-card border border-border rounded-lg text-[13px] font-medium outline-none focus:border-primary transition-all placeholder:text-muted-foreground"
               />
+              <button onClick={onClose} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors hidden md:block">
+                <X className="w-5 h-5" />
+              </button>
             </div>
           </div>
         </div>
 
-        <div className="p-5 space-y-6">
+        <div className="p-5 md:p-6 flex-1 overflow-y-auto no-scrollbar space-y-6">
           {/* Selected Tests */}
-          <div className="flex flex-wrap gap-2">
-            {[
-              "Complete Blood Count (CBC)",
-              "Iron Studies Panel",
-              "Reticulocyte Count"
-            ].map((test) => (
-              <div 
-                key={test}
-                className="flex items-center gap-2 px-3 py-1.5 bg-[#F1F5F9] dark:bg-white/5 border border-border rounded-[5px] text-[12px] font-bold text-gray-700 dark:text-gray-300"
-              >
-                {test}
-                <X className="w-3.5 h-3.5 cursor-pointer text-gray-400 hover:text-red-500 transition-colors" />
-              </div>
-            ))}
+          <div className="space-y-2">
+            <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Selected Items</label>
+            <div className="flex flex-wrap gap-2">
+              {[
+                "Complete Blood Count (CBC)",
+                "Iron Studies Panel",
+                "Reticulocyte Count"
+              ].map((test) => (
+                <div 
+                  key={test}
+                  className="flex items-center gap-2 px-3 py-1.5 bg-muted/50 border border-border rounded-lg text-[12px] font-bold text-foreground transition-all hover:border-primary/30"
+                >
+                  <span className="truncate max-w-[200px]">{test}</span>
+                  <X className="w-3.5 h-3.5 cursor-pointer text-muted-foreground hover:text-red-500 transition-colors shrink-0" />
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Priority Level */}
-          <div className="space-y-2">
-            <label className="text-[12px] font-bold text-gray-700 dark:text-gray-300">Priority Level</label>
-            <div className="flex gap-3">
+          <div className="space-y-3">
+            <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Priority Level</label>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {["Routine", "Urgent", "STAT"].map((p) => (
                 <button
                   key={p}
                   onClick={() => setPriority(p)}
                   className={cn(
-                    "flex-1 h-11 rounded-[5px] border text-[13px] font-bold transition-all flex items-center justify-center gap-2",
+                    "h-11 rounded-lg border text-[13px] font-bold transition-all flex items-center justify-center gap-2",
                     priority === p 
                       ? p === "STAT" 
                         ? "border-red-500 bg-red-50/50 text-red-500 dark:bg-red-500/10"
                         : "border-primary bg-primary/5 text-primary"
-                      : "border-border text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5"
+                      : "border-border text-muted-foreground hover:bg-muted/50"
                   )}
                 >
                   {p === "STAT" && <Zap className="w-3.5 h-3.5" />}
@@ -87,24 +97,24 @@ export default function OrderTestModal({ isOpen, onClose }) {
 
           {/* Clinical Notes */}
           <div className="space-y-2">
-            <label className="text-[12px] font-bold text-gray-700 dark:text-gray-300">Clinical Notes / Indications</label>
+            <label className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Clinical Notes / Indications</label>
             <textarea 
-              className="w-full h-24 p-4 bg-white dark:bg-white/5 border border-border rounded-[5px] text-[13px] font-medium text-gray-600 dark:text-gray-400 outline-none focus:border-primary transition-all resize-none leading-relaxed"
-              defaultValue="Severe anemia (Hb 4.2). Please draw immediately. Check for reticulocyte response and iron stores. Patient is currently in Ward 3B."
+              className="w-full h-24 p-4 bg-card border border-border rounded-lg text-[13px] font-medium text-foreground outline-none focus:border-primary transition-all resize-none leading-relaxed placeholder:text-muted-foreground"
+              defaultValue="Severe anemia (Hb 4.2). Please draw immediately. Check for reticulocyte response and iron stores."
             />
           </div>
         </div>
 
         {/* Modal Footer */}
-        <div className="p-5 bg-gray-50/50 dark:bg-white/[0.02] border-t border-border flex justify-end gap-3">
+        <div className="p-5 md:p-6 bg-card border-t border-border flex flex-col sm:flex-row justify-end gap-3 sticky bottom-0 z-10">
           <button 
             onClick={onClose}
-            className="px-6 h-10 rounded-[5px] border border-red-200 text-red-500 text-[13px] font-bold hover:bg-red-50 transition-all shadow-none"
+            className="w-full sm:w-auto px-8 h-11 rounded-lg border border-red-200 text-red-500 text-[13px] font-bold hover:bg-red-50 dark:hover:bg-red-500/10 transition-all shadow-none order-2 sm:order-1"
           >
             Cancel
           </button>
           <button 
-            className="px-6 h-10 rounded-[5px] bg-[#2E37A4] text-white text-[13px] font-bold hover:opacity-90 transition-all shadow-none"
+            className="w-full sm:w-auto px-8 h-11 rounded-lg bg-primary text-white text-[13px] font-bold hover:opacity-90 transition-all shadow-none order-1 sm:order-2"
           >
             Sign & Order
           </button>

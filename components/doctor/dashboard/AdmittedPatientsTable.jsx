@@ -1,64 +1,70 @@
 "use client";
 
 import React from "react";
-import { cn } from "@/lib/utils";
+import { FileText } from "lucide-react";
 
-const patients = [
-  { id: "#PT-4821", name: "Rajesh Gupta", ward: "ICU / Bed 4A", status: "Critical", date: "19 Apr 2026", statusColor: "rose" },
-  { id: "#PT-4820", name: "Meena Patel", ward: "Ward A / Bed 12", status: "Stable", date: "20 Apr 2026", statusColor: "emerald" },
-  { id: "#PT-4819", name: "Arjun Mehta", ward: "Private / Room 3", status: "Discharge Due", date: "18 Apr 2026", statusColor: "amber" },
-  { id: "#PT-4818", name: "Sunita Sharma", ward: "Ward B / Bed 7", status: "Stable", date: "21 Apr 2026", statusColor: "emerald" },
-  { id: "#PT-4817", name: "Vikram Singh", ward: "Emergency / E2", status: "P1 - High", date: "21 Apr 2026", statusColor: "rose" },
+const admittedPatients = [
+  { bed: "W1-102", name: "Robert Chen", info: "45 yrs • M", admitted: "Oct 12, 2023", diagnosis: "Pneumonia", days: 4, avatar: "https://i.pravatar.cc/150?u=3" },
+  { bed: "W1-104", name: "Sarah Jenkins", info: "28 yrs • F", admitted: "Oct 14, 2023", diagnosis: "Appendicitis Post-Op", days: 2, avatar: "https://i.pravatar.cc/150?u=4" },
+  { bed: "W2-205", name: "Michael O'Connor", info: "62 yrs • M", admitted: "Oct 10, 2023", diagnosis: "Heart Failure", days: 6, avatar: "https://i.pravatar.cc/150?u=5" },
+  { bed: "W2-208", name: "Emily Davis", info: "34 yrs • F", admitted: "Oct 15, 2023", diagnosis: "Dehydration", days: 1, avatar: "https://i.pravatar.cc/150?u=6" },
+  { bed: "ICU-02", name: "David Smith", info: "55 yrs • M", admitted: "Oct 08, 2023", diagnosis: "Myocardial Infarction", days: 8, avatar: "https://i.pravatar.cc/150?u=7" },
 ];
 
 export default function AdmittedPatientsTable() {
   return (
-    <div className="bg-white dark:bg-[#101935] rounded-[5px] border border-[#E7E8EB] dark:border-white/10 shadow-none overflow-hidden">
-      <div className="p-5 border-b border-[#E7E8EB] dark:border-white/10">
-        <h3 className="text-[14px] font-bold text-[#1A1C23] dark:text-white uppercase-none">Admitted Patient</h3>
+    <div className="bg-card border border-border rounded-lg shadow-none overflow-hidden">
+      {/* Header */}
+      <div className="px-5 md:px-6 py-4 border-b border-border/60">
+        <h2 className="text-[15px] font-bold text-[#1e293b] dark:text-foreground">Admitted Patients</h2>
       </div>
       
+      {/* Table Content */}
       <div className="overflow-x-auto no-scrollbar">
-        <table className="w-full border-collapse min-w-[900px]">
+        <table className="w-full text-left border-collapse min-w-[850px] md:min-w-[900px]">
           <thead>
-            <tr className="bg-[#F8F9FA] dark:bg-[#151D36]">
-              <th className="px-6 py-4 text-left text-[11px] font-bold text-[#5E6C84] dark:text-slate-400 border-b border-[#E7E8EB] dark:border-white/10 tracking-tight uppercase-none">Patient ID</th>
-              <th className="px-6 py-4 text-left text-[11px] font-bold text-[#5E6C84] dark:text-slate-400 border-b border-[#E7E8EB] dark:border-white/10 tracking-tight uppercase-none">Patient Name</th>
-              <th className="px-6 py-4 text-left text-[11px] font-bold text-[#5E6C84] dark:text-slate-400 border-b border-[#E7E8EB] dark:border-white/10 tracking-tight uppercase-none">Ward / Bed</th>
-              <th className="px-6 py-4 text-center text-[11px] font-bold text-[#5E6C84] dark:text-slate-400 border-b border-[#E7E8EB] dark:border-white/10 tracking-tight uppercase-none">Status</th>
-              <th className="px-6 py-4 text-left text-[11px] font-bold text-[#5E6C84] dark:text-slate-400 border-b border-[#E7E8EB] dark:border-white/10 tracking-tight uppercase-none">Admission Date</th>
-              <th className="px-6 py-4 text-center text-[11px] font-bold text-[#5E6C84] dark:text-slate-400 border-b border-[#E7E8EB] dark:border-white/10 tracking-tight uppercase-none">Action</th>
+            <tr className="bg-[#f8fafc] dark:bg-white/5 text-[10px] font-bold text-[#64748b] uppercase tracking-wider">
+              <th className="px-4 md:px-6 py-4">Bed No.</th>
+              <th className="px-4 md:px-6 py-4">Patient</th>
+              <th className="px-4 md:px-6 py-4">Admission Date</th>
+              <th className="px-4 md:px-6 py-4">Diagnosis</th>
+              <th className="px-4 md:px-6 py-4 text-center">Days Admitted</th>
+              <th className="px-4 md:px-6 py-4 text-center">Action</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#E7E8EB] dark:divide-white/10">
-            {patients.map((patient, idx) => (
-              <tr key={idx} className="hover:bg-gray-50/50 dark:hover:bg-white/5 transition-all">
-                <td className="px-6 py-4">
-                  <span className="text-[13px] font-bold text-primary">{patient.id}</span>
-                </td>
-                <td className="px-6 py-4">
-                  <span className="text-[13px] font-bold text-[#1A1C23] dark:text-white">{patient.name}</span>
-                </td>
-                <td className="px-6 py-4">
-                  <span className="text-[13px] font-medium text-[#5E6C84] dark:text-slate-400">{patient.ward}</span>
-                </td>
-                <td className="px-6 py-4 text-center">
-                  <span className={cn(
-                    "px-3 py-1 rounded-full text-[10px] font-bold",
-                    patient.statusColor === "rose" && "bg-rose-50 text-rose-500",
-                    patient.statusColor === "emerald" && "bg-emerald-50 text-emerald-500",
-                    patient.statusColor === "amber" && "bg-amber-50 text-amber-500",
-                  )}>
-                    {patient.status}
+          <tbody className="divide-y divide-border">
+            {admittedPatients.map((patient, i) => (
+              <tr key={i} className="hover:bg-muted/30 transition-colors">
+                <td className="px-4 md:px-6 py-4 md:py-5">
+                  <span className="px-2.5 md:px-3 py-1.5 bg-[#f1f5f9] dark:bg-white/10 rounded-lg text-[11px] md:text-[12px] font-bold text-[#475569] dark:text-muted-foreground whitespace-nowrap">
+                    {patient.bed}
                   </span>
                 </td>
-                <td className="px-6 py-4">
-                  <span className="text-[13px] font-medium text-[#5E6C84] dark:text-slate-400">{patient.date}</span>
+                <td className="px-4 md:px-6 py-4 md:py-5">
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 md:w-9 md:h-9 rounded-full overflow-hidden border border-border shrink-0 bg-muted">
+                      <img src={patient.avatar} alt={patient.name} className="w-full h-full object-cover" />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-[12px] md:text-[13px] font-bold text-[#1e293b] dark:text-foreground leading-tight">{patient.name}</span>
+                      <span className="text-[10px] md:text-[11px] font-medium text-[#64748b] leading-tight">{patient.info}</span>
+                    </div>
+                  </div>
                 </td>
-                <td className="px-6 py-4 text-center">
-                  <button className="text-[12px] font-bold text-primary hover:underline">
-                    View
-                  </button>
+                <td className="px-4 md:px-6 py-4 md:py-5 text-[11px] md:text-[12px] font-medium text-[#64748b] whitespace-nowrap">{patient.admitted}</td>
+                <td className="px-4 md:px-6 py-4 md:py-5 text-[11px] md:text-[12px] font-medium text-[#64748b]">{patient.diagnosis}</td>
+                <td className="px-4 md:px-6 py-4 md:py-5 text-center">
+                  <span className="inline-flex items-center justify-center w-6 h-6 md:w-7 md:h-7 rounded-full bg-[#f0f9ff] text-[11px] md:text-[12px] font-bold text-[#0ea5e9] border border-[#e0f2fe]">
+                    {patient.days}
+                  </span>
+                </td>
+                <td className="px-4 md:px-6 py-4 md:py-5">
+                  <div className="flex justify-center">
+                    <button className="h-8 md:h-9 px-3 md:px-4 bg-primary text-primary-foreground rounded-lg flex items-center gap-2 text-[11px] md:text-[12px] font-bold hover:opacity-90 transition-all shadow-none whitespace-nowrap">
+                      <FileText className="w-3.5 md:w-4 h-3.5 md:h-4" />
+                      View Chart
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}

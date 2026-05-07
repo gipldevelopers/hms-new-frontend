@@ -79,6 +79,7 @@ const roleMenus = {
     },
     { name: "Reports", icon: BarChart3, path: "/super-admin/analytics", section: "SYSTEM" },
     { name: "System Logs", icon: FileText, path: "/super-admin/audit-logs", section: "SYSTEM" },
+    { name: "Profile & Settings", icon: User, path: "/super-admin/profile", section: "SYSTEM" },
   ],
   "branch-admin": [
     { name: "Dashboard", icon: LayoutGrid, path: "/branch-admin", section: "none" },
@@ -88,6 +89,7 @@ const roleMenus = {
     { name: "Billing & Payments", icon: Wallet, path: "/branch-admin/billing", section: "Operations" },
     { name: "Emergency Reports", icon: Stethoscope, path: "/branch-admin/emergency", section: "Admin" },
     { name: "Configurations", icon: Settings, path: "/branch-admin/configuration", section: "Admin" },
+    { name: "Profile & Settings", icon: User, path: "/branch-admin/profile", section: "Admin" },
   ],
   "doctor": [
     { name: "Dashboard", icon: LayoutGrid, path: "/doctor", section: "Main" },
@@ -95,6 +97,7 @@ const roleMenus = {
     { name: "IPD Patients", icon: Hotel, path: "/doctor/ipd", section: "Main" },
     { name: "My Schedule", icon: CalendarDays, path: "/doctor/schedule", section: "Work" },
     { name: "Alerts", icon: Bell, path: "/doctor/alerts", section: "Work" },
+    { name: "Discharge Request", icon: LogOut, path: "/doctor/discharge", section: "Work" },
     { name: "Reports", icon: BarChart3, path: "/doctor/reports", section: "Reports" },
     { name: "Profile & Settings", icon: User, path: "/doctor/profile", section: "Reports" },
   ],
@@ -108,37 +111,44 @@ const roleMenus = {
     { name: "MAR/ Administer", icon: PlusSquare, path: "/staff/medication/administer", section: "MEDICATION" },
     { name: "Service Requests", icon: Wrench, path: "/staff/services", section: "SERVICES" },
     { name: "Admission/Transfer", icon: ClipboardList, path: "/staff/admissions", section: "ADMISSION" },
+    { name: "Profile & Settings", icon: User, path: "/staff/profile", section: "ADMISSION" },
   ],
   "reception": [
     { name: "Dashboard", icon: LayoutGrid, path: "/reception", section: "none" },
     { name: "Registration", icon: UserRound, path: "/reception/registration", section: "FRONT DESK" },
     { name: "Appointments", icon: CalendarDays, path: "/reception/appointments", section: "FRONT DESK" },
     { name: "Room Booking", icon: Hotel, path: "/reception/rooms", section: "FRONT DESK" },
+    { name: "Profile & Settings", icon: User, path: "/reception/profile", section: "FRONT DESK" },
   ],
   "pharmacy": [
     { name: "Dashboard", icon: LayoutGrid, path: "/pharmacy", section: "none" },
     { name: "Medicines", icon: Pill, path: "/pharmacy/medicines", section: "INVENTORY" },
     { name: "Sales", icon: Wallet, path: "/pharmacy/sales", section: "FINANCE" },
+    { name: "Profile & Settings", icon: User, path: "/pharmacy/profile", section: "FINANCE" },
   ],
   "laboratory": [
     { name: "Dashboard", icon: LayoutGrid, path: "/laboratory", section: "none" },
     { name: "Tests", icon: FlaskConical, path: "/laboratory/tests", section: "OPS" },
     { name: "Reports", icon: Microscope, path: "/laboratory/reports", section: "OPS" },
+    { name: "Profile & Settings", icon: User, path: "/laboratory/profile", section: "OPS" },
   ],
   "radiology": [
     { name: "Dashboard", icon: LayoutGrid, path: "/radiology", section: "none" },
     { name: "Scans", icon: Microscope, path: "/radiology/scans", section: "OPS" },
     { name: "Reports", icon: Microscope, path: "/radiology/reports", section: "OPS" },
+    { name: "Profile & Settings", icon: User, path: "/radiology/profile", section: "OPS" },
   ],
   "finance": [
     { name: "Dashboard", icon: LayoutGrid, path: "/finance", section: "none" },
     { name: "Invoices", icon: Wallet, path: "/finance/invoices", section: "ACCOUNTS" },
     { name: "Payroll", icon: Users2, path: "/finance/payroll", section: "ACCOUNTS" },
+    { name: "Profile & Settings", icon: User, path: "/finance/profile", section: "ACCOUNTS" },
   ],
   "reports": [
     { name: "Dashboard", icon: LayoutGrid, path: "/reports", section: "none" },
     { name: "System Reports", icon: PieChart, path: "/reports/system", section: "REPORTS" },
     { name: "User Logs", icon: FileText, path: "/reports/logs", section: "REPORTS" },
+    { name: "Profile & Settings", icon: User, path: "/reports/profile", section: "REPORTS" },
   ]
 };
 

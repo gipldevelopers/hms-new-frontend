@@ -1,100 +1,100 @@
 "use client";
 
 import React from "react";
-import { 
-  Users, 
-  MoreVertical,
-  ChevronRight,
-  Clock,
-  FileText
-} from "lucide-react";
 import { cn } from "@/lib/utils";
+import { FileText } from "lucide-react";
 
 const schedule = [
   { 
-    id: 1, 
-    time: "09:30 AM", 
+    time: "09:30", 
+    period: "AM", 
     title: "Hip Replacement Surgery", 
-    desc: "OR Room 4 • Patient: John Doe", 
-    attendees: ["https://i.pravatar.cc/150?u=1", "https://i.pravatar.cc/150?u=2"], 
-    extraAttendees: 2,
-    color: "bg-[#2D3A8C]" 
+    subtitle: "OR Room 4 • Patient: John Doe", 
+    color: "bg-violet-600", 
+    avatars: [
+      "https://i.pravatar.cc/150?u=1",
+      "https://i.pravatar.cc/150?u=2",
+      "+2"
+    ] 
   },
   { 
-    id: 2, 
-    time: "11:15 AM", 
+    time: "11:15", 
+    period: "AM", 
     title: "Pediatric Ward Rounds", 
-    desc: "Level 3 • Team B", 
-    tag: "RECURRING", 
-    color: "bg-blue-400" 
+    subtitle: "Level 3 • Team B", 
+    color: "bg-sky-500", 
+    tag: "RECURRING" 
   },
   { 
-    id: 3, 
-    time: "02:00 PM", 
+    time: "02:00", 
+    period: "PM", 
     title: "Inter-Departmental Meeting", 
-    desc: "Conference Hall A • Budgeting", 
-    tag: "AGENDA", 
-    color: "bg-orange-400" 
+    subtitle: "Conference Hall A • Budgeting", 
+    color: "bg-amber-500", 
+    tag: "AGENDA",
+    icon: FileText
   },
 ];
 
-export default function TodaySchedule() {
+export default function TodaySchedule({ className }) {
   return (
-    <div className="bg-white dark:bg-[#101935] p-5 rounded-[5px] border border-[#E7E8EB] dark:border-white/10 shadow-none">
-      <div className="flex justify-between items-center mb-6">
-        <h3 className="text-[14px] font-bold text-[#1A1C23] dark:text-white uppercase-none">Today's Medical Schedule</h3>
+    <div className={cn("bg-card border border-border rounded-lg shadow-none overflow-hidden flex flex-col", className)}>
+      {/* Header */}
+      <div className="px-5 md:px-6 py-4 border-b border-border/60 flex justify-between items-center shrink-0">
+        <h2 className="text-[15px] font-bold text-[#1e293b] dark:text-foreground">Today's Medical Schedule</h2>
+        <button className="h-8 px-3 border border-border rounded-lg text-[11px] font-bold text-[#64748b] hover:bg-muted transition-all">
+          View all
+        </button>
       </div>
       
-      <div className="space-y-6 relative before:absolute before:left-[110px] before:top-2 before:bottom-2 before:w-[1px] before:bg-gray-100 dark:before:bg-white/5">
-        {schedule.map((item) => (
-          <div key={item.id} className="flex gap-10 items-start group relative">
-            <div className="w-[80px] shrink-0 text-right">
-              <p className="text-[12px] font-bold text-[#1A1C23] dark:text-white">{item.time.split(' ')[0]}</p>
-              <p className="text-[9px] font-bold text-[#5E6C84] dark:text-slate-500">{item.time.split(' ')[1]}</p>
-            </div>
-            
-            <div className={cn("absolute left-[108px] top-1.5 w-[5px] h-10 rounded-full", item.color)} />
-            
-            <div className="flex-1 min-w-0 flex justify-between items-center pr-2">
-              <div className="space-y-1">
-                <h4 className="text-[13px] font-bold text-[#1A1C23] dark:text-white group-hover:text-primary transition-colors truncate">
-                  {item.title}
-                </h4>
-                <p className="text-[11px] text-[#5E6C84] dark:text-slate-500 font-medium truncate">
-                  {item.desc}
-                </p>
+      {/* List Content */}
+      <div className="p-5 md:p-8 flex-1 flex flex-col justify-around min-h-[300px]">
+        <div className="space-y-6 md:space-y-10">
+          {schedule.map((item, i) => (
+            <div key={i} className="flex items-center gap-4 md:gap-6">
+              {/* Time Section */}
+              <div className="flex flex-col items-center min-w-[45px] md:min-w-[50px]">
+                <span className="text-[13px] md:text-[14px] font-bold text-[#1e293b] dark:text-foreground leading-none">{item.time}</span>
+                <span className="text-[9px] md:text-[10px] font-bold text-[#94a3b8] mt-1 uppercase">{item.period}</span>
               </div>
-              
-              <div className="flex items-center gap-4 shrink-0 ml-4">
-                {item.attendees && (
-                  <div className="flex -space-x-2">
-                    {item.attendees.map((url, i) => (
-                      <div key={i} className="w-7 h-7 rounded-full border-2 border-white dark:border-[#101935] overflow-hidden">
-                        <img src={url} alt="avatar" className="w-full h-full object-cover" />
+
+              {/* Status Bar */}
+              <div className={cn("w-[2px] md:w-[3px] h-8 md:h-10 rounded-full shrink-0", item.color)} />
+
+              {/* Info Section */}
+              <div className="flex-1 min-w-0">
+                <p className="text-[12px] md:text-[13px] font-bold text-[#1e293b] dark:text-foreground leading-tight truncate">{item.title}</p>
+                <p className="text-[10px] md:text-[11px] font-medium text-[#64748b] mt-0.5 truncate">{item.subtitle}</p>
+              </div>
+
+              {/* Action/Meta Section - Hidden on very small mobile if too crowded, or styled carefully */}
+              <div className="flex items-center shrink-0">
+                {item.avatars ? (
+                  <div className="flex items-center -space-x-1.5 md:-space-x-2">
+                    {item.avatars.map((av, j) => (
+                      <div key={j} className="w-7 h-7 md:w-8 md:h-8 rounded-full border-2 border-white dark:border-card overflow-hidden bg-muted flex items-center justify-center">
+                        {av.startsWith('http') ? (
+                          <img src={av} alt="team" className="w-full h-full object-cover" />
+                        ) : (
+                          <span className="text-[9px] md:text-[10px] font-bold text-[#64748b]">{av}</span>
+                        )}
                       </div>
                     ))}
-                    {item.extraAttendees && (
-                      <div className="w-7 h-7 rounded-full bg-gray-100 dark:bg-white/10 border-2 border-white dark:border-[#101935] flex items-center justify-center text-[10px] font-bold text-[#5E6C84] dark:text-slate-400">
-                        +{item.extraAttendees}
-                      </div>
-                    )}
                   </div>
-                )}
-                {item.tag && (
-                  <span className={cn(
-                    "px-2 py-0.5 rounded-[4px] text-[9px] font-bold",
-                    item.tag === "RECURRING" ? "bg-blue-50 text-blue-500" : "bg-gray-100 text-gray-500"
-                  )}>
+                ) : item.tag === "RECURRING" ? (
+                  <span className="px-2 md:px-3 py-1 md:py-1.5 rounded-lg bg-[#f0f9ff] text-[#0ea5e9] text-[9px] md:text-[10px] font-bold tracking-wider uppercase">
                     {item.tag}
                   </span>
-                )}
-                <button className="p-1 hover:bg-gray-100 dark:hover:bg-white/5 rounded-full transition-all">
-                  {item.id === 3 ? <FileText className="w-3.5 h-3.5 text-[#A0AEC0]" /> : <MoreVertical className="w-4 h-4 text-[#A0AEC0]" />}
-                </button>
+                ) : item.tag === "AGENDA" ? (
+                  <div className="flex items-center gap-1 md:gap-1.5 text-[#94a3b8]">
+                    {item.icon && <item.icon className="w-3 md:w-3.5 h-3 md:h-3.5" />}
+                    <span className="text-[9px] md:text-[10px] font-bold tracking-wider uppercase">{item.tag}</span>
+                  </div>
+                ) : null}
               </div>
             </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
