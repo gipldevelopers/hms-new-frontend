@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { CustomCalendar } from "@/components/ui/custom-calendar";
 import { Button } from "@/components/ui/button";
+import { FormDatePicker } from "@/components/ui/form-date-picker";
 
 // --- CUSTOM SELECT COMPONENT ---
 function CustomSelect({ value, onChange, options, placeholder, required, className }) {
@@ -60,33 +61,6 @@ function CustomSelect({ value, onChange, options, placeholder, required, classNa
 }
 
 // --- CUSTOM DATE PICKER COMPONENT ---
-function CustomDatePicker({ value, onChange, placeholder }) {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button 
-          type="button"
-          className={cn(
-            "w-full h-[48px] px-4 bg-muted/50 border border-border rounded-lg text-[14px] font-bold text-left flex items-center gap-3 outline-none focus:border-primary transition-all",
-            !value && "text-muted-foreground",
-            value && "text-foreground"
-          )}
-        >
-          <Calendar className="w-4 h-4 text-primary/50" />
-          {value ? format(new Date(value), "PPP") : placeholder}
-        </button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="p-0 border-none bg-transparent shadow-none z-[500]">
-        <CustomCalendar 
-          selectedDate={value ? new Date(value) : null}
-          onSelect={(date) => {
-            onChange(date);
-          }}
-        />
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-}
 
 // --- CUSTOM TIME PICKER COMPONENT ---
 function CustomTimePicker({ value, onChange, disabled }) {
@@ -374,10 +348,11 @@ export default function AddAdmissionPage() {
                 <div className="grid grid-cols-2 gap-5">
                    <div className="space-y-2">
                     <label className="text-[12px] font-bold text-muted-foreground ml-1">Admission Date & Time</label>
-                    <CustomDatePicker 
+                    <FormDatePicker 
                       value={formData.admissionDate}
                       onChange={(date) => setFormData({...formData, admissionDate: date})}
-                      placeholder="2026-04-23 09:30 AM"
+                      placeholder="Select Date"
+                      variant="muted"
                     />
                   </div>
                   <div className="space-y-2 flex flex-col justify-end">

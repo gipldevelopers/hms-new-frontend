@@ -23,37 +23,46 @@ import {
 import { CustomCalendar } from "@/components/ui/custom-calendar";
 import { format } from "date-fns";
 import { useRouter, useParams } from "next/navigation";
+import { FormDatePicker } from "@/components/ui/form-date-picker";
 
 // --- SIMPLIFIED COMPONENTS ---
 
-function FormInput({ label, required, ...props }) {
+export function FormInput({ label, required, error, ...props }) {
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 w-full">
       {label && (
-        <label className="text-[13px] font-bold text-foreground">
-          {label} {required && <span className="text-red-500">*</span>}
+        <label className="text-[13px] font-bold text-foreground flex items-center justify-between">
+          <span>{label} {required && <span className="text-red-500">*</span>}</span>
+          {error && <span className="text-[11px] text-red-500 font-medium animate-in fade-in slide-in-from-top-1">{error}</span>}
         </label>
       )}
       <input
         {...props}
-        className="w-full h-11 px-4 bg-background border border-border rounded-[5px] text-[13px] font-medium text-foreground outline-none focus:border-primary transition-all shadow-none placeholder:text-muted-foreground/60"
+        className={cn(
+          "w-full h-11 px-4 bg-background border rounded-[5px] text-[13px] font-medium text-foreground outline-none transition-all shadow-none placeholder:text-muted-foreground/60",
+          error ? "border-red-500 focus:border-red-600 bg-red-50/50" : "border-border focus:border-primary"
+        )}
       />
     </div>
   );
 }
 
-function FormSelect({ label, required, value, onChange, options, placeholder }) {
+export function FormSelect({ label, required, value, onChange, options, placeholder, error }) {
   const selected = options.find((o) => o.value === value);
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 w-full">
       {label && (
-        <label className="text-[13px] font-bold text-foreground">
-          {label} {required && <span className="text-red-500">*</span>}
+        <label className="text-[13px] font-bold text-foreground flex items-center justify-between">
+          <span>{label} {required && <span className="text-red-500">*</span>}</span>
+          {error && <span className="text-[11px] text-red-500 font-medium animate-in fade-in slide-in-from-top-1">{error}</span>}
         </label>
       )}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className="w-full h-11 px-4 bg-background border border-border rounded-[5px] text-[13px] font-medium text-foreground outline-none focus:border-primary transition-all flex items-center justify-between shadow-none text-left">
+          <button className={cn(
+            "w-full h-11 px-4 bg-background border rounded-[5px] text-[13px] font-medium text-foreground outline-none transition-all flex items-center justify-between shadow-none text-left",
+            error ? "border-red-500 focus:border-red-600 bg-red-50/50" : "border-border focus:border-primary"
+          )}>
             <span className={cn(!selected && "text-muted-foreground/60")}>
               {selected ? selected.label : placeholder}
             </span>
@@ -83,36 +92,6 @@ function FormSelect({ label, required, value, onChange, options, placeholder }) 
   );
 }
 
-function FormDatePicker({ label, required, value, onChange, placeholder }) {
-  return (
-    <div className="space-y-2">
-      {label && (
-        <label className="text-[13px] font-bold text-foreground">
-          {label} {required && <span className="text-red-500">*</span>}
-        </label>
-      )}
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <button className="w-full h-11 px-4 bg-background border border-border rounded-[5px] text-[13px] font-medium text-foreground outline-none focus:border-primary transition-all flex items-center gap-3 shadow-none text-left">
-            <CalendarIcon className="w-4 h-4 text-primary/50" />
-            <span className={cn(!value && "text-muted-foreground/60")}>
-              {value ? format(new Date(value), "dd/MM/yyyy") : placeholder}
-            </span>
-          </button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent
-          align="start"
-          className="p-0 border-none bg-transparent shadow-none z-[600]"
-        >
-          <CustomCalendar
-            selectedDate={value ? new Date(value) : null}
-            onSelect={(date) => onChange(date)}
-          />
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </div>
-  );
-}
 
 function SuccessModal({ isOpen, onClose, uhid }) {
   React.useEffect(() => {
@@ -192,16 +171,237 @@ export default function ContinueRegistrationPage() {
   const [currentStep, setCurrentStep] = React.useState(2); // Start from Draft Step
   const [showSuccessModal, setShowSuccessModal] = React.useState(false);
   const [formData, setFormData] = React.useState({
-    gender: "male",
-    maritalStatus: "single",
-    bloodGroup: "o+",
-    dob: new Date("1995-05-15"),
-    state: "ca",
-    country: "us",
+    firstName: "",
+    lastName: "",
+    gender: "",
+    dob: null,
+    age: "",
+    mobile: "",
+    alternateMobile: "",
+    email: "",
+    maritalStatus: "",
+    bloodGroup: "",
+    address: "",
+    city: "",
+    state: "",
+    pincode: "",
+    country: "",
+    aadhaar: "",
+    pan: "",
+    passport: "",
+    idProofUrl: "",
+    status: "Draft"
   });
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [errors, setErrors] = React.useState({});
+  const fileInputRef = React.useRef(null);
+  const [uploading, setUploading] = React.useState(false);
+  const [uploadProgress, setUploadProgress] = React.useState(0);
+
+  React.useEffect(() => {
+    if (id) {
+      const fetchPatient = async () => {
+        try {
+          const token = localStorage.getItem("authtoken");
+          const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/patients/${id}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          if (response.ok) {
+            const result = await response.json();
+            setFormData({
+              firstName: result.firstName || "",
+              lastName: result.lastName || "",
+              gender: result.gender || "",
+              dob: result.dob ? new Date(result.dob) : null,
+              age: result.age?.toString() || "",
+              mobile: result.contact || "",
+              alternateMobile: result.alternateMobile || "",
+              email: result.email || "",
+              maritalStatus: result.maritalStatus || "",
+              bloodGroup: result.bloodGroup || "",
+              address: result.address || "",
+              city: result.city || "",
+              state: result.state || "",
+              pincode: result.pincode || "",
+              country: result.country || "",
+              aadhaar: result.aadhaar || "",
+              pan: result.pan || "",
+              passport: result.passport || "",
+              idProofUrl: result.idProofUrl || "",
+              status: "Draft"
+            });
+          }
+        } catch (error) {
+          console.error("Error fetching patient:", error);
+        }
+      };
+      fetchPatient();
+    }
+  }, [id]);
+
+  const handleFileUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    setUploadProgress(0);
+
+    const xhr = new XMLHttpRequest();
+    const formDataUpload = new FormData();
+    formDataUpload.append("file", file);
+
+    xhr.upload.addEventListener("progress", (event) => {
+      if (event.lengthComputable) {
+        const percent = Math.round((event.loaded / event.total) * 100);
+        setUploadProgress(percent);
+      }
+    });
+
+    xhr.addEventListener("load", () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        const result = JSON.parse(xhr.responseText);
+        if (result.status) {
+          const fileUrl = result.data.url;
+          updateForm("idProofUrl", fileUrl);
+          // Auto-save draft with the new URL immediately
+          handleSaveDraft(true, { ...formData, idProofUrl: fileUrl });
+        } else {
+          alert(result.message || "Upload failed");
+        }
+      } else {
+        alert("Upload failed");
+      }
+      setUploading(false);
+    });
+
+    xhr.addEventListener("error", () => {
+      alert("Error uploading file");
+      setUploading(false);
+    });
+
+    xhr.open("POST", "/api/gvoice/file");
+    xhr.send(formDataUpload);
+  };
 
   const updateForm = (key, value) => {
-    setFormData((prev) => ({ ...prev, [key]: value }));
+    setErrors(prev => ({ ...prev, [key]: "" }));
+    
+    // Auto-formatting for specific fields
+    let formattedValue = value;
+    if (key === "pan") {
+      formattedValue = value.toUpperCase().replace(/\s/g, "").substring(0, 10);
+    } else if (key === "passport") {
+      formattedValue = value.toUpperCase().replace(/\s/g, "").substring(0, 8);
+    } else if (key === "aadhaar") {
+      formattedValue = value.replace(/\D/g, "").substring(0, 12);
+    } else if (key === "mobile") {
+      formattedValue = value.replace(/\D/g, "").substring(0, 10);
+    } else if (key === "pincode") {
+      formattedValue = value.replace(/\D/g, "").substring(0, 6);
+    }
+
+    setFormData((prev) => ({ ...prev, [key]: formattedValue }));
+  };
+
+  const validateStep = (step) => {
+    const newErrors = {};
+    if (step === 1) {
+      if (!formData.firstName) newErrors.firstName = "First name is required";
+      if (!formData.lastName) newErrors.lastName = "Last name is required";
+      if (!formData.mobile) newErrors.mobile = "Mobile number is required";
+      else if (!/^\d{10}$/.test(formData.mobile)) newErrors.mobile = "Invalid mobile number (10 digits)";
+      if (!formData.gender) newErrors.gender = "Gender is required";
+    } else if (step === 2) {
+      if (!formData.address) newErrors.address = "Address is required";
+      if (!formData.city) newErrors.city = "City is required";
+      if (!formData.state) newErrors.state = "State is required";
+      if (!formData.pincode) newErrors.pincode = "Pincode is required";
+      else if (!/^\d{6}$/.test(formData.pincode)) newErrors.pincode = "Invalid pincode (6 digits)";
+    } else if (step === 3) {
+      if (formData.aadhaar && !/^[2-9]{1}[0-9]{11}$/.test(formData.aadhaar)) {
+        newErrors.aadhaar = "Invalid Aadhaar (12 digits, cannot start with 0 or 1)";
+      }
+      if (formData.pan && !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(formData.pan)) {
+        newErrors.pan = "Invalid PAN format (e.g. ABCDE1234F)";
+      }
+      if (formData.passport && !/^[A-Z]{1}[0-9]{7}$/.test(formData.passport)) {
+        newErrors.passport = "Invalid Passport (1 alphabet followed by 7 digits)";
+      }
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSaveDraft = async (silent = false, overrideData = null) => {
+    try {
+      if (!silent) setIsSubmitting(true);
+      const token = localStorage.getItem("authtoken");
+      
+      const dataToSave = overrideData || formData;
+
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/patients/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          ...dataToSave,
+          contact: dataToSave.mobile,
+          status: "Draft"
+        }),
+      });
+
+      if (response.ok) {
+        return true;
+      } else {
+        let errData = {};
+        try {
+          errData = await response.json();
+        } catch (e) {
+          errData = { error: "Unknown server error" };
+        }
+        console.error("Save draft failed:", errData);
+        if (!silent) alert(errData.error || errData.message || "Failed to save draft");
+      }
+    } catch (error) {
+      console.error("Error saving draft:", error);
+    } finally {
+      if (!silent) setIsSubmitting(false);
+    }
+    return false;
+  };
+
+  const handleConfirm = async () => {
+    try {
+      setIsSubmitting(true);
+      const token = localStorage.getItem("authtoken");
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/patients/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          ...formData,
+          contact: formData.mobile,
+          status: "Complete"
+        }),
+      });
+
+      if (response.ok) {
+        setShowSuccessModal(true);
+        localStorage.removeItem("active_patient_draft_id");
+      } else {
+        alert("Failed to update patient");
+      }
+    } catch (error) {
+      console.error("Error updating patient:", error);
+      alert("An error occurred");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -328,17 +528,6 @@ export default function ContinueRegistrationPage() {
                   "Please review the details before confirming registration."}
               </p>
             </div>
-            {currentStep === 3 ? (
-              <button className="flex items-center gap-2 px-3 py-1.5 border border-border rounded-[5px] text-[12px] font-bold text-foreground hover:bg-muted transition-all shadow-none">
-                <Scan className="w-4 h-4" />
-                Scan Document
-              </button>
-            ) : (
-              <button className="flex items-center gap-2 px-3 py-1.5 border border-border rounded-[5px] text-[12px] font-bold text-foreground hover:bg-muted transition-all">
-                <Search className="w-3.5 h-3.5" />
-                Find Existing
-              </button>
-            )}
           </div>
 
           {/* Form Content */}
@@ -349,13 +538,17 @@ export default function ContinueRegistrationPage() {
                   <FormInput
                     label="First Name"
                     required
-                    defaultValue="Michael"
+                    error={errors.firstName}
+                    value={formData.firstName}
+                    onChange={(e) => updateForm("firstName", e.target.value)}
                     placeholder="Enter first name"
                   />
                   <FormInput
                     label="Last Name"
                     required
-                    defaultValue="Chen"
+                    error={errors.lastName}
+                    value={formData.lastName}
+                    onChange={(e) => updateForm("lastName", e.target.value)}
                     placeholder="Enter last name"
                   />
                 </div>
@@ -364,6 +557,7 @@ export default function ContinueRegistrationPage() {
                   <FormSelect
                     label="Gender"
                     required
+                    error={errors.gender}
                     placeholder="Select gender"
                     value={formData.gender}
                     onChange={(val) => updateForm("gender", val)}
@@ -376,23 +570,35 @@ export default function ContinueRegistrationPage() {
                   <FormDatePicker
                     label="Date of Birth"
                     required
+                    error={errors.dob}
                     placeholder="DD/MM/YYYY"
                     value={formData.dob}
                     onChange={(date) => updateForm("dob", date)}
                   />
-                  <FormInput label="Age" defaultValue="28" placeholder="Years" />
+                  <FormInput 
+                    label="Age" 
+                    value={formData.age} 
+                    onChange={(e) => updateForm("age", e.target.value)}
+                    placeholder="Years" 
+                  />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormInput
                     label="Mobile Number"
                     required
-                    defaultValue="+1 (555) 012-3456"
-                    placeholder="+1 (000) 000-0000"
+                    maxLength={10}
+                    error={errors.mobile}
+                    value={formData.mobile}
+                    onChange={(e) => updateForm("mobile", e.target.value)}
+                    placeholder="+91 99999-99999"
                   />
                   <FormInput
                     label="Alternate Number"
-                    placeholder="+1 (000) 000-0000"
+                    maxLength={10}
+                    value={formData.alternateMobile}
+                    onChange={(e) => updateForm("alternateMobile", e.target.value)}
+                    placeholder="+91 99999-99999"
                   />
                 </div>
 
@@ -400,7 +606,8 @@ export default function ContinueRegistrationPage() {
                   <div className="md:col-span-1">
                     <FormInput
                       label="Email Address"
-                      defaultValue="michael.chen@example.com"
+                      value={formData.email}
+                      onChange={(e) => updateForm("email", e.target.value)}
                       placeholder="patient@example.com"
                     />
                   </div>
@@ -420,9 +627,14 @@ export default function ContinueRegistrationPage() {
                     value={formData.bloodGroup}
                     onChange={(val) => updateForm("bloodGroup", val)}
                     options={[
-                      { label: "A+", value: "a+" },
-                      { label: "B+", value: "b+" },
-                      { label: "O+", value: "o+" },
+                      { label: "A+", value: "A+" },
+                      { label: "A-", value: "A-" },
+                      { label: "B+", value: "B+" },
+                      { label: "B-", value: "B-" },
+                      { label: "AB+", value: "AB+" },
+                      { label: "AB-", value: "AB-" },
+                      { label: "O+", value: "O+" },
+                      { label: "O-", value: "O-" },
                     ]}
                   />
                 </div>
@@ -439,46 +651,52 @@ export default function ContinueRegistrationPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <label className="text-[13px] font-bold text-foreground">
-                    Address Line 1 <span className="text-red-500">*</span>
-                  </label>
-                  <textarea
-                    placeholder="123 Main Street, Apt 4B"
-                    className="w-full min-h-[100px] px-4 py-3 bg-background border border-border rounded-[5px] text-[13px] font-medium text-foreground outline-none focus:border-primary transition-all resize-none shadow-none placeholder:text-muted-foreground/60"
+                  <FormInput
+                    label="Residential Address"
+                    required
+                    error={errors.address}
+                    placeholder="Enter full address"
+                    value={formData.address}
+                    onChange={(e) => updateForm("address", e.target.value)}
                   />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormInput label="City" required placeholder="Enter city" />
-                  <FormSelect
+                  <FormInput 
+                    label="City" 
+                    required 
+                    error={errors.city}
+                    placeholder="Enter city" 
+                    value={formData.city}
+                    onChange={(e) => updateForm("city", e.target.value)}
+                  />
+                  <FormInput
                     label="State"
                     required
-                    placeholder="Select state"
+                    error={errors.state}
+                    placeholder="Enter state"
                     value={formData.state}
-                    onChange={(val) => updateForm("state", val)}
-                    options={[
-                      { label: "California", value: "ca" },
-                      { label: "New York", value: "ny" },
-                    ]}
+                    onChange={(e) => updateForm("state", e.target.value)}
                   />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormInput
-                    label="Pincode / Zip Code"
+                    label="Pincode"
                     required
+                    maxLength={6}
+                    error={errors.pincode}
                     placeholder="Enter pincode"
+                    value={formData.pincode}
+                    onChange={(e) => updateForm("pincode", e.target.value)}
                   />
-                  <FormSelect
+                  <FormInput
                     label="Country"
                     required
-                    placeholder="Select country"
+                    error={errors.country}
+                    placeholder="Enter country"
                     value={formData.country}
-                    onChange={(val) => updateForm("country", val)}
-                    options={[
-                      { label: "United States", value: "us" },
-                      { label: "India", value: "in" },
-                    ]}
+                    onChange={(e) => updateForm("country", e.target.value)}
                   />
                 </div>
               </div>
@@ -500,51 +718,71 @@ export default function ContinueRegistrationPage() {
                       Passport (Max 5MB)
                     </p>
                   </div>
-                  <button className="px-6 h-10 border border-border bg-white rounded-[5px] text-[12px] font-bold text-foreground hover:bg-muted transition-all shadow-none">
-                    Browse Files
+                  <input 
+                    type="file" 
+                    ref={fileInputRef} 
+                    className="hidden" 
+                    onChange={handleFileUpload}
+                    accept="image/*,.pdf"
+                  />
+                  <button 
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploading}
+                    className="px-6 h-10 border border-border bg-white rounded-[5px] text-[12px] font-bold text-foreground hover:bg-muted transition-all shadow-none disabled:opacity-50"
+                  >
+                    {uploading ? "Uploading..." : formData.idProofUrl ? "Change File" : "Browse Files"}
                   </button>
-                </div>
 
-                {/* ID Fields */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-2">
-                    <label className="text-[13px] font-bold text-foreground">
-                      Aadhaar Number
-                    </label>
-                    <div className="relative flex gap-2">
-                      <input
-                        type="text"
-                        placeholder="XXXX-XXXX-XXXX"
-                        className="flex-1 h-11 px-4 bg-background border border-border rounded-[5px] text-[13px] outline-none focus:border-primary transition-all shadow-none"
-                      />
-                      <button className="px-4 h-11 bg-primary/5 border border-primary/20 text-primary rounded-[5px] text-[12px] font-bold hover:bg-primary/10 transition-all shadow-none">
-                        Verify
-                      </button>
+                  {uploading && (
+                    <div className="w-full max-w-[300px] mt-4 space-y-2">
+                      <div className="flex items-center justify-between text-[11px] font-bold text-muted-foreground">
+                        <span>Uploading...</span>
+                        <span>{uploadProgress}%</span>
+                      </div>
+                      <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-primary transition-all duration-300" 
+                          style={{ width: `${uploadProgress}%` }}
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <FormInput label="PAN Number" placeholder="ABCDE1234F" />
+                  )}
+
+                  {formData.idProofUrl && !uploading && (
+                    <p className="text-[11px] text-primary font-medium mt-2">
+                      File uploaded: {formData.idProofUrl.split('/').pop()}
+                    </p>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormInput label="Passport Number" placeholder="A1234567" />
+                  <FormInput
+                    label="Aadhaar Number"
+                    placeholder="12-digit number"
+                    maxLength={12}
+                    error={errors.aadhaar}
+                    value={formData.aadhaar}
+                    onChange={(e) => updateForm("aadhaar", e.target.value)}
+                  />
+                  <FormInput 
+                    label="PAN Number" 
+                    placeholder="ABCDE1234F" 
+                    maxLength={10}
+                    error={errors.pan}
+                    value={formData.pan}
+                    onChange={(e) => updateForm("pan", e.target.value)}
+                  />
+                  <FormInput 
+                    label="Passport Number" 
+                    placeholder="A1234567" 
+                    maxLength={8}
+                    error={errors.passport}
+                    value={formData.passport}
+                    onChange={(e) => updateForm("passport", e.target.value)}
+                  />
                 </div>
 
-                {/* Success Alert */}
-                <div className="bg-[#E6F9F1] border border-[#B3F0D1] rounded-[5px] p-4 flex items-start gap-3">
-                  <div className="mt-0.5">
-                    <div className="w-5 h-5 bg-[#00A389] rounded-full flex items-center justify-center">
-                      <Check className="w-3 h-3 text-white stroke-[3]" />
-                    </div>
-                  </div>
-                  <div className="space-y-0.5">
-                    <p className="text-[13px] font-bold text-[#00A389] leading-none">
-                      Aadhaar verified successfully
-                    </p>
-                    <p className="text-[12px] text-[#00A389]/80">
-                      Details have been auto-filled using OCR
-                    </p>
-                  </div>
-                </div>
+                {/* Removed Aadhaar verified alert */}
               </div>
             )}
 
@@ -566,7 +804,7 @@ export default function ContinueRegistrationPage() {
                         Full Name
                       </p>
                       <p className="text-[14px] font-bold text-foreground">
-                        Michael Chen
+                        {formData.firstName} {formData.lastName}
                       </p>
                     </div>
                     <div className="space-y-1">
@@ -574,15 +812,15 @@ export default function ContinueRegistrationPage() {
                         Gender / Age
                       </p>
                       <p className="text-[14px] font-bold text-foreground">
-                        Male / 28 Years
+                        {formData.gender} / {formData.age} Years
                       </p>
                     </div>
                     <div className="space-y-1">
                       <p className="text-[12px] text-muted-foreground font-medium">
                         Blood Group
                       </p>
-                      <p className="text-[14px] font-bold text-foreground">
-                        O+
+                      <p className="text-[14px] font-bold text-foreground uppercase">
+                        {formData.bloodGroup}
                       </p>
                     </div>
                     <div className="space-y-1">
@@ -590,7 +828,7 @@ export default function ContinueRegistrationPage() {
                         Mobile Number
                       </p>
                       <p className="text-[14px] font-bold text-foreground">
-                        +1 (555) 012-3456
+                        {formData.mobile}
                       </p>
                     </div>
                     <div className="md:col-span-2 space-y-1">
@@ -598,19 +836,18 @@ export default function ContinueRegistrationPage() {
                         Email
                       </p>
                       <p className="text-[14px] font-bold text-foreground">
-                        michael.chen@example.com
+                        {formData.email || "N/A"}
                       </p>
                     </div>
                   </div>
                 </div>
 
-                {/* Address Details Section */}
                 <div className="bg-white dark:bg-[#111827] border border-border rounded-[5px] p-6 space-y-3">
                   <h3 className="text-[15px] font-bold text-foreground">
                     Address Details
                   </h3>
                   <p className="text-[14px] font-bold text-foreground leading-relaxed">
-                    123 Main Street, Apt 4B, New York, NY, 10001, USA
+                    {formData.address}, {formData.city}, {formData.state}, {formData.pincode}, {formData.country}
                   </p>
                 </div>
 
@@ -626,11 +863,13 @@ export default function ContinueRegistrationPage() {
                       </p>
                       <div className="flex items-center gap-2">
                         <p className="text-[14px] font-bold text-foreground">
-                          XXXX-XXXX-1234
+                          {formData.aadhaar ? `XXXX-XXXX-${formData.aadhaar.slice(-4)}` : "N/A"}
                         </p>
-                        <div className="w-4 h-4 bg-[#E6F9F1] rounded-full flex items-center justify-center">
-                          <Check className="w-2.5 h-2.5 text-[#00A389] stroke-[4]" />
-                        </div>
+                        {formData.aadhaar && (
+                          <div className="w-4 h-4 bg-[#E6F9F1] rounded-full flex items-center justify-center">
+                            <Check className="w-2.5 h-2.5 text-[#00A389] stroke-[4]" />
+                          </div>
+                        )}
                       </div>
                     </div>
                     <div className="space-y-1">
@@ -638,12 +877,14 @@ export default function ContinueRegistrationPage() {
                         Passport Number
                       </p>
                       <div className="flex items-center gap-2">
-                        <p className="text-[14px] font-bold text-foreground">
-                          XXXX-XXXX-1234
+                        <p className="text-[14px] font-bold text-foreground uppercase">
+                          {formData.passport || "N/A"}
                         </p>
-                        <div className="w-4 h-4 bg-[#E6F9F1] rounded-full flex items-center justify-center">
-                          <Check className="w-2.5 h-2.5 text-[#00A389] stroke-[4]" />
-                        </div>
+                        {formData.passport && (
+                          <div className="w-4 h-4 bg-[#E6F9F1] rounded-full flex items-center justify-center">
+                            <Check className="w-2.5 h-2.5 text-[#00A389] stroke-[4]" />
+                          </div>
+                        )}
                       </div>
                     </div>
                     <div className="space-y-1">
@@ -651,12 +892,14 @@ export default function ContinueRegistrationPage() {
                         PAN Number
                       </p>
                       <div className="flex items-center gap-2">
-                        <p className="text-[14px] font-bold text-foreground">
-                          XXXX-XXXX-1234
+                        <p className="text-[14px] font-bold text-foreground uppercase">
+                          {formData.pan || "N/A"}
                         </p>
-                        <div className="w-4 h-4 bg-[#E6F9F1] rounded-full flex items-center justify-center">
-                          <Check className="w-2.5 h-2.5 text-[#00A389] stroke-[4]" />
-                        </div>
+                        {formData.pan && (
+                          <div className="w-4 h-4 bg-[#E6F9F1] rounded-full flex items-center justify-center">
+                            <Check className="w-2.5 h-2.5 text-[#00A389] stroke-[4]" />
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -678,20 +921,31 @@ export default function ContinueRegistrationPage() {
               Back
             </button>
             <div className="flex items-center gap-3">
-              <button className="px-6 h-11 border border-border bg-white rounded-[5px] text-[13px] font-bold text-foreground hover:bg-muted transition-all shadow-none">
+              <button 
+                onClick={() => handleSaveDraft()}
+                disabled={isSubmitting}
+                className="px-6 h-11 border border-border bg-white rounded-[5px] text-[13px] font-bold text-foreground hover:bg-muted transition-all shadow-none disabled:opacity-50"
+              >
                 Save Draft
               </button>
               <button
-                onClick={() => {
+                onClick={async () => {
                   if (currentStep < 4) {
-                    setCurrentStep(currentStep + 1);
+                    if (!validateStep(currentStep)) return;
+                    const saved = await handleSaveDraft(true);
+                    if (saved) setCurrentStep(currentStep + 1);
                   } else {
-                    setShowSuccessModal(true);
+                    if (!validateStep(4)) return;
+                    handleConfirm();
                   }
                 }}
-                className="px-6 h-11 bg-primary text-white rounded-[5px] text-[13px] font-bold hover:opacity-90 transition-all shadow-none"
+                className={cn(
+                  "px-6 h-11 bg-primary text-white rounded-[5px] text-[13px] font-bold hover:opacity-90 transition-all shadow-none flex items-center gap-2",
+                  isSubmitting && "opacity-70 cursor-not-allowed"
+                )}
+                disabled={isSubmitting}
               >
-                {currentStep === 4 ? "Confirm Registration" : "Save & Next"}
+                {isSubmitting ? "Processing..." : (currentStep === 4 ? "Update Details" : "Save & Next")}
               </button>
             </div>
           </div>

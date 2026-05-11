@@ -201,7 +201,7 @@ export default function QuickEmergencyRegistration() {
               { label: "Other", value: "other" },
             ]}
           />
-          <FormInput label="Mobile Number" placeholder="Optional" />
+          <FormInput label="Mobile Number" placeholder="+91 99999-99999" />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-[320px_1fr] gap-10">

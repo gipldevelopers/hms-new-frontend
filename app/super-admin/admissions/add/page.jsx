@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, useRef, Suspense } from "react";
 import { 
   ArrowLeft, Check, User, ClipboardList, 
   ChevronLeft, ChevronDown, Calendar, Clock,
@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { CustomCalendar } from "@/components/ui/custom-calendar";
 import { Button } from "@/components/ui/button";
+import { FormDatePicker } from "@/components/ui/form-date-picker";
 
 // --- CUSTOM SELECT COMPONENT ---
 function CustomSelect({ value, onChange, options, placeholder, required, className }) {
@@ -60,33 +61,6 @@ function CustomSelect({ value, onChange, options, placeholder, required, classNa
 }
 
 // --- CUSTOM DATE PICKER COMPONENT ---
-function CustomDatePicker({ value, onChange, placeholder }) {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button 
-          type="button"
-          className={cn(
-            "w-full h-[48px] px-4 bg-[#F8F9FC] dark:bg-[#1E293B] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[14px] font-bold text-left flex items-center gap-3 outline-none focus:border-primary transition-all",
-            !value && "text-gray-400",
-            value && "text-[#1e293b] dark:text-white"
-          )}
-        >
-          <Calendar className="w-4 h-4 text-primary/50" />
-          {value ? format(new Date(value), "PPP") : placeholder}
-        </button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" className="p-0 border-none bg-transparent shadow-none z-[500]">
-        <CustomCalendar 
-          selectedDate={value ? new Date(value) : null}
-          onSelect={(date) => {
-            onChange(date);
-          }}
-        />
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-}
 
 // --- CUSTOM TIME PICKER COMPONENT ---
 function CustomTimePicker({ value, onChange, disabled }) {
@@ -313,7 +287,12 @@ function AddAdmissionForm() {
                 <div className="grid grid-cols-2 gap-5">
                    <div className="space-y-2">
                     <label className="text-[12px] font-bold text-muted-foreground ml-1">Registry Date</label>
-                    <CustomDatePicker value={formData.admissionDate} onChange={(date) => setFormData({...formData, admissionDate: date})} placeholder="Select Date" />
+                    <FormDatePicker 
+                      value={formData.admissionDate} 
+                      onChange={(date) => setFormData({...formData, admissionDate: date})} 
+                      placeholder="Select Date" 
+                      variant="muted"
+                    />
                   </div>
                   <div className="space-y-2 flex flex-col justify-end">
                     <CustomTimePicker value={formData.admissionTime} onChange={(time) => setFormData({...formData, admissionTime: time})} />

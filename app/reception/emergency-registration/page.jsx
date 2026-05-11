@@ -209,7 +209,6 @@ export default function EmergencyRegistration() {
           <table className="w-full text-left border-collapse min-w-[1200px]">
             <thead>
               <tr className="bg-muted/30 border-b border-border/60">
-                <th className="px-5 py-4 text-[11px] font-bold text-muted-foreground uppercase tracking-wider">UHID</th>
                 <th className="px-5 py-4 text-[11px] font-bold text-muted-foreground uppercase tracking-wider">PATIENT NAME</th>
                 <th className="px-5 py-4 text-[11px] font-bold text-muted-foreground uppercase tracking-wider">MOBILE</th>
                 <th className="px-5 py-4 text-[11px] font-bold text-muted-foreground uppercase tracking-wider">ARRIVAL MODE</th>
@@ -222,7 +221,6 @@ export default function EmergencyRegistration() {
             <tbody className="divide-y divide-border/60">
               {emergencyPatients.map((patient, index) => (
                 <tr key={index} className="hover:bg-muted/10 transition-colors">
-                  <td className="px-5 py-5 text-[13px] font-bold text-foreground">{patient.uhid}</td>
                   <td className="px-5 py-5 text-[13px] font-bold text-foreground">{patient.name}</td>
                   <td className="px-5 py-5 text-[13px] font-medium text-foreground">{patient.mobile}</td>
                   <td className="px-5 py-5">
@@ -277,7 +275,6 @@ export default function EmergencyRegistration() {
               <div className="flex items-start justify-between">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="text-[12px] font-bold text-primary bg-primary/5 px-2 py-0.5 rounded-[4px] border border-primary/20">{patient.uhid}</span>
                     <PriorityBadge priority={patient.priority} />
                   </div>
                   <h3 className="text-[15px] font-bold text-foreground">{patient.name}</h3>
