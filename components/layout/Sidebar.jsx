@@ -115,10 +115,15 @@ const roleMenus = {
   ],
   "reception": [
     { name: "Dashboard", icon: LayoutGrid, path: "/reception", section: "none" },
-    { name: "Registration", icon: UserRound, path: "/reception/registration", section: "FRONT DESK" },
-    { name: "Appointments", icon: CalendarDays, path: "/reception/appointments", section: "FRONT DESK" },
-    { name: "Room Booking", icon: Hotel, path: "/reception/rooms", section: "FRONT DESK" },
-    { name: "Profile & Settings", icon: User, path: "/reception/profile", section: "FRONT DESK" },
+    { name: "Patient Registration", icon: UserRound, path: "/reception/patient-registration", section: "RECEPTION" },
+    { name: "Emergency Registration", icon: Activity, path: "/reception/emergency-registration", section: "RECEPTION" },
+    { name: "Token Management", icon: ClipboardList, path: "/reception/tokens", section: "APPOINTMENTS" },
+    { name: "OPD Appointments", icon: CalendarDays, path: "/reception/opd-appointments", section: "APPOINTMENTS" },
+    { name: "Billing & Payments", icon: Wallet, path: "/reception/billing", section: "FINANCE" },
+    { name: "Receipts & Refunds", icon: FileText, path: "/reception/receipts", section: "FINANCE" },
+    { name: "Notifications / Alerts", icon: Bell, path: "/reception/notifications", section: "SYSTEM" },
+    { name: "Reports", icon: BarChart3, path: "/reception/reports", section: "SYSTEM" },
+    { name: "Settings", icon: Settings, path: "/reception/settings", section: "SYSTEM" },
   ],
   "pharmacy": [
     { name: "Dashboard", icon: LayoutGrid, path: "/pharmacy", section: "none" },
@@ -338,7 +343,15 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) 
                       <NavItem
                         item={item}
                         isCollapsed={isCollapsed}
-                        isActive={pathname === item.path || (item.path !== "/" && item.path !== "/doctor" && item.path !== "/super-admin" && pathname.startsWith(item.path + "/")) || item.subItems?.some(s => pathname === s.path)}
+                        isActive={
+                          pathname === item.path || 
+                          (
+                            item.path !== "/" && 
+                            !["/super-admin", "/branch-admin", "/doctor", "/staff", "/reception", "/pharmacy", "/laboratory", "/radiology", "/finance", "/reports"].includes(item.path) && 
+                            pathname.startsWith(item.path + "/")
+                          ) || 
+                          item.subItems?.some(s => pathname === s.path)
+                        }
                         hasSubItems={!!item.subItems}
                         isOpen={openSubMenu === item.name}
                         onClick={() => {
