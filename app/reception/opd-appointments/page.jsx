@@ -12,7 +12,8 @@ import {
   UserCheck,
   Clock,
   XCircle,
-  UserX
+  UserX,
+  X
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -26,6 +27,8 @@ import { useRouter } from "next/navigation";
 export default function OPDAppointments() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = React.useState("");
+  const [isRescheduleOpen, setIsRescheduleOpen] = React.useState(false);
+  const [selectedAppointment, setSelectedAppointment] = React.useState(null);
 
   const stats = [
     { label: "Today's Appointments", value: "142", icon: CalendarDays, color: "text-[#3B4CB8]", bg: "bg-[#3B4CB8]/5" },
@@ -59,6 +62,21 @@ export default function OPDAppointments() {
     }
   };
 
+  const handleReschedule = (appointment) => {
+    setSelectedAppointment(appointment);
+    setIsRescheduleOpen(true);
+  };
+
+  React.useEffect(() => {
+    const handleEsc = (event) => {
+      if (event.key === "Escape") {
+        setIsRescheduleOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
+  }, []);
+
   return (
     <div className="flex flex-col gap-5 p-5 min-h-screen bg-background">
       {/* Header Section */}
@@ -68,7 +86,7 @@ export default function OPDAppointments() {
         </h1>
         <button 
           onClick={() => router.push("/reception/opd-appointments/book")}
-          className="h-10 px-5 bg-[#3B4CB8] text-white rounded-[5px] text-[13px] font-bold flex items-center gap-2 hover:bg-[#3B4CB8]/90 transition-all shadow-none"
+          className="h-10 px-5 bg-primary text-white rounded-[var(--radius)] text-[13px] font-bold flex items-center gap-2 hover:opacity-90 transition-all shadow-none"
         >
           <Plus className="w-4 h-4" />
           Book Appointment
@@ -78,12 +96,12 @@ export default function OPDAppointments() {
       {/* Stats Section */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
         {stats.map((stat, i) => (
-          <div key={i} className="bg-card border border-border rounded-[5px] p-5 flex items-start justify-between">
+          <div key={i} className="bg-card border border-border rounded-[var(--radius)] p-5 flex items-start justify-between">
             <div className="space-y-2">
               <p className="text-[12px] font-bold text-muted-foreground">{stat.label}</p>
               <h3 className="text-[28px] font-bold text-foreground leading-none">{stat.value}</h3>
             </div>
-            <div className={cn("w-10 h-10 rounded-[5px] flex items-center justify-center", stat.bg)}>
+            <div className={cn("w-10 h-10 rounded-[var(--radius)] flex items-center justify-center", stat.bg)}>
               <stat.icon className={cn("w-5 h-5", stat.color)} />
             </div>
           </div>
@@ -91,7 +109,7 @@ export default function OPDAppointments() {
       </div>
 
       {/* Content Section */}
-      <div className="bg-card border border-border rounded-[5px] overflow-hidden">
+      <div className="bg-card border border-border rounded-[var(--radius)] overflow-hidden">
         {/* Filters */}
         <div className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border/60">
           <div className="relative w-full md:w-[280px]">
@@ -99,7 +117,7 @@ export default function OPDAppointments() {
             <input
               type="text"
               placeholder="Search..."
-              className="w-full h-10 pl-11 pr-4 bg-muted/30 border border-border rounded-[5px] text-[13px] font-medium outline-none focus:border-primary transition-all shadow-none"
+              className="w-full h-10 pl-11 pr-4 bg-muted/30 border border-border rounded-[var(--radius)] text-[13px] font-medium outline-none focus:border-primary transition-all shadow-none"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -107,23 +125,23 @@ export default function OPDAppointments() {
           <div className="flex items-center gap-3">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="h-10 px-4 bg-background border border-border rounded-[5px] text-[13px] font-bold text-foreground flex items-center gap-2 hover:bg-muted transition-all outline-none shadow-none">
+                <button className="h-10 px-4 bg-card border border-border rounded-[var(--radius)] text-[13px] font-bold text-foreground flex items-center gap-2 hover:bg-muted transition-all outline-none shadow-none">
                   All
                   <ChevronDown className="w-4 h-4 text-muted-foreground" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-[160px] border-border bg-card rounded-[5px] p-1 shadow-xl">
+              <DropdownMenuContent align="end" className="w-[160px] border-border bg-card rounded-[var(--radius)] p-1 shadow-xl">
                 <DropdownMenuItem className="text-[13px] font-medium h-10 px-3 cursor-pointer focus:bg-primary/5 rounded-[3px]">All Departments</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="h-10 px-4 bg-background border border-border rounded-[5px] text-[13px] font-bold text-foreground flex items-center gap-2 hover:bg-muted transition-all outline-none shadow-none">
+                <button className="h-10 px-4 bg-card border border-border rounded-[var(--radius)] text-[13px] font-bold text-foreground flex items-center gap-2 hover:bg-muted transition-all outline-none shadow-none">
                   All
                   <ChevronDown className="w-4 h-4 text-muted-foreground" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-[160px] border-border bg-card rounded-[5px] p-1 shadow-xl">
+              <DropdownMenuContent align="end" className="w-[160px] border-border bg-card rounded-[var(--radius)] p-1 shadow-xl">
                 <DropdownMenuItem className="text-[13px] font-medium h-10 px-3 cursor-pointer focus:bg-primary/5 rounded-[3px]">All Doctors</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -154,7 +172,7 @@ export default function OPDAppointments() {
                   <td className="px-5 py-5 text-[13px] font-medium text-foreground">{item.time}</td>
                   <td className="px-5 py-5">
                     <span className={cn(
-                      "px-2.5 py-1 rounded-[5px] text-[11px] font-bold inline-block",
+                      "px-2.5 py-1 rounded-[var(--radius)] text-[11px] font-bold inline-block",
                       getStatusStyles(item.status)
                     )}>
                       {item.status}
@@ -162,10 +180,13 @@ export default function OPDAppointments() {
                   </td>
                   <td className="px-5 py-5">
                     <div className="flex items-center gap-2">
-                      <button className="h-7 px-3 border border-border bg-background text-foreground rounded-[3px] text-[11px] font-bold hover:bg-muted transition-all shadow-none">
+                      <button 
+                        onClick={() => handleReschedule(item)}
+                        className="h-7 px-3 border border-border bg-card text-foreground rounded-[3px] text-[11px] font-bold hover:bg-muted transition-all shadow-none"
+                      >
                         Reschedule
                       </button>
-                      <button className="h-7 px-3 border border-border bg-background text-foreground rounded-[3px] text-[11px] font-bold hover:bg-muted transition-all shadow-none">
+                      <button className="h-7 px-3 border border-border bg-card text-foreground rounded-[3px] text-[11px] font-bold hover:bg-muted transition-all shadow-none">
                         Cancel
                       </button>
                     </div>
@@ -196,7 +217,7 @@ export default function OPDAppointments() {
                   <p className="text-[11px] text-muted-foreground">Appointment</p>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-2 p-3 bg-muted/30 rounded-[5px]">
+              <div className="grid grid-cols-2 gap-2 p-3 bg-muted/30 rounded-[var(--radius)]">
                 <div className="space-y-0.5">
                   <p className="text-[11px] font-medium text-muted-foreground">Doctor</p>
                   <p className="text-[13px] font-bold text-foreground truncate">{item.doctor}</p>
@@ -207,10 +228,13 @@ export default function OPDAppointments() {
                 </div>
               </div>
               <div className="flex gap-2">
-                <button className="flex-1 h-9 bg-background border border-border rounded-[5px] text-[12px] font-bold text-foreground shadow-none">
+                <button 
+                  onClick={() => handleReschedule(item)}
+                  className="flex-1 h-9 bg-card border border-border rounded-[var(--radius)] text-[12px] font-bold text-foreground shadow-none"
+                >
                   Reschedule
                 </button>
-                <button className="flex-1 h-9 bg-background border border-border rounded-[5px] text-[12px] font-bold text-foreground shadow-none">
+                <button className="flex-1 h-9 bg-card border border-border rounded-[var(--radius)] text-[12px] font-bold text-foreground shadow-none">
                   Cancel
                 </button>
               </div>
@@ -218,6 +242,112 @@ export default function OPDAppointments() {
           ))}
         </div>
       </div>
+
+      {/* Reschedule Modal */}
+      {isRescheduleOpen && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-[2px]">
+          <div className="bg-card border border-border rounded-[var(--radius)] w-full max-w-[500px] overflow-hidden flex flex-col animate-in fade-in zoom-in duration-200">
+            {/* Modal Header */}
+            <div className="p-5 flex items-center justify-between border-b border-border/60">
+              <h2 className="text-[16px] font-bold text-foreground">Reschedule Appointment</h2>
+              <button 
+                onClick={() => setIsRescheduleOpen(false)}
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-muted transition-all"
+              >
+                <X className="w-4 h-4 text-muted-foreground" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-6">
+              {/* Current Appointment Box */}
+              <div className="p-4 bg-muted/20 border border-border/40 rounded-[var(--radius)] space-y-2">
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Current Appointment</p>
+                <div className="space-y-0.5">
+                  <p className="text-[13px] font-bold text-foreground">
+                    {selectedAppointment?.patient} • {selectedAppointment?.doctor} ({selectedAppointment?.department})
+                  </p>
+                  <p className="text-[12px] font-bold text-[#F59E0B]">
+                    Today, {selectedAppointment?.time}
+                  </p>
+                </div>
+              </div>
+
+              {/* Select Date */}
+              <div className="space-y-3">
+                <label className="text-[12px] font-bold text-muted-foreground">Select New Date</label>
+                <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
+                  {["Today", "Tomorrow", "14 Oct", "15 Oct"].map((date, i) => (
+                    <button
+                      key={date}
+                      className={cn(
+                        "h-9 px-5 rounded-[var(--radius)] text-[12px] font-bold transition-all whitespace-nowrap border",
+                        i === 1 
+                          ? "bg-primary border-primary text-white" 
+                          : "bg-card border-border text-foreground hover:bg-muted"
+                      )}
+                    >
+                      {date}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Select Time */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-[12px] font-bold text-muted-foreground">Select New Time Slot</label>
+                  <button className="flex items-center gap-1 text-[11px] font-bold text-primary">
+                    Morning
+                    <ChevronDown className="w-3 h-3" />
+                  </button>
+                </div>
+                <div className="grid grid-cols-4 gap-2">
+                  {["08:45 AM", "09:15 AM", "09:30 AM", "09:30 AM", "09:30 AM", "09:45 AM", "10:30 AM", "10:45 AM"].map((time, i) => (
+                    <button
+                      key={i}
+                      className={cn(
+                        "h-9 rounded-[3px] border text-[11px] font-bold transition-all",
+                        i === 6
+                          ? "bg-primary border-primary text-white"
+                          : "bg-card border-border text-foreground hover:border-primary/50"
+                      )}
+                    >
+                      {time}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Reason */}
+              <div className="space-y-2">
+                <label className="text-[12px] font-bold text-muted-foreground">Reason (Optional)</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Patient requested"
+                  className="w-full h-11 px-4 bg-muted/30 border border-border rounded-[var(--radius)] text-[13px] font-medium outline-none focus:border-primary transition-all"
+                />
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-6 border-t border-border/60 flex items-center justify-end gap-3">
+              <button 
+                onClick={() => setIsRescheduleOpen(false)}
+                className="h-10 px-6 border border-destructive/30 text-destructive rounded-[var(--radius)] text-[12px] font-bold hover:bg-destructive/5 transition-all"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={() => setIsRescheduleOpen(false)}
+                className="h-10 px-6 bg-primary text-white rounded-[var(--radius)] text-[12px] font-bold hover:opacity-90 transition-all"
+              >
+                Confirm Reschedule
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

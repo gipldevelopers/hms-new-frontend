@@ -204,6 +204,7 @@ export default function BookAppointmentStep2() {
             Cancel
           </button>
           <button 
+            onClick={() => router.push("/reception/opd-appointments/book/confirm")}
             className="h-11 px-8 bg-primary text-white rounded-[5px] text-[13px] font-bold flex items-center gap-2 hover:bg-primary/90 transition-all shadow-none"
           >
             Book Appointment
