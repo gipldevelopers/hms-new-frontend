@@ -220,12 +220,20 @@ export default function SuperAdminNewRegistration() {
         if (!draftId) setDraftId(data.id);
         return true;
       } else {
-        const err = await response.json();
-        console.error("Save draft failed:", err);
-        if (!silent) alert(err.error || "Failed to save draft");
+        let errData = {};
+        const responseText = await response.text();
+        console.log("Raw server response:", responseText);
+        try {
+          errData = JSON.parse(responseText);
+        } catch (e) {
+          errData = { error: "Unknown server error", raw: responseText };
+        }
+        console.error("Save draft failed:", response.status, errData);
+        if (!silent) alert(errData.error || errData.message || "Failed to save draft. Check console for details.");
       }
     } catch (error) {
       console.error("Error saving draft:", error);
+      if (!silent) alert("Error connecting to server: " + error.message);
     } finally {
       if (!silent) setIsSubmitting(false);
     }
@@ -262,13 +270,24 @@ export default function SuperAdminNewRegistration() {
         const data = await response.json();
         setRegisteredUhid(`#${data.id.substring(0, 5).toUpperCase()}`);
         setShowSuccessModal(true);
+        // Clear local storage on success
+        localStorage.removeItem("active_patient_draft_id");
+        localStorage.removeItem("patient_registration_draft_data");
       } else {
-        const err = await response.json();
-        alert(err.error || "Failed to register patient");
+        let errData = {};
+        const responseText = await response.text();
+        console.log("Raw registration response:", responseText);
+        try {
+          errData = JSON.parse(responseText);
+        } catch (e) {
+          errData = { error: "Unknown server error", raw: responseText };
+        }
+        console.error("Registration failed:", response.status, errData);
+        alert(errData.error || errData.message || "Failed to register patient");
       }
     } catch (error) {
       console.error("Registration error:", error);
-      alert("Error connecting to server");
+      alert("Error connecting to server: " + error.message);
     } finally {
       setIsSubmitting(false);
     }
@@ -290,7 +309,44 @@ export default function SuperAdminNewRegistration() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-5 items-start">
-        <div className="bg-card border border-border rounded-[5px] p-6 h-full min-h-[500px]">
+        {/* Mobile Stepper */}
+        <div className="lg:hidden flex items-center justify-between bg-card border border-border rounded-[5px] p-3 overflow-x-auto gap-4 no-scrollbar">
+          {[
+            { id: 1, label: "Basic" },
+            { id: 2, label: "Address" },
+            { id: 3, label: "Identity" },
+            { id: 4, label: "Review" },
+          ].map((step) => (
+            <div 
+              key={step.id} 
+              className="flex items-center gap-2 shrink-0"
+              onClick={() => setCurrentStep(step.id)}
+            >
+              <div
+                className={cn(
+                  "w-6 h-6 rounded-full border flex items-center justify-center text-[10px] font-bold transition-all",
+                  currentStep === step.id
+                    ? "bg-primary border-primary text-white"
+                    : currentStep > step.id
+                      ? "bg-primary border-primary text-white"
+                      : "bg-white border-border text-muted-foreground",
+                )}
+              >
+                {currentStep > step.id ? <Check className="w-3 h-3" /> : step.id}
+              </div>
+              <span className={cn(
+                "text-[12px] font-bold",
+                currentStep === step.id ? "text-foreground" : "text-muted-foreground"
+              )}>
+                {step.label}
+              </span>
+              {step.id < 4 && <div className="w-4 h-[1px] bg-border mx-1" />}
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop Stepper */}
+        <div className="hidden lg:block bg-card border border-border rounded-[5px] p-6 h-full min-h-[500px]">
           <h2 className="text-[14px] font-bold text-foreground mb-6">
             Registration Steps
           </h2>
@@ -391,7 +447,7 @@ export default function SuperAdminNewRegistration() {
                     onChange={(e) => updateForm("lastName", e.target.value)}
                   />
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <FormSelect
                     label="Gender"
                     required
@@ -412,6 +468,12 @@ export default function SuperAdminNewRegistration() {
                     value={formData.dob}
                     onChange={(date) => updateForm("dob", date)}
                   />
+                  <FormInput
+                    label="Age"
+                    placeholder="Years"
+                    value={formData.age}
+                    onChange={(e) => updateForm("age", e.target.value)}
+                  />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormInput
@@ -424,10 +486,42 @@ export default function SuperAdminNewRegistration() {
                     onChange={(e) => updateForm("mobile", e.target.value)}
                   />
                   <FormInput
-                    label="Email Address"
-                    placeholder="patient@example.com"
-                    value={formData.email}
-                    onChange={(e) => updateForm("email", e.target.value)}
+                    label="Alternate Number"
+                    placeholder="+91 99999-99999"
+                    value={formData.alternateMobile}
+                    onChange={(e) => updateForm("alternateMobile", e.target.value)}
+                  />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="md:col-span-1">
+                    <FormInput
+                      label="Email Address"
+                      placeholder="patient@example.com"
+                      value={formData.email}
+                      onChange={(e) => updateForm("email", e.target.value)}
+                    />
+                  </div>
+                  <FormSelect
+                    label="Marital Status"
+                    placeholder="Select"
+                    value={formData.maritalStatus}
+                    onChange={(val) => updateForm("maritalStatus", val)}
+                    options={[
+                      { label: "Single", value: "single" },
+                      { label: "Married", value: "married" },
+                    ]}
+                  />
+                  <FormSelect
+                    label="Blood Group"
+                    placeholder="Select"
+                    value={formData.bloodGroup}
+                    onChange={(val) => updateForm("bloodGroup", val)}
+                    options={[
+                      { label: "A+", value: "A+" }, { label: "A-", value: "A-" },
+                      { label: "B+", value: "B+" }, { label: "B-", value: "B-" },
+                      { label: "AB+", value: "AB+" }, { label: "AB-", value: "AB-" },
+                      { label: "O+", value: "O+" }, { label: "O-", value: "O-" },
+                    ]}
                   />
                 </div>
               </div>
@@ -508,14 +602,22 @@ export default function SuperAdminNewRegistration() {
                       <p className="text-[14px] font-bold text-foreground">{formData.gender} / {formData.age} Years</p>
                     </div>
                     <div className="space-y-1">
+                      <p className="text-[12px] text-muted-foreground font-medium">Blood Group</p>
+                      <p className="text-[14px] font-bold text-foreground">{formData.bloodGroup || "N/A"}</p>
+                    </div>
+                    <div className="space-y-1">
                       <p className="text-[12px] text-muted-foreground font-medium">Mobile</p>
                       <p className="text-[14px] font-bold text-foreground">{formData.mobile}</p>
+                    </div>
+                    <div className="md:col-span-2 space-y-1">
+                      <p className="text-[12px] text-muted-foreground font-medium">Email</p>
+                      <p className="text-[14px] font-bold text-foreground">{formData.email || "N/A"}</p>
                     </div>
                   </div>
                 </div>
                 <div className="bg-white dark:bg-[#111827] border border-border rounded-[5px] p-6 space-y-3">
                   <h3 className="text-[15px] font-bold text-foreground">Address</h3>
-                  <p className="text-[14px] font-bold text-foreground">{formData.address}, {formData.city}, {formData.state}, {formData.pincode}</p>
+                  <p className="text-[14px] font-bold text-foreground">{formData.address}, {formData.city}, {formData.state}, {formData.pincode}, {formData.country}</p>
                 </div>
               </div>
             )}
@@ -540,9 +642,10 @@ export default function SuperAdminNewRegistration() {
                 onClick={async () => {
                   if (currentStep < 4) {
                     if (!validateStep(currentStep)) return;
-                    const saved = await handleSaveDraft(true);
+                    const saved = await handleSaveDraft();
                     if (saved) setCurrentStep(currentStep + 1);
                   } else {
+                    if (!validateStep(4)) return;
                     handleConfirm();
                   }
                 }}

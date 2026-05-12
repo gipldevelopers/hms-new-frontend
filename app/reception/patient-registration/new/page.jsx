@@ -347,6 +347,19 @@ export default function NewRegistrationPage() {
     try {
       if (!silent) setIsSubmitting(true);
       const token = localStorage.getItem("authtoken");
+      const userStr = localStorage.getItem("user");
+      const user = userStr ? JSON.parse(userStr) : null;
+      const branchId = user?.branchId;
+
+      console.log("Saving draft. Branch ID:", branchId, "User:", user);
+
+      if (!branchId) {
+        console.warn("Save draft aborted: No branchId found for user.");
+        if (!silent) alert("Your session is missing branch information. Please log out and log in again.");
+        else console.error("Critical: Session missing branchId during silent save.");
+        return false;
+      }
+
       const url = draftId 
         ? `${process.env.NEXT_PUBLIC_API_URL}/patients/${draftId}`
         : `${process.env.NEXT_PUBLIC_API_URL}/patients`;
@@ -361,6 +374,7 @@ export default function NewRegistrationPage() {
         },
         body: JSON.stringify({
           ...dataToSave,
+          branchId: branchId,
           contact: dataToSave.mobile,
           status: "Draft"
         }),
@@ -375,17 +389,20 @@ export default function NewRegistrationPage() {
         return true;
       } else {
         let errData = {};
+        const responseText = await response.text();
+        console.log("Raw server response:", responseText); // CRITICAL DEBUG LOG
+        
         try {
-          errData = await response.json();
+          errData = JSON.parse(responseText);
         } catch (e) {
-          errData = { error: "Unknown server error" };
+          errData = { error: "Unknown server error", raw: responseText };
         }
         console.error("Save draft failed:", response.status, errData);
-        if (!silent) alert(errData.error || errData.message || "Failed to save draft");
+        if (!silent) alert(errData.error || errData.message || "Failed to save draft. Check console for details.");
       }
     } catch (error) {
       console.error("Error saving draft:", error);
-      if (!silent) alert("Error connecting to server");
+      if (!silent) alert("Error connecting to server: " + error.message);
     } finally {
       if (!silent) setIsSubmitting(false);
     }
@@ -396,6 +413,18 @@ export default function NewRegistrationPage() {
     try {
       setIsSubmitting(true);
       const token = localStorage.getItem("authtoken");
+      const userStr = localStorage.getItem("user");
+      const user = userStr ? JSON.parse(userStr) : null;
+      const branchId = user?.branchId;
+
+      console.log("Confirming registration. Branch ID:", branchId);
+
+      if (!branchId) {
+        alert("Your session is missing branch information. Please log out and log in again.");
+        setIsSubmitting(false);
+        return;
+      }
+
       const url = draftId 
         ? `${process.env.NEXT_PUBLIC_API_URL}/patients/${draftId}`
         : `${process.env.NEXT_PUBLIC_API_URL}/patients`;
@@ -408,6 +437,7 @@ export default function NewRegistrationPage() {
         },
         body: JSON.stringify({
           ...formData,
+          branchId: branchId,
           contact: formData.mobile,
           status: "Complete"
         }),
@@ -420,12 +450,19 @@ export default function NewRegistrationPage() {
         localStorage.removeItem("active_patient_draft_id");
         localStorage.removeItem("patient_registration_draft_data");
       } else {
-        const err = await response.json();
-        alert(err.error || "Failed to register patient");
+        let errData = {};
+        const responseText = await response.text();
+        try {
+          errData = JSON.parse(responseText);
+        } catch (e) {
+          errData = { error: "Unknown server error", raw: responseText };
+        }
+        console.error("Registration failed:", response.status, errData);
+        alert(errData.error || errData.message || "Failed to register patient");
       }
     } catch (error) {
       console.error("Error registering patient:", error);
-      alert("An error occurred during registration");
+      alert("An error occurred: " + error.message);
     } finally {
       setIsSubmitting(false);
     }
@@ -878,7 +915,7 @@ export default function NewRegistrationPage() {
                 onClick={async () => {
                   if (currentStep < 4) {
                     if (!validateStep(currentStep)) return;
-                    const saved = await handleSaveDraft(true);
+                    const saved = await handleSaveDraft(); // Don't be silent on manual click
                     if (saved) setCurrentStep(currentStep + 1);
                   } else {
                     if (!validateStep(4)) return;
