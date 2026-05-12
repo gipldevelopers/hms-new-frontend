@@ -301,10 +301,6 @@ export default function LoginPage() {
                    <Link href="/system-logs" className="hover:text-[#2E37A4]">System Logs</Link>
                 </div>
              </div>
-             {/* DEBUG INDICATOR */}
-             <p className="bg-yellow-100 text-yellow-800 px-2 py-0.5 rounded opacity-50">
-               DEBUG: {API_URL}
-             </p>
           </div>
           </div>
         </div>
