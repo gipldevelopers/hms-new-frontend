@@ -24,6 +24,7 @@ import { CustomCalendar } from "@/components/ui/custom-calendar";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
 import { FormDatePicker } from "@/components/ui/form-date-picker";
+export { FormDatePicker };
 
 // --- SIMPLIFIED COMPONENTS ---
 

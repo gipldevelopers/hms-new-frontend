@@ -6,7 +6,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { CustomCalendar } from "./custom-calendar";
 
-export function FormDatePicker({ label, required, value, onChange, placeholder, className, variant = "default" }) {
+export function FormDatePicker({ label, required, value, onChange, placeholder, className, variant = "default", error }) {
   const [inputValue, setInputValue] = useState(
     value ? format(new Date(value), "dd/MM/yyyy") : ""
   );
@@ -65,8 +65,9 @@ export function FormDatePicker({ label, required, value, onChange, placeholder, 
   return (
     <div className={cn("space-y-2 relative w-full", className)} ref={containerRef}>
       {label && (
-        <label className="text-[13px] font-bold text-foreground">
-          {label} {required && <span className="text-red-500">*</span>}
+        <label className="text-[13px] font-bold text-foreground flex items-center justify-between">
+          <span>{label} {required && <span className="text-red-500">*</span>}</span>
+          {error && <span className="text-[11px] text-red-500 font-medium animate-in fade-in slide-in-from-top-1">{error}</span>}
         </label>
       )}
       <div className="relative">
@@ -77,7 +78,8 @@ export function FormDatePicker({ label, required, value, onChange, placeholder, 
           onFocus={() => setIsOpen(true)}
           placeholder={placeholder || "DD/MM/YYYY"}
           className={cn(
-            "w-full h-11 pl-11 pr-4 border border-border rounded-[5px] text-[13px] font-medium text-foreground outline-none focus:border-primary transition-all shadow-none placeholder:text-muted-foreground/60",
+            "w-full h-11 pl-11 pr-4 border rounded-[5px] text-[13px] font-medium text-foreground outline-none transition-all shadow-none placeholder:text-muted-foreground/60",
+            error ? "border-red-500 focus:border-red-600 bg-red-50/50" : "border-border focus:border-primary",
             variant === "muted" ? "bg-muted/50" : "bg-background"
           )}
         />
@@ -90,17 +92,36 @@ export function FormDatePicker({ label, required, value, onChange, placeholder, 
       </div>
 
       {isOpen && (
-        <div className="absolute top-[calc(100%+5px)] left-0 z-[100] animate-in fade-in zoom-in-95 duration-200">
-          <CustomCalendar
-            selectedDate={value ? new Date(value) : null}
-            onSelect={(date) => {
-              onChange(date);
-              if (date) setInputValue(format(date, "dd/MM/yyyy"));
-              setIsOpen(false);
-            }}
-            onClose={() => setIsOpen(false)}
-          />
-        </div>
+        <>
+          {/* Mobile: Modal Style */}
+          <div className="md:hidden fixed inset-0 z-[1000] flex items-center justify-center p-4">
+            <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" onClick={() => setIsOpen(false)} />
+            <div className="relative animate-in zoom-in-95 duration-200">
+              <CustomCalendar
+                selectedDate={value ? new Date(value) : null}
+                onSelect={(date) => {
+                  onChange(date);
+                  if (date) setInputValue(format(date, "dd/MM/yyyy"));
+                  setIsOpen(false);
+                }}
+                onClose={() => setIsOpen(false)}
+              />
+            </div>
+          </div>
+
+          {/* Desktop: Dropdown Style */}
+          <div className="hidden md:block absolute top-[calc(100%+5px)] left-0 z-[100] animate-in fade-in zoom-in-95 duration-200">
+            <CustomCalendar
+              selectedDate={value ? new Date(value) : null}
+              onSelect={(date) => {
+                onChange(date);
+                if (date) setInputValue(format(date, "dd/MM/yyyy"));
+                setIsOpen(false);
+              }}
+              onClose={() => setIsOpen(false)}
+            />
+          </div>
+        </>
       )}
     </div>
   );
