@@ -28,6 +28,7 @@ export default function OPDAppointments() {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = React.useState("");
   const [isRescheduleOpen, setIsRescheduleOpen] = React.useState(false);
+  const [isCancelOpen, setIsCancelOpen] = React.useState(false);
   const [selectedAppointment, setSelectedAppointment] = React.useState(null);
 
   const stats = [
@@ -67,10 +68,16 @@ export default function OPDAppointments() {
     setIsRescheduleOpen(true);
   };
 
+  const handleCancel = (appointment) => {
+    setSelectedAppointment(appointment);
+    setIsCancelOpen(true);
+  };
+
   React.useEffect(() => {
     const handleEsc = (event) => {
       if (event.key === "Escape") {
         setIsRescheduleOpen(false);
+        setIsCancelOpen(false);
       }
     };
     window.addEventListener("keydown", handleEsc);
@@ -94,15 +101,18 @@ export default function OPDAppointments() {
       </div>
 
       {/* Stats Section */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
+      <div className="grid grid-cols-2 xl:grid-cols-5 gap-3 sm:gap-5">
         {stats.map((stat, i) => (
-          <div key={i} className="bg-card border border-border rounded-[var(--radius)] p-5 flex items-start justify-between">
-            <div className="space-y-2">
-              <p className="text-[12px] font-bold text-muted-foreground">{stat.label}</p>
-              <h3 className="text-[28px] font-bold text-foreground leading-none">{stat.value}</h3>
+          <div key={i} className={cn(
+            "bg-card border border-border rounded-[var(--radius)] p-3 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3",
+            i === 4 && "col-span-2 xl:col-span-1" // Last item spans 2 cols on mobile for balance
+          )}>
+            <div className="space-y-1 sm:space-y-2">
+              <p className="text-[10px] sm:text-[12px] font-bold text-muted-foreground uppercase tracking-tight sm:normal-case sm:tracking-normal">{stat.label}</p>
+              <h3 className="text-[20px] sm:text-[28px] font-bold text-foreground leading-none">{stat.value}</h3>
             </div>
-            <div className={cn("w-10 h-10 rounded-[var(--radius)] flex items-center justify-center", stat.bg)}>
-              <stat.icon className={cn("w-5 h-5", stat.color)} />
+            <div className={cn("w-8 h-8 sm:w-10 sm:h-10 rounded-[var(--radius)] flex items-center justify-center shrink-0", stat.bg)}>
+              <stat.icon className={cn("w-4 h-4 sm:w-5 sm:h-5", stat.color)} />
             </div>
           </div>
         ))}
@@ -111,55 +121,55 @@ export default function OPDAppointments() {
       {/* Content Section */}
       <div className="bg-card border border-border rounded-[var(--radius)] overflow-hidden">
         {/* Filters */}
-        <div className="p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border/60">
+        <div className="p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border/60">
           <div className="relative w-full md:w-[280px]">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground/60" />
             <input
               type="text"
-              placeholder="Search..."
+              placeholder="Search appointments..."
               className="w-full h-10 pl-11 pr-4 bg-muted/30 border border-border rounded-[var(--radius)] text-[13px] font-medium outline-none focus:border-primary transition-all shadow-none"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="h-10 px-4 bg-card border border-border rounded-[var(--radius)] text-[13px] font-bold text-foreground flex items-center gap-2 hover:bg-muted transition-all outline-none shadow-none">
-                  All
+                <button className="flex-1 sm:flex-none h-10 px-4 bg-card border border-border rounded-[var(--radius)] text-[13px] font-bold text-foreground flex items-center justify-between sm:justify-start gap-2 hover:bg-muted transition-all outline-none shadow-none">
+                  <span className="truncate text-muted-foreground font-medium">Dept:</span> All
                   <ChevronDown className="w-4 h-4 text-muted-foreground" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-[160px] border-border bg-card rounded-[var(--radius)] p-1 shadow-xl">
+              <DropdownMenuContent align="end" className="w-[180px] border-border bg-card rounded-[var(--radius)] p-1 shadow-xl">
                 <DropdownMenuItem className="text-[13px] font-medium h-10 px-3 cursor-pointer focus:bg-primary/5 rounded-[3px]">All Departments</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="h-10 px-4 bg-card border border-border rounded-[var(--radius)] text-[13px] font-bold text-foreground flex items-center gap-2 hover:bg-muted transition-all outline-none shadow-none">
-                  All
+                <button className="flex-1 sm:flex-none h-10 px-4 bg-card border border-border rounded-[var(--radius)] text-[13px] font-bold text-foreground flex items-center justify-between sm:justify-start gap-2 hover:bg-muted transition-all outline-none shadow-none">
+                  <span className="truncate text-muted-foreground font-medium">Dr:</span> All
                   <ChevronDown className="w-4 h-4 text-muted-foreground" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-[160px] border-border bg-card rounded-[var(--radius)] p-1 shadow-xl">
+              <DropdownMenuContent align="end" className="w-[180px] border-border bg-card rounded-[var(--radius)] p-1 shadow-xl">
                 <DropdownMenuItem className="text-[13px] font-medium h-10 px-3 cursor-pointer focus:bg-primary/5 rounded-[3px]">All Doctors</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
         </div>
 
-        {/* Table View */}
-        <div className="overflow-x-auto">
+        {/* Table View (Desktop) */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[1000px]">
             <thead>
               <tr className="bg-muted/30 border-b border-border/60">
-                <th className="px-5 py-4 text-[11px] font-bold text-muted-foreground tracking-wider">Token</th>
-                <th className="px-5 py-4 text-[11px] font-bold text-muted-foreground tracking-wider">Patient Name</th>
-                <th className="px-5 py-4 text-[11px] font-bold text-muted-foreground tracking-wider">Department</th>
-                <th className="px-5 py-4 text-[11px] font-bold text-muted-foreground tracking-wider">Doctor</th>
-                <th className="px-5 py-4 text-[11px] font-bold text-muted-foreground tracking-wider">Time</th>
-                <th className="px-5 py-4 text-[11px] font-bold text-muted-foreground tracking-wider">Status</th>
-                <th className="px-5 py-4 text-[11px] font-bold text-muted-foreground tracking-wider">Actions</th>
+                <th className="px-5 py-4 text-[11px] font-bold text-muted-foreground tracking-wider uppercase">Token</th>
+                <th className="px-5 py-4 text-[11px] font-bold text-muted-foreground tracking-wider uppercase">Patient Name</th>
+                <th className="px-5 py-4 text-[11px] font-bold text-muted-foreground tracking-wider uppercase">Department</th>
+                <th className="px-5 py-4 text-[11px] font-bold text-muted-foreground tracking-wider uppercase">Doctor</th>
+                <th className="px-5 py-4 text-[11px] font-bold text-muted-foreground tracking-wider uppercase">Time</th>
+                <th className="px-5 py-4 text-[11px] font-bold text-muted-foreground tracking-wider uppercase">Status</th>
+                <th className="px-5 py-4 text-[11px] font-bold text-muted-foreground tracking-wider uppercase">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border/60">
@@ -186,7 +196,10 @@ export default function OPDAppointments() {
                       >
                         Reschedule
                       </button>
-                      <button className="h-7 px-3 border border-border bg-card text-foreground rounded-[3px] text-[11px] font-bold hover:bg-muted transition-all shadow-none">
+                      <button 
+                        onClick={() => handleCancel(item)}
+                        className="h-7 px-3 border border-border bg-card text-foreground rounded-[3px] text-[11px] font-bold hover:bg-muted transition-all shadow-none"
+                      >
                         Cancel
                       </button>
                     </div>
@@ -204,7 +217,7 @@ export default function OPDAppointments() {
               <div className="flex items-start justify-between">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
-                    <span className="text-[14px] font-bold text-foreground">{item.token}</span>
+                    <span className="text-[13px] font-bold text-foreground bg-muted/30 px-2 py-0.5 rounded-[3px]">{item.token}</span>
                     <span className={cn(
                       "px-2 py-0.5 rounded-[3px] text-[10px] font-bold",
                       getStatusStyles(item.status)
@@ -214,27 +227,30 @@ export default function OPDAppointments() {
                 </div>
                 <div className="text-right">
                   <p className="text-[12px] font-bold text-foreground">{item.time}</p>
-                  <p className="text-[11px] text-muted-foreground">Appointment</p>
+                  <p className="text-[10px] text-muted-foreground">Appointment</p>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-2 p-3 bg-muted/30 rounded-[var(--radius)]">
+              <div className="grid grid-cols-2 gap-3 p-3 bg-muted/20 border border-border/40 rounded-[var(--radius)]">
                 <div className="space-y-0.5">
-                  <p className="text-[11px] font-medium text-muted-foreground">Doctor</p>
-                  <p className="text-[13px] font-bold text-foreground truncate">{item.doctor}</p>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight">Doctor</p>
+                  <p className="text-[12px] font-bold text-foreground truncate">{item.doctor}</p>
                 </div>
                 <div className="space-y-0.5 text-right">
-                  <p className="text-[11px] font-medium text-muted-foreground">Department</p>
-                  <p className="text-[13px] font-bold text-foreground">{item.department}</p>
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight">Dept</p>
+                  <p className="text-[12px] font-bold text-foreground">{item.department}</p>
                 </div>
               </div>
               <div className="flex gap-2">
                 <button 
                   onClick={() => handleReschedule(item)}
-                  className="flex-1 h-9 bg-card border border-border rounded-[var(--radius)] text-[12px] font-bold text-foreground shadow-none"
+                  className="flex-1 h-9 bg-card border border-border rounded-[var(--radius)] text-[12px] font-bold text-foreground shadow-none hover:bg-muted"
                 >
                   Reschedule
                 </button>
-                <button className="flex-1 h-9 bg-card border border-border rounded-[var(--radius)] text-[12px] font-bold text-foreground shadow-none">
+                <button 
+                  onClick={() => handleCancel(item)}
+                  className="flex-1 h-9 bg-card border border-border rounded-[var(--radius)] text-[12px] font-bold text-foreground shadow-none hover:bg-muted"
+                >
                   Cancel
                 </button>
               </div>
@@ -242,6 +258,7 @@ export default function OPDAppointments() {
           ))}
         </div>
       </div>
+
 
       {/* Reschedule Modal */}
       {isRescheduleOpen && (
@@ -343,6 +360,87 @@ export default function OPDAppointments() {
                 className="h-10 px-6 bg-primary text-white rounded-[var(--radius)] text-[12px] font-bold hover:opacity-90 transition-all"
               >
                 Confirm Reschedule
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Cancel Modal */}
+      {isCancelOpen && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/40 backdrop-blur-[2px]">
+          <div className="bg-card border border-border rounded-[var(--radius)] w-full max-w-[500px] overflow-hidden flex flex-col animate-in fade-in zoom-in duration-200">
+            {/* Modal Header */}
+            <div className="p-5 flex items-center justify-between border-b border-border/60">
+              <div className="flex items-center gap-2">
+                <XCircle className="w-5 h-5 text-red-500" />
+                <h2 className="text-[16px] font-bold text-foreground">Cancel Appointment</h2>
+              </div>
+              <button 
+                onClick={() => setIsCancelOpen(false)}
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-muted transition-all"
+              >
+                <X className="w-4 h-4 text-muted-foreground" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-6">
+              {/* Appointment Details Box */}
+              <div className="p-4 bg-muted/20 border border-border/40 rounded-[var(--radius)] space-y-2">
+                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider">Appointment Details</p>
+                <div className="space-y-0.5">
+                  <p className="text-[13px] font-bold text-foreground">
+                    {selectedAppointment?.patient} • Token {selectedAppointment?.token}
+                  </p>
+                  <p className="text-[12px] font-medium text-muted-foreground">
+                    {selectedAppointment?.doctor} ({selectedAppointment?.department}) • Today, {selectedAppointment?.time}
+                  </p>
+                </div>
+              </div>
+
+              {/* Cancellation Reason */}
+              <div className="space-y-2">
+                <label className="text-[12px] font-bold text-muted-foreground">Cancellation Reason</label>
+                <button className="w-full h-11 px-4 flex items-center justify-between bg-card border border-border rounded-[var(--radius)] text-[13px] font-medium text-foreground outline-none focus:border-primary transition-all shadow-none">
+                  Patient request
+                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                </button>
+              </div>
+
+              {/* Process Refund */}
+              <div className="flex items-center justify-between p-4 border border-border rounded-[var(--radius)]">
+                <div className="space-y-0.5">
+                  <p className="text-[13px] font-bold text-foreground">Process Refund</p>
+                  <p className="text-[11px] text-muted-foreground">Refund the collected amount of ₹500</p>
+                </div>
+                <div className="w-10 h-5 bg-primary rounded-full relative cursor-pointer">
+                  <div className="absolute right-0.5 top-0.5 w-4 h-4 bg-white rounded-full shadow-sm" />
+                </div>
+              </div>
+
+              {/* Warning */}
+              <div className="flex gap-2 p-3 bg-red-50/50 rounded-[var(--radius)] border border-red-100">
+                <XCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+                <p className="text-[12px] font-medium text-red-500 leading-tight">
+                  This action cannot be undone. The token will be released and the slot will become available.
+                </p>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-6 border-t border-border/60 flex items-center justify-end gap-3">
+              <button 
+                onClick={() => setIsCancelOpen(false)}
+                className="h-10 px-6 border border-destructive/30 text-destructive rounded-[var(--radius)] text-[12px] font-bold hover:bg-destructive/5 transition-all"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={() => setIsCancelOpen(false)}
+                className="h-10 px-6 bg-primary text-white rounded-[var(--radius)] text-[12px] font-bold hover:opacity-90 transition-all shadow-none"
+              >
+                Confirm Cancellation
               </button>
             </div>
           </div>

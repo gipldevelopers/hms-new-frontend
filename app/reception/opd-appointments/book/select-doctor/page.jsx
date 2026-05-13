@@ -83,36 +83,36 @@ export default function BookAppointmentStep2() {
       <div className="flex flex-col gap-5 w-full">
         
         {/* Section 1: Select Doctor */}
-        <div className="bg-card border border-border rounded-[5px] p-6 space-y-5 shadow-none">
+        <div className="bg-card border border-border rounded-[var(--radius)] p-4 sm:p-6 space-y-4 sm:space-y-5 shadow-none">
           <h2 className="text-[14px] font-bold text-foreground">Select Doctor</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
             {doctors.map((doctor) => (
               <div
                 key={doctor.id}
                 className={cn(
-                  "flex p-5 rounded-[5px] border transition-all relative group items-start",
+                  "flex p-4 sm:p-5 rounded-[var(--radius)] border transition-all relative group items-start",
                   selectedDoctor === doctor.id
                     ? "border-primary bg-primary/0"
                     : "border-border hover:bg-muted/30 bg-card"
                 )}
               >
                 {/* Avatar / Initials */}
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-[14px] shrink-0 mr-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-[13px] sm:text-[14px] shrink-0 mr-3 sm:mr-4">
                   {doctor.initials}
                 </div>
                 
                 {/* Content Container */}
-                <div className="flex-1 flex flex-col justify-between h-full">
+                <div className="flex-1 flex flex-col justify-between min-w-0">
                   {/* Top Row: Info + Button */}
-                  <div className="flex justify-between items-start">
-                    <div className="space-y-0.5">
-                      <h3 className="text-[14px] font-bold text-foreground">{doctor.name}</h3>
-                      <p className="text-[11px] font-medium text-muted-foreground">{doctor.specialization} • {doctor.exp}</p>
+                  <div className="flex justify-between items-start gap-2">
+                    <div className="space-y-0.5 min-w-0">
+                      <h3 className="text-[13px] sm:text-[14px] font-bold text-foreground truncate">{doctor.name}</h3>
+                      <p className="text-[10px] sm:text-[11px] font-medium text-muted-foreground truncate">{doctor.specialization} • {doctor.exp}</p>
                     </div>
                     <button
                       onClick={() => setSelectedDoctor(doctor.id)}
                       className={cn(
-                        "h-8 px-5 rounded-[3px] text-[11px] font-bold transition-all shadow-none",
+                        "h-7 sm:h-8 px-3 sm:px-5 rounded-[3px] text-[10px] sm:text-[11px] font-bold transition-all shadow-none whitespace-nowrap",
                         selectedDoctor === doctor.id
                           ? "bg-primary text-white"
                           : "bg-background border border-border text-foreground/60 hover:bg-muted"
@@ -124,8 +124,8 @@ export default function BookAppointmentStep2() {
                   
                   {/* Bottom Row: Fee + Next */}
                   <div className="flex items-center justify-between mt-4">
-                    <p className="text-[12px] font-bold text-foreground">Fee: {doctor.fee}</p>
-                    <p className="text-[11px] font-bold text-[#00A389]">Next: {doctor.next}</p>
+                    <p className="text-[11px] sm:text-[12px] font-bold text-foreground">Fee: {doctor.fee}</p>
+                    <p className="text-[10px] sm:text-[11px] font-bold text-[#00A389] bg-[#E6F9F1] px-2 py-0.5 rounded-[2px]">Next: {doctor.next}</p>
                   </div>
                 </div>
               </div>
@@ -134,41 +134,41 @@ export default function BookAppointmentStep2() {
         </div>
 
         {/* Section 2: Select Time Slot */}
-        <div className="bg-card border border-border rounded-[5px] p-6 space-y-5 shadow-none">
-          <div className="flex items-center justify-between">
+        <div className="bg-card border border-border rounded-[var(--radius)] p-4 sm:p-6 space-y-5 shadow-none">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div className="flex items-center gap-2">
               <h2 className="text-[14px] font-bold text-foreground">Select Time Slot</h2>
               <Calendar className="w-4 h-4 text-muted-foreground" />
             </div>
             
             {/* Legend */}
-            <div className="flex items-center gap-4">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
               <div className="flex items-center gap-1.5">
                 <div className="w-2 h-2 rounded-full border border-border bg-white" />
-                <span className="text-[11px] font-medium text-muted-foreground">Available</span>
+                <span className="text-[10px] font-medium text-muted-foreground">Available</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <div className="w-2 h-2 rounded-full bg-yellow-400" />
-                <span className="text-[11px] font-medium text-muted-foreground">Booked</span>
+                <span className="text-[10px] font-medium text-muted-foreground">Booked</span>
               </div>
               <div className="flex items-center gap-1.5">
                 <div className="w-2 h-2 rounded-full bg-red-400" />
-                <span className="text-[11px] font-medium text-muted-foreground">Emergency</span>
+                <span className="text-[10px] font-medium text-muted-foreground">Emergency</span>
               </div>
             </div>
           </div>
 
           {/* Date Tabs */}
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar">
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
             {dates.map((date) => (
               <button
                 key={date}
                 onClick={() => setSelectedDate(date)}
                 className={cn(
-                  "h-10 px-6 rounded-[5px] text-[12px] font-bold transition-all whitespace-nowrap shadow-none",
+                  "h-9 px-5 rounded-[var(--radius)] text-[11px] sm:text-[12px] font-bold transition-all whitespace-nowrap shadow-none border",
                   selectedDate === date
-                    ? "bg-primary text-white"
-                    : "bg-background border border-border text-foreground/60 hover:bg-muted"
+                    ? "bg-primary border-primary text-white"
+                    : "bg-background border-border text-foreground/60 hover:bg-muted"
                 )}
               >
                 {date}
@@ -177,14 +177,14 @@ export default function BookAppointmentStep2() {
           </div>
 
           {/* Time Slots Grid */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-2 sm:gap-3">
             {timeSlots.map((slot, i) => (
               <button
                 key={i}
                 disabled={slot.status === "booked" || slot.status === "emergency"}
                 onClick={() => setSelectedSlot(slot.time)}
                 className={cn(
-                  "h-11 rounded-[3px] border text-[12px] font-bold transition-all shadow-none flex items-center justify-center",
+                  "h-10 sm:h-11 rounded-[3px] border text-[11px] sm:text-[12px] font-bold transition-all shadow-none flex items-center justify-center",
                   getSlotStyles(slot),
                   slot.status === "available" && "hover:border-primary hover:text-primary"
                 )}
@@ -196,18 +196,18 @@ export default function BookAppointmentStep2() {
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center justify-end gap-3 pt-4">
+        <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-4">
           <button 
             onClick={() => router.back()}
-            className="h-11 px-8 border border-destructive text-destructive hover:bg-destructive/5 rounded-[5px] text-[13px] font-bold transition-all shadow-none"
+            className="w-full sm:w-auto h-11 px-8 border border-destructive/30 text-destructive hover:bg-destructive/5 rounded-[var(--radius)] text-[13px] font-bold transition-all shadow-none"
           >
             Cancel
           </button>
           <button 
             onClick={() => router.push("/reception/opd-appointments/book/confirm")}
-            className="h-11 px-8 bg-primary text-white rounded-[5px] text-[13px] font-bold flex items-center gap-2 hover:bg-primary/90 transition-all shadow-none"
+            className="w-full sm:w-auto h-11 px-8 bg-primary text-white rounded-[var(--radius)] text-[13px] font-bold flex items-center justify-center gap-2 hover:bg-primary/90 transition-all shadow-none"
           >
-            Book Appointment
+            Confirm & Book
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>
