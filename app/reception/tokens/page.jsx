@@ -5,11 +5,13 @@ import {
   Search, Plus, Eye, ChevronDown, Check, Ticket,
   Calendar, User, Clock, Activity, X, Printer,
   Hash, RefreshCw, Settings, Loader2, AlertCircle,
+  CalendarDays, ArrowRight, Link2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { CustomCalendar } from "@/components/ui/custom-calendar";
 import { format } from "date-fns";
+import { useRouter } from "next/navigation";
 
 // ─── Status badge ─────────────────────────────────────────────────────────────
 const STATUS_STYLE = {
@@ -35,7 +37,7 @@ const TokenChip = ({ token, size = "sm" }) => (
 );
 
 // ─── Token Generated Modal ────────────────────────────────────────────────────
-function TokenGeneratedModal({ isOpen, onClose, token }) {
+function TokenGeneratedModal({ isOpen, onClose, token, onBookAppointment }) {
   React.useEffect(() => {
     const h = (e) => { if (e.key === "Escape") onClose(); };
     if (isOpen) window.addEventListener("keydown", h);
@@ -47,11 +49,11 @@ function TokenGeneratedModal({ isOpen, onClose, token }) {
   return (
     <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" onClick={onClose} />
-      <div className="relative bg-white dark:bg-[#111827] w-full max-w-[400px] rounded-[8px] border border-border overflow-hidden animate-in zoom-in-95 duration-200">
+      <div className="relative bg-white dark:bg-[#111827] w-full max-w-[420px] rounded-[8px] border border-border overflow-hidden animate-in zoom-in-95 duration-200">
         <button onClick={onClose} className="absolute right-4 top-4 p-1 hover:bg-muted rounded-full text-muted-foreground">
           <X className="w-4 h-4" />
         </button>
-        <div className="p-8 flex flex-col items-center text-center space-y-6">
+        <div className="p-8 flex flex-col items-center text-center space-y-5">
           <div className="w-16 h-16 bg-[#00A389] rounded-full flex items-center justify-center">
             <Check className="w-8 h-8 text-white stroke-[3]" />
           </div>
@@ -59,11 +61,37 @@ function TokenGeneratedModal({ isOpen, onClose, token }) {
             <h2 className="text-[18px] font-bold text-foreground">Token Generated</h2>
             <p className="text-[13px] text-muted-foreground">Successfully added to today&apos;s queue</p>
           </div>
-          <div className="w-full bg-[#F5F7FF] dark:bg-primary/5 border border-primary/10 py-8 rounded-[8px] flex flex-col items-center gap-2">
+          <div className="w-full bg-[#F5F7FF] dark:bg-primary/5 border border-primary/10 py-7 rounded-[8px] flex flex-col items-center gap-2">
             <span className="text-[11px] font-bold text-primary/60 tracking-widest uppercase">Token Number</span>
             <span className="text-[48px] font-bold text-[#3B4CB8] leading-none tracking-wide">{token.displayToken}</span>
             <span className="text-[12px] text-muted-foreground font-medium">{token.patient?.name || "Patient"}</span>
           </div>
+
+          {/* Appointment link info */}
+          {token.appointment ? (
+            <div className="w-full flex items-center gap-2 p-3 bg-[#E6F9F1] border border-[#00A389]/20 rounded-[5px]">
+              <Link2 className="w-4 h-4 text-[#00A389] shrink-0" />
+              <div className="text-left">
+                <p className="text-[12px] font-bold text-[#00A389]">Appointment also created</p>
+                <p className="text-[11px] text-[#00A389]/80">Token linked to today&apos;s OPD schedule</p>
+              </div>
+            </div>
+          ) : (
+            <div className="w-full flex items-center gap-2 p-3 bg-muted/30 border border-border rounded-[5px]">
+              <CalendarDays className="w-4 h-4 text-muted-foreground shrink-0" />
+              <div className="text-left flex-1">
+                <p className="text-[12px] font-bold text-foreground">No appointment booked</p>
+                <p className="text-[11px] text-muted-foreground">Book an OPD appointment for this patient</p>
+              </div>
+              <button
+                onClick={() => { onClose(); onBookAppointment(token.patient); }}
+                className="h-7 px-3 bg-primary text-white rounded-[3px] text-[11px] font-bold hover:opacity-90 transition-all whitespace-nowrap flex items-center gap-1"
+              >
+                Book <ArrowRight className="w-3 h-3" />
+              </button>
+            </div>
+          )}
+
           <div className="grid grid-cols-2 gap-3 w-full">
             <button onClick={onClose} className="h-11 border border-border rounded-[5px] text-[13px] font-bold text-foreground hover:bg-muted transition-all">
               Close
@@ -169,6 +197,7 @@ function PrefixModal({ isOpen, currentPrefix, onClose, onSave }) {
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function TokenManagement() {
+  const router = useRouter();
   const [activeTab, setActiveTab]       = React.useState("listing");
   const [isLoaded, setIsLoaded]         = React.useState(false);
   const [searchInput, setSearchInput]   = React.useState("");
@@ -189,7 +218,10 @@ export default function TokenManagement() {
   const [generatedToken, setGeneratedToken] = React.useState(null);
   const [showTokenModal, setShowTokenModal] = React.useState(false);
   const [showPrefixModal, setShowPrefixModal] = React.useState(false);
-  const [generatingFor, setGeneratingFor]   = React.useState(null); // patientId being generated
+  const [generatingFor, setGeneratingFor]   = React.useState(null);
+
+  // Appointment awareness per patient
+  const [patientAppts, setPatientAppts] = React.useState({}); // { patientId: { appointment, token } }
 
   // User role from localStorage
   const [userRole, setUserRole] = React.useState("");
@@ -241,7 +273,21 @@ export default function TokenManagement() {
       if (search) params.set("search", search);
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/tokens/patients?${params}`, { headers: apiHeaders() });
       const json = await res.json();
-      if (json.success) setPatients(json.data);
+      if (json.success) {
+        setPatients(json.data);
+        // Load appointment summaries for all patients in parallel (batched)
+        const summaries = {};
+        await Promise.all(
+          json.data.map(async (p) => {
+            try {
+              const r = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/appointments/patient/${p.id}`, { headers: apiHeaders() });
+              const j = await r.json();
+              if (j.success) summaries[p.id] = j.data;
+            } catch {}
+          })
+        );
+        setPatientAppts(summaries);
+      }
     } catch (e) { console.error(e); }
     finally { setLoading(false); }
   }, [search]);
@@ -294,6 +340,16 @@ export default function TokenManagement() {
     finally { setGeneratingFor(null); }
   };
 
+  // ── Navigate to book appointment for a patient ────────────────────────────
+  const handleBookAppointment = (patient) => {
+    // Pre-fill step1 in sessionStorage so the booking flow starts with this patient
+    sessionStorage.setItem("appt_step1", JSON.stringify({
+      patient: { id: patient.id, name: patient.name, contact: patient.contact, age: patient.age, gender: patient.gender },
+      dept: null,
+    }));
+    router.push("/reception/opd-appointments/book");
+  };
+
   const canChangePrefix = ["SUPERADMIN", "BRANCH_ADMIN"].includes(userRole);
 
   const formatDate = (iso) =>
@@ -315,15 +371,24 @@ export default function TokenManagement() {
             </p>
           )}
         </div>
-        {canChangePrefix && (
+        <div className="flex items-center gap-2">
           <button
-            onClick={() => setShowPrefixModal(true)}
-            className="flex items-center gap-2 h-10 px-4 border border-border rounded-[5px] text-[13px] font-bold text-foreground hover:bg-muted transition-all"
+            onClick={() => router.push("/reception/opd-appointments")}
+            className="flex items-center gap-2 h-10 px-4 bg-primary/5 border border-primary/20 rounded-[5px] text-[13px] font-bold text-primary hover:bg-primary/10 transition-all"
           >
-            <Settings className="w-4 h-4" />
-            Prefix: <span className="text-[#3B4CB8]">{prefix}</span>
+            <CalendarDays className="w-4 h-4" />
+            OPD Schedule
           </button>
-        )}
+          {canChangePrefix && (
+            <button
+              onClick={() => setShowPrefixModal(true)}
+              className="flex items-center gap-2 h-10 px-4 border border-border rounded-[5px] text-[13px] font-bold text-foreground hover:bg-muted transition-all"
+            >
+              <Settings className="w-4 h-4" />
+              Prefix: <span className="text-[#3B4CB8]">{prefix}</span>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* ── Stats row (always visible) ── */}
@@ -405,10 +470,10 @@ export default function TokenManagement() {
           <>
             {/* Desktop */}
             <div className="hidden md:block overflow-x-auto">
-              <table className="w-full text-left border-collapse min-w-[900px]">
+              <table className="w-full text-left border-collapse min-w-[1000px]">
                 <thead>
                   <tr className="bg-muted/30 border-b border-border/60">
-                    {["Patient Name", "Mobile", "Gender / Age", "Reg. Date", "Today's Token", "Actions"].map((h) => (
+                    {["Patient Name", "Mobile", "Gender / Age", "Today's Token", "Appointment", "Actions"].map((h) => (
                       <th key={h} className="px-5 py-4 text-[11px] font-bold text-muted-foreground uppercase tracking-wider">{h}</th>
                     ))}
                   </tr>
@@ -424,40 +489,74 @@ export default function TokenManagement() {
                     ))
                   ) : patients.length === 0 ? (
                     <tr><td colSpan={6} className="px-5 py-16 text-center text-[13px] text-muted-foreground">No patients found.</td></tr>
-                  ) : patients.map((p) => (
-                    <tr key={p.id} className="hover:bg-muted/10 transition-colors">
-                      <td className="px-5 py-4 text-[13px] font-bold text-foreground">{p.name || "Unknown"}</td>
-                      <td className="px-5 py-4 text-[13px] font-medium text-foreground">{p.contact || "—"}</td>
-                      <td className="px-5 py-4 text-[13px] font-medium text-foreground">
-                        {[p.gender, p.age ? `${p.age} yrs` : null].filter(Boolean).join(" • ") || "—"}
-                      </td>
-                      <td className="px-5 py-4 text-[13px] font-medium text-foreground">{formatDate(p.createdAt)}</td>
-                      <td className="px-5 py-4">
-                        {p.todayToken ? (
-                          <div className="flex items-center gap-2">
-                            <TokenChip token={p.todayToken.displayToken} />
-                            <StatusBadge status={p.todayToken.status} />
-                          </div>
-                        ) : (
-                          <span className="text-[12px] text-muted-foreground font-medium">Not issued</span>
-                        )}
-                      </td>
-                      <td className="px-5 py-4">
-                        {p.todayToken ? (
-                          <span className="text-[12px] text-muted-foreground font-medium italic">Token issued</span>
-                        ) : (
-                          <button
-                            onClick={() => handleGenerateToken(p)}
-                            disabled={generatingFor === p.id}
-                            className="flex items-center gap-2 h-8 px-3 border border-[#3B4CB8]/20 bg-[#3B4CB8]/5 text-[#3B4CB8] rounded-[5px] text-[11px] font-bold hover:bg-[#3B4CB8] hover:text-white transition-all disabled:opacity-50"
-                          >
-                            {generatingFor === p.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Ticket className="w-3.5 h-3.5" />}
-                            Generate
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
+                  ) : patients.map((p) => {
+                    const summary = patientAppts[p.id];
+                    const appt = summary?.appointment;
+                    const APPT_STYLE = {
+                      SCHEDULED:  "bg-blue-50 text-blue-600",
+                      CHECKED_IN: "bg-[#E6F9F1] text-[#00A389]",
+                      WAITING:    "bg-amber-50 text-amber-600",
+                      COMPLETED:  "bg-purple-50 text-purple-600",
+                      CANCELLED:  "bg-red-50 text-red-500",
+                      NO_SHOW:    "bg-slate-100 text-slate-500",
+                    };
+                    const APPT_LABEL = {
+                      SCHEDULED: "Scheduled", CHECKED_IN: "Checked In", WAITING: "Waiting",
+                      COMPLETED: "Completed", CANCELLED: "Cancelled", NO_SHOW: "No Show",
+                    };
+                    return (
+                      <tr key={p.id} className="hover:bg-muted/10 transition-colors">
+                        <td className="px-5 py-4 text-[13px] font-bold text-foreground">{p.name || "Unknown"}</td>
+                        <td className="px-5 py-4 text-[13px] font-medium text-foreground">{p.contact || "—"}</td>
+                        <td className="px-5 py-4 text-[13px] font-medium text-foreground">
+                          {[p.gender, p.age ? `${p.age} yrs` : null].filter(Boolean).join(" • ") || "—"}
+                        </td>
+                        <td className="px-5 py-4">
+                          {p.todayToken ? (
+                            <div className="flex items-center gap-2">
+                              <TokenChip token={p.todayToken.displayToken} />
+                              <StatusBadge status={p.todayToken.status} />
+                            </div>
+                          ) : (
+                            <span className="text-[12px] text-muted-foreground font-medium">Not issued</span>
+                          )}
+                        </td>
+                        <td className="px-5 py-4">
+                          {appt ? (
+                            <div className="flex items-center gap-2">
+                              <span className={cn("px-2 py-0.5 rounded-[3px] text-[11px] font-bold", APPT_STYLE[appt.status] || "bg-muted text-muted-foreground")}>
+                                {APPT_LABEL[appt.status] || appt.status}
+                              </span>
+                              <span className="text-[11px] text-muted-foreground">
+                                {new Date(appt.dateTime).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}
+                              </span>
+                            </div>
+                          ) : (
+                            <button
+                              onClick={() => handleBookAppointment(p)}
+                              className="flex items-center gap-1.5 h-7 px-3 border border-primary/20 bg-primary/5 text-primary rounded-[3px] text-[11px] font-bold hover:bg-primary hover:text-white transition-all"
+                            >
+                              <CalendarDays className="w-3 h-3" /> Book
+                            </button>
+                          )}
+                        </td>
+                        <td className="px-5 py-4">
+                          {p.todayToken ? (
+                            <span className="text-[12px] text-muted-foreground font-medium italic">Token issued</span>
+                          ) : (
+                            <button
+                              onClick={() => handleGenerateToken(p)}
+                              disabled={generatingFor === p.id}
+                              className="flex items-center gap-2 h-8 px-3 border border-[#3B4CB8]/20 bg-[#3B4CB8]/5 text-[#3B4CB8] rounded-[5px] text-[11px] font-bold hover:bg-[#3B4CB8] hover:text-white transition-all disabled:opacity-50"
+                            >
+                              {generatingFor === p.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Ticket className="w-3.5 h-3.5" />}
+                              Generate
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -471,33 +570,48 @@ export default function TokenManagement() {
                     <div className="h-4 bg-muted rounded w-1/3" />
                   </div>
                 ))
-              ) : patients.map((p) => (
-                <div key={p.id} className="p-4 space-y-3 hover:bg-muted/5 transition-colors">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h3 className="text-[15px] font-bold text-foreground">{p.name || "Unknown"}</h3>
-                      <p className="text-[13px] text-muted-foreground">{p.contact || "—"}</p>
+              ) : patients.map((p) => {
+                const summary = patientAppts[p.id];
+                const appt = summary?.appointment;
+                return (
+                  <div key={p.id} className="p-4 space-y-3 hover:bg-muted/5 transition-colors">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h3 className="text-[15px] font-bold text-foreground">{p.name || "Unknown"}</h3>
+                        <p className="text-[13px] text-muted-foreground">{p.contact || "—"}</p>
+                      </div>
+                      {p.todayToken && <TokenChip token={p.todayToken.displayToken} />}
                     </div>
-                    {p.todayToken && <TokenChip token={p.todayToken.displayToken} />}
-                  </div>
-                  <div className="grid grid-cols-2 gap-2 text-[12px]">
-                    <div><span className="text-muted-foreground">Gender/Age: </span><span className="font-bold">{[p.gender, p.age ? `${p.age}y` : null].filter(Boolean).join(" • ") || "—"}</span></div>
-                    <div><span className="text-muted-foreground">Reg: </span><span className="font-bold">{new Date(p.createdAt).toLocaleDateString()}</span></div>
-                  </div>
-                  {p.todayToken ? (
-                    <div className="flex items-center gap-2">
-                      <StatusBadge status={p.todayToken.status} />
-                      <span className="text-[12px] text-muted-foreground">Token already issued today</span>
+                    <div className="grid grid-cols-2 gap-2 text-[12px]">
+                      <div><span className="text-muted-foreground">Gender/Age: </span><span className="font-bold">{[p.gender, p.age ? `${p.age}y` : null].filter(Boolean).join(" • ") || "—"}</span></div>
+                      <div>
+                        <span className="text-muted-foreground">Appt: </span>
+                        <span className="font-bold">{appt ? `${appt.status.replace("_", " ")} ${new Date(appt.dateTime).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" })}` : "None"}</span>
+                      </div>
                     </div>
-                  ) : (
-                    <button onClick={() => handleGenerateToken(p)} disabled={generatingFor === p.id}
-                      className="w-full h-10 bg-[#3B4CB8] text-white rounded-[5px] text-[12px] font-bold flex items-center justify-center gap-2 disabled:opacity-50">
-                      {generatingFor === p.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Ticket className="w-4 h-4" />}
-                      Generate Token
-                    </button>
-                  )}
-                </div>
-              ))}
+                    <div className="flex gap-2">
+                      {p.todayToken ? (
+                        <div className="flex-1 flex items-center gap-2">
+                          <StatusBadge status={p.todayToken.status} />
+                          <span className="text-[12px] text-muted-foreground">Token issued today</span>
+                        </div>
+                      ) : (
+                        <button onClick={() => handleGenerateToken(p)} disabled={generatingFor === p.id}
+                          className="flex-1 h-10 bg-[#3B4CB8] text-white rounded-[5px] text-[12px] font-bold flex items-center justify-center gap-2 disabled:opacity-50">
+                          {generatingFor === p.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Ticket className="w-4 h-4" />}
+                          Generate Token
+                        </button>
+                      )}
+                      {!appt && (
+                        <button onClick={() => handleBookAppointment(p)}
+                          className="h-10 px-4 border border-primary/20 bg-primary/5 text-primary rounded-[5px] text-[12px] font-bold flex items-center gap-1.5 hover:bg-primary hover:text-white transition-all">
+                          <CalendarDays className="w-3.5 h-3.5" /> Book
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </>
         )}
@@ -558,7 +672,12 @@ export default function TokenManagement() {
       </div>
 
       {/* Modals */}
-      <TokenGeneratedModal isOpen={showTokenModal} onClose={() => setShowTokenModal(false)} token={generatedToken} />
+      <TokenGeneratedModal
+        isOpen={showTokenModal}
+        onClose={() => setShowTokenModal(false)}
+        token={generatedToken}
+        onBookAppointment={handleBookAppointment}
+      />
       <PrefixModal
         isOpen={showPrefixModal}
         currentPrefix={prefix}
