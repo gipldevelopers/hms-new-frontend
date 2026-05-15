@@ -128,12 +128,11 @@ const roleMenus = {
   "pharmacy": [
     { name: "Dashboard", icon: LayoutGrid, path: "/pharmacy", section: "none" },
     { name: "Prescription Queue", icon: Users2, path: "/pharmacy/prescription-queue", section: "PHARMACY" },
-    { name: "Dispensing & Billing", icon: UserRound, path: "/pharmacy/dispensing-billing", section: "PHARMACY" },
     { name: "Stock / Inventory", icon: ClipboardList, path: "/pharmacy/inventory", section: "INVENTORY" },
     { name: "Purchase & Suppliers", icon: CalendarDays, path: "/pharmacy/suppliers", section: "INVENTORY" },
     { name: "Alerts", icon: Bell, path: "/pharmacy/alerts", section: "SYSTEM" },
-    { name: "Reports", icon: LogOut, path: "/pharmacy/reports", section: "SYSTEM" },
-    { name: "Settings", icon: Settings2, path: "/pharmacy/settings", section: "SYSTEM" },
+    { name: "Reports", icon: BarChart3, path: "/pharmacy/reports", section: "SYSTEM" },
+    { name: "Profile & Settings", icon: User, path: "/pharmacy/settings", section: "SYSTEM" },
   ],
   "laboratory": [
     { name: "Dashboard", icon: LayoutGrid, path: "/laboratory", section: "none" },
