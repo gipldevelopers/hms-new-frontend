@@ -35,7 +35,9 @@ import {
   Wrench,
   LogIn,
   Bell,
-  Siren
+  Siren,
+  CreditCard,
+  Percent
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -148,10 +150,12 @@ const roleMenus = {
     { name: "Profile & Settings", icon: User, path: "/radiology/profile", section: "OPS" },
   ],
   "finance": [
-    { name: "Dashboard", icon: LayoutGrid, path: "/finance", section: "none" },
-    { name: "Invoices", icon: Wallet, path: "/finance/invoices", section: "ACCOUNTS" },
-    { name: "Payroll", icon: Users2, path: "/finance/payroll", section: "ACCOUNTS" },
-    { name: "Profile & Settings", icon: User, path: "/finance/profile", section: "ACCOUNTS" },
+    { name: "Dashboard", icon: LayoutGrid, path: "/finance", section: "MAIN" },
+    { name: "Patient Billing", icon: Users2, path: "/finance/patient-billing", section: "MAIN" },
+    { name: "Payment", icon: CreditCard, path: "/finance/payment", section: "FINANCE & WORK" },
+    { name: "Insurance/TPA", icon: ShieldCheck, path: "/finance/insurance-tpa", section: "FINANCE & WORK" },
+    { name: "Discounts", icon: Percent, path: "/finance/discounts", section: "FINANCE & WORK" },
+    { name: "Reports", icon: BarChart3, path: "/finance/reports", section: "REPORTS" },
   ],
   "reports": [
     { name: "Dashboard", icon: LayoutGrid, path: "/reports", section: "none" },
@@ -329,20 +333,22 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) 
           "flex-1 px-3 no-scrollbar transition-all duration-300",
           isCollapsed ? "lg:overflow-visible space-y-0 lg:pt-2" : "overflow-y-auto space-y-5 pt-[20px]"
         )}>
-          {orderedSections.map((section) => (
-            <div key={section} className={cn(isCollapsed ? "space-y-0" : "space-y-1")}>
-              {section !== "none" && (
-                <p className={cn(
-                  "px-4 text-[10px] font-bold text-gray-400 mb-2 whitespace-nowrap transition-all duration-300",
-                  isCollapsed && "lg:opacity-0 lg:invisible lg:h-0 lg:mb-0"
-                )}>
-                  {section}
-                </p>
-              )}
-              <div className="space-y-1">
-                {menuItems
-                  .filter((i) => i.section === section)
-                  .map((item) => (
+          {orderedSections.map((section) => {
+            const sectionItems = menuItems.filter((i) => i.section === section);
+            if (sectionItems.length === 0) return null;
+
+            return (
+              <div key={section} className={cn(isCollapsed ? "space-y-0" : "space-y-1")}>
+                {section !== "none" && (
+                  <p className={cn(
+                    "px-4 text-[10px] font-bold text-gray-400 mb-2 whitespace-nowrap transition-all duration-300",
+                    isCollapsed && "lg:opacity-0 lg:invisible lg:h-0 lg:mb-0"
+                  )}>
+                    {section}
+                  </p>
+                )}
+                <div className="space-y-1">
+                  {sectionItems.map((item) => (
                     <div key={item.name} className="w-full">
                       <NavItem
                         item={item}
@@ -397,9 +403,10 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) 
                       )}
                     </div>
                   ))}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </nav>
 
         {/* User Profile Section Removed From Here */}
