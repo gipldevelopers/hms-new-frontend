@@ -14,7 +14,9 @@ import {
   Calendar,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useRouter, useParams } from "next/navigation";
+import { useRouter } from "next/navigation";
+import { useEffect, use } from "react";
+import { Activity } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -109,29 +111,6 @@ function DateRangeSelect({ value, onChange }) {
   );
 }
 
-// ─── Data ─────────────────────────────────────────────────────────────────────
-const patientMap = {
-  1:  { name: "Rajesh Kumar",       bed: "Bed 402-B", mrn: "MRN: 987654321" },
-  2:  { name: "Mrs. Joseph Thiel",  bed: "Bed 201-A", mrn: "MRN: 123456789" },
-  3:  { name: "Ada Rempel",         bed: "Bed 305-C", mrn: "MRN: 234567890" },
-  4:  { name: "Alfonso Stiedemann", bed: "Bed 110-D", mrn: "MRN: 345678901" },
-  5:  { name: "Dianna Sanford",     bed: "Bed 220-B", mrn: "MRN: 456789012" },
-  6:  { name: "Marcus Reed",        bed: "Bed 315-A", mrn: "MRN: 567890123" },
-  7:  { name: "Amelia Zhao",        bed: "Bed 408-C", mrn: "MRN: 678901234" },
-  8:  { name: "Jason Patel",        bed: "Bed 502-B", mrn: "MRN: 789012345" },
-  9:  { name: "Sofia Martinez",     bed: "Bed 601-A", mrn: "MRN: 890123456" },
-  10: { name: "Liam Johnson",       bed: "Bed 703-D", mrn: "MRN: 901234567" },
-  11: { name: "Ella Thompson",      bed: "Bed 804-C", mrn: "MRN: 012345678" },
-};
-
-const vitalsHistory = [
-  { id: 1, dateLabel: "Today",     time: "10:45 AM", bp: "185/115", bpStatus: "critical", hr: 88, spo2: "86%",  spo2Status: "critical", temp: "37.2 °C", resp: 22, pain: 4, recordedBy: "Sarah Jenkins, RN", notes: "Notes attached" },
-  { id: 2, dateLabel: "Today",     time: "08:00 AM", bp: "120/80",  bpStatus: "normal",   hr: 72, spo2: "98%",  spo2Status: "normal",   temp: "36.8 °C", resp: 16, pain: 2, recordedBy: "Sarah Jenkins, RN", notes: null },
-  { id: 3, dateLabel: "Yesterday", time: "10:00 PM", bp: "118/76",  bpStatus: "normal",   hr: 68, spo2: "99%",  spo2Status: "normal",   temp: "36.9 °C", resp: 14, pain: 0, recordedBy: "Mike Ross, RN",     notes: null },
-  { id: 4, dateLabel: "Yesterday", time: "02:00 PM", bp: "135/88",  bpStatus: "normal",   hr: 75, spo2: "97%",  spo2Status: "normal",   temp: "37.1 °C", resp: 18, pain: 1, recordedBy: "Mike Ross, RN",     notes: null },
-  { id: 5, dateLabel: "Yesterday", time: "08:00 AM", bp: "122/82",  bpStatus: "normal",   hr: 70, spo2: "98%",  spo2Status: "normal",   temp: "36.7 °C", resp: 16, pain: 0, recordedBy: "Sarah Jenkins, RN", notes: null },
-];
-
 const recordedByOptions = [
   { label: "Sarah Jenkins, RN", value: "sarah" },
   { label: "Mike Ross, RN",     value: "mike"  },
@@ -139,11 +118,62 @@ const recordedByOptions = [
 ];
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
-export default function PatientVitalsHistoryPage() {
-  const router    = useRouter();
-  const params    = useParams();
-  const patientId = params?.patientId || "1";
-  const patient   = patientMap[patientId] || patientMap[1];
+export default function PatientVitalsHistoryPage({ params }) {
+  const router = useRouter();
+  const resolvedParams = use(params);
+  const patientId = resolvedParams?.patientId || "";
+
+  const [patient, setPatient] = useState(null);
+  const [vitalsHistory, setVitalsHistory] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!patientId) return;
+    
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem("authtoken");
+        const headers = { Authorization: `Bearer ${token}` };
+        
+        // Fetch patient
+        const patRes = await fetch(`/api/patients/${patientId}`, { headers });
+        const patData = await patRes.json();
+        setPatient(patData);
+
+        // Fetch vitals
+        const vitRes = await fetch(`/api/vitals/patient/${patientId}`, { headers });
+        const vitData = await vitRes.json();
+        
+        if (Array.isArray(vitData)) {
+          const mapped = vitData.map(v => ({
+            id: v.id,
+            dateLabel: new Date(v.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
+            time: new Date(v.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+            bp: `${v.systolic || 0}/${v.diastolic || 0}`,
+            bpStatus: (v.systolic > 140 || v.diastolic > 90 || v.systolic < 90 || v.diastolic < 60) ? "critical" : "normal",
+            hr: v.heartRate || "--",
+            spo2: v.spo2 ? `${v.spo2}%` : "--",
+            spo2Status: v.spo2 < 95 ? "critical" : "normal",
+            temp: v.temperature ? `${v.temperature} °C` : "--",
+            resp: v.respiratoryRate || "--",
+            pain: v.painLevel || "0",
+            recordedBy: v.recordedBy || "Staff",
+            notes: v.notes
+          }));
+          setVitalsHistory(mapped);
+        } else {
+          setVitalsHistory([]);
+        }
+      } catch (err) {
+        console.error("Failed to fetch data:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchData();
+  }, [patientId]);
 
   const [searchQuery,      setSearchQuery]      = useState("");
   const [dateFilter,       setDateFilter]       = useState("Last 7 Days");
@@ -165,6 +195,9 @@ export default function PatientVitalsHistoryPage() {
     return matchSearch && matchStatus;
   });
 
+  const uhid = patient?.id ? `UHID-${patient.id.toString().substring(0, 6).toUpperCase()}` : "Loading...";
+  const bedName = patient?.admissions?.[0]?.bed?.label || "No Bed";
+
   return (
     <div className="p-4 md:p-6 bg-background min-h-screen flex flex-col space-y-[15px] md:space-y-[20px] transition-colors duration-300 font-sans pb-20">
 
@@ -173,17 +206,17 @@ export default function PatientVitalsHistoryPage() {
         {/* Back + Title */}
         <div className="flex items-center gap-3">
           <button
-            onClick={() => router.push("/staff/vitals")}
+            onClick={() => router.back()}
             className="p-2 hover:bg-muted rounded-lg transition-colors border border-transparent hover:border-border shrink-0"
           >
             <ArrowLeft className="w-5 h-5 text-foreground" />
           </button>
           <div>
             <h1 className="text-[18px] md:text-[22px] font-bold text-foreground tracking-tight leading-tight">
-              {patient.name} – Vitals History
+              {patient?.name || "Patient"} – Vitals History
             </h1>
             <p className="text-[12px] text-muted-foreground font-medium mt-0.5">
-              {patient.bed} • {patient.mrn}
+              {bedName} • {uhid}
             </p>
           </div>
         </div>
@@ -198,7 +231,7 @@ export default function PatientVitalsHistoryPage() {
           </button>
 
           <button
-            onClick={() => router.push(`/staff/vitals/${patientId}/entry`)}
+            onClick={() => router.push(`/staff/vitals/${patientId}/entry?from=vitals`)}
             className="h-10 px-4 bg-primary text-primary-foreground rounded-lg text-[13px] font-bold flex items-center gap-2 hover:bg-primary/90 transition-all outline-none whitespace-nowrap"
           >
             <Plus className="w-4 h-4" />
@@ -240,7 +273,21 @@ export default function PatientVitalsHistoryPage() {
           </div>
         </div>
 
+        {loading && (
+          <div className="p-10 flex justify-center text-muted-foreground bg-card rounded-lg border border-border shadow-none">
+            <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full mr-3"></div> Loading...
+          </div>
+        )}
+        
+        {!loading && filtered.length === 0 && (
+          <div className="p-10 flex justify-center items-center flex-col text-muted-foreground bg-card rounded-lg border border-border shadow-none">
+             <Activity className="w-10 h-10 mb-2 opacity-50" />
+             <p className="font-medium text-sm">No vitals recorded yet</p>
+          </div>
+        )}
+
         {/* ── Mobile Card View ── */}
+        {!loading && filtered.length > 0 && (
         <div className="grid grid-cols-1 gap-4 md:hidden">
           {filtered.map((v) => (
             <div
@@ -255,13 +302,13 @@ export default function PatientVitalsHistoryPage() {
                 </div>
                 <div className="flex gap-1">
                   <button
-                    onClick={() => router.push(`/staff/vitals/${patientId}/entry?mode=edit&entryId=${v.id}`)}
+                    onClick={() => router.push(`/staff/vitals/${patientId}/entry?mode=edit&entryId=${v.id}&from=vitals`)}
                     className="p-2 hover:bg-muted rounded-lg transition-colors"
                   >
                     <Pencil className="w-4 h-4 text-muted-foreground" />
                   </button>
                   <button
-                    onClick={() => router.push(`/staff/vitals/${patientId}/entry?mode=view&entryId=${v.id}`)}
+                    onClick={() => router.push(`/staff/vitals/${patientId}/entry?mode=view&entryId=${v.id}&from=vitals`)}
                     className="p-2 hover:bg-muted rounded-lg transition-colors"
                   >
                     <Eye className="w-4 h-4 text-primary" />
@@ -300,8 +347,10 @@ export default function PatientVitalsHistoryPage() {
             </div>
           ))}
         </div>
+        )}
 
         {/* ── Desktop Table View ── */}
+        {!loading && filtered.length > 0 && (
         <div className="hidden md:block bg-card rounded-lg border border-border shadow-none overflow-hidden">
           <div className="overflow-x-auto no-scrollbar">
             <table className="w-full border-collapse">
@@ -384,14 +433,14 @@ export default function PatientVitalsHistoryPage() {
                     <td className="px-8 py-5">
                       <div className="flex items-center justify-center gap-1">
                         <button
-                          onClick={() => router.push(`/staff/vitals/${patientId}/entry?mode=edit&entryId=${v.id}`)}
+                          onClick={() => router.push(`/staff/vitals/${patientId}/entry?mode=edit&entryId=${v.id}&from=vitals`)}
                           className="p-2 hover:bg-muted rounded-lg transition-colors"
                           title="Edit entry"
                         >
                           <Pencil className="w-4 h-4 text-muted-foreground" />
                         </button>
                         <button
-                          onClick={() => router.push(`/staff/vitals/${patientId}/entry?mode=view&entryId=${v.id}`)}
+                          onClick={() => router.push(`/staff/vitals/${patientId}/entry?mode=view&entryId=${v.id}&from=vitals`)}
                           className="p-2 hover:bg-muted rounded-lg transition-colors"
                           title="View entry"
                         >
@@ -405,6 +454,7 @@ export default function PatientVitalsHistoryPage() {
             </table>
           </div>
         </div>
+        )}
       </div>
     </div>
   );

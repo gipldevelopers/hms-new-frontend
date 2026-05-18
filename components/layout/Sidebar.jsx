@@ -180,8 +180,12 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) 
         const result = await res.json();
         
         if (res.ok && result.success) {
-          setUser(result.data);
-          localStorage.setItem("user", JSON.stringify(result.data));
+          const userData = result.data?.user || result.data || {};
+          const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+          // Merge API data with stored data to preserve name if API misses it
+          const finalUser = { ...storedUser, ...userData };
+          setUser(finalUser);
+          localStorage.setItem("user", JSON.stringify(finalUser));
         } else {
           // Fallback to localStorage if API fails
           const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
@@ -215,8 +219,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) 
   }, [pathname, menuItems]);
 
   const sections = [...new Set(menuItems.map(item => item.section))];
-  // Reorder sections so "Main" or "none" is first
-  const orderedSections = ["Main", "none", ...sections.filter(s => s !== "Main" && s !== "none")];
+  const orderedSections = ["none", "Main", ...sections.filter(s => s !== "Main" && s !== "none")];
 
   return (
     <TooltipProvider delayDuration={0}>
@@ -330,20 +333,22 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) 
           "flex-1 px-3 no-scrollbar transition-all duration-300",
           isCollapsed ? "lg:overflow-visible space-y-0 lg:pt-2" : "overflow-y-auto space-y-5 pt-[20px]"
         )}>
-          {orderedSections.map((section) => (
-            <div key={section} className={cn(isCollapsed ? "space-y-0" : "space-y-1")}>
-              {section !== "none" && (
-                <p className={cn(
-                  "px-4 text-[10px] font-bold text-gray-400 mb-2 whitespace-nowrap transition-all duration-300",
-                  isCollapsed && "lg:opacity-0 lg:invisible lg:h-0 lg:mb-0"
-                )}>
-                  {section}
-                </p>
-              )}
-              <div className="space-y-1">
-                {menuItems
-                  .filter((i) => i.section === section)
-                  .map((item) => (
+          {orderedSections.map((section) => {
+            const sectionItems = menuItems.filter((i) => i.section === section);
+            if (sectionItems.length === 0) return null;
+
+            return (
+              <div key={section} className={cn(isCollapsed ? "space-y-0" : "space-y-1")}>
+                {section !== "none" && (
+                  <p className={cn(
+                    "px-4 text-[10px] font-bold text-gray-400 mb-2 whitespace-nowrap transition-all duration-300",
+                    isCollapsed && "lg:opacity-0 lg:invisible lg:h-0 lg:mb-0"
+                  )}>
+                    {section}
+                  </p>
+                )}
+                <div className="space-y-1">
+                  {sectionItems.map((item) => (
                     <div key={item.name} className="w-full">
                       <NavItem
                         item={item}
@@ -400,7 +405,8 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) 
                   ))}
               </div>
             </div>
-          ))}
+            );
+          })}
         </nav>
 
         {/* User Profile Section Removed From Here */}
