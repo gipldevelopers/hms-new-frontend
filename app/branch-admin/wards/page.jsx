@@ -224,6 +224,26 @@ export default function BedWardOverview() {
   const handleDeptChange = (idx, field, value) => {
     const newDepts = [...departments];
     newDepts[idx][field] = value;
+    
+    if (field === 'name') {
+      const dept = newDepts[idx];
+      const deptPrefix = (value || "DE").substring(0, 2).toUpperCase().padEnd(2, 'X');
+      
+      if (dept.wards) {
+        dept.wards.forEach((ward, wIdx) => {
+          const wardNumStr = (wIdx + 1).toString().padStart(2, '0');
+          ward.code = `${deptPrefix}W${wardNumStr}`;
+          
+          if (ward.beds) {
+            ward.beds.forEach((bed, bIdx) => {
+              const bedNumStr = (bIdx + 1).toString().padStart(3, '0');
+              bed.equipmentId = `${ward.code}${bedNumStr}`;
+            });
+          }
+        });
+      }
+    }
+    
     setDepartments(newDepts);
   };
 
@@ -241,10 +261,16 @@ export default function BedWardOverview() {
 
   const addWard = (deptIdx) => {
     const newDepts = [...departments];
+    const dept = newDepts[deptIdx];
+    const deptPrefix = (dept.name || "DE").substring(0, 2).toUpperCase().padEnd(2, 'X');
+    const nextWardNum = dept.wards.length + 1;
+    const wardNumStr = nextWardNum.toString().padStart(2, '0');
+    const generatedCode = `${deptPrefix}W${wardNumStr}`;
+
     newDepts[deptIdx].wards.push({
       id: `new-w-${Date.now()}`,
-      name: "New ward",
-      code: "WD-" + Math.random().toString(36).substring(7).toUpperCase(),
+      name: `Ward ${nextWardNum}`,
+      code: generatedCode,
       beds: []
     });
     setDepartments(newDepts);
@@ -252,10 +278,15 @@ export default function BedWardOverview() {
 
   const addBed = (deptIdx, wardIdx) => {
     const newDepts = [...departments];
+    const ward = newDepts[deptIdx].wards[wardIdx];
+    const nextBedNum = ward.beds.length + 1;
+    const bedNumStr = nextBedNum.toString().padStart(3, '0');
+    const generatedEqId = `${ward.code}${bedNumStr}`;
+
     newDepts[deptIdx].wards[wardIdx].beds.push({
       id: `new-b-${Date.now()}`,
-      label: "New bed",
-      equipmentId: "",
+      label: `Bed ${nextBedNum}`,
+      equipmentId: generatedEqId,
       status: "AVAILABLE"
     });
     setDepartments(newDepts);
