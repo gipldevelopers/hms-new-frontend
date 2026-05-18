@@ -68,6 +68,8 @@ const roleMenus = {
     { name: "Manage Branches", icon: Building2, path: "/super-admin/branches", section: "MANAGEMENT" },
     { name: "User Management", icon: Users2, path: "/super-admin/users", section: "MANAGEMENT" },
     { name: "Patient Registration", icon: UserRound, path: "/super-admin/patient-registration", section: "MANAGEMENT" },
+    { name: "Emergency Registration", icon: Activity, path: "/super-admin/emergency-registration", section: "MANAGEMENT" },
+    { name: "Token Management", icon: ClipboardList, path: "/super-admin/tokens", section: "MANAGEMENT" },
     { name: "Bed & Ward Management", icon: Hotel, path: "/super-admin/wards", section: "MANAGEMENT" },
     { name: "Bed Map Overview", icon: LayoutGrid, path: "/super-admin/bed-map", section: "MANAGEMENT" },
     { name: "Admissions & Discharges", icon: ClipboardList, path: "/super-admin/admissions", section: "MANAGEMENT" },
