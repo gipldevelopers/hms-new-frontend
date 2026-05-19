@@ -6,7 +6,7 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { CustomCalendar } from "./custom-calendar";
 
-export function FormDatePicker({ label, required, value, onChange, placeholder, className, variant = "default", error }) {
+export function FormDatePicker({ label, required, value, onChange, placeholder, className, variant = "default", error, align = "bottom" }) {
   const [inputValue, setInputValue] = useState(
     value ? format(new Date(value), "dd/MM/yyyy") : ""
   );
@@ -110,7 +110,10 @@ export function FormDatePicker({ label, required, value, onChange, placeholder, 
           </div>
 
           {/* Desktop: Dropdown Style */}
-          <div className="hidden md:block absolute top-[calc(100%+5px)] left-0 z-[100] animate-in fade-in zoom-in-95 duration-200">
+          <div className={cn(
+            "hidden md:block absolute z-[100] animate-in fade-in zoom-in-95 duration-200",
+            align === "top" ? "bottom-[calc(100%+5px)] left-0" : "top-[calc(100%+5px)] left-0"
+          )}>
             <CustomCalendar
               selectedDate={value ? new Date(value) : null}
               onSelect={(date) => {
