@@ -5,6 +5,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
+  FinanceHeader,
+  FinancePageShell,
+  FinanceSearchField,
+  FinanceSelect,
+  FinanceStatCard,
+  FinanceTableCard,
+  FinanceToolbar,
+} from "@/components/finance/FinancePageChrome";
+import {
   Search,
   Plus,
   Eye,
@@ -402,17 +411,17 @@ export default function InsurancePage() {
     };
 
     return (
-      <div className="flex-1 p-6 space-y-6 bg-[#f8fafc] min-h-screen">
+      <div className="min-h-screen flex-1 space-y-6 bg-[#f8fafc] p-6 transition-colors duration-300 dark:bg-[#0B1121]">
         
         {/* Navigation Breadcrumb & Page title */}
         <div className="flex justify-between items-center">
           <div className="space-y-1">
-            <h1 className="text-xl font-black text-[#0F172A]">Verify Patient Insurance</h1>
-            <p className="text-xs text-gray-400 font-semibold">Check patient Eligibility and active policy status</p>
+            <h1 className="text-xl font-black text-[#0F172A] dark:text-white">Verify Patient Insurance</h1>
+            <p className="text-xs font-semibold text-gray-400 dark:text-slate-500">Check patient Eligibility and active policy status</p>
           </div>
         </div>
 
-        <div className="bg-white border border-slate-100 rounded-2xl shadow-sm overflow-hidden flex flex-col min-h-[580px]">
+        <div className="flex min-h-[580px] flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm dark:border-white/10 dark:bg-[#101935]">
           
           {/* Main content grid */}
           <div className="flex-1 p-6 grid grid-cols-4 gap-6 items-start">
@@ -421,19 +430,19 @@ export default function InsurancePage() {
             <div className="col-span-3 space-y-6">
               
               {/* Card 1: Patient Lookup */}
-              <div className="bg-white border border-slate-100 rounded-xl p-5 shadow-sm space-y-4">
-                <h3 className="text-xs font-bold text-gray-800 uppercase tracking-wider">Patient Lookup</h3>
+              <div className="space-y-4 rounded-xl border border-slate-100 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-[#0B1121]">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-gray-800 dark:text-white">Patient Lookup</h3>
                 
                 <div className="space-y-1.5">
                   <span className="text-[10px] text-gray-400 font-bold block">Patient UHID / Policy Number</span>
                   <div className="flex gap-3">
                     <div className="relative flex-1">
-                      <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-slate-500" />
                       <Input
                         value={verifyUhid}
                         onChange={(e) => setVerifyUhid(e.target.value)}
                         placeholder="Enter Patient UHID or Policy Number..."
-                        className="pl-10 h-10 text-xs border-slate-150 focus-visible:ring-[#2E37A4] rounded-lg"
+                        className="h-10 rounded-lg border-slate-150 pl-10 text-xs focus-visible:ring-[#2E37A4] dark:border-white/10 dark:bg-[#101935] dark:text-white dark:placeholder:text-slate-500"
                       />
                     </div>
                     <button 
@@ -453,7 +462,7 @@ export default function InsurancePage() {
 
                 {/* Profile Box */}
                 {matchedPat && (
-                  <div className="border border-slate-50 bg-[#f8fafc]/40 rounded-xl p-4 flex items-center justify-between mt-2.5">
+                  <div className="mt-2.5 flex items-center justify-between rounded-xl border border-slate-50 bg-[#f8fafc]/40 p-4 dark:border-white/10 dark:bg-white/5">
                     <div className="flex items-center gap-3.5">
                       <div className="w-10 h-10 rounded-full bg-slate-50 border border-[#e0f2fe]/50 flex items-center justify-center text-xs font-bold text-[#2E37A4] shrink-0">
                         {matchedPat.name.split(" ").map(n => n[0]).join("")}
@@ -482,11 +491,11 @@ export default function InsurancePage() {
               </div>
 
               {/* Card 2: Primary Insurance Details */}
-              <div className="bg-white border border-slate-100 rounded-xl p-5 shadow-sm space-y-4">
-                <div className="flex justify-between items-center border-b border-slate-50 pb-2">
+              <div className="space-y-4 rounded-xl border border-slate-100 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-[#0B1121]">
+                <div className="flex items-center justify-between border-b border-slate-50 pb-2 dark:border-white/10">
                   <div className="flex items-center gap-2 text-[#2E37A4]">
                     <Shield className="w-4 h-4" />
-                    <h3 className="text-xs font-bold text-gray-800 uppercase tracking-wider">Primary Insurance Details</h3>
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-gray-800 dark:text-white">Primary Insurance Details</h3>
                   </div>
                   <div className="bg-indigo-50/50 text-[#2E37A4] border border-indigo-50/50 rounded-full px-2.5 py-0.5 flex items-center gap-1.5">
                     <div className="w-1.5 h-1.5 rounded-full bg-[#2E37A4] animate-pulse" />
@@ -501,7 +510,7 @@ export default function InsurancePage() {
                       <select
                         value={verifyProvider}
                         onChange={(e) => setVerifyProvider(e.target.value)}
-                        className="h-10 border border-slate-150 rounded-lg w-full bg-white px-3 text-xs text-gray-700 font-bold appearance-none focus:outline-none focus:border-slate-350 shadow-sm"
+                        className="h-10 w-full appearance-none rounded-lg border border-slate-150 bg-white px-3 text-xs font-bold text-gray-700 shadow-sm focus:border-slate-350 focus:outline-none dark:border-white/10 dark:bg-[#101935] dark:text-slate-200"
                       >
                         {Object.keys(PROVIDERS).map((p) => (
                           <option key={p} value={p}>{p}</option>
@@ -517,7 +526,7 @@ export default function InsurancePage() {
                       value={verifyPolicy || patMeta.policyNo}
                       onChange={(e) => setVerifyPolicy(e.target.value)}
                       placeholder="Enter policy/member ID..."
-                      className="h-10 text-xs border-slate-150 rounded-lg focus-visible:ring-[#2E37A4]"
+                      className="h-10 rounded-lg border-slate-150 text-xs focus-visible:ring-[#2E37A4] dark:border-white/10 dark:bg-[#101935] dark:text-white dark:placeholder:text-slate-500"
                     />
                   </div>
 
@@ -527,7 +536,7 @@ export default function InsurancePage() {
                       value={verifyGroupNo}
                       onChange={(e) => setVerifyGroupNo(e.target.value)}
                       placeholder="Enter group number..."
-                      className="h-10 text-xs border-slate-150 rounded-lg focus-visible:ring-[#2E37A4]"
+                      className="h-10 rounded-lg border-slate-150 text-xs focus-visible:ring-[#2E37A4] dark:border-white/10 dark:bg-[#101935] dark:text-white dark:placeholder:text-slate-500"
                     />
                   </div>
 
@@ -537,7 +546,7 @@ export default function InsurancePage() {
                       <select
                         value={verifyRelation}
                         onChange={(e) => setVerifyRelation(e.target.value)}
-                        className="h-10 border border-slate-150 rounded-lg w-full bg-white px-3 text-xs text-gray-700 font-bold appearance-none focus:outline-none focus:border-slate-350 shadow-sm"
+                        className="h-10 w-full appearance-none rounded-lg border border-slate-150 bg-white px-3 text-xs font-bold text-gray-700 shadow-sm focus:border-slate-350 focus:outline-none dark:border-white/10 dark:bg-[#101935] dark:text-slate-200"
                       >
                         <option value="Self">Self</option>
                         <option value="Spouse">Spouse</option>
@@ -557,7 +566,7 @@ export default function InsurancePage() {
               
               {/* Coverage Check box */}
               {verifyStatus === "checking" ? (
-                <div className="bg-white border border-slate-100 rounded-xl p-5 shadow-sm flex flex-col items-center justify-center min-h-[340px] space-y-4">
+                <div className="flex min-h-[340px] flex-col items-center justify-center space-y-4 rounded-xl border border-slate-100 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-[#0B1121]">
                   <Activity className="w-12 h-12 text-[#2E37A4] animate-pulse" />
                   <div className="text-center">
                     <span className="text-xs font-bold text-gray-800 block">Verifying Policy status</span>
@@ -565,7 +574,7 @@ export default function InsurancePage() {
                   </div>
                 </div>
               ) : hasVerifiedPolicy ? (
-                <div className="bg-white border-2 border-emerald-500 rounded-xl overflow-hidden shadow-sm flex flex-col min-h-[340px]">
+                <div className="flex min-h-[340px] flex-col overflow-hidden rounded-xl border-2 border-emerald-500 bg-white shadow-sm dark:bg-[#0B1121]">
                   
                   {/* Green Top bar */}
                   <div className="bg-[#E8F8F0] py-6 px-4 flex flex-col items-center justify-center border-b border-slate-50 text-center space-y-3.5">
@@ -626,7 +635,7 @@ export default function InsurancePage() {
 
                 </div>
               ) : (
-                <div className="bg-white border border-slate-100 rounded-xl p-5 shadow-sm flex flex-col items-center justify-center min-h-[340px] text-center space-y-3.5">
+                <div className="flex min-h-[340px] flex-col items-center justify-center space-y-3.5 rounded-xl border border-slate-100 bg-white p-5 text-center shadow-sm dark:border-white/10 dark:bg-[#0B1121]">
                   <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center text-gray-400">
                     <Shield className="w-5 h-5" />
                   </div>
@@ -644,7 +653,7 @@ export default function InsurancePage() {
           </div>
 
           {/* Footer controls */}
-          <div className="px-6 py-4 border-t border-slate-50 bg-slate-50/10 flex justify-between items-center">
+          <div className="flex items-center justify-between border-t border-slate-50 bg-slate-50/10 px-6 py-4 dark:border-white/10 dark:bg-white/5">
             <div>
               <Button
                 onClick={() => setIsVerifyingInsurance(false)}
@@ -690,7 +699,7 @@ export default function InsurancePage() {
 
   if (isCreatingClaim) {
     return (
-      <div className="flex-1 p-6 space-y-6 bg-[#f8fafc] min-h-screen">
+      <div className="min-h-screen flex-1 space-y-6 bg-[#f8fafc] p-6 transition-colors duration-300 dark:bg-[#0B1121]">
         {/* 1. HEADER SECTION */}
         <div className="flex justify-between items-center mb-2">
           <div>
@@ -701,7 +710,7 @@ export default function InsurancePage() {
         {/* 2. TWO-COLUMN WIZARD LAYOUT */}
         <div className="grid grid-cols-4 gap-6 items-start">
           {/* LEFT SIDEBAR: Claim Steps */}
-          <div className="bg-white border border-slate-100 rounded-xl p-5 shadow-sm space-y-5">
+          <div className="bg-white border border-slate-100 rounded-xl p-5 shadow-sm dark:bg-[#0B1121] dark:border-white/10">
             <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wider border-b border-gray-50 pb-2.5">Claim Steps</h2>
             <div className="space-y-4">
               {[
@@ -939,7 +948,7 @@ export default function InsurancePage() {
                           <div>
                             <span className="text-xs font-bold text-[#0F172A] block">Total Billed Amount</span>
                             <span className="text-[10px] text-gray-400 font-semibold block mt-1">
-                              This amount is auto-calculated from the patient's final bill. Any modifications should be done in the Patient Billing module.
+                              This amount is auto-calculated from the patient&apos;s final bill. Any modifications should be done in the Patient Billing module.
                             </span>
                           </div>
                           <span className="text-xl font-extrabold text-[#2E37A4] tracking-tight">{patMeta.amount}</span>
@@ -1039,7 +1048,7 @@ export default function InsurancePage() {
                   {/* Step Header */}
                   <div className="border-b border-slate-50 pb-4">
                     <h2 className="text-lg font-bold text-[#0F172A]">Document</h2>
-                    <p className="text-xs text-gray-400 font-semibold mt-0.5">Upload Patient's Required Documents</p>
+                    <p className="text-xs text-gray-400 font-semibold mt-0.5">Upload Patient&apos;s Required Documents</p>
                   </div>
 
                   {/* Main Grid: Forms/Docs on the Left (col-span-3), Context Cards on the Right (col-span-1) */}
@@ -1367,7 +1376,7 @@ export default function InsurancePage() {
                       </div>
 
                       {/* Section 1: Diagnosis & Treatment */}
-                      <div className="bg-white border border-slate-100 rounded-xl p-5 shadow-sm space-y-4">
+                      <div className="bg-white border border-slate-100 rounded-xl p-5 shadow-sm dark:bg-[#0B1121] dark:border-white/10">
                         <div className="flex justify-between items-center border-b border-slate-50 pb-3">
                           <div className="flex items-center gap-2 text-[#2E37A4]">
                             <Activity className="w-4 h-4" />
@@ -1408,7 +1417,7 @@ export default function InsurancePage() {
                       </div>
 
                       {/* Section 2: Attached Documents */}
-                      <div className="bg-white border border-slate-100 rounded-xl p-5 shadow-sm space-y-4">
+                      <div className="bg-white border border-slate-100 rounded-xl p-5 shadow-sm dark:bg-[#0B1121] dark:border-white/10">
                         <div className="flex justify-between items-center border-b border-slate-50 pb-3">
                           <div className="flex items-center gap-2 text-[#2E37A4]">
                             <Folder className="w-4 h-4" />
@@ -1446,7 +1455,7 @@ export default function InsurancePage() {
                       </div>
 
                       {/* Section 3: Claim Financials */}
-                      <div className="bg-white border border-slate-100 rounded-xl p-5 shadow-sm space-y-4">
+                      <div className="bg-white border border-slate-100 rounded-xl p-5 shadow-sm dark:bg-[#0B1121] dark:border-white/10">
                         <div className="flex items-center gap-2 text-[#2E37A4] border-b border-slate-50 pb-3">
                           <Coins className="w-4 h-4" />
                           <h3 className="text-xs font-bold text-gray-800 uppercase tracking-wider">Claim Financials</h3>
@@ -1592,44 +1601,43 @@ export default function InsurancePage() {
   }
 
   return (
-    <div className="flex-1 p-6 space-y-6 bg-slate-50/50 min-h-screen">
-      {/* 1. HEADER SECTION */}
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Insurance Management</h1>
-          <p className="text-xs text-gray-400 font-semibold mt-0.5">Manage insurance claims, pre-auths, and TPA settles.</p>
-        </div>
-        <div className="flex gap-3">
-          <Button
-            onClick={() => {
-              setIsVerifyingInsurance(true);
-            }}
-            variant="outline"
-            className="border-[#2E37A4] text-[#2E37A4] hover:bg-indigo-50/40 text-xs font-bold px-4 py-2 h-9.5 rounded-lg flex items-center gap-1.5 shadow-sm transition-all"
-          >
-            <Shield className="w-4 h-4" />
-            Verify Patient
+    <FinancePageShell>
+      <FinanceHeader
+        title="Insurance Management"
+        description="Manage insurance claims, pre-auths, and TPA settles."
+        actions={
+          <>
+            <Button
+              onClick={() => {
+                setIsVerifyingInsurance(true);
+              }}
+              variant="outline"
+              className="h-[48px] rounded-[5px] border-primary px-5 text-[13px] font-bold text-primary hover:bg-primary/5 hover:text-primary"
+            >
+              <Shield className="w-4 h-4" />
+              Verify Patient
           </Button>
           <button
-            onClick={() => {
-              setIsCreatingClaim(true);
-              setCurrentStep(1);
-            }}
-            className="bg-[#2E37A4] hover:bg-[#1e257a] text-white text-xs font-bold px-4 py-2 h-9.5 rounded-lg flex items-center gap-1.5 shadow-md transition-all"
-          >
-            <Plus className="w-4.5 h-4.5" />
-            New Claim
-          </button>
-        </div>
-      </div>
+              onClick={() => {
+                setIsCreatingClaim(true);
+                setCurrentStep(1);
+              }}
+              className="flex h-[48px] items-center gap-2 rounded-[5px] bg-primary px-6 text-[13px] font-bold text-white shadow-none transition-all hover:opacity-90"
+            >
+              <Plus className="w-4.5 h-4.5" />
+              New Claim
+            </button>
+          </>
+        }
+      />
 
       {/* 2. STATS CARDS GRID */}
       <div className="grid grid-cols-4 gap-5">
         {/* Total Claims (MTD) */}
-        <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm flex justify-between items-start transition-all hover:shadow-md">
+        <div className="flex items-start justify-between rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-white/10 dark:bg-[#101935]">
           <div className="space-y-1">
             <span className="text-[11px] text-gray-400 font-bold uppercase tracking-wider block">Total Claims (MTD)</span>
-            <span className="text-3xl font-extrabold text-gray-800 block">142</span>
+            <span className="block text-3xl font-extrabold text-gray-800 dark:text-white">142</span>
             <span className="text-[10px] text-emerald-500 font-bold flex items-center gap-1">
               +12% <span className="text-gray-400 font-semibold">vs yesterday</span>
             </span>
@@ -1640,10 +1648,10 @@ export default function InsurancePage() {
         </div>
 
         {/* Pending Pre-Auth */}
-        <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm flex justify-between items-start transition-all hover:shadow-md">
+        <div className="flex items-start justify-between rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-white/10 dark:bg-[#101935]">
           <div className="space-y-1">
             <span className="text-[11px] text-gray-400 font-bold uppercase tracking-wider block">Pending Pre-Auth</span>
-            <span className="text-3xl font-extrabold text-gray-800 block">28</span>
+            <span className="block text-3xl font-extrabold text-gray-800 dark:text-white">28</span>
             <span className="text-[10px] text-amber-500 font-bold flex items-center gap-1">
               5 <span className="text-gray-400 font-semibold">urgent</span>
             </span>
@@ -1654,10 +1662,10 @@ export default function InsurancePage() {
         </div>
 
         {/* Approved Amount */}
-        <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm flex justify-between items-start transition-all hover:shadow-md">
+        <div className="flex items-start justify-between rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-white/10 dark:bg-[#101935]">
           <div className="space-y-1">
             <span className="text-[11px] text-gray-400 font-bold uppercase tracking-wider block">Approved Amount</span>
-            <span className="text-3xl font-extrabold text-gray-800 block">₹45,200</span>
+            <span className="block text-3xl font-extrabold text-gray-800 dark:text-white">₹45,200</span>
             <span className="text-[10px] text-emerald-500 font-bold flex items-center gap-1">
               +8% <span className="text-gray-400 font-semibold">vs last month</span>
             </span>
@@ -1668,10 +1676,10 @@ export default function InsurancePage() {
         </div>
 
         {/* Rejected Claims */}
-        <div className="bg-white border border-gray-100 rounded-xl p-4 shadow-sm flex justify-between items-start transition-all hover:shadow-md">
+        <div className="flex items-start justify-between rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-white/10 dark:bg-[#101935]">
           <div className="space-y-1">
             <span className="text-[11px] text-gray-400 font-bold uppercase tracking-wider block">Rejected Claims</span>
-            <span className="text-3xl font-extrabold text-gray-800 block">12</span>
+            <span className="block text-3xl font-extrabold text-gray-800 dark:text-white">12</span>
             <span className="text-[10px] text-[#ef4444] font-bold flex items-center gap-1">
               -2% <span className="text-gray-400 font-semibold">vs last month</span>
             </span>
@@ -1683,15 +1691,15 @@ export default function InsurancePage() {
       </div>
 
       {/* 3. TABLE FILTERING & SEARCH CONTROLS */}
-      <div className="bg-white border border-gray-100/90 rounded-xl shadow-sm overflow-hidden p-4 flex justify-between items-center gap-4">
+      <div className="flex items-center justify-between gap-4 overflow-hidden rounded-xl border border-gray-100/90 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-[#101935]">
         {/* Search */}
         <div className="relative w-80">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-slate-500" />
           <Input
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search claim, patient or provider..."
-            className="pl-9 h-9.5 text-xs border-gray-200 focus-visible:ring-[#2E37A4]"
+            className="h-9.5 border-gray-200 pl-9 text-xs focus-visible:ring-[#2E37A4] dark:border-white/10 dark:bg-[#0B1121] dark:text-white dark:placeholder:text-slate-500"
           />
         </div>
 
@@ -1700,22 +1708,22 @@ export default function InsurancePage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="h-9.5 pl-3 pr-8 border border-gray-200 rounded-lg text-xs font-semibold text-gray-700 bg-white focus:outline-none focus:border-gray-300 appearance-none min-w-[120px]"
+            className="h-9.5 min-w-[120px] appearance-none rounded-lg border border-gray-200 bg-white pl-3 pr-8 text-xs font-semibold text-gray-700 focus:border-gray-300 focus:outline-none dark:border-white/10 dark:bg-[#0B1121] dark:text-slate-200"
           >
             <option value="All">All</option>
             <option value="Approved">Approved</option>
             <option value="Pending">Pending</option>
             <option value="Rejected">Rejected</option>
           </select>
-          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
+          <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-400 dark:text-slate-500" />
         </div>
       </div>
 
       {/* 4. MAIN CLAIMS TABLE */}
-      <div className="bg-white border border-gray-100 rounded-xl shadow-sm overflow-hidden">
+      <div className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm dark:border-white/10 dark:bg-[#101935]">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="border-b border-gray-100 bg-slate-50/50 text-[10px] font-bold text-gray-400 uppercase tracking-wider h-10">
+            <tr className="border-b border-gray-100 bg-slate-50/50 text-[10px] font-bold text-gray-400 dark:border-white/10 dark:bg-white/5 dark:text-slate-400">
               <th className="pl-6">Claim ID</th>
               <th>Patient</th>
               <th>Provider</th>
@@ -1725,10 +1733,10 @@ export default function InsurancePage() {
               <th className="pr-6 text-center">Action</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100 text-xs font-semibold text-[#0E1726]">
+          <tbody className="divide-y divide-gray-100 text-xs font-semibold text-[#0E1726] dark:divide-white/10 dark:text-slate-200">
             {filteredClaims.length === 0 ? (
               <tr>
-                <td colSpan="7" className="text-center py-10 text-gray-400">
+                <td colSpan="7" className="py-10 text-center text-gray-400 dark:text-slate-500">
                   No claims found matching filters.
                 </td>
               </tr>
@@ -1736,19 +1744,19 @@ export default function InsurancePage() {
               filteredClaims.map((claim) => {
                 const providerMeta = PROVIDERS[claim.provider] || { initial: "P", bg: "bg-gray-50 text-gray-600 border-gray-100", dot: "bg-gray-500" };
                 return (
-                  <tr key={claim.id} className="h-13 hover:bg-slate-50/30 transition-colors">
-                    <td className="pl-6 font-medium text-[#0E1726] text-sm align-middle">{claim.id}</td>
-                    <td className="font-medium text-[#0E1726] text-sm align-middle">{claim.patient}</td>
+                  <tr key={claim.id} className="h-13 transition-colors hover:bg-slate-50/30 dark:hover:bg-white/5">
+                    <td className="pl-6 text-sm font-medium align-middle text-[#0E1726] dark:text-white">{claim.id}</td>
+                    <td className="text-sm font-medium align-middle text-[#0E1726] dark:text-slate-200">{claim.patient}</td>
                     <td className="align-middle">
                       <div className="flex items-center gap-2">
                         <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${providerMeta.bg} border border-[#e0f2fe]/40 shrink-0`}>
                           {providerMeta.initial}
                         </div>
-                        <span className="text-[#0E1726] font-medium text-sm">{claim.provider}</span>
+                        <span className="text-sm font-medium text-[#0E1726] dark:text-slate-200">{claim.provider}</span>
                       </div>
                     </td>
-                    <td className="font-medium text-[#0E1726] text-sm align-middle">{claim.amount}</td>
-                    <td className="text-[#0E1726] font-medium text-sm align-middle">{claim.date}</td>
+                    <td className="text-sm font-medium align-middle text-[#0E1726] dark:text-slate-200">{claim.amount}</td>
+                    <td className="text-sm font-medium align-middle text-[#0E1726] dark:text-slate-200">{claim.date}</td>
                     <td className="align-middle">
                       <Badge
                         className={`font-semibold px-2.5 py-0.5 rounded-full border-0 text-[10px] shadow-none capitalize ${
@@ -1765,7 +1773,7 @@ export default function InsurancePage() {
                     <td className="pr-6 text-center align-middle">
                       <button
                         onClick={() => setSelectedClaim(claim)}
-                        className="text-[#0F172A] hover:text-[#2E37A4] transition-all inline-flex items-center justify-center p-1.5 hover:scale-110 active:scale-95"
+                        className="inline-flex items-center justify-center p-1.5 text-[#0F172A] transition-all hover:scale-110 hover:text-[#2E37A4] active:scale-95 dark:text-slate-300"
                       >
                         <Eye className="w-4.5 h-4.5" />
                       </button>
@@ -2076,6 +2084,6 @@ export default function InsurancePage() {
           </div>
         </DialogContent>
       </Dialog>
-    </div>
+    </FinancePageShell>
   );
 }

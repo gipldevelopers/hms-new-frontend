@@ -152,11 +152,12 @@ const roleMenus = {
   ],
   "finance": [
     { name: "Dashboard", icon: LayoutGrid, path: "/finance", section: "MAIN" },
-    { name: "Patient Billing", icon: Users2, path: "/finance/patient-billing", section: "MAIN" },
     { name: "Payment", icon: CreditCard, path: "/finance/payment", section: "FINANCE & WORK" },
     { name: "Insurance/TPA", icon: ShieldCheck, path: "/finance/insurance", section: "FINANCE & WORK" },
     { name: "Discounts", icon: Percent, path: "/finance/discounts", section: "FINANCE & WORK" },
+    { name: "Alerts", icon: Bell, path: "/finance/alerts", section: "REPORTS" },
     { name: "Reports", icon: BarChart3, path: "/finance/reports", section: "REPORTS" },
+    { name: "Profile & Settings", icon: User, path: "/finance/profile", section: "SETTINGS" },
   ],
   "reports": [
     { name: "Dashboard", icon: LayoutGrid, path: "/reports", section: "none" },

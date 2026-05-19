@@ -6,6 +6,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import {
+  FinanceHeader,
+  FinancePageShell,
+  FinanceSearchField,
+  FinanceSelect,
+  FinanceStatCard,
+  FinanceTableCard,
+  FinanceToolbar,
+} from "@/components/finance/FinancePageChrome";
+import {
   Search,
   Plus,
   IndianRupee,
@@ -13,7 +22,6 @@ import {
   Shield,
   RefreshCcw,
   Eye,
-  FileText,
   Ticket,
   ChevronDown,
   X,
@@ -210,27 +218,21 @@ const tableData = [
 const StatCard = ({ stat }) => {
   const Icon = stat.icon;
   return (
-    <div className="bg-white rounded-xl border border-gray-100 p-5 shadow-sm flex flex-col justify-between">
-      <div className="flex justify-between items-start mb-4">
-        <div>
-          <p className="text-gray-500 text-sm font-medium mb-1">{stat.title}</p>
-          <h3 className="text-2xl font-bold text-gray-900">{stat.value}</h3>
-        </div>
-        <div className={`p-2 rounded-lg ${stat.iconBg}`}>
-          <Icon className={`w-5 h-5 ${stat.iconColor}`} />
-        </div>
-      </div>
-      <div className="flex items-center text-sm">
-        <span
-          className={`font-semibold ${
-            stat.changeType === "positive" ? "text-emerald-500" : "text-rose-500"
-          }`}
-        >
-          {stat.change}
-        </span>
-        <span className="text-gray-400 ml-1.5">{stat.subtitle}</span>
-      </div>
-    </div>
+    <FinanceStatCard
+      title={stat.title}
+      value={stat.value}
+      icon={Icon}
+      color={
+        stat.iconColor.includes("emerald")
+          ? "emerald"
+          : stat.iconColor.includes("amber")
+          ? "amber"
+          : stat.iconColor.includes("rose")
+          ? "rose"
+          : "blue"
+      }
+      meta={`${stat.change} ${stat.subtitle}`}
+    />
   );
 };
 
@@ -678,97 +680,95 @@ export default function PaymentPage() {
   };
 
   return (
-    <div className="p-6 bg-[#f8fafc] min-h-screen">
-      {/* HEADER SECTION */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold text-[#1e293b]">Payment Management</h1>
-        <button 
-          onClick={() => {
-            const firstPending = tableData.find(r => r.status === "Pending") || tableData[0];
-            handleOpenModal(firstPending);
-          }}
-          className="bg-[#312e81] hover:bg-[#1e1b4b] text-white flex items-center gap-2 px-4 rounded-md h-9"
-        >
-          <Plus className="w-4 h-4" />
-          Collect
-        </button>
-      </div>
+    <FinancePageShell>
+      <FinanceHeader
+        title="Payment Management"
+        actions={
+          <button
+            onClick={() => {
+              const firstPending = tableData.find(r => r.status === "Pending") || tableData[0];
+              handleOpenModal(firstPending);
+            }}
+            className="flex h-[48px] items-center justify-center gap-3 rounded-[5px] bg-primary px-8 text-[13px] font-bold text-white transition-all hover:opacity-90"
+          >
+            <Plus className="h-4 w-4" />
+            Collect Payment
+          </button>
+        }
+      />
 
-      {/* STAT CARDS SECTION */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {statsData.map((stat, index) => (
           <StatCard key={index} stat={stat} />
         ))}
       </div>
 
-      {/* MAIN CONTENT / TABLE AREA */}
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
-        {/* Table Toolbar */}
-        <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-white">
-          <div className="relative w-[300px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <Input
-              type="text"
-              placeholder="Search"
-              className="pl-9 bg-gray-50/50 border-gray-200 h-10"
+      <div className="space-y-5">
+        <FinanceToolbar>
+          <div className="w-full lg:w-auto">
+            <FinanceSearchField
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={setSearchTerm}
+              placeholder="Search invoice, patient, UHID or status..."
+              className="w-full sm:w-[320px]"
             />
           </div>
-          <div className="relative">
-            <select
+          <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center lg:w-auto">
+            <FinanceSelect
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="h-10 pl-3 pr-8 border border-gray-200 rounded-lg text-xs font-semibold text-[#0E1726] bg-white focus:outline-none focus:border-gray-300 appearance-none min-w-[110px] cursor-pointer"
-            >
-              <option value="All">All</option>
-              <option value="Pending">Pending</option>
-              <option value="Completed">Completed</option>
-              <option value="Paid">Paid</option>
-              <option value="Overdue">Overdue</option>
-            </select>
-            <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none" />
+              onChange={setStatusFilter}
+              placeholder="All Status"
+              icon={Ticket}
+              options={[
+                { label: "All Status", value: "All" },
+                { label: "Pending", value: "Pending" },
+                { label: "Completed", value: "Completed" },
+                { label: "Paid", value: "Paid" },
+                { label: "Overdue", value: "Overdue" },
+              ]}
+            />
           </div>
-        </div>
+        </FinanceToolbar>
 
-        {/* Table */}
+        <FinanceTableCard>
         <div className="overflow-x-auto">
           <table className="w-full text-sm text-left">
-            <thead className="bg-white text-[#0F172A] font-semibold border-b border-gray-100 text-sm">
-              <tr>
-                <th className="px-6 py-4">INVOICE ID</th>
-                <th className="px-6 py-4">Patient</th>
-                <th className="px-6 py-4">UHID</th>
-                <th className="px-6 py-4">Total Amount</th>
-                <th className="px-6 py-4">Due Amount</th>
-                <th className="px-6 py-4">Date</th>
-                <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4">Action</th>
+            <thead>
+              <tr className="bg-muted/30">
+                <th className="whitespace-nowrap border-b border-border px-8 py-4 text-left text-[11px] font-bold tracking-widest text-muted-foreground">INVOICE ID</th>
+                <th className="whitespace-nowrap border-b border-border px-8 py-4 text-left text-[11px] font-bold tracking-widest text-muted-foreground">PATIENT</th>
+                <th className="whitespace-nowrap border-b border-border px-8 py-4 text-left text-[11px] font-bold tracking-widest text-muted-foreground">UHID</th>
+                <th className="whitespace-nowrap border-b border-border px-8 py-4 text-left text-[11px] font-bold tracking-widest text-muted-foreground">TOTAL AMOUNT</th>
+                <th className="whitespace-nowrap border-b border-border px-8 py-4 text-left text-[11px] font-bold tracking-widest text-muted-foreground">DUE AMOUNT</th>
+                <th className="whitespace-nowrap border-b border-border px-8 py-4 text-left text-[11px] font-bold tracking-widest text-muted-foreground">DATE</th>
+                <th className="whitespace-nowrap border-b border-border px-8 py-4 text-left text-[11px] font-bold tracking-widest text-muted-foreground">STATUS</th>
+                <th className="whitespace-nowrap border-b border-border px-8 py-4 text-right text-[11px] font-bold tracking-widest text-muted-foreground">ACTIONS</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-50">
+            <tbody className="divide-y divide-border">
               {filteredData.length === 0 ? (
                 <tr>
-                  <td colSpan="8" className="text-center py-12 text-gray-400 text-sm font-medium">
+                  <td colSpan="8" className="px-8 py-24 text-center text-[13px] font-bold text-muted-foreground">
                     No invoices found matching your search.
                   </td>
                 </tr>
               ) : (
                 filteredData.map((row, index) => (
-                <tr key={index} className="hover:bg-gray-50/50 bg-white transition-colors h-14">
-                  <td className="px-6 py-4 font-semibold text-[#0E1726] text-sm">{row.invoiceId}</td>
-                  <td className="px-6 py-4 font-medium text-[#0E1726] text-sm">{row.patient}</td>
-                  <td className="px-6 py-4 font-medium text-[#0E1726] text-sm">{row.uhid}</td>
-                  <td className="px-6 py-4 font-medium text-[#0E1726] text-sm">{row.totalAmount}</td>
-                  <td className="px-6 py-4 font-bold text-[#EF4444] text-sm">{row.dueAmount}</td>
-                  <td className="px-6 py-4 font-medium text-[#0E1726] text-sm">{row.date}</td>
-                  <td className="px-6 py-4">
+                <tr key={index} className="group transition-all hover:bg-muted/20">
+                  <td className="whitespace-nowrap px-8 py-4 text-[14px] font-bold leading-tight text-foreground">{row.invoiceId}</td>
+                  <td className="whitespace-nowrap px-8 py-4 text-[14px] font-bold leading-tight text-foreground">{row.patient}</td>
+                  <td className="whitespace-nowrap px-8 py-4 text-[13px] font-medium text-muted-foreground">{row.uhid}</td>
+                  <td className="whitespace-nowrap px-8 py-4 text-[13px] font-medium text-muted-foreground">{row.totalAmount}</td>
+                  <td className="whitespace-nowrap px-8 py-3 text-[14px] font-bold text-[#EF4444]">{row.dueAmount}</td>
+                  <td className="whitespace-nowrap px-8 py-4 text-[13px] font-medium text-muted-foreground">{row.date}</td>
+                  <td className="px-8 py-4">
                     {getStatusBadge(row.status)}
                   </td>
-                  <td className="px-6 py-4 flex items-center gap-3">
+                  <td className="px-8 py-4">
+                    <div className="flex items-center justify-end gap-4">
                     <button 
                   onClick={() => handleOpenReviewModal(row)}
-                  className="flex items-center h-9 min-w-[80px] justify-center text-[#0E1726] hover:text-[#2E37A4] transition-colors"
+                  className="inline-flex items-center justify-center text-[#2E37A4] transition-colors hover:opacity-80"
                 >
                   <Eye className="w-5 h-5" strokeWidth={1.8} />
                 </button>
@@ -782,11 +782,12 @@ export default function PaymentPage() {
                           handleOpenRefundModal(row);
                         }
                       }}
-                      className="flex items-center gap-2 h-9 min-w-[80px] px-4 bg-[#DBEAFE] text-[#2E37A4] hover:bg-[#BFDBFE] rounded-xl text-xs font-semibold transition-all"
+                      className="flex h-10 min-w-[92px] items-center justify-center gap-2 whitespace-nowrap rounded-[5px] bg-[#DBEAFE] px-4 text-[12px] font-bold text-[#2E37A4] transition-all hover:bg-[#BFDBFE]"
                     >
                       <Ticket className="w-4 h-4" />
                       {row.actionText}
                     </button>
+                    </div>
                   </td>
                 </tr>
               ))
@@ -794,6 +795,7 @@ export default function PaymentPage() {
             </tbody>
           </table>
         </div>
+        </FinanceTableCard>
       </div>
 
       <CollectPaymentModal 
@@ -811,6 +813,6 @@ export default function PaymentPage() {
         onClose={setIsRefundModalOpen}
         invoice={selectedInvoice}
       />
-    </div>
+    </FinancePageShell>
   );
 }
