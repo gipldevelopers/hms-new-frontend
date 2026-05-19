@@ -21,14 +21,14 @@ export function PatientBillingHeader({ activeTab, setActiveTab }) {
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center border border-[#E7E8EB] dark:border-white/10 rounded-[8px] w-fit bg-[#F8F9FC] dark:bg-[#101935]">
+      <div className="flex items-center border border-border rounded-lg w-fit bg-muted/30">
         <button
           onClick={() => setActiveTab("ipd")}
           className={cn(
-            "px-6 py-2 text-[16px] font-regular transition-all rounded-[8px] font-inter",
+            "px-3 sm:px-6 py-2 text-[14px] sm:text-[16px] font-regular transition-all rounded-lg font-inter",
             activeTab === "ipd"
               ? "bg-[#2E37A4] text-white"
-              : "text-[#2E37A4] hover:bg-gray-100 dark:hover:bg-white/5"
+              : "text-[#2E37A4] hover:bg-muted dark:hover:bg-white/5"
           )}
         >
           IPD Running Bills
@@ -36,10 +36,10 @@ export function PatientBillingHeader({ activeTab, setActiveTab }) {
         <button
           onClick={() => setActiveTab("opd")}
           className={cn(
-            "px-6 py-2 text-[16px] font-regular transition-all rounded-[8px] font-inter",
+            "px-3 sm:px-6 py-2 text-[14px] sm:text-[16px] font-regular transition-all rounded-lg font-inter",
             activeTab === "opd"
               ? "bg-[#2E37A4] text-white"
-              : "text-[#2E37A4] hover:bg-gray-100 dark:hover:bg-white/5"
+              : "text-[#2E37A4] hover:bg-muted dark:hover:bg-white/5"
           )}
         >
           OPD Billing

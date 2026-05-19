@@ -150,8 +150,8 @@ const roleMenus = {
     { name: "Profile & Settings", icon: User, path: "/radiology/profile", section: "OPS" },
   ],
   "finance": [
-    { name: "Dashboard", icon: LayoutGrid, path: "/finance", section: "MAIN" },
-    { name: "Patient Billing", icon: Users2, path: "/finance/patient-billing", section: "MAIN" },
+    { name: "Dashboard", icon: LayoutGrid, path: "/finance", section: "none" },
+    { name: "Patient Billing", icon: Users2, path: "/finance/patient-billing", section: "none" },
     { name: "Payment", icon: CreditCard, path: "/finance/payment", section: "FINANCE & WORK" },
     { name: "Insurance/TPA", icon: ShieldCheck, path: "/finance/insurance-tpa", section: "FINANCE & WORK" },
     { name: "Discounts", icon: Percent, path: "/finance/discounts", section: "FINANCE & WORK" },

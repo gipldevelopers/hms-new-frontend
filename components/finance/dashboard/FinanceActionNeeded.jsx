@@ -29,8 +29,8 @@ const actions = [
 
 export function FinanceActionNeeded() {
   return (
-    <div className="w-full md:h-[350px] h-auto bg-white dark:bg-[#101935] rounded-[6px] border border-[#E7E8EB] dark:border-white/10 flex flex-col font-sans transition-all overflow-hidden">
-      <div className="px-5 py-4 border-b border-[#E7E8EB] dark:border-white/10">
+    <div className="w-full md:h-[350px] h-auto bg-card rounded-lg border border-border flex flex-col font-sans transition-all overflow-hidden shadow-none">
+      <div className="px-5 py-4 border-b border-border">
         <h3 className="text-[16px] font-bold text-[#1e293b] dark:text-white">
           Action Needed
         </h3>
@@ -38,9 +38,9 @@ export function FinanceActionNeeded() {
 
       <div className="flex-1 flex flex-col justify-between">
         {actions.map((action, idx) => (
-          <div 
-            key={idx} 
-            className="flex items-start gap-4 py-[20px] px-5 border-b border-[#F1F5F9] dark:border-white/5 last:border-b-0 hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer group"
+          <div
+            key={idx}
+            className="flex items-start gap-4 py-[20px] px-5 border-b border-border/50 last:border-b-0 hover:bg-muted/30 transition-all cursor-pointer group"
           >
             <div className={`w-10 h-10 rounded-full ${action.iconBg} flex items-center justify-center shrink-0`}>
               <action.icon className={`w-5 h-5 ${action.iconColor}`} />

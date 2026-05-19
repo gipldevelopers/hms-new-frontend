@@ -32,7 +32,7 @@ export function FinanceStatCard({ title, value, trend, isUp, color, icon: Icon, 
   const style = colorMap[color] || colorMap.purple;
 
   return (
-    <div className="bg-white dark:bg-[#101935] p-5 rounded-[6px] border border-[#E7E8EB] dark:border-white/10 flex flex-col justify-between md:h-[134px] min-h-[134px] h-auto transition-all  w-full">
+    <div className="bg-card p-5 rounded-lg border border-border flex flex-col justify-between md:h-[134px] min-h-[134px] h-auto transition-all w-full shadow-none">
       <div className="flex justify-between items-start">
         <div className="flex flex-col gap-1">
           <p className="text-[13px] font-medium text-gray-400 dark:text-slate-500">

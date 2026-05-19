@@ -33,8 +33,8 @@ export function PatientsWithRunningBills() {
   ];
 
   return (
-    <div className="bg-white dark:bg-[#101935] rounded-[6px] border border-[#E7E8EB] dark:border-white/10 overflow-hidden font-sans transition-all">
-      <div className="px-6 py-4 border-b border-[#E7E8EB] dark:border-white/10">
+    <div className="bg-card border border-border rounded-lg overflow-hidden font-sans transition-all shadow-none">
+      <div className="px-6 py-4 border-b border-border">
         <h3 className="text-[16px] font-bold text-[#1e293b] dark:text-white font-inter">
           Patients with Running Bills
         </h3>
@@ -42,7 +42,7 @@ export function PatientsWithRunningBills() {
       <div className="overflow-x-auto">
         <table className="w-full min-w-[800px]">
           <thead>
-            <tr className="bg-[#F8FAFC] dark:bg-white/5 border-b border-[#E7E8EB] dark:border-white/10">
+            <tr className="bg-muted/30 border-b border-border">
               <th className="px-6 py-3 text-left text-[12px] font-semibold text-gray-400 uppercase tracking-wider font-inter">
                 Patient ID
               </th>
@@ -60,9 +60,9 @@ export function PatientsWithRunningBills() {
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#E7E8EB] dark:divide-white/5">
+          <tbody className="divide-y divide-border">
             {patients.map((p, i) => (
-              <tr key={i} className="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+              <tr key={i} className="hover:bg-muted/30 transition-all">
                 <td className="px-6 py-3.5 text-[13px] font-bold text-[#3B82F6] cursor-pointer hover:underline">
                   {p.id}
                 </td>

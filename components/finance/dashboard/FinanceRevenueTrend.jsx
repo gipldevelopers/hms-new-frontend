@@ -27,7 +27,7 @@ export function FinanceRevenueTrend() {
   const pathD = points.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
 
   return (
-    <div className="w-full md:h-[350px] h-auto bg-white dark:bg-[#101935] rounded-[6px] border-[0.8px] border-[#E7E8EB] dark:border-white/10 flex flex-col font-sans transition-all overflow-hidden">
+    <div className="w-full md:h-[350px] h-auto bg-card rounded-lg border border-border flex flex-col font-sans transition-all overflow-hidden shadow-none">
       <div className="p-5 pb-0">
         <h3 className="text-[16px] font-bold text-[#1e293b] dark:text-white leading-none mb-1">
           Revenue Trend
@@ -49,7 +49,7 @@ export function FinanceRevenueTrend() {
         {/* Horizontal Grid Lines */}
         <div className="ml-10 mr-4 absolute left-6 right-6 top-8 bottom-16 flex flex-col justify-between pointer-events-none">
           {[0, 1, 2, 3].map((i) => (
-            <div key={i} className="w-full border-t border-[#F1F5F9] dark:border-white/5"></div>
+            <div key={i} className="w-full border-t border-border/50"></div>
           ))}
         </div>
 

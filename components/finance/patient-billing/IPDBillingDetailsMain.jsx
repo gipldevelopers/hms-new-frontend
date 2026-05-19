@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { ChevronRight, Hospital, Plus, CreditCard, X, ChevronDown, Smartphone, Wallet, Building2, Landmark, Layers } from "lucide-react";
 
@@ -9,23 +9,24 @@ export function IPDBillingDetailsMain({ searchParams }) {
   const [showInitiateDischarge, setShowInitiateDischarge] = useState(false);
   const [showInvoiceView, setShowInvoiceView] = useState(false);
 
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setShowCollectPayment(false);
+        setShowInitiateDischarge(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   if (showInvoiceView) {
     return <InvoiceGeneratedPage searchParams={searchParams} onClose={() => setShowInvoiceView(false)} />;
   }
   return (
-    <div className="p-6 max-w-[1600px] mx-auto space-y-6 font-inter">
-      {/* Breadcrumb & Header */}
+    <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-6 font-inter">
+      {/* Header */}
       <div className="flex flex-col gap-3">
-        <div className="flex items-center gap-2 text-[13px] font-medium text-gray-500 dark:text-gray-400">
-          <Link href="/finance/patient-billing" className="hover:text-[#2E37A4] transition-colors">Patient Billing</Link>
-          <ChevronRight className="w-3.5 h-3.5" />
-          <span className="hover:text-[#2E37A4] transition-colors cursor-pointer">
-            IPD Running Bills
-          </span>
-          <ChevronRight className="w-3.5 h-3.5" />
-          <span className="text-[#1e293b] dark:text-white font-bold">{searchParams?.patient || "Sarah Jenkins"}</span>
-        </div>
-
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <h1 className="text-[24px] font-bold text-[#1e293b] dark:text-white tracking-tight">Patient Billing Details</h1>
           <div className="flex flex-wrap items-center gap-3">
@@ -36,7 +37,7 @@ export function IPDBillingDetailsMain({ searchParams }) {
               <Hospital className="w-4 h-4 text-[#2E37A4] dark:text-blue-400" />
               Initiate Discharge
             </button>
-            <Link href="/finance/patient-billing/create" className="h-10 px-4 bg-white hover:bg-gray-50 dark:bg-white/5 border border-[#CBD5E1] dark:border-white/10 text-[#1e293b] dark:text-white font-bold rounded-[6px] text-[13px] transition-all cursor-pointer flex items-center gap-2 shadow-sm">
+            <Link href="/finance/patient-billing/create" className="h-10 px-4 bg-white hover:bg-gray-50 dark:bg-white/5 border border-[#CBD5E1] dark:border-white/10 text-[#1e293b] dark:text-white font-bold rounded-[6px] text-[13px] transition-all cursor-pointer flex items-center gap-2 shadow-none">
               <Plus className="w-4 h-4 text-[#1e293b] dark:text-white" />
               Add Charge
             </Link>
@@ -49,7 +50,7 @@ export function IPDBillingDetailsMain({ searchParams }) {
       </div>
 
       {/* Patient Billing Details Info Card Banner */}
-      <div className="bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[8px] p-6">
+      <div className="bg-card border border-border rounded-lg p-4 sm:p-6 shadow-none">
         <div className="flex flex-col lg:flex-row items-stretch justify-between gap-8">
 
           {/* Left Block - Patient Photo & Info */}
@@ -183,227 +184,229 @@ function IPDBillingChargesSection({
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
       {/* Left Section - Charges (col-span 8) - No horizontal padding to allow lines to extend full page */}
-      <div className="lg:col-span-8 bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[8px] pt-6 pb-0 px-0 font-inter h-fit">
+      <div className="lg:col-span-8 bg-card border border-border rounded-lg pt-6 pb-0 px-0 font-inter h-fit shadow-none">
         {/* Title */}
         <h2 className="text-[18px] font-bold text-[#1e293b] dark:text-white mb-5 px-6">Charges</h2>
 
         {/* Grid Table */}
-        <div className="flex flex-col w-full">
-          {/* Table Headers */}
-          <div className="grid grid-cols-12 gap-4 text-[12px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider py-3 px-6 bg-[#F1F5F980] border-b border-[#E2E8F0] dark:bg-white/5 dark:border-white/10">
-            <div className="col-span-5">Service Name</div>
-            <div className="col-span-2">Category</div>
-            <div className="col-span-1 text-center">Qty</div>
-            <div className="col-span-2 text-center">Price</div>
-            <div className="col-span-1 text-center">Total</div>
-            <div className="col-span-1 text-right">Source</div>
-          </div>
-
-          {/* 1. Room Charges Accordion & Items */}
-          <div className="flex flex-col">
-            <div className="flex items-center justify-between py-[12px] px-[24px] bg-[#F8FAFC]/50 dark:bg-white/5">
-              <button
-                onClick={() => toggle("room")}
-                className="flex items-center gap-2 text-[14px] font-bold text-[#1e293b] dark:text-white cursor-pointer select-none"
-              >
-                <svg
-                  className={`w-3.5 h-3.5 text-gray-500 transition-transform ${expanded.room ? "rotate-0" : "-rotate-90"}`}
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                >
-                  <path d="M6 9l6 6 6-6" />
-                </svg>
-                Room Charges
-              </button>
+        <div className="w-full overflow-x-auto">
+          <div className="flex flex-col w-full min-w-[760px]">
+            {/* Table Headers */}
+            <div className="grid grid-cols-12 gap-4 text-[12px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider py-3 px-6 bg-muted/30 border-b border-border">
+              <div className="col-span-5">Service Name</div>
+              <div className="col-span-2">Category</div>
+              <div className="col-span-1 text-center">Qty</div>
+              <div className="col-span-2 text-center">Price</div>
+              <div className="col-span-1 text-center">Total</div>
+              <div className="col-span-1 text-right">Source</div>
             </div>
-            <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
 
-            {expanded.room && (
-              <>
-                <div className="grid grid-cols-12 gap-4 items-center py-3.5 px-6">
-                  <div className="col-span-5 text-[14px] font-medium text-[#1e293b] dark:text-white">
-                    General Ward (Oct 12 -Oct 14)
-                  </div>
-                  <div className="col-span-2 text-[14px] text-gray-500 dark:text-slate-400">Accommodation</div>
-                  <div className="col-span-1 text-[14px] text-center text-[#1e293b] dark:text-white">2</div>
-                  <div className="col-span-2 text-[14px] font-medium text-center text-gray-500 dark:text-slate-400">$150.00</div>
-                  <div className="col-span-1 text-[14px] font-bold text-center text-[#1e293b] dark:text-white">$300.00</div>
-                  <div className="col-span-1 text-right">
-                    <span className="inline-block px-2 py-0.5 text-[10px] font-semibold text-[#64748B] dark:text-slate-400 bg-[#F1F5F9] dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-[33554400px]">
-                      System
-                    </span>
-                  </div>
-                </div>
-                <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
-              </>
-            )}
-          </div>
-
-          {/* 2. Doctor Visits Accordion & Items */}
-          <div className="flex flex-col">
-            <div className="flex items-center justify-between py-[12px] px-[24px] bg-[#F8FAFC]/50 dark:bg-white/5">
-              <button
-                onClick={() => toggle("doctor")}
-                className="flex items-center gap-2 text-[14px] font-bold text-[#1e293b] dark:text-white cursor-pointer select-none"
-              >
-                <svg
-                  className={`w-3.5 h-3.5 text-gray-500 transition-transform ${expanded.doctor ? "rotate-0" : "-rotate-90"}`}
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
+            {/* 1. Room Charges Accordion & Items */}
+            <div className="flex flex-col">
+              <div className="flex items-center justify-between py-[12px] px-[24px] bg-[#F8FAFC]/50 dark:bg-white/5">
+                <button
+                  onClick={() => toggle("room")}
+                  className="flex items-center gap-2 text-[14px] font-bold text-[#1e293b] dark:text-white cursor-pointer select-none"
                 >
-                  <path d="M6 9l6 6 6-6" />
-                </svg>
-                Doctor Visits
-              </button>
+                  <svg
+                    className={`w-3.5 h-3.5 text-gray-500 transition-transform ${expanded.room ? "rotate-0" : "-rotate-90"}`}
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                  >
+                    <path d="M6 9l6 6 6-6" />
+                  </svg>
+                  Room Charges
+                </button>
+              </div>
+              <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
+
+              {expanded.room && (
+                <>
+                  <div className="grid grid-cols-12 gap-4 items-center py-3.5 px-6">
+                    <div className="col-span-5 text-[14px] font-medium text-[#1e293b] dark:text-white">
+                      General Ward (Oct 12 -Oct 14)
+                    </div>
+                    <div className="col-span-2 text-[14px] text-gray-500 dark:text-slate-400">Accommodation</div>
+                    <div className="col-span-1 text-[14px] text-center text-[#1e293b] dark:text-white">2</div>
+                    <div className="col-span-2 text-[14px] font-medium text-center text-gray-500 dark:text-slate-400">₹150.00</div>
+                    <div className="col-span-1 text-[14px] font-bold text-center text-[#1e293b] dark:text-white">₹300.00</div>
+                    <div className="col-span-1 text-right">
+                      <span className="inline-block px-2 py-0.5 text-[10px] font-semibold text-[#64748B] dark:text-slate-400 bg-[#F1F5F9] dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-[33554400px]">
+                        System
+                      </span>
+                    </div>
+                  </div>
+                  <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
+                </>
+              )}
             </div>
-            <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
 
-            {expanded.doctor && (
-              <>
-                {/* Row 1 */}
-                <div className="grid grid-cols-12 gap-4 items-center py-3.5 px-6">
-                  <div className="col-span-5 text-[14px] font-medium text-[#1e293b] dark:text-white">Initial Consultation</div>
-                  <div className="col-span-2 text-[14px] text-gray-500 dark:text-slate-400">Consultation</div>
-                  <div className="col-span-1 text-[14px] text-center text-[#1e293b] dark:text-white">1</div>
-                  <div className="col-span-2 text-[14px] font-medium text-center text-gray-500 dark:text-slate-400">$100.00</div>
-                  <div className="col-span-1 text-[14px] font-bold text-center text-[#1e293b] dark:text-white">$100.00</div>
-                  <div className="col-span-1 text-center">
-                    <span className="inline-block px-2 py-0.5 text-[10px] font-semibold text-[#64748B] dark:text-slate-400 bg-[#F1F5F9] dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-[33554400px]">
-                      IPD
-                    </span>
-                  </div>
-                </div>
-                <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
-                {/* Row 2 */}
-                <div className="grid grid-cols-12 gap-4 items-center py-3.5 px-6">
-                  <div className="col-span-5 text-[14px] font-medium text-[#1e293b] dark:text-white">Follow-up Visit</div>
-                  <div className="col-span-2 text-[14px] text-gray-500 dark:text-slate-400">Consultation</div>
-                  <div className="col-span-1 text-[14px] text-center text-[#1e293b] dark:text-white">2</div>
-                  <div className="col-span-2 text-[14px] font-medium text-center text-gray-500 dark:text-slate-400">$75.00</div>
-                  <div className="col-span-1 text-[14px] font-bold text-center text-[#1e293b] dark:text-white">$150.00</div>
-                  <div className="col-span-1 text-center">
-                    <span className="inline-block px-2 py-0.5 text-[10px] font-semibold text-[#64748B] dark:text-slate-400 bg-[#F1F5F9] dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-[33554400px]">
-                      IPD
-                    </span>
-                  </div>
-                </div>
-                <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
-              </>
-            )}
-          </div>
-
-          {/* 3. Lab Tests Accordion & Items */}
-          <div className="flex flex-col">
-            <div className="flex items-center justify-between py-[12px] px-[24px] bg-[#F8FAFC]/50 dark:bg-white/5">
-              <button
-                onClick={() => toggle("lab")}
-                className="flex items-center gap-2 text-[14px] font-bold text-[#1e293b] dark:text-white cursor-pointer select-none"
-              >
-                <svg
-                  className={`w-3.5 h-3.5 text-gray-500 transition-transform ${expanded.lab ? "rotate-0" : "-rotate-90"}`}
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
+            {/* 2. Doctor Visits Accordion & Items */}
+            <div className="flex flex-col">
+              <div className="flex items-center justify-between py-[12px] px-[24px] bg-[#F8FAFC]/50 dark:bg-white/5">
+                <button
+                  onClick={() => toggle("doctor")}
+                  className="flex items-center gap-2 text-[14px] font-bold text-[#1e293b] dark:text-white cursor-pointer select-none"
                 >
-                  <path d="M6 9l6 6 6-6" />
-                </svg>
-                Lab Tests
-              </button>
+                  <svg
+                    className={`w-3.5 h-3.5 text-gray-500 transition-transform ${expanded.doctor ? "rotate-0" : "-rotate-90"}`}
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                  >
+                    <path d="M6 9l6 6 6-6" />
+                  </svg>
+                  Doctor Visits
+                </button>
+              </div>
+              <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
+
+              {expanded.doctor && (
+                <>
+                  {/* Row 1 */}
+                  <div className="grid grid-cols-12 gap-4 items-center py-3.5 px-6">
+                    <div className="col-span-5 text-[14px] font-medium text-[#1e293b] dark:text-white">Initial Consultation</div>
+                    <div className="col-span-2 text-[14px] text-gray-500 dark:text-slate-400">Consultation</div>
+                    <div className="col-span-1 text-[14px] text-center text-[#1e293b] dark:text-white">1</div>
+                    <div className="col-span-2 text-[14px] font-medium text-center text-gray-500 dark:text-slate-400">₹100.00</div>
+                    <div className="col-span-1 text-[14px] font-bold text-center text-[#1e293b] dark:text-white">₹100.00</div>
+                    <div className="col-span-1 text-center">
+                      <span className="inline-block px-2 py-0.5 text-[10px] font-semibold text-[#64748B] dark:text-slate-400 bg-[#F1F5F9] dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-[33554400px]">
+                        IPD
+                      </span>
+                    </div>
+                  </div>
+                  <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
+                  {/* Row 2 */}
+                  <div className="grid grid-cols-12 gap-4 items-center py-3.5 px-6">
+                    <div className="col-span-5 text-[14px] font-medium text-[#1e293b] dark:text-white">Follow-up Visit</div>
+                    <div className="col-span-2 text-[14px] text-gray-500 dark:text-slate-400">Consultation</div>
+                    <div className="col-span-1 text-[14px] text-center text-[#1e293b] dark:text-white">2</div>
+                    <div className="col-span-2 text-[14px] font-medium text-center text-gray-500 dark:text-slate-400">₹75.00</div>
+                    <div className="col-span-1 text-[14px] font-bold text-center text-[#1e293b] dark:text-white">₹150.00</div>
+                    <div className="col-span-1 text-center">
+                      <span className="inline-block px-2 py-0.5 text-[10px] font-semibold text-[#64748B] dark:text-slate-400 bg-[#F1F5F9] dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-[33554400px]">
+                        IPD
+                      </span>
+                    </div>
+                  </div>
+                  <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
+                </>
+              )}
             </div>
-            <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
 
-            {expanded.lab && (
-              <>
-                {/* Row 1 */}
-                <div className="grid grid-cols-12 gap-4 items-center py-3.5 px-6">
-                  <div className="col-span-5 text-[14px] font-medium text-[#1e293b] dark:text-white">Complete Blood Count (CBC)</div>
-                  <div className="col-span-2 text-[14px] text-gray-500 dark:text-slate-400">Pathology</div>
-                  <div className="col-span-1 text-[14px] text-center text-[#1e293b] dark:text-white">1</div>
-                  <div className="col-span-2 text-[14px] font-medium text-center text-gray-500 dark:text-slate-400">$45.00</div>
-                  <div className="col-span-1 text-[14px] font-bold text-center text-[#1e293b] dark:text-white">$45.00</div>
-                  <div className="col-span-1 text-center">
-                    <span className="inline-block px-2 py-0.5 text-[10px] font-semibold text-[#64748B] dark:text-slate-400 bg-[#F1F5F9] dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-[33554400px]">
-                      Lab
-                    </span>
-                  </div>
-                </div>
-                <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
-                {/* Row 2 */}
-                <div className="grid grid-cols-12 gap-4 items-center py-3.5 px-6">
-                  <div className="col-span-5 text-[14px] font-medium text-[#1e293b] dark:text-white">Lipid Profile</div>
-                  <div className="col-span-2 text-[14px] text-gray-500 dark:text-slate-400">Pathology</div>
-                  <div className="col-span-1 text-[14px] text-center text-[#1e293b] dark:text-white">1</div>
-                  <div className="col-span-2 text-[14px] font-medium text-center text-gray-500 dark:text-slate-400">$60.00</div>
-                  <div className="col-span-1 text-[14px] font-bold text-center text-[#1e293b] dark:text-white">$60.00</div>
-                  <div className="col-span-1 text-center">
-                    <span className="inline-block px-2 py-0.5 text-[10px] font-semibold text-[#64748B] dark:text-slate-400 bg-[#F1F5F9] dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-[33554400px]">
-                      Lab
-                    </span>
-                  </div>
-                </div>
-                <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
-              </>
-            )}
-          </div>
-
-          {/* 4. Pharmacy Accordion & Items */}
-          <div className="flex flex-col">
-            <div className="flex items-center justify-between py-[12px] px-[24px] bg-[#F8FAFC]/50 dark:bg-white/5">
-              <button
-                onClick={() => toggle("pharmacy")}
-                className="flex items-center gap-2 text-[14px] font-bold text-[#1e293b] dark:text-white cursor-pointer select-none"
-              >
-                <svg
-                  className={`w-3.5 h-3.5 text-gray-500 transition-transform ${expanded.pharmacy ? "rotate-0" : "-rotate-90"}`}
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
+            {/* 3. Lab Tests Accordion & Items */}
+            <div className="flex flex-col">
+              <div className="flex items-center justify-between py-[12px] px-[24px] bg-[#F8FAFC]/50 dark:bg-white/5">
+                <button
+                  onClick={() => toggle("lab")}
+                  className="flex items-center gap-2 text-[14px] font-bold text-[#1e293b] dark:text-white cursor-pointer select-none"
                 >
-                  <path d="M6 9l6 6 6-6" />
-                </svg>
-                Pharmacy
-              </button>
-            </div>
-            <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
+                  <svg
+                    className={`w-3.5 h-3.5 text-gray-500 transition-transform ${expanded.lab ? "rotate-0" : "-rotate-90"}`}
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                  >
+                    <path d="M6 9l6 6 6-6" />
+                  </svg>
+                  Lab Tests
+                </button>
+              </div>
+              <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
 
-            {expanded.pharmacy && (
-              <>
-                {/* Row 1 */}
-                <div className="grid grid-cols-12 gap-4 items-center py-3.5 px-6">
-                  <div className="col-span-5 text-[14px] font-medium text-[#1e293b] dark:text-white">Paracetamol 500mg (10 tabs)</div>
-                  <div className="col-span-2 text-[14px] text-gray-500 dark:text-slate-400">Medicine</div>
-                  <div className="col-span-1 text-[14px] text-center text-[#1e293b] dark:text-white">2</div>
-                  <div className="col-span-2 text-[14px] font-medium text-center text-gray-500 dark:text-slate-400">$5.00</div>
-                  <div className="col-span-1 text-[14px] font-bold text-center text-[#1e293b] dark:text-white">$10.00</div>
-                  <div className="col-span-1 text-center">
-                    <span className="inline-block px-2 py-0.5 text-[10px] font-semibold text-[#64748B] dark:text-slate-400 bg-[#F1F5F9] dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-[33554400px]">
-                      Pharmacy
-                    </span>
+              {expanded.lab && (
+                <>
+                  {/* Row 1 */}
+                  <div className="grid grid-cols-12 gap-4 items-center py-3.5 px-6">
+                    <div className="col-span-5 text-[14px] font-medium text-[#1e293b] dark:text-white">Complete Blood Count (CBC)</div>
+                    <div className="col-span-2 text-[14px] text-gray-500 dark:text-slate-400">Pathology</div>
+                    <div className="col-span-1 text-[14px] text-center text-[#1e293b] dark:text-white">1</div>
+                    <div className="col-span-2 text-[14px] font-medium text-center text-gray-500 dark:text-slate-400">₹45.00</div>
+                    <div className="col-span-1 text-[14px] font-bold text-center text-[#1e293b] dark:text-white">₹45.00</div>
+                    <div className="col-span-1 text-center">
+                      <span className="inline-block px-2 py-0.5 text-[10px] font-semibold text-[#64748B] dark:text-slate-400 bg-[#F1F5F9] dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-[33554400px]">
+                        Lab
+                      </span>
+                    </div>
                   </div>
-                </div>
-                <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
-                {/* Row 2 */}
-                <div className="grid grid-cols-12 gap-4 items-center py-3.5 px-6">
-                  <div className="col-span-5 text-[14px] font-medium text-[#1e293b] dark:text-white">Amoxicillin 250mg (Strip)</div>
-                  <div className="col-span-2 text-[14px] text-gray-500 dark:text-slate-400">Medicine</div>
-                  <div className="col-span-1 text-[14px] text-center text-[#1e293b] dark:text-white">1</div>
-                  <div className="col-span-2 text-[14px] font-medium text-center text-gray-500 dark:text-slate-400">$12.00</div>
-                  <div className="col-span-1 text-[14px] font-bold text-center text-[#1e293b] dark:text-white">$12.00</div>
-                  <div className="col-span-1 text-center">
-                    <span className="inline-block px-2 py-0.5 text-[10px] font-semibold text-[#64748B] dark:text-slate-400 bg-[#F1F5F9] dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-[33554400px]">
-                      Pharmacy
-                    </span>
+                  <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
+                  {/* Row 2 */}
+                  <div className="grid grid-cols-12 gap-4 items-center py-3.5 px-6">
+                    <div className="col-span-5 text-[14px] font-medium text-[#1e293b] dark:text-white">Lipid Profile</div>
+                    <div className="col-span-2 text-[14px] text-gray-500 dark:text-slate-400">Pathology</div>
+                    <div className="col-span-1 text-[14px] text-center text-[#1e293b] dark:text-white">1</div>
+                    <div className="col-span-2 text-[14px] font-medium text-center text-gray-500 dark:text-slate-400">₹60.00</div>
+                    <div className="col-span-1 text-[14px] font-bold text-center text-[#1e293b] dark:text-white">₹60.00</div>
+                    <div className="col-span-1 text-center">
+                      <span className="inline-block px-2 py-0.5 text-[10px] font-semibold text-[#64748B] dark:text-slate-400 bg-[#F1F5F9] dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-[33554400px]">
+                        Lab
+                      </span>
+                    </div>
                   </div>
-                </div>
-                <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
-              </>
-            )}
+                  <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
+                </>
+              )}
+            </div>
+
+            {/* 4. Pharmacy Accordion & Items */}
+            <div className="flex flex-col">
+              <div className="flex items-center justify-between py-[12px] px-[24px] bg-[#F8FAFC]/50 dark:bg-white/5">
+                <button
+                  onClick={() => toggle("pharmacy")}
+                  className="flex items-center gap-2 text-[14px] font-bold text-[#1e293b] dark:text-white cursor-pointer select-none"
+                >
+                  <svg
+                    className={`w-3.5 h-3.5 text-gray-500 transition-transform ${expanded.pharmacy ? "rotate-0" : "-rotate-90"}`}
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                  >
+                    <path d="M6 9l6 6 6-6" />
+                  </svg>
+                  Pharmacy
+                </button>
+              </div>
+              <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
+
+              {expanded.pharmacy && (
+                <>
+                  {/* Row 1 */}
+                  <div className="grid grid-cols-12 gap-4 items-center py-3.5 px-6">
+                    <div className="col-span-5 text-[14px] font-medium text-[#1e293b] dark:text-white">Paracetamol 500mg (10 tabs)</div>
+                    <div className="col-span-2 text-[14px] text-gray-500 dark:text-slate-400">Medicine</div>
+                    <div className="col-span-1 text-[14px] text-center text-[#1e293b] dark:text-white">2</div>
+                    <div className="col-span-2 text-[14px] font-medium text-center text-gray-500 dark:text-slate-400">₹5.00</div>
+                    <div className="col-span-1 text-[14px] font-bold text-center text-[#1e293b] dark:text-white">₹10.00</div>
+                    <div className="col-span-1 text-center">
+                      <span className="inline-block px-2 py-0.5 text-[10px] font-semibold text-[#64748B] dark:text-slate-400 bg-[#F1F5F9] dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-[33554400px]">
+                        Pharmacy
+                      </span>
+                    </div>
+                  </div>
+                  <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
+                  {/* Row 2 */}
+                  <div className="grid grid-cols-12 gap-4 items-center py-3.5 px-6">
+                    <div className="col-span-5 text-[14px] font-medium text-[#1e293b] dark:text-white">Amoxicillin 250mg (Strip)</div>
+                    <div className="col-span-2 text-[14px] text-gray-500 dark:text-slate-400">Medicine</div>
+                    <div className="col-span-1 text-[14px] text-center text-[#1e293b] dark:text-white">1</div>
+                    <div className="col-span-2 text-[14px] font-medium text-center text-gray-500 dark:text-slate-400">₹12.00</div>
+                    <div className="col-span-1 text-[14px] font-bold text-center text-[#1e293b] dark:text-white">₹12.00</div>
+                    <div className="col-span-1 text-center">
+                      <span className="inline-block px-2 py-0.5 text-[10px] font-semibold text-[#64748B] dark:text-slate-400 bg-[#F1F5F9] dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-[33554400px]">
+                        Pharmacy
+                      </span>
+                    </div>
+                  </div>
+                  <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
+                </>
+              )}
+            </div>
           </div>
         </div>
 
@@ -413,22 +416,22 @@ function IPDBillingChargesSection({
             Total Items: <strong className="text-[#1e293b] dark:text-white font-semibold">7</strong>
           </span>
           <span className="text-gray-500 dark:text-gray-400 font-medium">
-            Subtotal: <strong className="text-[#2E37A4] dark:text-blue-400 font-bold text-[16px]">$677.00</strong>
+            Subtotal: <strong className="text-[#2E37A4] dark:text-blue-400 font-bold text-[16px]">₹677.00</strong>
           </span>
         </div>
       </div>
 
       {/* Right Section - Gross Total Summary (col-span 4) */}
-      <div className="lg:col-span-4 bg-white dark:bg-[#101935] border border-[#E2E8F0] dark:border-white/10 rounded-[8px] pt-6 pb-6 px-0 h-fit font-inter">
+      <div className="lg:col-span-4 bg-card border border-border rounded-lg pt-6 pb-6 px-0 h-fit font-inter shadow-none">
         {/* Gross Total Header */}
-        <div className="space-y-1 pb-4 px-6">
+        <div className="space-y-1 pb-4 px-4 sm:px-6">
           <span className="text-[14px] font-bold text-[#64748B] dark:text-slate-400 uppercase tracking-wider">GROSS TOTAL</span>
           <h2 className="text-[28px] font-extrabold text-[#1e293b] dark:text-white">₹677.00</h2>
         </div>
-        <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
+        <div className="border-b border-border"></div>
 
         {/* Calculation Details */}
-        <div className="py-4 px-6">
+        <div className="py-4 px-4 sm:px-6">
           <div className="space-y-3.5">
             <div className="flex items-center justify-between text-[14px]">
               <span className="text-gray-500 dark:text-slate-400 font-medium">Discounts (5%)</span>
@@ -447,16 +450,16 @@ function IPDBillingChargesSection({
             </div>
           </div>
 
-          <div className="border-b border-[#E2E8F0] dark:border-white/10 my-3.5"></div>
+          <div className="border-b border-border my-3.5"></div>
 
           <div className="flex items-center justify-between text-[14px] font-bold text-[#1e293b] dark:text-white">
             <span>Net Payable</span>
             <span>₹243.15</span>
           </div>
         </div>
-        <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
+        <div className="border-b border-border"></div>
 
-        <div className="py-4 px-6 space-y-3.5">
+        <div className="py-4 px-4 sm:px-6 space-y-3.5">
           <div className="flex items-center justify-between text-[14px]">
             <span className="text-gray-500 dark:text-slate-400 font-medium">Advance Paid</span>
             <span className="text-gray-500 dark:text-slate-400 font-bold">-₹100.00</span>
@@ -467,10 +470,10 @@ function IPDBillingChargesSection({
             <span className="text-[#DF8F2A] text-[18px] font-bold">₹143.15</span>
           </div>
         </div>
-        <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
+        <div className="border-b border-border"></div>
 
         {/* Progress Bar / Billing Health */}
-        <div className="py-4 px-6 space-y-3">
+        <div className="py-4 px-4 sm:px-6 space-y-3">
           <div className="flex items-center justify-between text-[12px] font-bold">
             <span className="text-gray-400">Billing Health</span>
             <span className="text-[#DF8F2A]">Low Advance</span>
@@ -491,7 +494,7 @@ function IPDBillingChargesSection({
         <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
 
         {/* Action Buttons */}
-        <div className="py-4 px-6 space-y-3">
+        <div className="py-4 px-4 sm:px-6 space-y-3">
           <button onClick={() => setShowCollectPayment(true)} className="w-full h-11 bg-[#2E37A4] hover:bg-[#2E37A4]/90 text-white font-semibold rounded-[6px] text-[13px] flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer">
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <rect x="2" y="5" width="20" height="14" rx="2" />
@@ -519,7 +522,7 @@ function IPDBillingChargesSection({
 
       {/* Collect Payment Modal Popup Overlay */}
       {showCollectPayment && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/35 backdrop-blur-[0.5px] p-4 animate-in fade-in zoom-in duration-150">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/35 backdrop-blur-[0.5px] p-4">
           <div className="bg-white dark:bg-[#101935] rounded-[12px] shadow-2xl flex flex-col md:flex-row max-w-[800px] w-full overflow-y-auto md:overflow-hidden border border-[#E2E8F0] dark:border-white/10 h-auto max-h-[90vh] md:max-h-[95vh]">
 
             {/* Left Column: Invoice Details */}
@@ -550,11 +553,11 @@ function IPDBillingChargesSection({
                   <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Services</span>
                   <div className="flex justify-between text-[12px] font-medium text-[#1e293b] dark:text-white">
                     <span>Consultation</span>
-                    <span>$150.00</span>
+                    <span>₹150.00</span>
                   </div>
                   <div className="flex justify-between text-[12px] font-medium text-[#1e293b] dark:text-white">
                     <span>Lab Tests</span>
-                    <span>$45.00</span>
+                    <span>₹45.00</span>
                   </div>
                 </div>
               </div>
@@ -562,20 +565,20 @@ function IPDBillingChargesSection({
               <div className="space-y-1.5 mt-6 pt-4 border-t border-[#E2E8F0] dark:border-white/10">
                 <div className="flex justify-between text-[12px] text-gray-500 dark:text-slate-400">
                   <span>Subtotal</span>
-                  <span className="font-semibold text-[#1e293b] dark:text-white">$195.00</span>
+                  <span className="font-semibold text-[#1e293b] dark:text-white">₹195.00</span>
                 </div>
                 <div className="flex justify-between text-[12px] text-gray-500 dark:text-slate-400">
                   <span>Tax (5%)</span>
-                  <span className="font-semibold text-[#1e293b] dark:text-white">$9.75</span>
+                  <span className="font-semibold text-[#1e293b] dark:text-white">₹9.75</span>
                 </div>
                 <div className="flex justify-between text-[12px] text-gray-500 dark:text-slate-400">
                   <span>Insurance</span>
-                  <span className="font-semibold text-[#218F40] dark:text-green-400">-$50.00</span>
+                  <span className="font-semibold text-[#218F40] dark:text-green-400">-₹50.00</span>
                 </div>
                 <div className="border-b border-dashed border-[#E2E8F0] dark:border-white/10 my-1.5"></div>
                 <div className="flex justify-between items-baseline">
                   <span className="text-[12px] font-bold text-[#1e293b] dark:text-white">Total Pending</span>
-                  <span className="text-[18px] font-extrabold text-[#1e293b] dark:text-white">$154.75</span>
+                  <span className="text-[18px] font-extrabold text-[#1e293b] dark:text-white">₹154.75</span>
                 </div>
               </div>
             </div>
@@ -613,7 +616,7 @@ function IPDBillingChargesSection({
                     onChange={(e) => setPayAmount(e.target.value)}
                   />
                 </div>
-                <p className="text-[10px] font-bold text-[#DF8F2A] mt-1">Remaining balance will be $54.75</p>
+                <p className="text-[10px] font-bold text-[#DF8F2A] mt-1">Remaining balance will be ₹54.75</p>
 
                 {/* Payment Method Grid */}
                 <div className="space-y-1.5 mt-4">
@@ -683,9 +686,9 @@ function IPDBillingChargesSection({
 
       {/* Initiate Discharge Modal Popup Overlay */}
       {showInitiateDischarge && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/35 backdrop-blur-[0.5px] p-4 animate-in fade-in zoom-in duration-150">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/35 backdrop-blur-[0.5px] p-4">
           <div className="bg-white dark:bg-[#101935] rounded-[12px] shadow-2xl flex flex-col max-w-[480px] w-full overflow-hidden border border-[#E2E8F0] dark:border-white/10 p-6 space-y-6">
-            
+
             {/* Header */}
             <div className="flex items-center justify-between pb-2 border-b border-[#E2E8F0] dark:border-white/10">
               <h2 className="text-[18px] font-bold text-[#1e293b] dark:text-white">Initiate Discharge</h2>
@@ -786,7 +789,7 @@ function InvoiceGeneratedPage({ searchParams, onClose }) {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
 
         {/* Left Side: Invoice details Sheet */}
-        <div className="lg:col-span-3 bg-white dark:bg-[#101935] rounded-[12px] border border-[#E7E8EB] dark:border-white/10 p-8 shadow-sm space-y-8">
+        <div className="lg:col-span-3 bg-card rounded-lg border border-border p-8 shadow-none space-y-8">
 
           {/* Hospital Header Brand block */}
           <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
@@ -858,8 +861,8 @@ function InvoiceGeneratedPage({ searchParams, onClose }) {
                     <div className="text-[11px] text-gray-400 dark:text-slate-500 mt-0.5">Dr. Jane Doe</div>
                   </td>
                   <td className="py-4 text-center text-[13px] font-semibold text-[#1E293B] dark:text-white">1</td>
-                  <td className="py-4 text-right text-[13px] font-semibold text-[#1E293B] dark:text-white">$150.00</td>
-                  <td className="py-4 text-right text-[13px] font-bold text-[#1E293B] dark:text-white">$150.00</td>
+                  <td className="py-4 text-right text-[13px] font-semibold text-[#1E293B] dark:text-white">₹150.00</td>
+                  <td className="py-4 text-right text-[13px] font-bold text-[#1E293B] dark:text-white">₹150.00</td>
                 </tr>
                 <tr>
                   <td className="py-4 pr-4">
@@ -867,8 +870,8 @@ function InvoiceGeneratedPage({ searchParams, onClose }) {
                     <div className="text-[11px] text-gray-400 dark:text-slate-500 mt-0.5">Dr. John Smith</div>
                   </td>
                   <td className="py-4 text-center text-[13px] font-semibold text-[#1E293B] dark:text-white">2</td>
-                  <td className="py-4 text-right text-[13px] font-semibold text-[#1E293B] dark:text-white">$200.00</td>
-                  <td className="py-4 text-right text-[13px] font-bold text-[#1E293B] dark:text-white">$200.00</td>
+                  <td className="py-4 text-right text-[13px] font-semibold text-[#1E293B] dark:text-white">₹200.00</td>
+                  <td className="py-4 text-right text-[13px] font-bold text-[#1E293B] dark:text-white">₹200.00</td>
                 </tr>
               </tbody>
             </table>
@@ -896,33 +899,33 @@ function InvoiceGeneratedPage({ searchParams, onClose }) {
             <div className="bg-[#F8FAFC] dark:bg-white/5 border border-[#E2E8F0] dark:border-white/10 p-5 rounded-[12px] w-full md:w-[300px] space-y-3 shadow-sm shrink-0">
               <div className="flex justify-between text-[12px] text-gray-500 dark:text-slate-400">
                 <span>Subtotal</span>
-                <span className="font-semibold text-gray-800 dark:text-white">$195.00</span>
+                <span className="font-semibold text-gray-800 dark:text-white">₹195.00</span>
               </div>
               <div className="flex justify-between text-[12px] text-gray-500 dark:text-slate-400">
                 <span>Tax (5%) GST</span>
-                <span className="font-semibold text-gray-800 dark:text-white">$9.75</span>
+                <span className="font-semibold text-gray-800 dark:text-white">₹9.75</span>
               </div>
               <div className="flex justify-between text-[12px] text-gray-500 dark:text-slate-400">
                 <span>Insurance Coverage</span>
-                <span className="font-bold text-[#218F40] dark:text-emerald-400">-$50.00</span>
+                <span className="font-bold text-[#218F40] dark:text-emerald-400">-₹50.00</span>
               </div>
 
               <div className="border-t border-dashed border-[#E2E8F0] dark:border-white/10 my-2"></div>
 
               <div className="flex justify-between items-baseline">
                 <span className="text-[12px] font-bold text-[#1E293B] dark:text-white">Grand Total</span>
-                <span className="text-[18px] font-extrabold text-[#1E293B] dark:text-white">$154.75</span>
+                <span className="text-[18px] font-extrabold text-[#1E293B] dark:text-white">₹154.75</span>
               </div>
               <div className="flex justify-between items-baseline">
                 <span className="text-[12px] font-bold text-gray-500 dark:text-slate-400">Amount Paid</span>
-                <span className="text-[15px] font-extrabold text-[#218F40] dark:text-emerald-400">$154.75</span>
+                <span className="text-[15px] font-extrabold text-[#218F40] dark:text-emerald-400">₹154.75</span>
               </div>
 
               <div className="border-t border-dashed border-[#E2E8F0] dark:border-white/10 my-2"></div>
 
               <div className="flex justify-between items-baseline">
                 <span className="text-[12px] font-black text-gray-700 dark:text-slate-300">Balance Due</span>
-                <span className="text-[18px] font-black text-[#1E293B] dark:text-white">$0.00</span>
+                <span className="text-[18px] font-black text-[#1E293B] dark:text-white">₹0.00</span>
               </div>
             </div>
 
@@ -931,8 +934,8 @@ function InvoiceGeneratedPage({ searchParams, onClose }) {
         </div>
 
         {/* Right Side: Action Box Card */}
-        <div className="bg-white dark:bg-[#101935] rounded-[12px] border border-[#E7E8EB] dark:border-white/10 p-5 shadow-sm space-y-4 h-fit">
-          <h3 className="text-[15px] font-bold text-[#1e293b] dark:text-white pb-3 border-b border-[#E2E8F0] dark:border-white/10">Invoice Actions</h3>
+        <div className="bg-card rounded-lg border border-border p-5 shadow-none space-y-4 h-fit">
+          <h3 className="text-[15px] font-bold text-[#1e293b] dark:text-white pb-3 border-b border-border">Invoice Actions</h3>
 
           <button onClick={() => window.print()} className="w-full h-10 bg-[#2E37A4] hover:bg-[#2E37A4]/90 text-white font-bold rounded-[6px] text-[13px] flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-sm">
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">

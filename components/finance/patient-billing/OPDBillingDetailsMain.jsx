@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { ChevronRight, Hospital, Plus, CreditCard, X, ChevronDown, Smartphone, Wallet, Building2, Landmark, Layers } from "lucide-react";
 
@@ -10,23 +10,25 @@ export function OPDBillingDetailsMain({ searchParams }) {
   const [showInvoiceView, setShowInvoiceView] = useState(false);
   const [showDischargeComplete, setShowDischargeComplete] = useState(false);
 
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setShowCollectPayment(false);
+        setShowInitiateDischarge(false);
+        setShowDischargeComplete(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   if (showInvoiceView) {
     return <InvoiceGeneratedPage searchParams={searchParams} onClose={() => setShowInvoiceView(false)} />;
   }
   return (
-    <div className="p-6 max-w-[1600px] mx-auto space-y-6 font-inter">
-      {/* Breadcrumb & Header */}
+    <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-6 font-inter">
+      {/* Header */}
       <div className="flex flex-col gap-3">
-        <div className="flex items-center gap-2 text-[13px] font-medium text-gray-500 dark:text-gray-400">
-          <Link href="/finance/patient-billing" className="hover:text-[#2E37A4] transition-colors">Patient Billing</Link>
-          <ChevronRight className="w-3.5 h-3.5" />
-          <span className="hover:text-[#2E37A4] transition-colors cursor-pointer">
-            OPD Running Bills
-          </span>
-          <ChevronRight className="w-3.5 h-3.5" />
-          <span className="text-[#1e293b] dark:text-white font-bold">{searchParams?.patient || "Sarah Jenkins"}</span>
-        </div>
-
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <h1 className="text-[24px] font-bold text-[#1e293b] dark:text-white tracking-tight">Patient Billing Details</h1>
           <div className="flex flex-wrap items-center gap-3">
@@ -37,7 +39,7 @@ export function OPDBillingDetailsMain({ searchParams }) {
               <Hospital className="w-4 h-4 text-[#2E37A4] dark:text-blue-400" />
               Initiate Discharge
             </button>
-            <Link href="/finance/patient-billing/create" className="h-10 px-4 bg-white hover:bg-gray-50 dark:bg-white/5 border border-[#CBD5E1] dark:border-white/10 text-[#1e293b] dark:text-white font-bold rounded-[6px] text-[13px] transition-all cursor-pointer flex items-center gap-2 shadow-sm">
+            <Link href="/finance/patient-billing/create" className="h-10 px-4 bg-white hover:bg-gray-50 dark:bg-white/5 border border-[#CBD5E1] dark:border-white/10 text-[#1e293b] dark:text-white font-bold rounded-[6px] text-[13px] transition-all cursor-pointer flex items-center gap-2 shadow-none">
               <Plus className="w-4 h-4 text-[#1e293b] dark:text-white" />
               Add Charge
             </Link>
@@ -50,7 +52,7 @@ export function OPDBillingDetailsMain({ searchParams }) {
       </div>
 
       {/* Patient Billing Details Info Card Banner */}
-      <div className="bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[8px] p-6">
+      <div className="bg-card border border-border rounded-lg p-4 sm:p-6 shadow-none">
         <div className="flex flex-col lg:flex-row items-stretch justify-between gap-8">
 
           {/* Left Block - Patient Photo & Info */}
@@ -164,7 +166,7 @@ export function OPDBillingDetailsMain({ searchParams }) {
       {showDischargeComplete && (
         <div
           onClick={() => setShowDischargeComplete(false)}
-          className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/35 backdrop-blur-[1px] p-4 animate-in fade-in zoom-in duration-150 cursor-pointer"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/35 backdrop-blur-[1px] p-4 cursor-pointer"
         >
           <div
             onClick={(e) => e.stopPropagation()}
@@ -229,24 +231,26 @@ export function OPDBillingDetailsMain({ searchParams }) {
 
   const [wards, setWards] = useState([
     {
-      wardName: "General Ward (Oct 12 - Oct 14)",
-      category: "WD-ERS-01",
-      qty: "WD-ERS-01",
-      price: "WD-ERS-01",
-      total: "WD-ERS-01",
+      wardName: "General Ward (Oct 12 -Oct 14)",
+      category: "Accommodation",
+      qty: "2",
+      price: "₹150.00",
+      total: "₹300.00",
+      isSystem: true,
+      source: "System",
     },
   ]);
   const [doctors, setDoctors] = useState([
-    { name: "Initial Consultation", category: "Consultation", qty: "1", price: "$100.00", total: "$100.00", isSystem: true, source: "IPD" },
-    { name: "Follow-up Visit", category: "Consultation", qty: "2", price: "$75.00", total: "$150.00", isSystem: true, source: "IPD" }
+    { name: "Initial Consultation", category: "Consultation", qty: "1", price: "₹100.00", total: "₹100.00", isSystem: true, source: "IPD" },
+    { name: "Follow-up Visit", category: "Consultation", qty: "2", price: "₹75.00", total: "₹150.00", isSystem: true, source: "IPD" }
   ]);
   const [labs, setLabs] = useState([
-    { name: "Complete Blood Count (CBC)", category: "Pathology", qty: "1", price: "$45.00", total: "$45.00", isSystem: true, source: "Lab" },
-    { name: "Lipid Profile", category: "Pathology", qty: "1", price: "$60.00", total: "$60.00", isSystem: true, source: "Lab" }
+    { name: "Complete Blood Count (CBC)", category: "Pathology", qty: "1", price: "₹45.00", total: "₹45.00", isSystem: true, source: "Lab" },
+    { name: "Lipid Profile", category: "Pathology", qty: "1", price: "₹60.00", total: "₹60.00", isSystem: true, source: "Lab" }
   ]);
   const [pharmacy, setPharmacy] = useState([
-    { name: "Paracetamol 500mg (10 tabs)", category: "Medicine", qty: "2", price: "$5.00", total: "$10.00", isSystem: true, source: "Pharmacy" },
-    { name: "Amoxicillin 250mg (Strip)", category: "Medicine", qty: "1", price: "$12.00", total: "$12.00", isSystem: true, source: "Pharmacy" }
+    { name: "Paracetamol 500mg (10 tabs)", category: "Medicine", qty: "2", price: "₹5.00", total: "₹10.00", isSystem: true, source: "Pharmacy" },
+    { name: "Amoxicillin 250mg (Strip)", category: "Medicine", qty: "1", price: "₹12.00", total: "₹12.00", isSystem: true, source: "Pharmacy" }
   ]);
 
   const toggle = (sec) => setExpanded((prev) => ({ ...prev, [sec]: !prev[sec] }));
@@ -357,259 +361,102 @@ export function OPDBillingDetailsMain({ searchParams }) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
       {/* Left Section - Charges (col-span 8) - No horizontal padding to allow lines to extend full page */}
-      <div className="lg:col-span-8 bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[8px] pt-6 pb-0 px-0 font-inter h-fit">
+      <div className="lg:col-span-8 bg-card border border-border rounded-lg pt-6 pb-0 px-0 font-inter h-fit shadow-none">
         {/* Title */}
         <h2 className="text-[18px] font-bold text-[#1e293b] dark:text-white mb-5 px-6">Charges</h2>
 
         {/* Grid Table */}
-        <div className="flex flex-col w-full">
-          {/* Table Headers */}
-          <div className="flex items-center w-full py-3 px-6 bg-[#F1F5F980] border-b border-[#E2E8F0] dark:bg-white/5 dark:border-white/10">
-            <div className="grid grid-cols-6 gap-4 flex-1 text-[12px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider">
-              <div>Service Name</div>
-              <div>Category</div>
-              <div className="text-center">Qty</div>
-              <div className="text-center">Price</div>
-              <div className="text-center">Total</div>
-              <div className="text-center">Source</div>
+        <div className="w-full overflow-x-auto">
+          <div className="flex flex-col w-full min-w-[760px]">
+            {/* Table Headers */}
+            <div className="grid grid-cols-12 gap-4 text-[12px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider py-3 px-6 bg-muted/30 border-b border-border">
+              <div className="col-span-5">Service Name</div>
+              <div className="col-span-2">Category</div>
+              <div className="col-span-1 text-center">Qty</div>
+              <div className="col-span-2 text-center">Price</div>
+              <div className="col-span-1 text-center">Total</div>
+              <div className="col-span-1 text-right">Source</div>
             </div>
-            <div className="w-[40px] ml-4"></div>
-          </div>
 
-          {/* 1. Room Charges Accordion & Items */}
-          <div className="flex flex-col">
-            <div className="flex items-center justify-between py-[12px] px-[24px] bg-[#F8FAFC]/50 dark:bg-white/5">
-              <button
-                onClick={() => toggle("room")}
-                className="flex items-center gap-2 text-[14px] font-bold text-[#1e293b] dark:text-white cursor-pointer select-none"
-              >
-                <svg
-                  className={`w-3.5 h-3.5 text-gray-500 transition-transform ${expanded.room ? "rotate-0" : "-rotate-90"}`}
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
+            {/* 1. Room Charges Accordion & Items */}
+            <div className="flex flex-col">
+              <div className="flex items-center justify-between py-[12px] px-[24px] bg-[#F8FAFC]/50 dark:bg-white/5">
+                <button
+                  onClick={() => toggle("room")}
+                  className="flex items-center gap-2 text-[14px] font-bold text-[#1e293b] dark:text-white cursor-pointer select-none"
                 >
-                  <path d="M6 9l6 6 6-6" />
-                </svg>
-                Room Charges
-              </button>
-              <button
-                onClick={() => addWardRow()}
-                className="text-[12px] font-bold text-[#2E37A4] hover:text-[#2E37A4]/80 transition-colors cursor-pointer"
-              >
-                + Add Ward
-              </button>
-            </div>
-            <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
-
-            {expanded.room && (
-              <div className="py-4 space-y-4">
-                {wards.map((item, index) => (
-                  <div key={index} className="flex items-end w-full py-2 px-6">
-                    <div className="grid grid-cols-6 gap-4 flex-1 items-end">
-                      {/* Ward Name textarea */}
-                      <div className="space-y-1">
-                        {index === firstEditableWardIdx && (
-                          <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block">
-                            Ward Name
-                          </label>
-                        )}
-                        <textarea
-                          value={item.wardName}
-                          onChange={(e) => updateWardRow(index, "wardName", e.target.value)}
-                          placeholder="General Ward"
-                          rows={2}
-                          className="w-full h-[46px] px-3 py-1.5 bg-white dark:bg-white/5 border border-[#E2E8F0] dark:border-white/10 rounded-[8px] text-[13px] font-medium text-[#1e293b] dark:text-white focus:outline-none resize-none overflow-y-hidden leading-[1.2] whitespace-normal break-words"
-                        />
-                      </div>
-
-                      {/* Category */}
-                      <div className="space-y-1">
-                        {index === firstEditableWardIdx && (
-                          <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block">
-                            Category
-                          </label>
-                        )}
-                        <textarea
-                          value={item.category}
-                          onChange={(e) => updateWardRow(index, "category", e.target.value)}
-                          placeholder="Category"
-                          rows={2}
-                          className="w-full h-[46px] px-3 py-1.5 bg-white dark:bg-white/5 border border-[#E2E8F0] dark:border-white/10 rounded-[8px] text-[13px] font-medium text-[#1e293b] dark:text-white focus:outline-none resize-none overflow-y-hidden leading-[1.2] whitespace-normal break-words"
-                        />
-                      </div>
-
-                      {/* Qty */}
-                      <div className="space-y-1">
-                        {index === firstEditableWardIdx && (
-                          <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block text-center">
-                            Qty
-                          </label>
-                        )}
-                        <input
-                          type="text"
-                          value={item.qty}
-                          onChange={(e) => updateWardRow(index, "qty", e.target.value)}
-                          placeholder="Qty"
-                          className="w-full h-[46px] px-2 text-center bg-white dark:bg-white/5 border border-[#E2E8F0] dark:border-white/10 rounded-[8px] text-[13px] font-medium text-[#1e293b] dark:text-white focus:outline-none"
-                        />
-                      </div>
-
-                      {/* Price */}
-                      <div className="space-y-1">
-                        {index === firstEditableWardIdx && (
-                          <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block text-center">
-                            Price
-                          </label>
-                        )}
-                        <input
-                          type="text"
-                          value={item.price}
-                          onChange={(e) => updateWardRow(index, "price", e.target.value)}
-                          placeholder="Price"
-                          className="w-full h-[46px] px-3 text-center bg-white dark:bg-white/5 border border-[#E2E8F0] dark:border-white/10 rounded-[8px] text-[13px] font-medium text-[#1e293b] dark:text-white focus:outline-none"
-                        />
-                      </div>
-
-                      {/* Total */}
-                      <div className="space-y-1">
-                        {index === firstEditableWardIdx && (
-                          <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block text-center">
-                            Total
-                          </label>
-                        )}
-                        <input
-                          type="text"
-                          value={item.total}
-                          onChange={(e) => updateWardRow(index, "total", e.target.value)}
-                          placeholder="Total"
-                          className="w-full h-[46px] px-2 text-center bg-white dark:bg-white/5 border border-[#E2E8F0] dark:border-white/10 rounded-[8px] text-[13px] font-medium text-[#1e293b] dark:text-white focus:outline-none"
-                        />
-                      </div>
-
-                      {/* Source */}
-                      <div className="space-y-1 flex justify-center items-center h-[46px]">
-                        {index === firstEditableWardIdx && (
-                          <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block opacity-0 select-none absolute -top-5">
-                            Source
-                          </label>
-                        )}
-                        <span className="inline-block px-2 py-0.5 text-[10px] font-semibold text-gray-500 dark:text-slate-400 bg-[#F1F5F9] dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-[4px]">
-                          OPD
-                        </span>
-                      </div>
-                    </div>
-
-                    {/* Remove Action Button */}
-                    <div className="w-[40px] flex justify-center items-center h-[46px] ml-4">
-                      {index === firstEditableWardIdx && (
-                        <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block opacity-0 select-none absolute -top-5">
-                          Remove
-                        </label>
-                      )}
-                      <button
-                        onClick={() => removeWardRow(index)}
-                        className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-[6px] transition-all cursor-pointer flex items-center justify-center"
-                        title="Remove item"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  <svg
+                    className={`w-3.5 h-3.5 text-gray-500 transition-transform ${expanded.room ? "rotate-0" : "-rotate-90"}`}
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                  >
+                    <path d="M6 9l6 6 6-6" />
+                  </svg>
+                  Room Charges
+                </button>
               </div>
-            )}
-            <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
-          </div>
+              <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
 
-          {/* 2. Doctor Visits Accordion & Items */}
-          <div className="flex flex-col">
-            <div className="flex items-center justify-between py-[12px] px-[24px] bg-[#F8FAFC]/50 dark:bg-white/5">
-              <button
-                onClick={() => toggle("doctor")}
-                className="flex items-center gap-2 text-[14px] font-bold text-[#1e293b] dark:text-white cursor-pointer select-none"
-              >
-                <svg
-                  className={`w-3.5 h-3.5 text-gray-500 transition-transform ${expanded.doctor ? "rotate-0" : "-rotate-90"}`}
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                >
-                  <path d="M6 9l6 6 6-6" />
-                </svg>
-                Doctor Visits
-              </button>
-              <button
-                onClick={() => addDoctorRow()}
-                className="text-[12px] font-bold text-[#2E37A4] hover:text-[#2E37A4]/80 transition-colors cursor-pointer"
-              >
-                + Add Ward
-              </button>
-            </div>
-            <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
-
-            {expanded.doctor && (
-              <div className="flex flex-col py-2">
-                {doctors.map((item, index) => {
-                  if (item.isSystem) {
-                    return (
-                      <div key={index} className="flex items-center w-full py-3.5 px-6 border-b border-[#E2E8F0] dark:border-white/10 last:border-0">
-                        <div className="grid grid-cols-6 gap-4 flex-1 items-center">
-                          <div className="text-[14px] font-medium text-[#1e293b] dark:text-white">{item.name}</div>
-                          <div className="text-[14px] text-gray-500 dark:text-slate-400">{item.category}</div>
-                          <div className="text-[14px] text-center text-[#1e293b] dark:text-white">{item.qty}</div>
-                          <div className="text-[14px] font-medium text-center text-gray-500 dark:text-slate-400">{item.price}</div>
-                          <div className="text-[14px] font-bold text-center text-[#1e293b] dark:text-white">{item.total}</div>
-                          <div className="text-center">
-                            <span className="inline-block px-2 py-0.5 text-[10px] font-semibold text-gray-500 dark:text-slate-400 bg-[#F1F5F9] dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-[4px]">
+              {expanded.room && (
+                <div className="py-4 space-y-4">
+                  {wards.map((item, index) => {
+                    if (item.isSystem) {
+                      return (
+                        <div key={index} className="grid grid-cols-12 gap-4 items-center py-3.5 px-6 border-b border-[#E2E8F0] dark:border-white/10 last:border-0">
+                          <div className="col-span-5 text-[14px] font-medium text-[#1e293b] dark:text-white">{item.wardName}</div>
+                          <div className="col-span-2 text-[14px] text-gray-500 dark:text-slate-400">{item.category}</div>
+                          <div className="col-span-1 text-[14px] text-center text-[#1e293b] dark:text-white">{item.qty}</div>
+                          <div className="col-span-2 text-[14px] font-medium text-center text-gray-500 dark:text-slate-400">{item.price}</div>
+                          <div className="col-span-1 text-[14px] font-bold text-center text-[#1e293b] dark:text-white">{item.total}</div>
+                          <div className="col-span-1 text-right">
+                            <span className="inline-block px-2 py-0.5 text-[10px] font-semibold text-[#64748B] dark:text-slate-400 bg-[#F1F5F9] dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-[33554400px]">
                               {item.source}
                             </span>
                           </div>
                         </div>
-                        <div className="w-[40px] ml-4"></div>
-                      </div>
-                    );
-                  } else {
+                      );
+                    }
+
                     return (
-                      <div key={index} className="flex items-end w-full py-3 px-6 border-b border-[#E2E8F0] dark:border-white/10 last:border-0">
+                      <div key={index} className="flex items-end w-full py-2 px-6">
                         <div className="grid grid-cols-6 gap-4 flex-1 items-end">
-                          {/* Doctor Visit Name textarea */}
+                          {/* Ward Name textarea */}
                           <div className="space-y-1">
-                            {index === firstEditableDoctorIdx && (
+                            {index === firstEditableWardIdx && (
                               <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block">
-                                Doctor Visit Name
+                                Ward Name
                               </label>
                             )}
                             <textarea
-                              value={item.name}
-                              onChange={(e) => updateDoctorRow(index, "name", e.target.value)}
-                              placeholder="Initial Consultation"
+                              value={item.wardName}
+                              onChange={(e) => updateWardRow(index, "wardName", e.target.value)}
+                              placeholder="General Ward"
                               rows={2}
                               className="w-full h-[46px] px-3 py-1.5 bg-white dark:bg-white/5 border border-[#E2E8F0] dark:border-white/10 rounded-[8px] text-[13px] font-medium text-[#1e293b] dark:text-white focus:outline-none resize-none overflow-y-hidden leading-[1.2] whitespace-normal break-words"
                             />
                           </div>
+
                           {/* Category */}
                           <div className="space-y-1">
-                            {index === firstEditableDoctorIdx && (
+                            {index === firstEditableWardIdx && (
                               <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block">
                                 Category
                               </label>
                             )}
                             <textarea
                               value={item.category}
-                              onChange={(e) => updateDoctorRow(index, "category", e.target.value)}
+                              onChange={(e) => updateWardRow(index, "category", e.target.value)}
                               placeholder="Category"
                               rows={2}
                               className="w-full h-[46px] px-3 py-1.5 bg-white dark:bg-white/5 border border-[#E2E8F0] dark:border-white/10 rounded-[8px] text-[13px] font-medium text-[#1e293b] dark:text-white focus:outline-none resize-none overflow-y-hidden leading-[1.2] whitespace-normal break-words"
                             />
                           </div>
+
                           {/* Qty */}
                           <div className="space-y-1">
-                            {index === firstEditableDoctorIdx && (
+                            {index === firstEditableWardIdx && (
                               <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block text-center">
                                 Qty
                               </label>
@@ -617,14 +464,15 @@ export function OPDBillingDetailsMain({ searchParams }) {
                             <input
                               type="text"
                               value={item.qty}
-                              onChange={(e) => updateDoctorRow(index, "qty", e.target.value)}
+                              onChange={(e) => updateWardRow(index, "qty", e.target.value)}
                               placeholder="Qty"
                               className="w-full h-[46px] px-2 text-center bg-white dark:bg-white/5 border border-[#E2E8F0] dark:border-white/10 rounded-[8px] text-[13px] font-medium text-[#1e293b] dark:text-white focus:outline-none"
                             />
                           </div>
+
                           {/* Price */}
                           <div className="space-y-1">
-                            {index === firstEditableDoctorIdx && (
+                            {index === firstEditableWardIdx && (
                               <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block text-center">
                                 Price
                               </label>
@@ -632,14 +480,15 @@ export function OPDBillingDetailsMain({ searchParams }) {
                             <input
                               type="text"
                               value={item.price}
-                              onChange={(e) => updateDoctorRow(index, "price", e.target.value)}
+                              onChange={(e) => updateWardRow(index, "price", e.target.value)}
                               placeholder="Price"
                               className="w-full h-[46px] px-3 text-center bg-white dark:bg-white/5 border border-[#E2E8F0] dark:border-white/10 rounded-[8px] text-[13px] font-medium text-[#1e293b] dark:text-white focus:outline-none"
                             />
                           </div>
+
                           {/* Total */}
                           <div className="space-y-1">
-                            {index === firstEditableDoctorIdx && (
+                            {index === firstEditableWardIdx && (
                               <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block text-center">
                                 Total
                               </label>
@@ -647,7 +496,7 @@ export function OPDBillingDetailsMain({ searchParams }) {
                             <input
                               type="text"
                               value={item.total}
-                              onChange={(e) => updateDoctorRow(index, "total", e.target.value)}
+                              onChange={(e) => updateWardRow(index, "total", e.target.value)}
                               placeholder="Total"
                               className="w-full h-[46px] px-2 text-center bg-white dark:bg-white/5 border border-[#E2E8F0] dark:border-white/10 rounded-[8px] text-[13px] font-medium text-[#1e293b] dark:text-white focus:outline-none"
                             />
@@ -655,7 +504,7 @@ export function OPDBillingDetailsMain({ searchParams }) {
 
                           {/* Source */}
                           <div className="space-y-1 flex justify-center items-center h-[46px]">
-                            {index === firstEditableDoctorIdx && (
+                            {index === firstEditableWardIdx && (
                               <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block opacity-0 select-none absolute -top-5">
                                 Source
                               </label>
@@ -668,13 +517,13 @@ export function OPDBillingDetailsMain({ searchParams }) {
 
                         {/* Remove Action Button */}
                         <div className="w-[40px] flex justify-center items-center h-[46px] ml-4">
-                          {index === firstEditableDoctorIdx && (
+                          {index === firstEditableWardIdx && (
                             <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block opacity-0 select-none absolute -top-5">
                               Remove
                             </label>
                           )}
                           <button
-                            onClick={() => removeDoctorRow(index)}
+                            onClick={() => removeWardRow(index)}
                             className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-[6px] transition-all cursor-pointer flex items-center justify-center"
                             title="Remove item"
                           >
@@ -685,345 +534,485 @@ export function OPDBillingDetailsMain({ searchParams }) {
                         </div>
                       </div>
                     );
-                  }
-                })}
-              </div>
-            )}
-            <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
-          </div>
-
-          {/* 3. Lab Tests Accordion & Items */}
-          <div className="flex flex-col">
-            <div className="flex items-center justify-between py-[12px] px-[24px] bg-[#F8FAFC]/50 dark:bg-white/5">
-              <button
-                onClick={() => toggle("lab")}
-                className="flex items-center gap-2 text-[14px] font-bold text-[#1e293b] dark:text-white cursor-pointer select-none"
-              >
-                <svg
-                  className={`w-3.5 h-3.5 text-gray-500 transition-transform ${expanded.lab ? "rotate-0" : "-rotate-90"}`}
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                >
-                  <path d="M6 9l6 6 6-6" />
-                </svg>
-                Lab Tests
-              </button>
-              <button
-                onClick={() => addLabRow()}
-                className="text-[12px] font-bold text-[#2E37A4] hover:text-[#2E37A4]/80 transition-colors cursor-pointer"
-              >
-                + Add Ward
-              </button>
+                  })}
+                </div>
+              )}
+              <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
             </div>
-            <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
 
-            {expanded.lab && (
-              <div className="flex flex-col py-2">
-                {labs.map((item, index) => {
-                  if (item.isSystem) {
-                    return (
-                      <div key={index} className="flex items-center w-full py-3.5 px-6 border-b border-[#E2E8F0] dark:border-white/10 last:border-0">
-                        <div className="grid grid-cols-6 gap-4 flex-1 items-center">
-                          <div className="text-[14px] font-medium text-[#1e293b] dark:text-white">{item.name}</div>
-                          <div className="text-[14px] text-gray-500 dark:text-slate-400">{item.category}</div>
-                          <div className="text-[14px] text-center text-[#1e293b] dark:text-white">{item.qty}</div>
-                          <div className="text-[14px] font-medium text-center text-gray-500 dark:text-slate-400">{item.price}</div>
-                          <div className="text-[14px] font-bold text-center text-[#1e293b] dark:text-white">{item.total}</div>
-                          <div className="text-center">
-                            <span className="inline-block px-2 py-0.5 text-[10px] font-semibold text-gray-500 dark:text-slate-400 bg-[#F1F5F9] dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-[4px]">
+            {/* 2. Doctor Visits Accordion & Items */}
+            <div className="flex flex-col">
+              <div className="flex items-center justify-between py-[12px] px-[24px] bg-[#F8FAFC]/50 dark:bg-white/5">
+                <button
+                  onClick={() => toggle("doctor")}
+                  className="flex items-center gap-2 text-[14px] font-bold text-[#1e293b] dark:text-white cursor-pointer select-none"
+                >
+                  <svg
+                    className={`w-3.5 h-3.5 text-gray-500 transition-transform ${expanded.doctor ? "rotate-0" : "-rotate-90"}`}
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                  >
+                    <path d="M6 9l6 6 6-6" />
+                  </svg>
+                  Doctor Visits
+                </button>
+              </div>
+              <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
+
+              {expanded.doctor && (
+                <div className="flex flex-col py-2">
+                  {doctors.map((item, index) => {
+                    if (item.isSystem) {
+                      return (
+                        <div key={index} className="grid grid-cols-12 gap-4 items-center py-3.5 px-6 border-b border-[#E2E8F0] dark:border-white/10 last:border-0">
+                          <div className="col-span-5 text-[14px] font-medium text-[#1e293b] dark:text-white">{item.name}</div>
+                          <div className="col-span-2 text-[14px] text-gray-500 dark:text-slate-400">{item.category}</div>
+                          <div className="col-span-1 text-[14px] text-center text-[#1e293b] dark:text-white">{item.qty}</div>
+                          <div className="col-span-2 text-[14px] font-medium text-center text-gray-500 dark:text-slate-400">{item.price}</div>
+                          <div className="col-span-1 text-[14px] font-bold text-center text-[#1e293b] dark:text-white">{item.total}</div>
+                          <div className="col-span-1 text-right">
+                            <span className="inline-block px-2 py-0.5 text-[10px] font-semibold text-[#64748B] dark:text-slate-400 bg-[#F1F5F9] dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-[33554400px]">
                               {item.source}
                             </span>
                           </div>
                         </div>
-                        <div className="w-[40px] ml-4"></div>
-                      </div>
-                    );
-                  } else {
-                    return (
-                      <div key={index} className="flex items-end w-full py-3 px-6 border-b border-[#E2E8F0] dark:border-white/10 last:border-0">
-                        <div className="grid grid-cols-6 gap-4 flex-1 items-end">
-                          {/* Test Name textarea */}
-                          <div className="space-y-1">
-                            {index === firstEditableLabIdx && (
-                              <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block">
-                                Test Name
-                              </label>
-                            )}
-                            <textarea
-                              value={item.name}
-                              onChange={(e) => updateLabRow(index, "name", e.target.value)}
-                              placeholder="Complete Blood Count"
-                              rows={2}
-                              className="w-full h-[46px] px-3 py-1.5 bg-white dark:bg-white/5 border border-[#E2E8F0] dark:border-white/10 rounded-[8px] text-[13px] font-medium text-[#1e293b] dark:text-white focus:outline-none resize-none overflow-y-hidden leading-[1.2] whitespace-normal break-words"
-                            />
-                          </div>
-                          {/* Category */}
-                          <div className="space-y-1">
-                            {index === firstEditableLabIdx && (
-                              <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block">
-                                Category
-                              </label>
-                            )}
-                            <textarea
-                              value={item.category}
-                              onChange={(e) => updateLabRow(index, "category", e.target.value)}
-                              placeholder="Category"
-                              rows={2}
-                              className="w-full h-[46px] px-3 py-1.5 bg-white dark:bg-white/5 border border-[#E2E8F0] dark:border-white/10 rounded-[8px] text-[13px] font-medium text-[#1e293b] dark:text-white focus:outline-none resize-none overflow-y-hidden leading-[1.2] whitespace-normal break-words"
-                            />
-                          </div>
-                          {/* Qty */}
-                          <div className="space-y-1">
-                            {index === firstEditableLabIdx && (
-                              <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block text-center">
-                                Qty
-                              </label>
-                            )}
-                            <input
-                              type="text"
-                              value={item.qty}
-                              onChange={(e) => updateLabRow(index, "qty", e.target.value)}
-                              placeholder="Qty"
-                              className="w-full h-[46px] px-2 text-center bg-white dark:bg-white/5 border border-[#E2E8F0] dark:border-white/10 rounded-[8px] text-[13px] font-medium text-[#1e293b] dark:text-white focus:outline-none"
-                            />
-                          </div>
-                          {/* Price */}
-                          <div className="space-y-1">
-                            {index === firstEditableLabIdx && (
-                              <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block text-center">
-                                Price
-                              </label>
-                            )}
-                            <input
-                              type="text"
-                              value={item.price}
-                              onChange={(e) => updateLabRow(index, "price", e.target.value)}
-                              placeholder="Price"
-                              className="w-full h-[46px] px-3 text-center bg-white dark:bg-white/5 border border-[#E2E8F0] dark:border-white/10 rounded-[8px] text-[13px] font-medium text-[#1e293b] dark:text-white focus:outline-none"
-                            />
-                          </div>
-                          {/* Total */}
-                          <div className="space-y-1">
-                            {index === firstEditableLabIdx && (
-                              <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block text-center">
-                                Total
-                              </label>
-                            )}
-                            <input
-                              type="text"
-                              value={item.total}
-                              onChange={(e) => updateLabRow(index, "total", e.target.value)}
-                              placeholder="Total"
-                              className="w-full h-[46px] px-2 text-center bg-white dark:bg-white/5 border border-[#E2E8F0] dark:border-white/10 rounded-[8px] text-[13px] font-medium text-[#1e293b] dark:text-white focus:outline-none"
-                            />
+                      );
+                    } else {
+                      return (
+                        <div key={index} className="flex items-end w-full py-3 px-6 border-b border-[#E2E8F0] dark:border-white/10 last:border-0">
+                          <div className="grid grid-cols-6 gap-4 flex-1 items-end">
+                            {/* Doctor Visit Name textarea */}
+                            <div className="space-y-1">
+                              {index === firstEditableDoctorIdx && (
+                                <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block">
+                                  Doctor Visit Name
+                                </label>
+                              )}
+                              <textarea
+                                value={item.name}
+                                onChange={(e) => updateDoctorRow(index, "name", e.target.value)}
+                                placeholder="Initial Consultation"
+                                rows={2}
+                                className="w-full h-[46px] px-3 py-1.5 bg-white dark:bg-white/5 border border-[#E2E8F0] dark:border-white/10 rounded-[8px] text-[13px] font-medium text-[#1e293b] dark:text-white focus:outline-none resize-none overflow-y-hidden leading-[1.2] whitespace-normal break-words"
+                              />
+                            </div>
+                            {/* Category */}
+                            <div className="space-y-1">
+                              {index === firstEditableDoctorIdx && (
+                                <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block">
+                                  Category
+                                </label>
+                              )}
+                              <textarea
+                                value={item.category}
+                                onChange={(e) => updateDoctorRow(index, "category", e.target.value)}
+                                placeholder="Category"
+                                rows={2}
+                                className="w-full h-[46px] px-3 py-1.5 bg-white dark:bg-white/5 border border-[#E2E8F0] dark:border-white/10 rounded-[8px] text-[13px] font-medium text-[#1e293b] dark:text-white focus:outline-none resize-none overflow-y-hidden leading-[1.2] whitespace-normal break-words"
+                              />
+                            </div>
+                            {/* Qty */}
+                            <div className="space-y-1">
+                              {index === firstEditableDoctorIdx && (
+                                <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block text-center">
+                                  Qty
+                                </label>
+                              )}
+                              <input
+                                type="text"
+                                value={item.qty}
+                                onChange={(e) => updateDoctorRow(index, "qty", e.target.value)}
+                                placeholder="Qty"
+                                className="w-full h-[46px] px-2 text-center bg-white dark:bg-white/5 border border-[#E2E8F0] dark:border-white/10 rounded-[8px] text-[13px] font-medium text-[#1e293b] dark:text-white focus:outline-none"
+                              />
+                            </div>
+                            {/* Price */}
+                            <div className="space-y-1">
+                              {index === firstEditableDoctorIdx && (
+                                <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block text-center">
+                                  Price
+                                </label>
+                              )}
+                              <input
+                                type="text"
+                                value={item.price}
+                                onChange={(e) => updateDoctorRow(index, "price", e.target.value)}
+                                placeholder="Price"
+                                className="w-full h-[46px] px-3 text-center bg-white dark:bg-white/5 border border-[#E2E8F0] dark:border-white/10 rounded-[8px] text-[13px] font-medium text-[#1e293b] dark:text-white focus:outline-none"
+                              />
+                            </div>
+                            {/* Total */}
+                            <div className="space-y-1">
+                              {index === firstEditableDoctorIdx && (
+                                <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block text-center">
+                                  Total
+                                </label>
+                              )}
+                              <input
+                                type="text"
+                                value={item.total}
+                                onChange={(e) => updateDoctorRow(index, "total", e.target.value)}
+                                placeholder="Total"
+                                className="w-full h-[46px] px-2 text-center bg-white dark:bg-white/5 border border-[#E2E8F0] dark:border-white/10 rounded-[8px] text-[13px] font-medium text-[#1e293b] dark:text-white focus:outline-none"
+                              />
+                            </div>
+
+                            {/* Source */}
+                            <div className="space-y-1 flex justify-center items-center h-[46px]">
+                              {index === firstEditableDoctorIdx && (
+                                <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block opacity-0 select-none absolute -top-5">
+                                  Source
+                                </label>
+                              )}
+                              <span className="inline-block px-2 py-0.5 text-[10px] font-semibold text-gray-500 dark:text-slate-400 bg-[#F1F5F9] dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-[4px]">
+                                OPD
+                              </span>
+                            </div>
                           </div>
 
-                          {/* Source */}
-                          <div className="space-y-1 flex justify-center items-center h-[46px]">
-                            {index === firstEditableLabIdx && (
+                          {/* Remove Action Button */}
+                          <div className="w-[40px] flex justify-center items-center h-[46px] ml-4">
+                            {index === firstEditableDoctorIdx && (
                               <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block opacity-0 select-none absolute -top-5">
-                                Source
+                                Remove
                               </label>
                             )}
-                            <span className="inline-block px-2 py-0.5 text-[10px] font-semibold text-gray-500 dark:text-slate-400 bg-[#F1F5F9] dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-[4px]">
-                              OPD
-                            </span>
+                            <button
+                              onClick={() => removeDoctorRow(index)}
+                              className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-[6px] transition-all cursor-pointer flex items-center justify-center"
+                              title="Remove item"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                            </button>
                           </div>
                         </div>
-
-                        {/* Remove Action Button */}
-                        <div className="w-[40px] flex justify-center items-center h-[46px] ml-4">
-                          {index === firstEditableLabIdx && (
-                            <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block opacity-0 select-none absolute -top-5">
-                              Remove
-                            </label>
-                          )}
-                          <button
-                            onClick={() => removeLabRow(index)}
-                            className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-[6px] transition-all cursor-pointer flex items-center justify-center"
-                            title="Remove item"
-                          >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  }
-                })}
-              </div>
-            )}
-            <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
-          </div>
-
-          {/* 4. Pharmacy Accordion & Items */}
-          <div className="flex flex-col">
-            <div className="flex items-center justify-between py-[12px] px-[24px] bg-[#F8FAFC]/50 dark:bg-white/5">
-              <button
-                onClick={() => toggle("pharmacy")}
-                className="flex items-center gap-2 text-[14px] font-bold text-[#1e293b] dark:text-white cursor-pointer select-none"
-              >
-                <svg
-                  className={`w-3.5 h-3.5 text-gray-500 transition-transform ${expanded.pharmacy ? "rotate-0" : "-rotate-90"}`}
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                >
-                  <path d="M6 9l6 6 6-6" />
-                </svg>
-                Pharmacy
-              </button>
-              <button
-                onClick={() => addPharmacyRow()}
-                className="text-[12px] font-bold text-[#2E37A4] hover:text-[#2E37A4]/80 transition-colors cursor-pointer"
-              >
-                + Add Ward
-              </button>
+                      );
+                    }
+                  })}
+                </div>
+              )}
+              <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
             </div>
-            <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
 
-            {expanded.pharmacy && (
-              <div className="flex flex-col py-2">
-                {pharmacy.map((item, index) => {
-                  if (item.isSystem) {
-                    return (
-                      <div key={index} className="flex items-center w-full py-3.5 px-6 border-b border-[#E2E8F0] dark:border-white/10 last:border-0">
-                        <div className="grid grid-cols-6 gap-4 flex-1 items-center">
-                          <div className="text-[14px] font-medium text-[#1e293b] dark:text-white">{item.name}</div>
-                          <div className="text-[14px] text-gray-500 dark:text-slate-400">{item.category}</div>
-                          <div className="text-[14px] text-center text-[#1e293b] dark:text-white">{item.qty}</div>
-                          <div className="text-[14px] font-medium text-center text-gray-500 dark:text-slate-400">{item.price}</div>
-                          <div className="text-[14px] font-bold text-center text-[#1e293b] dark:text-white">{item.total}</div>
-                          <div className="text-center">
-                            <span className="inline-block px-2 py-0.5 text-[10px] font-semibold text-gray-500 dark:text-slate-400 bg-[#F1F5F9] dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-[4px]">
+            {/* 3. Lab Tests Accordion & Items */}
+            <div className="flex flex-col">
+              <div className="flex items-center justify-between py-[12px] px-[24px] bg-[#F8FAFC]/50 dark:bg-white/5">
+                <button
+                  onClick={() => toggle("lab")}
+                  className="flex items-center gap-2 text-[14px] font-bold text-[#1e293b] dark:text-white cursor-pointer select-none"
+                >
+                  <svg
+                    className={`w-3.5 h-3.5 text-gray-500 transition-transform ${expanded.lab ? "rotate-0" : "-rotate-90"}`}
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                  >
+                    <path d="M6 9l6 6 6-6" />
+                  </svg>
+                  Lab Tests
+                </button>
+              </div>
+              <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
+
+              {expanded.lab && (
+                <div className="flex flex-col py-2">
+                  {labs.map((item, index) => {
+                    if (item.isSystem) {
+                      return (
+                        <div key={index} className="grid grid-cols-12 gap-4 items-center py-3.5 px-6 border-b border-[#E2E8F0] dark:border-white/10 last:border-0">
+                          <div className="col-span-5 text-[14px] font-medium text-[#1e293b] dark:text-white">{item.name}</div>
+                          <div className="col-span-2 text-[14px] text-gray-500 dark:text-slate-400">{item.category}</div>
+                          <div className="col-span-1 text-[14px] text-center text-[#1e293b] dark:text-white">{item.qty}</div>
+                          <div className="col-span-2 text-[14px] font-medium text-center text-gray-500 dark:text-slate-400">{item.price}</div>
+                          <div className="col-span-1 text-[14px] font-bold text-center text-[#1e293b] dark:text-white">{item.total}</div>
+                          <div className="col-span-1 text-right">
+                            <span className="inline-block px-2 py-0.5 text-[10px] font-semibold text-[#64748B] dark:text-slate-400 bg-[#F1F5F9] dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-[33554400px]">
                               {item.source}
                             </span>
                           </div>
                         </div>
-                        <div className="w-[40px] ml-4"></div>
-                      </div>
-                    );
-                  } else {
-                    return (
-                      <div key={index} className="flex items-end w-full py-3 px-6 border-b border-[#E2E8F0] dark:border-white/10 last:border-0">
-                        <div className="grid grid-cols-6 gap-4 flex-1 items-end">
-                          {/* Medicine Name textarea */}
-                          <div className="space-y-1">
-                            {index === firstEditablePharmacyIdx && (
-                              <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block">
-                                Medicine Name
-                              </label>
-                            )}
-                            <textarea
-                              value={item.name}
-                              onChange={(e) => updatePharmacyRow(index, "name", e.target.value)}
-                              placeholder="Paracetamol 500mg"
-                              rows={2}
-                              className="w-full h-[46px] px-3 py-1.5 bg-white dark:bg-white/5 border border-[#E2E8F0] dark:border-white/10 rounded-[8px] text-[13px] font-medium text-[#1e293b] dark:text-white focus:outline-none resize-none overflow-y-hidden leading-[1.2] whitespace-normal break-words"
-                            />
-                          </div>
-                          {/* Category */}
-                          <div className="space-y-1">
-                            {index === firstEditablePharmacyIdx && (
-                              <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block">
-                                Category
-                              </label>
-                            )}
-                            <textarea
-                              value={item.category}
-                              onChange={(e) => updatePharmacyRow(index, "category", e.target.value)}
-                              placeholder="Category"
-                              rows={2}
-                              className="w-full h-[46px] px-3 py-1.5 bg-white dark:bg-white/5 border border-[#E2E8F0] dark:border-white/10 rounded-[8px] text-[13px] font-medium text-[#1e293b] dark:text-white focus:outline-none resize-none overflow-y-hidden leading-[1.2] whitespace-normal break-words"
-                            />
-                          </div>
-                          {/* Qty */}
-                          <div className="space-y-1">
-                            {index === firstEditablePharmacyIdx && (
-                              <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block text-center">
-                                Qty
-                              </label>
-                            )}
-                            <input
-                              type="text"
-                              value={item.qty}
-                              onChange={(e) => updatePharmacyRow(index, "qty", e.target.value)}
-                              placeholder="Qty"
-                              className="w-full h-[46px] px-2 text-center bg-white dark:bg-white/5 border border-[#E2E8F0] dark:border-white/10 rounded-[8px] text-[13px] font-medium text-[#1e293b] dark:text-white focus:outline-none"
-                            />
-                          </div>
-                          {/* Price */}
-                          <div className="space-y-1">
-                            {index === firstEditablePharmacyIdx && (
-                              <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block text-center">
-                                Price
-                              </label>
-                            )}
-                            <input
-                              type="text"
-                              value={item.price}
-                              onChange={(e) => updatePharmacyRow(index, "price", e.target.value)}
-                              placeholder="Price"
-                              className="w-full h-[46px] px-3 text-center bg-white dark:bg-white/5 border border-[#E2E8F0] dark:border-white/10 rounded-[8px] text-[13px] font-medium text-[#1e293b] dark:text-white focus:outline-none"
-                            />
-                          </div>
-                          {/* Total */}
-                          <div className="space-y-1">
-                            {index === firstEditablePharmacyIdx && (
-                              <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block text-center">
-                                Total
-                              </label>
-                            )}
-                            <input
-                              type="text"
-                              value={item.total}
-                              onChange={(e) => updatePharmacyRow(index, "total", e.target.value)}
-                              placeholder="Total"
-                              className="w-full h-[46px] px-2 text-center bg-white dark:bg-white/5 border border-[#E2E8F0] dark:border-white/10 rounded-[8px] text-[13px] font-medium text-[#1e293b] dark:text-white focus:outline-none"
-                            />
+                      );
+                    } else {
+                      return (
+                        <div key={index} className="flex items-end w-full py-3 px-6 border-b border-[#E2E8F0] dark:border-white/10 last:border-0">
+                          <div className="grid grid-cols-6 gap-4 flex-1 items-end">
+                            {/* Test Name textarea */}
+                            <div className="space-y-1">
+                              {index === firstEditableLabIdx && (
+                                <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block">
+                                  Test Name
+                                </label>
+                              )}
+                              <textarea
+                                value={item.name}
+                                onChange={(e) => updateLabRow(index, "name", e.target.value)}
+                                placeholder="Complete Blood Count"
+                                rows={2}
+                                className="w-full h-[46px] px-3 py-1.5 bg-white dark:bg-white/5 border border-[#E2E8F0] dark:border-white/10 rounded-[8px] text-[13px] font-medium text-[#1e293b] dark:text-white focus:outline-none resize-none overflow-y-hidden leading-[1.2] whitespace-normal break-words"
+                              />
+                            </div>
+                            {/* Category */}
+                            <div className="space-y-1">
+                              {index === firstEditableLabIdx && (
+                                <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block">
+                                  Category
+                                </label>
+                              )}
+                              <textarea
+                                value={item.category}
+                                onChange={(e) => updateLabRow(index, "category", e.target.value)}
+                                placeholder="Category"
+                                rows={2}
+                                className="w-full h-[46px] px-3 py-1.5 bg-white dark:bg-white/5 border border-[#E2E8F0] dark:border-white/10 rounded-[8px] text-[13px] font-medium text-[#1e293b] dark:text-white focus:outline-none resize-none overflow-y-hidden leading-[1.2] whitespace-normal break-words"
+                              />
+                            </div>
+                            {/* Qty */}
+                            <div className="space-y-1">
+                              {index === firstEditableLabIdx && (
+                                <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block text-center">
+                                  Qty
+                                </label>
+                              )}
+                              <input
+                                type="text"
+                                value={item.qty}
+                                onChange={(e) => updateLabRow(index, "qty", e.target.value)}
+                                placeholder="Qty"
+                                className="w-full h-[46px] px-2 text-center bg-white dark:bg-white/5 border border-[#E2E8F0] dark:border-white/10 rounded-[8px] text-[13px] font-medium text-[#1e293b] dark:text-white focus:outline-none"
+                              />
+                            </div>
+                            {/* Price */}
+                            <div className="space-y-1">
+                              {index === firstEditableLabIdx && (
+                                <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block text-center">
+                                  Price
+                                </label>
+                              )}
+                              <input
+                                type="text"
+                                value={item.price}
+                                onChange={(e) => updateLabRow(index, "price", e.target.value)}
+                                placeholder="Price"
+                                className="w-full h-[46px] px-3 text-center bg-white dark:bg-white/5 border border-[#E2E8F0] dark:border-white/10 rounded-[8px] text-[13px] font-medium text-[#1e293b] dark:text-white focus:outline-none"
+                              />
+                            </div>
+                            {/* Total */}
+                            <div className="space-y-1">
+                              {index === firstEditableLabIdx && (
+                                <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block text-center">
+                                  Total
+                                </label>
+                              )}
+                              <input
+                                type="text"
+                                value={item.total}
+                                onChange={(e) => updateLabRow(index, "total", e.target.value)}
+                                placeholder="Total"
+                                className="w-full h-[46px] px-2 text-center bg-white dark:bg-white/5 border border-[#E2E8F0] dark:border-white/10 rounded-[8px] text-[13px] font-medium text-[#1e293b] dark:text-white focus:outline-none"
+                              />
+                            </div>
+
+                            {/* Source */}
+                            <div className="space-y-1 flex justify-center items-center h-[46px]">
+                              {index === firstEditableLabIdx && (
+                                <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block opacity-0 select-none absolute -top-5">
+                                  Source
+                                </label>
+                              )}
+                              <span className="inline-block px-2 py-0.5 text-[10px] font-semibold text-gray-500 dark:text-slate-400 bg-[#F1F5F9] dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-[4px]">
+                                OPD
+                              </span>
+                            </div>
                           </div>
 
-                          {/* Source */}
-                          <div className="space-y-1 flex justify-center items-center h-[46px]">
-                            {index === firstEditablePharmacyIdx && (
+                          {/* Remove Action Button */}
+                          <div className="w-[40px] flex justify-center items-center h-[46px] ml-4">
+                            {index === firstEditableLabIdx && (
                               <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block opacity-0 select-none absolute -top-5">
-                                Source
+                                Remove
                               </label>
                             )}
-                            <span className="inline-block px-2 py-0.5 text-[10px] font-semibold text-gray-500 dark:text-slate-400 bg-[#F1F5F9] dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-[4px]">
-                              OPD
+                            <button
+                              onClick={() => removeLabRow(index)}
+                              className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-[6px] transition-all cursor-pointer flex items-center justify-center"
+                              title="Remove item"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    }
+                  })}
+                </div>
+              )}
+              <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
+            </div>
+
+            {/* 4. Pharmacy Accordion & Items */}
+            <div className="flex flex-col">
+              <div className="flex items-center justify-between py-[12px] px-[24px] bg-[#F8FAFC]/50 dark:bg-white/5">
+                <button
+                  onClick={() => toggle("pharmacy")}
+                  className="flex items-center gap-2 text-[14px] font-bold text-[#1e293b] dark:text-white cursor-pointer select-none"
+                >
+                  <svg
+                    className={`w-3.5 h-3.5 text-gray-500 transition-transform ${expanded.pharmacy ? "rotate-0" : "-rotate-90"}`}
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                  >
+                    <path d="M6 9l6 6 6-6" />
+                  </svg>
+                  Pharmacy
+                </button>
+              </div>
+              <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
+
+              {expanded.pharmacy && (
+                <div className="flex flex-col py-2">
+                  {pharmacy.map((item, index) => {
+                    if (item.isSystem) {
+                      return (
+                        <div key={index} className="grid grid-cols-12 gap-4 items-center py-3.5 px-6 border-b border-[#E2E8F0] dark:border-white/10 last:border-0">
+                          <div className="col-span-5 text-[14px] font-medium text-[#1e293b] dark:text-white">{item.name}</div>
+                          <div className="col-span-2 text-[14px] text-gray-500 dark:text-slate-400">{item.category}</div>
+                          <div className="col-span-1 text-[14px] text-center text-[#1e293b] dark:text-white">{item.qty}</div>
+                          <div className="col-span-2 text-[14px] font-medium text-center text-gray-500 dark:text-slate-400">{item.price}</div>
+                          <div className="col-span-1 text-[14px] font-bold text-center text-[#1e293b] dark:text-white">{item.total}</div>
+                          <div className="col-span-1 text-right">
+                            <span className="inline-block px-2 py-0.5 text-[10px] font-semibold text-[#64748B] dark:text-slate-400 bg-[#F1F5F9] dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-[33554400px]">
+                              {item.source}
                             </span>
                           </div>
                         </div>
+                      );
+                    } else {
+                      return (
+                        <div key={index} className="flex items-end w-full py-3 px-6 border-b border-[#E2E8F0] dark:border-white/10 last:border-0">
+                          <div className="grid grid-cols-6 gap-4 flex-1 items-end">
+                            {/* Medicine Name textarea */}
+                            <div className="space-y-1">
+                              {index === firstEditablePharmacyIdx && (
+                                <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block">
+                                  Medicine Name
+                                </label>
+                              )}
+                              <textarea
+                                value={item.name}
+                                onChange={(e) => updatePharmacyRow(index, "name", e.target.value)}
+                                placeholder="Paracetamol 500mg"
+                                rows={2}
+                                className="w-full h-[46px] px-3 py-1.5 bg-white dark:bg-white/5 border border-[#E2E8F0] dark:border-white/10 rounded-[8px] text-[13px] font-medium text-[#1e293b] dark:text-white focus:outline-none resize-none overflow-y-hidden leading-[1.2] whitespace-normal break-words"
+                              />
+                            </div>
+                            {/* Category */}
+                            <div className="space-y-1">
+                              {index === firstEditablePharmacyIdx && (
+                                <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block">
+                                  Category
+                                </label>
+                              )}
+                              <textarea
+                                value={item.category}
+                                onChange={(e) => updatePharmacyRow(index, "category", e.target.value)}
+                                placeholder="Category"
+                                rows={2}
+                                className="w-full h-[46px] px-3 py-1.5 bg-white dark:bg-white/5 border border-[#E2E8F0] dark:border-white/10 rounded-[8px] text-[13px] font-medium text-[#1e293b] dark:text-white focus:outline-none resize-none overflow-y-hidden leading-[1.2] whitespace-normal break-words"
+                              />
+                            </div>
+                            {/* Qty */}
+                            <div className="space-y-1">
+                              {index === firstEditablePharmacyIdx && (
+                                <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block text-center">
+                                  Qty
+                                </label>
+                              )}
+                              <input
+                                type="text"
+                                value={item.qty}
+                                onChange={(e) => updatePharmacyRow(index, "qty", e.target.value)}
+                                placeholder="Qty"
+                                className="w-full h-[46px] px-2 text-center bg-white dark:bg-white/5 border border-[#E2E8F0] dark:border-white/10 rounded-[8px] text-[13px] font-medium text-[#1e293b] dark:text-white focus:outline-none"
+                              />
+                            </div>
+                            {/* Price */}
+                            <div className="space-y-1">
+                              {index === firstEditablePharmacyIdx && (
+                                <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block text-center">
+                                  Price
+                                </label>
+                              )}
+                              <input
+                                type="text"
+                                value={item.price}
+                                onChange={(e) => updatePharmacyRow(index, "price", e.target.value)}
+                                placeholder="Price"
+                                className="w-full h-[46px] px-3 text-center bg-white dark:bg-white/5 border border-[#E2E8F0] dark:border-white/10 rounded-[8px] text-[13px] font-medium text-[#1e293b] dark:text-white focus:outline-none"
+                              />
+                            </div>
+                            {/* Total */}
+                            <div className="space-y-1">
+                              {index === firstEditablePharmacyIdx && (
+                                <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block text-center">
+                                  Total
+                                </label>
+                              )}
+                              <input
+                                type="text"
+                                value={item.total}
+                                onChange={(e) => updatePharmacyRow(index, "total", e.target.value)}
+                                placeholder="Total"
+                                className="w-full h-[46px] px-2 text-center bg-white dark:bg-white/5 border border-[#E2E8F0] dark:border-white/10 rounded-[8px] text-[13px] font-medium text-[#1e293b] dark:text-white focus:outline-none"
+                              />
+                            </div>
 
-                        {/* Remove Action Button */}
-                        <div className="w-[40px] flex justify-center items-center h-[46px] ml-4">
-                          {index === firstEditablePharmacyIdx && (
-                            <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block opacity-0 select-none absolute -top-5">
-                              Remove
-                            </label>
-                          )}
-                          <button
-                            onClick={() => removePharmacyRow(index)}
-                            className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-[6px] transition-all cursor-pointer flex items-center justify-center"
-                            title="Remove item"
-                          >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
-                              <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                          </button>
+                            {/* Source */}
+                            <div className="space-y-1 flex justify-center items-center h-[46px]">
+                              {index === firstEditablePharmacyIdx && (
+                                <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block opacity-0 select-none absolute -top-5">
+                                  Source
+                                </label>
+                              )}
+                              <span className="inline-block px-2 py-0.5 text-[10px] font-semibold text-gray-500 dark:text-slate-400 bg-[#F1F5F9] dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-[4px]">
+                                OPD
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Remove Action Button */}
+                          <div className="w-[40px] flex justify-center items-center h-[46px] ml-4">
+                            {index === firstEditablePharmacyIdx && (
+                              <label className="text-[10px] font-bold text-gray-400 dark:text-slate-400 uppercase tracking-wider block opacity-0 select-none absolute -top-5">
+                                Remove
+                              </label>
+                            )}
+                            <button
+                              onClick={() => removePharmacyRow(index)}
+                              className="p-2 text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-500/10 rounded-[6px] transition-all cursor-pointer flex items-center justify-center"
+                              title="Remove item"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                              </svg>
+                            </button>
+                          </div>
                         </div>
-                      </div>
-                    );
-                  }
-                })}
-              </div>
-            )}
-            <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
+                      );
+                    }
+                  })}
+                </div>
+              )}
+              <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
+            </div>
           </div>
         </div>
 
@@ -1039,16 +1028,16 @@ export function OPDBillingDetailsMain({ searchParams }) {
       </div>
 
       {/* Right Section - Gross Total Summary (col-span 4) */}
-      <div className="lg:col-span-4 bg-white dark:bg-[#101935] border border-[#E2E8F0] dark:border-white/10 rounded-[8px] pt-6 pb-6 px-0 h-fit font-inter">
+      <div className="lg:col-span-4 bg-card border border-border rounded-lg pt-6 pb-6 px-0 h-fit font-inter shadow-none">
         {/* Gross Total Header */}
-        <div className="space-y-1 pb-4 px-6">
+        <div className="space-y-1 pb-4 px-4 sm:px-6">
           <span className="text-[14px] font-bold text-[#64748B] dark:text-slate-400 uppercase tracking-wider">GROSS TOTAL</span>
-          <h2 className="text-[28px] font-extrabold text-[#1e293b] dark:text-white">₹{subtotal.toFixed(2)}</h2>
+          <h2 className="text-[28px] font-extrabold text-[#1e293b] dark:text-white font-bold">₹{subtotal.toFixed(2)}</h2>
         </div>
-        <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
+        <div className="border-b border-border"></div>
 
         {/* Calculation Details */}
-        <div className="py-4 px-6">
+        <div className="py-4 px-4 sm:px-6">
           <div className="space-y-3.5">
             <div className="flex items-center justify-between text-[14px]">
               <span className="text-gray-500 dark:text-slate-400 font-medium">Discounts (5%)</span>
@@ -1067,16 +1056,16 @@ export function OPDBillingDetailsMain({ searchParams }) {
             </div>
           </div>
 
-          <div className="border-b border-[#E2E8F0] dark:border-white/10 my-3.5"></div>
+          <div className="border-b border-border my-3.5"></div>
 
           <div className="flex items-center justify-between text-[14px] font-bold text-[#1e293b] dark:text-white">
             <span>Net Payable</span>
             <span>₹{netPayableVal.toFixed(2)}</span>
           </div>
         </div>
-        <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
+        <div className="border-b border-border"></div>
 
-        <div className="py-4 px-6 space-y-3.5">
+        <div className="py-4 px-4 sm:px-6 space-y-3.5">
           <div className="flex items-center justify-between text-[14px]">
             <span className="text-gray-500 dark:text-slate-400 font-medium">Advance Paid</span>
             <span className="text-gray-500 dark:text-slate-400 font-bold">-₹{advanceVal.toFixed(2)}</span>
@@ -1087,10 +1076,10 @@ export function OPDBillingDetailsMain({ searchParams }) {
             <span className="text-[#DF8F2A] text-[18px] font-bold">₹{balanceDueVal.toFixed(2)}</span>
           </div>
         </div>
-        <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
+        <div className="border-b border-border"></div>
 
         {/* Progress Bar / Billing Health */}
-        <div className="py-4 px-6 space-y-3">
+        <div className="py-4 px-4 sm:px-6 space-y-3">
           <div className="flex items-center justify-between text-[12px] font-bold">
             <span className="text-gray-400">Billing Health</span>
             <span className="text-[#DF8F2A]">Low Advance</span>
@@ -1111,7 +1100,7 @@ export function OPDBillingDetailsMain({ searchParams }) {
         <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
 
         {/* Action Buttons */}
-        <div className="py-4 px-6 space-y-3">
+        <div className="py-4 px-4 sm:px-6 space-y-3">
           <button onClick={() => setShowCollectPayment(true)} className="w-full h-11 bg-[#2E37A4] hover:bg-[#2E37A4]/90 text-white font-semibold rounded-[6px] text-[13px] flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer">
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <rect x="2" y="5" width="20" height="14" rx="2" />
@@ -1139,7 +1128,7 @@ export function OPDBillingDetailsMain({ searchParams }) {
 
       {/* Collect Payment Modal Popup Overlay */}
       {showCollectPayment && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/35 backdrop-blur-[0.5px] p-4 animate-in fade-in zoom-in duration-150">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/35 backdrop-blur-[0.5px] p-4">
           <div className="bg-white dark:bg-[#101935] rounded-[12px] shadow-2xl flex flex-col md:flex-row max-w-[800px] w-full overflow-y-auto md:overflow-hidden border border-[#E2E8F0] dark:border-white/10 h-auto max-h-[90vh] md:max-h-[95vh]">
 
             {/* Left Column: Invoice Details */}
@@ -1170,11 +1159,11 @@ export function OPDBillingDetailsMain({ searchParams }) {
                   <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Services</span>
                   <div className="flex justify-between text-[12px] font-medium text-[#1e293b] dark:text-white">
                     <span>Consultation</span>
-                    <span>$150.00</span>
+                    <span>₹150.00</span>
                   </div>
                   <div className="flex justify-between text-[12px] font-medium text-[#1e293b] dark:text-white">
                     <span>Lab Tests</span>
-                    <span>$45.00</span>
+                    <span>₹45.00</span>
                   </div>
                 </div>
               </div>
@@ -1182,20 +1171,20 @@ export function OPDBillingDetailsMain({ searchParams }) {
               <div className="space-y-1.5 mt-6 pt-4 border-t border-[#E2E8F0] dark:border-white/10">
                 <div className="flex justify-between text-[12px] text-gray-500 dark:text-slate-400">
                   <span>Subtotal</span>
-                  <span className="font-semibold text-[#1e293b] dark:text-white">$195.00</span>
+                  <span className="font-semibold text-[#1e293b] dark:text-white">₹195.00</span>
                 </div>
                 <div className="flex justify-between text-[12px] text-gray-500 dark:text-slate-400">
                   <span>Tax (5%)</span>
-                  <span className="font-semibold text-[#1e293b] dark:text-white">$9.75</span>
+                  <span className="font-semibold text-[#1e293b] dark:text-white">₹9.75</span>
                 </div>
                 <div className="flex justify-between text-[12px] text-gray-500 dark:text-slate-400">
                   <span>Insurance</span>
-                  <span className="font-semibold text-[#218F40] dark:text-green-400">-$50.00</span>
+                  <span className="font-semibold text-[#218F40] dark:text-green-400">-₹50.00</span>
                 </div>
                 <div className="border-b border-dashed border-[#E2E8F0] dark:border-white/10 my-1.5"></div>
                 <div className="flex justify-between items-baseline">
                   <span className="text-[12px] font-bold text-[#1e293b] dark:text-white">Total Pending</span>
-                  <span className="text-[18px] font-extrabold text-[#1e293b] dark:text-white">$154.75</span>
+                  <span className="text-[18px] font-extrabold text-[#1e293b] dark:text-white">₹154.75</span>
                 </div>
               </div>
             </div>
@@ -1231,7 +1220,7 @@ export function OPDBillingDetailsMain({ searchParams }) {
                     onChange={(e) => setPayAmount(e.target.value)}
                   />
                 </div>
-                <p className="text-[10px] font-bold text-[#DF8F2A] mt-1">Remaining balance will be $54.75</p>
+                <p className="text-[10px] font-bold text-[#DF8F2A] mt-1">Remaining balance will be ₹54.75</p>
 
                 {/* Payment Method Grid */}
                 <div className="space-y-1.5 mt-4">
@@ -1296,7 +1285,7 @@ export function OPDBillingDetailsMain({ searchParams }) {
 
       {/* Initiate Discharge Modal Popup Overlay */}
       {showInitiateDischarge && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/35 backdrop-blur-[0.5px] p-4 animate-in fade-in zoom-in duration-150">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/35 backdrop-blur-[0.5px] p-4">
           <div className="bg-white dark:bg-[#101935] rounded-[12px] shadow-2xl flex flex-col max-w-[480px] w-full overflow-hidden border border-[#E2E8F0] dark:border-white/10 p-6 space-y-6">
 
             {/* Header */}
@@ -1399,7 +1388,7 @@ function InvoiceGeneratedPage({ searchParams, onClose }) {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
 
         {/* Left Side: Invoice details Sheet */}
-        <div className="lg:col-span-3 bg-white dark:bg-[#101935] rounded-[12px] border border-[#E7E8EB] dark:border-white/10 p-8 shadow-sm space-y-8">
+        <div className="lg:col-span-3 bg-card rounded-lg border border-border p-8 shadow-none space-y-8">
 
           {/* Hospital Header Brand block */}
           <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
@@ -1471,8 +1460,8 @@ function InvoiceGeneratedPage({ searchParams, onClose }) {
                     <div className="text-[11px] text-gray-400 dark:text-slate-500 mt-0.5">Dr. Jane Doe</div>
                   </td>
                   <td className="py-4 text-center text-[13px] font-semibold text-[#1E293B] dark:text-white">1</td>
-                  <td className="py-4 text-right text-[13px] font-semibold text-[#1E293B] dark:text-white">$150.00</td>
-                  <td className="py-4 text-right text-[13px] font-bold text-[#1E293B] dark:text-white">$150.00</td>
+                  <td className="py-4 text-right text-[13px] font-semibold text-[#1E293B] dark:text-white">₹150.00</td>
+                  <td className="py-4 text-right text-[13px] font-bold text-[#1E293B] dark:text-white">₹150.00</td>
                 </tr>
                 <tr>
                   <td className="py-4 pr-4">
@@ -1480,8 +1469,8 @@ function InvoiceGeneratedPage({ searchParams, onClose }) {
                     <div className="text-[11px] text-gray-400 dark:text-slate-500 mt-0.5">Dr. John Smith</div>
                   </td>
                   <td className="py-4 text-center text-[13px] font-semibold text-[#1E293B] dark:text-white">2</td>
-                  <td className="py-4 text-right text-[13px] font-semibold text-[#1E293B] dark:text-white">$200.00</td>
-                  <td className="py-4 text-right text-[13px] font-bold text-[#1E293B] dark:text-white">$200.00</td>
+                  <td className="py-4 text-right text-[13px] font-semibold text-[#1E293B] dark:text-white">₹200.00</td>
+                  <td className="py-4 text-right text-[13px] font-bold text-[#1E293B] dark:text-white">₹200.00</td>
                 </tr>
               </tbody>
             </table>
@@ -1509,33 +1498,33 @@ function InvoiceGeneratedPage({ searchParams, onClose }) {
             <div className="bg-[#F8FAFC] dark:bg-white/5 border border-[#E2E8F0] dark:border-white/10 p-5 rounded-[12px] w-full md:w-[300px] space-y-3 shadow-sm shrink-0">
               <div className="flex justify-between text-[12px] text-gray-500 dark:text-slate-400">
                 <span>Subtotal</span>
-                <span className="font-semibold text-gray-800 dark:text-white">$195.00</span>
+                <span className="font-semibold text-gray-800 dark:text-white">₹195.00</span>
               </div>
               <div className="flex justify-between text-[12px] text-gray-500 dark:text-slate-400">
                 <span>Tax (5%) GST</span>
-                <span className="font-semibold text-gray-800 dark:text-white">$9.75</span>
+                <span className="font-semibold text-gray-800 dark:text-white">₹9.75</span>
               </div>
               <div className="flex justify-between text-[12px] text-gray-500 dark:text-slate-400">
                 <span>Insurance Coverage</span>
-                <span className="font-bold text-[#218F40] dark:text-emerald-400">-$50.00</span>
+                <span className="font-bold text-[#218F40] dark:text-emerald-400">-₹50.00</span>
               </div>
 
               <div className="border-t border-dashed border-[#E2E8F0] dark:border-white/10 my-2"></div>
 
               <div className="flex justify-between items-baseline">
                 <span className="text-[12px] font-bold text-[#1E293B] dark:text-white">Grand Total</span>
-                <span className="text-[18px] font-extrabold text-[#1E293B] dark:text-white">$154.75</span>
+                <span className="text-[18px] font-extrabold text-[#1E293B] dark:text-white">₹154.75</span>
               </div>
               <div className="flex justify-between items-baseline">
                 <span className="text-[12px] font-bold text-gray-500 dark:text-slate-400">Amount Paid</span>
-                <span className="text-[15px] font-extrabold text-[#218F40] dark:text-emerald-400">$154.75</span>
+                <span className="text-[15px] font-extrabold text-[#218F40] dark:text-emerald-400">₹154.75</span>
               </div>
 
               <div className="border-t border-dashed border-[#E2E8F0] dark:border-white/10 my-2"></div>
 
               <div className="flex justify-between items-baseline">
                 <span className="text-[12px] font-black text-gray-700 dark:text-slate-300">Balance Due</span>
-                <span className="text-[18px] font-black text-[#1E293B] dark:text-white">$0.00</span>
+                <span className="text-[18px] font-black text-[#1E293B] dark:text-white">₹0.00</span>
               </div>
             </div>
 
@@ -1544,8 +1533,8 @@ function InvoiceGeneratedPage({ searchParams, onClose }) {
         </div>
 
         {/* Right Side: Action Box Card */}
-        <div className="bg-white dark:bg-[#101935] rounded-[12px] border border-[#E7E8EB] dark:border-white/10 p-5 shadow-sm space-y-4 h-fit">
-          <h3 className="text-[15px] font-bold text-[#1e293b] dark:text-white pb-3 border-b border-[#E2E8F0] dark:border-white/10">Invoice Actions</h3>
+        <div className="bg-card rounded-lg border border-border p-5 shadow-none space-y-4 h-fit">
+          <h3 className="text-[15px] font-bold text-[#1e293b] dark:text-white pb-3 border-b border-border">Invoice Actions</h3>
 
           <button onClick={() => window.print()} className="w-full h-10 bg-[#2E37A4] hover:bg-[#2E37A4]/90 text-white font-bold rounded-[6px] text-[13px] flex items-center justify-center gap-2 cursor-pointer transition-colors shadow-sm">
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">

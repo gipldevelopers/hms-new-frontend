@@ -4,14 +4,14 @@ import React from "react";
 
 export function PendingPayments() {
   return (
-    <div className="bg-white dark:bg-[#101935] rounded-[6px] border border-[#E7E8EB] dark:border-white/10 overflow-hidden h-[224px]">
+    <div className="bg-card border border-border rounded-lg overflow-hidden h-[224px] shadow-none">
       <div className="px-5 py-4">
         <h3 className="text-[16px] font-bold text-[#1e293b] dark:text-white font-inter">
           Pending Payments & Revenue
         </h3>
       </div>
 
-      <div className="border-b border-[#E7E8EB] dark:border-white/10 w-full"></div>
+      <div className="border-b border-border w-full"></div>
 
       <div className="p-5 flex flex-col justify-center h-[calc(100%-60px)]">
         <div className="mb-4">

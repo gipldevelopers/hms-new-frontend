@@ -13,8 +13,8 @@ const links = [
 
 export function FinanceQuickLinks() {
   return (
-    <div className="bg-white dark:bg-[#101935] rounded-[6px] border border-[#E7E8EB] dark:border-white/10 overflow-hidden font-sans transition-all md:h-[224px] h-auto">
-      <div className="px-6 py-4 border-b border-[#E7E8EB] dark:border-white/10">
+    <div className="bg-card rounded-lg border border-border overflow-hidden font-sans transition-all md:h-[224px] h-auto shadow-none">
+      <div className="px-6 py-4 border-b border-border">
         <h3 className="text-[16px] font-bold text-[#101935] dark:text-white font-inter">Quick Links</h3>
       </div>
 
@@ -23,7 +23,7 @@ export function FinanceQuickLinks() {
           {links.map((link, idx) => (
             <div
               key={idx}
-              className="flex flex-col items-center justify-center p-3 border border-[#E7E8EB] dark:border-white/10 rounded-[5px] transition-all cursor-pointer bg-white dark:bg-[#101935] group h-full"
+              className="flex flex-col items-center justify-center p-3 border border-border rounded-lg transition-all cursor-pointer bg-card group h-full hover:bg-muted/30 shadow-none"
             >
               <div className="w-full h-[60px] bg-[#F4F7FA] dark:bg-[#1e293b] rounded-[5px] flex items-center justify-center mb-3">
                 <link.icon
