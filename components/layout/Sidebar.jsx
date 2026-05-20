@@ -37,7 +37,9 @@ import {
   Bell,
   Siren,
   CreditCard,
-  Percent
+  Percent,
+  Bed,
+  HeartPulse
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -161,9 +163,11 @@ const roleMenus = {
   ],
   "reports": [
     { name: "Dashboard", icon: LayoutGrid, path: "/reports", section: "none" },
-    { name: "System Reports", icon: PieChart, path: "/reports/system", section: "REPORTS" },
-    { name: "User Logs", icon: FileText, path: "/reports/logs", section: "REPORTS" },
-    { name: "Profile & Settings", icon: User, path: "/reports/profile", section: "REPORTS" },
+    { name: "Bed Occupancy", icon: Bed, path: "/reports/bed-occupancy", section: "HOSPITAL ANALYTICS" },
+    { name: "Emergency Analytics", icon: Siren, path: "/reports/emergency-analytics", section: "HOSPITAL ANALYTICS" },
+    { name: "Clinical KPI Dashboard", icon: ShieldCheck, path: "/reports/clinical-kpi", section: "HOSPITAL ANALYTICS" },
+    { name: "OT Utilization", icon: HeartPulse, path: "/reports/ot-utilization", section: "HOSPITAL ANALYTICS" },
+    { name: "Financial Insights", icon: BarChart3, path: "/reports/financial-insights", section: "FINANCE" },
   ]
 };
 

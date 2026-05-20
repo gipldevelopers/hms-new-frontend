@@ -1,4 +1,4 @@
-import { DynamicDashboard } from "@/components/dashboard/DynamicDashboard";
+import ReportsDashboard from "@/components/reports/dashboard/ReportsDashboard";
 export default function Page() {
-  return <DynamicDashboard roleName="Reports & Management" />;
+  return <ReportsDashboard />;
 }
