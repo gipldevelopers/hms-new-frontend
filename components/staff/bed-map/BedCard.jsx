@@ -18,6 +18,7 @@ import { format } from "date-fns";
 import { useRouter } from "next/navigation";
 import PatientSelectionModal from "./PatientSelectionModal";
 import { toast } from "sonner";
+import { AnimatePresence } from "framer-motion";
 
 export default function BedCard({ bed, refresh, deptId, wardId, branchId }) {
   const router = useRouter();
@@ -146,13 +147,16 @@ export default function BedCard({ bed, refresh, deptId, wardId, branchId }) {
           </div>
         </div>
 
-        <PatientSelectionModal 
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onSelect={handleSelectPatient}
-          bedLabel={label}
-          branchId={branchId}
-        />
+        <AnimatePresence>
+          {isModalOpen && (
+            <PatientSelectionModal 
+              onClose={() => setIsModalOpen(false)}
+              onSelect={handleSelectPatient}
+              bedLabel={label}
+              branchId={branchId}
+            />
+          )}
+        </AnimatePresence>
       </>
     );
   }

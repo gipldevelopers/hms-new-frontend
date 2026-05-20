@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { 
   Search, 
   Download, 
@@ -11,7 +11,7 @@ import {
   Circle,
   ArrowLeft
 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,224 +20,236 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { AddMedicineToRackModal } from "./AddMedicineToRackModal";
+import { API_URL } from "@/lib/api";
 
 export function RackView() {
   const router = useRouter();
-  const [isAddModalOpen, setIsAddModalOpen] = React.useState(false);
+  const searchParams = useSearchParams();
+  const highlight = searchParams ? searchParams.get("highlight") : null;
 
-  const rackData = [
-    {
-      aisle: "AISLE A - GENERAL TABLETS",
-      racks: [
-        { 
-          id: "A-01", 
-          items: [
-            { name: "Aspirin 75mg", qty: 1200, status: "in-stock" },
-            { name: "Ibuprofen 400mg", qty: 800, status: "in-stock" }
-          ]
-        },
-        { 
-          id: "A-02", 
-          highlighted: true,
-          items: [
-            { name: "Pantoprazole 40mg", qty: 2100, status: "in-stock" }
-          ]
-        },
-        { 
-          id: "A-03", 
-          items: [
-            { name: "Lisinopril 5mg", qty: 120, status: "low" }
-          ]
-        },
-        { 
-          id: "A-04", 
-          items: [
-            { name: "Metformin 500mg", qty: 0, status: "oos" }
-          ]
-        },
-        { 
-          id: "A-05", 
-          items: [
-            { name: "Atorvastatin 10mg", qty: 450, status: "in-stock" }
-          ]
-        },
-        { 
-          id: "A-06", 
-          items: [
-            { name: "Amlodipine 5mg", qty: 30, status: "critical" },
-            { name: "Losartan 50mg", qty: 25, status: "critical" }
-          ]
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [selectedRackId, setSelectedRackId] = useState("A-01");
+  const [items, setItems] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const fetchInventory = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const token = localStorage.getItem("authtoken");
+      const userStr = localStorage.getItem("user");
+      if (!token || !userStr) {
+        setError("Session expired. Please login again.");
+        setLoading(false);
+        return;
+      }
+      const user = JSON.parse(userStr);
+      const branchId = user.branchId;
+
+      const res = await fetch(`${API_URL}/pharmacy/inventory?branchId=${branchId}`, {
+        headers: {
+          "Authorization": `Bearer ${token}`
         }
-      ]
-    },
-    {
-      aisle: "AISLE B - ANTIBIOTICS & CAPSULES",
-      racks: [
-        { id: "B-01", items: [{ name: "Ciprofloxacin 500mg", qty: 300, status: "in-stock" }] },
-        { id: "B-02", items: [{ name: "Doxycycline 100mg", qty: 150, status: "low" }] },
-        { id: "B-03", items: [{ name: "Cephalexin 500mg", qty: 600, status: "in-stock" }] },
-        { id: "B-04", items: [{ name: "Amoxicillin 250mg", qty: 450, status: "low" }] },
-        { id: "B-05", items: [{ name: "Ciprofloxacin 500mg", qty: 300, status: "in-stock" }] },
-        { id: "B-06", items: [{ name: "Doxycycline 100mg", qty: 150, status: "low" }] },
-        { id: "B-07", items: [{ name: "Cephalexin 500mg", qty: 600, status: "in-stock" }] },
-        { id: "B-08", items: [{ name: "Amoxicillin 250mg", qty: 450, status: "low" }] },
-      ]
+      });
+      const result = await res.json();
+      if (result.success) {
+        setItems(result.data || []);
+      } else {
+        setError(result.error || "Failed to fetch inventory items.");
+      }
+    } catch (err) {
+      setError("Failed to load inventory. Please verify backend connection.");
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  useEffect(() => {
+    fetchInventory();
+  }, []);
 
   const getStatusStyles = (status) => {
     switch (status) {
-      case "in-stock": return "bg-[#dcfce7] border-[#bbf7d0] text-[#15803d]";
-      case "low": return "bg-[#fef3c7] border-[#fde68a] text-[#b45309]";
-      case "critical": return "bg-[#fee2e2] border-[#fecaca] text-[#b91c1c]";
-      case "oos": return "bg-[#f1f5f9] border-[#e2e8f0] text-[#64748b]";
-      default: return "";
+      case "IN STOCK": return "bg-[#dcfce7] border-[#bbf7d0] text-[#15803d]";
+      case "LOW": return "bg-[#fef3c7] border-[#fde68a] text-[#b45309]";
+      case "OUT OF STOCK": return "bg-[#fee2e2] border-[#fecaca] text-[#b91c1c]";
+      default: return "bg-gray-50 border-gray-200 text-gray-600";
     }
   };
 
   const getDotColor = (status) => {
     switch (status) {
-      case "in-stock": return "bg-[#22c55e]";
-      case "low": return "bg-[#f59e0b]";
-      case "critical": return "bg-[#ef4444]";
-      case "oos": return "bg-[#94a3b8]";
-      default: return "";
+      case "IN STOCK": return "bg-[#22c55e]";
+      case "LOW": return "bg-[#f59e0b]";
+      case "OUT OF STOCK": return "bg-[#ef4444]";
+      default: return "bg-gray-400";
     }
   };
 
+  // Racks A-01 to A-04 and E-01 to E-04
+  const aisles = [
+    { key: "A", name: "AISLE A - GENERAL TABLETS" },
+    { key: "B", name: "AISLE B - ANTIBIOTICS & CAPSULES" },
+    { key: "C", name: "AISLE C - SYRUPS & SUSPENSIONS" },
+    { key: "D", name: "AISLE D - INJECTIONS & INFUSIONS" },
+    { key: "E", name: "AISLE E - CREAMS & OINTMENTS" }
+  ];
+  const rackNumbers = ["01", "02", "03", "04"];
+
+  // Group items by rackId, applying search filters if typed
+  const filteredItems = items.filter(item => 
+    item.medicineName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.rackId?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const rackData = aisles.map((aisle) => {
+    return {
+      aisle: aisle.name,
+      racks: rackNumbers.map((num) => {
+        const rackId = `${aisle.key}-${num}`;
+        const rackItems = filteredItems.filter((item) => item.rackId === rackId);
+        return {
+          id: rackId,
+          highlighted: highlight === rackId,
+          items: rackItems.map((item) => ({
+            name: item.medicineName,
+            qty: item.quantity,
+            status: item.status
+          }))
+        };
+      })
+    };
+  });
+
   return (
-    <div className="p-4 sm:p-6 space-y-[20px] font-sans bg-[#f8f9fc] dark:bg-[#0a0f1d] min-h-screen">
+    <div className="p-4 sm:p-6 space-y-[20px] font-sans bg-background min-h-screen">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex items-center gap-4">
           <button 
             onClick={() => router.back()}
-            className="p-2.5 bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[#64748b] hover:text-[#1e293b] dark:hover:text-white transition-all shadow-none"
+            className="p-2.5 bg-card border border-border rounded-[5px] text-muted-foreground hover:text-foreground transition-all shadow-none"
           >
             <ArrowLeft size={18} />
           </button>
-          <h1 className="text-[20px] font-bold text-[#1e293b] dark:text-white leading-none">Rack Layout Management</h1>
+          <h1 className="text-[20px] font-bold text-foreground leading-none">Rack Layout Management</h1>
         </div>
         <div className="flex items-center gap-3 w-full md:w-auto">
-          <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 h-11 bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-bold text-[#1e293b] dark:text-white hover:bg-gray-50 transition-all shadow-none">
+          <button className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 h-11 bg-card border border-border rounded-[5px] text-[13px] font-bold text-foreground hover:bg-muted transition-all shadow-none">
             <Download size={16} /> Export
-          </button>
-          <button 
-            onClick={() => setIsAddModalOpen(true)}
-            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-6 h-11 bg-[#2e37a4] text-white rounded-[5px] text-[13px] font-bold hover:opacity-90 transition-all shadow-none"
-          >
-            <Plus size={16} strokeWidth={3} /> Add Stock
           </button>
         </div>
       </div>
 
       {/* Filter Bar */}
-      <div className="bg-white dark:bg-[#1e293b] p-3 rounded-[5px] border border-[#e2e8f0] dark:border-[#334155] flex flex-col md:flex-row gap-3 items-center justify-between">
+      <div className="bg-card p-3 rounded-[5px] border border-border flex flex-col md:flex-row gap-3 items-center justify-between shadow-none">
         <div className="relative w-full md:w-[380px]">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#64748b] opacity-50" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground opacity-50" />
           <input 
             type="text"
-            placeholder="Search medicines, batches, or racks..."
-            className="w-full h-11 pl-10 pr-4 bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-bold text-[#1e293b] dark:text-white placeholder:text-[#64748b]/60 outline-none focus:border-primary transition-all shadow-none"
+            placeholder="Search medicines or racks..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full h-11 pl-10 pr-4 bg-background border border-border rounded-[5px] text-[13px] font-bold text-foreground placeholder:text-muted-foreground/60 outline-none focus:border-primary transition-all shadow-none"
           />
-        </div>
-        
-        <div className="flex items-center gap-3 w-full md:w-auto">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="flex-1 md:w-[120px] h-11 px-4 bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-bold text-[#1e293b] dark:text-white flex items-center justify-between hover:bg-gray-50 transition-all outline-none group data-[state=open]:border-primary shadow-none">
-                All <ChevronDown size={14} className="text-[#64748b] transition-transform group-data-[state=open]:rotate-180" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[180px] p-1 rounded-[5px]">
-              <DropdownMenuItem className="font-bold text-[13px]">All</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="flex-1 md:w-[120px] h-11 px-4 bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-bold text-[#1e293b] dark:text-white flex items-center justify-between hover:bg-gray-50 transition-all outline-none group data-[state=open]:border-primary shadow-none">
-                All <ChevronDown size={14} className="text-[#64748b] transition-transform group-data-[state=open]:rotate-180" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[180px] p-1 rounded-[5px]">
-              <DropdownMenuItem className="font-bold text-[13px]">All</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
         </div>
       </div>
 
       {/* Rack Map Section */}
-      <div className="bg-white dark:bg-[#1e293b] p-6 rounded-[5px] border border-[#e2e8f0] dark:border-[#334155] space-y-8">
+      <div className="bg-card p-6 rounded-[5px] border border-border space-y-8 shadow-none">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <h2 className="text-[15px] font-bold text-[#1e293b] dark:text-white">Physical Rack Map</h2>
+          <h2 className="text-[15px] font-bold text-foreground">Physical Rack Map (A1-A4 to E1-E4)</h2>
           <div className="flex flex-wrap items-center gap-4">
             <div className="flex items-center gap-1.5">
               <div className="w-2.5 h-2.5 rounded-full bg-[#22c55e]" />
-              <span className="text-[11px] font-bold text-[#64748b] dark:text-[#94a3b8]">In Stock</span>
+              <span className="text-[11px] font-bold text-muted-foreground">In Stock</span>
             </div>
             <div className="flex items-center gap-1.5">
               <div className="w-2.5 h-2.5 rounded-full bg-[#f59e0b]" />
-              <span className="text-[11px] font-bold text-[#64748b] dark:text-[#94a3b8]">Low Stock</span>
+              <span className="text-[11px] font-bold text-muted-foreground">Low Stock</span>
             </div>
             <div className="flex items-center gap-1.5">
               <div className="w-2.5 h-2.5 rounded-full bg-[#ef4444]" />
-              <span className="text-[11px] font-bold text-[#64748b] dark:text-[#94a3b8]">Critical</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <div className="w-2.5 h-2.5 rounded-full bg-[#94a3b8]" />
-              <span className="text-[11px] font-bold text-[#64748b] dark:text-[#94a3b8]">Empty/OOS</span>
+              <span className="text-[11px] font-bold text-muted-foreground">Out of Stock</span>
             </div>
           </div>
         </div>
 
-        {rackData.map((section, sIdx) => (
-          <div key={sIdx} className="space-y-4">
-            <h3 className="text-[11px] font-bold text-[#64748b] dark:text-[#94a3b8] uppercase tracking-widest">{section.aisle}</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[20px]">
-              {section.racks.map((rack, rIdx) => (
-                <div 
-                  key={rIdx} 
-                  className={cn(
-                    "bg-[#f8fafc] dark:bg-white/5 rounded-[5px] border border-[#e2e8f0] dark:border-white/10 flex flex-col overflow-hidden transition-all",
-                    rack.highlighted && "border-[#2e37a4] ring-1 ring-[#2e37a4]"
-                  )}
-                >
-                  <div className="px-4 py-3 flex items-center justify-between border-b border-[#e2e8f0] dark:border-white/5">
-                    <span className="text-[12px] font-bold text-[#1e293b] dark:text-white tracking-tight">{rack.id}</span>
-                    <button 
-                      onClick={() => setIsAddModalOpen(true)}
-                      className="text-[#64748b] hover:text-[#1e293b] dark:hover:text-white transition-colors"
-                    >
-                      <PlusCircle size={14} />
-                    </button>
-                  </div>
-                  <div className="p-2 space-y-2 flex-1">
-                    {rack.items.map((item, iIdx) => (
-                      <div 
-                        key={iIdx} 
-                        className={cn(
-                          "px-3 py-2.5 rounded-[5px] border flex items-center justify-between gap-3 group transition-all",
-                          getStatusStyles(item.status)
-                        )}
-                      >
-                        <div className="min-w-0 flex-1">
-                          <p className="text-[12px] font-bold truncate leading-tight mb-0.5">{item.name}</p>
-                          <p className="text-[10px] font-bold opacity-70">Qty: {item.qty}</p>
-                        </div>
-                        <div className={cn("w-1.5 h-1.5 rounded-full shrink-0 shadow-sm", getDotColor(item.status))} />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
+        {loading ? (
+          <div className="p-12 text-center flex flex-col items-center justify-center gap-4">
+            <div className="h-8 w-8 animate-spin border-[3px] border-primary/20 border-t-primary rounded-full" />
+            <p className="text-[13px] font-bold text-muted-foreground">Loading rack configurations...</p>
           </div>
-        ))}
+        ) : error ? (
+          <div className="p-12 text-center text-red-500 font-bold text-[13px]">
+            {error}
+          </div>
+        ) : (
+          rackData.map((section, sIdx) => (
+            <div key={sIdx} className="space-y-4">
+              <h3 className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">{section.aisle}</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[20px]">
+                {section.racks.map((rack, rIdx) => (
+                  <div 
+                    key={rIdx} 
+                    className={cn(
+                      "bg-muted/10 rounded-[5px] border border-border flex flex-col overflow-hidden transition-all",
+                      rack.highlighted && "border-[#2e37a4] ring-1 ring-[#2e37a4] dark:border-primary dark:ring-primary"
+                    )}
+                  >
+                    <div className="px-4 py-3 flex items-center justify-between border-b border-border bg-muted/20">
+                      <span className="text-[12px] font-bold text-foreground tracking-tight">{rack.id}</span>
+                      <button 
+                        onClick={() => {
+                          setSelectedRackId(rack.id);
+                          setIsAddModalOpen(true);
+                        }}
+                        className="text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                      >
+                        <PlusCircle size={14} />
+                      </button>
+                    </div>
+                    <div className="p-2 space-y-2 flex-1">
+                      {rack.items.length > 0 ? (
+                        rack.items.map((item, iIdx) => (
+                          <div 
+                            key={iIdx} 
+                            className={cn(
+                              "px-3 py-2.5 rounded-[5px] border flex items-center justify-between gap-3 group transition-all",
+                              getStatusStyles(item.status)
+                            )}
+                          >
+                            <div className="min-w-0 flex-1">
+                              <p className="text-[12px] font-bold truncate leading-tight mb-0.5">{item.name}</p>
+                              <p className="text-[10px] font-bold opacity-70">Qty: {item.qty}</p>
+                            </div>
+                            <div className={cn("w-1.5 h-1.5 rounded-full shrink-0 shadow-sm", getDotColor(item.status))} />
+                          </div>
+                        ))
+                      ) : (
+                        <div className="text-[11px] font-bold text-muted-foreground/50 text-center py-6 italic select-none">
+                          Empty
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       {/* Modals */}
-      <AddMedicineToRackModal open={isAddModalOpen} onOpenChange={setIsAddModalOpen} />
+      <AddMedicineToRackModal 
+        open={isAddModalOpen} 
+        onOpenChange={setIsAddModalOpen} 
+        rackId={selectedRackId}
+        items={items}
+        onSuccess={fetchInventory}
+      />
     </div>
   );
 }

@@ -36,6 +36,7 @@ import {
   DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
 import { PromptModal } from "@/components/ui/prompt-modal";
+import { AnimatePresence } from "framer-motion";
 
 import { 
   DndContext, 
@@ -604,14 +605,17 @@ export default function CreateTemplatePage() {
           )}
         </DragOverlay>
 
-        <PromptModal 
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onConfirm={handleModalConfirm}
-          title="Add New Category"
-          label="Category Name"
-          placeholder="e.g. Radiology, Billing..."
-        />
+        <AnimatePresence>
+          {isModalOpen && (
+            <PromptModal 
+              onClose={() => setIsModalOpen(false)}
+              onConfirm={handleModalConfirm}
+              title="Add New Category"
+              label="Category Name"
+              placeholder="e.g. Radiology, Billing..."
+            />
+          )}
+        </AnimatePresence>
       </div>
     </DndContext>
   );
