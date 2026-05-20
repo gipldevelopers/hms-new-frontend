@@ -158,9 +158,9 @@ export function DispensingBilling() {
                   <p className="text-[10px] font-bold text-[#64748b] uppercase tracking-tight opacity-70 mb-1">Insurance / Scheme</p>
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <button className="w-full h-11 px-4 bg-[#f8fafc] dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-bold text-[#1e293b] dark:text-white flex items-center justify-between hover:bg-[#f1f5f9] dark:hover:bg-[#334155] transition-all outline-none group data-[state=open]:border-primary">
+                      <button className="flex items-center justify-between w-full h-11 px-4 bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-bold text-[#1e293b] dark:text-white hover:bg-gray-50 transition-all outline-none group data-[state=open]:border-primary shadow-none">
                         <span className="truncate">{insuranceScheme}</span>
-                        <ChevronDown className="w-4 h-4 text-[#64748b] group-hover:text-[#1e293b] dark:group-hover:text-white transition-colors" />
+                        <ChevronDown className="w-4 h-4 text-[#64748b] transition-transform group-data-[state=open]:rotate-180" />
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start" className="w-[calc(100vw-40px)] md:w-[350px]">

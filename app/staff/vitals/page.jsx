@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Search,
   ChevronDown,
@@ -115,12 +115,6 @@ const statusOptions = [
   { label: "Abnormal", value: "abnormal" },
   { label: "Normal",   value: "normal"   },
 ];
-const wardOptions = [
-  { label: "ICU",    value: "icu"    },
-  { label: "Ward A", value: "ward-a" },
-  { label: "Ward B", value: "ward-b" },
-  { label: "Ward C", value: "ward-c" },
-];
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function VitalsPage() {
@@ -128,15 +122,68 @@ export default function VitalsPage() {
   const [searchQuery, setSearchQuery]   = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [wardFilter, setWardFilter]     = useState("");
+  const [wardOptions, setWardOptions]   = useState([]);
+  const [history, setHistory]           = useState([]);
+  const [stats, setStats]               = useState({ totalPatients: 0, critical: 0, abnormal: 0, overdue: 0 });
+  const [loading, setLoading]           = useState(true);
 
-  const filtered = vitalsData.filter((v) => {
-    const matchSearch = v.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchStatus =
-      !statusFilter ||
-      v.bpStatus === statusFilter ||
-      v.spo2Status === statusFilter;
-    return matchSearch && matchStatus;
-  });
+  useEffect(() => {
+    const fetchFilters = async () => {
+      try {
+        const token = localStorage.getItem("authtoken");
+        const res = await fetch("/api/vitals/filters", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setWardOptions(data.wards || []);
+        }
+      } catch (e) {
+        console.error("Error fetching vitals filters:", e);
+      }
+    };
+    fetchFilters();
+  }, []);
+
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      const fetchData = async () => {
+        try {
+          setLoading(true);
+          const token = localStorage.getItem("authtoken");
+          const headers = { Authorization: `Bearer ${token}` };
+
+          const params = new URLSearchParams();
+          if (searchQuery) params.append("search", searchQuery);
+          if (statusFilter) params.append("status", statusFilter);
+          if (wardFilter) params.append("ward", wardFilter);
+
+          const [overRes, statsRes] = await Promise.all([
+            fetch(`/api/vitals/overview?${params.toString()}`, { headers }),
+            fetch("/api/vitals/stats", { headers })
+          ]);
+
+          if (overRes.ok) {
+            const overData = await overRes.json();
+            setHistory(overData);
+          }
+          if (statsRes.ok) {
+            const statsData = await statsRes.json();
+            setStats(statsData);
+          }
+        } catch (e) {
+          console.error("Error fetching vitals:", e);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchData();
+    }, 300);
+
+    return () => clearTimeout(delayDebounce);
+  }, [searchQuery, statusFilter, wardFilter]);
+
+  const filtered = history;
 
   return (
     <div className="p-5 bg-background min-h-screen flex flex-col space-y-5 transition-colors duration-300 font-sans pb-20">
@@ -150,10 +197,10 @@ export default function VitalsPage() {
 
       {/* ── Stats ── */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-        <StatCard label="Total Patients" value="14" icon={Activity}      color="blue"    />
-        <StatCard label="Critical"       value="02" icon={AlertTriangle} color="red"     />
-        <StatCard label="Abnormal"       value="04" icon={TrendingUp}    color="amber"   />
-        <StatCard label="Overdue"        value="03" icon={Clock}         color="emerald" />
+        <StatCard label="Total Patients" value={String(stats.totalPatients).padStart(2, '0')} icon={Activity}      color="blue"    />
+        <StatCard label="Critical"       value={String(stats.critical).padStart(2, '0')} icon={AlertTriangle} color="red"     />
+        <StatCard label="Abnormal"       value={String(stats.abnormal).padStart(2, '0')} icon={TrendingUp}    color="amber"   />
+        <StatCard label="Overdue"        value={String(stats.overdue).padStart(2, '0')} icon={Clock}         color="emerald" />
       </div>
 
       {/* ── Filter Bar + Table ── */}
@@ -189,159 +236,173 @@ export default function VitalsPage() {
           </div>
         </div>
 
-        {/* ── Mobile Card View ── */}
-        <div className="grid grid-cols-1 gap-4 md:hidden">
-          {filtered.map((v) => (
-            <div
-              key={v.id}
-              className="bg-card p-5 rounded-lg border border-border active:scale-[0.98] transition-all shadow-none"
-            >
-              {/* Card Header */}
-              <div className="flex justify-between items-start mb-4">
-                <h3 className="text-[16px] font-bold text-foreground leading-tight">{v.name}</h3>
-                <button
-                  onClick={() => router.push(`/staff/vitals/${v.id}`)}
-                  className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 ml-2 shadow-none"
+        {/* ── Card Grid / Table View ── */}
+        {loading ? (
+          <div className="p-10 flex justify-center text-muted-foreground bg-card rounded-lg border border-border shadow-none">
+            <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full mr-3"></div> Loading...
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="p-10 flex justify-center items-center flex-col text-muted-foreground bg-card rounded-lg border border-border shadow-none">
+            <Activity className="w-10 h-10 mb-2 opacity-50" />
+            <p className="font-medium text-sm">No vitals recorded yet</p>
+          </div>
+        ) : (
+          <>
+            {/* ── Mobile Card View ── */}
+            <div className="grid grid-cols-1 gap-4 md:hidden">
+              {filtered.map((v) => (
+                <div
+                  key={v.id}
+                  className="bg-card p-5 rounded-lg border border-border active:scale-[0.98] transition-all shadow-none"
                 >
-                  <Eye className="w-4 h-4 text-primary" />
-                </button>
-              </div>
-
-              {/* Vitals Grid */}
-              <div className="grid grid-cols-3 gap-x-4 gap-y-4 mb-4">
-                {[
-                  { label: "BP",   value: v.bp,   status: v.bpStatus   },
-                  { label: "HR",   value: v.hr,   status: "normal"     },
-                  { label: "SpO2", value: v.spo2, status: v.spo2Status },
-                  { label: "Temp", value: v.temp, status: "normal"     },
-                  { label: "Resp", value: v.resp, status: "normal"     },
-                  { label: "Pain", value: v.pain, status: "normal"     },
-                ].map(({ label, value, status }) => (
-                  <div key={label}>
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">{label}</p>
-                    <p className={cn(
-                      "text-[13px] font-bold",
-                      status === "critical" && "text-destructive",
-                      status === "abnormal" && "text-amber-500",
-                      status === "normal"   && "text-foreground"
-                    )}>
-                      {value}
-                    </p>
+                  {/* Card Header */}
+                  <div className="flex justify-between items-start mb-4">
+                    <h3 className="text-[16px] font-bold text-foreground leading-tight">{v.name}</h3>
+                    <button
+                      onClick={() => router.push(`/staff/vitals/${v.id}`)}
+                      className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 ml-2 shadow-none"
+                    >
+                      <Eye className="w-4 h-4 text-primary" />
+                    </button>
                   </div>
-                ))}
-              </div>
 
-              {/* Footer */}
-              <div className="pt-4 border-t border-border">
-                <p className="text-[12px] font-medium text-muted-foreground">{v.recordedBy}</p>
-                {v.notes && <p className="text-[11px] text-muted-foreground italic mt-0.5">Notes attached</p>}
+                  {/* Vitals Grid */}
+                  <div className="grid grid-cols-3 gap-x-4 gap-y-4 mb-4">
+                    {[
+                      { label: "BP",   value: v.bp,   status: v.bpStatus   },
+                      { label: "HR",   value: v.hr,   status: "normal"     },
+                      { label: "SpO2", value: v.spo2, status: v.spo2Status },
+                      { label: "Temp", value: v.temp, status: "normal"     },
+                      { label: "Resp", value: v.resp, status: "normal"     },
+                      { label: "Pain", value: v.pain, status: "normal"     },
+                    ].map(({ label, value, status }) => (
+                      <div key={label}>
+                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">{label}</p>
+                        <p className={cn(
+                          "text-[13px] font-bold",
+                          status === "critical" && "text-destructive",
+                          status === "abnormal" && "text-amber-500",
+                          status === "normal"   && "text-foreground"
+                        )}>
+                          {value}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Footer */}
+                  <div className="pt-4 border-t border-border">
+                    <p className="text-[12px] font-medium text-muted-foreground">{v.recordedBy}</p>
+                    {v.notes && <p className="text-[11px] text-muted-foreground italic mt-0.5">Notes attached</p>}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* ── Desktop Table View ── */}
+            <div className="hidden md:block bg-card rounded-lg border border-border shadow-none overflow-hidden">
+              <div className="overflow-x-auto no-scrollbar">
+                <table className="w-full border-collapse">
+                  <thead>
+                    <tr className="bg-muted/30">
+                      {["PATIENT NAME", "BP (mmHg)", "HR", "SpO2", "Temp", "Resp", "Pain", "Recorded By", "Actions"].map((col, i) => (
+                        <th
+                          key={i}
+                          className={cn(
+                            "px-8 py-4 text-[11px] font-bold text-muted-foreground border-b border-border uppercase tracking-widest",
+                            i === 8 ? "text-center" : "text-left"
+                          )}
+                        >
+                          {col}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {filtered.map((v) => (
+                      <tr key={v.id} className="hover:bg-muted/30 transition-all">
+
+                        {/* Patient Name */}
+                        <td className="px-8 py-5">
+                          <span className="text-[14px] font-bold text-foreground">{v.name}</span>
+                        </td>
+
+                        {/* BP */}
+                        <td className="px-8 py-5">
+                          {v.bpStatus === "critical" ? (
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-[12px] font-bold">
+                              <AlertTriangle className="w-3 h-3 shrink-0" />{v.bp}
+                            </span>
+                          ) : v.bpStatus === "abnormal" ? (
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[12px] font-bold">
+                              {v.bp}
+                            </span>
+                          ) : (
+                            <span className="text-[14px] font-medium text-foreground">{v.bp}</span>
+                          )}
+                        </td>
+
+                        {/* HR */}
+                        <td className="px-8 py-5">
+                          <span className="text-[14px] font-medium text-foreground">{v.hr}</span>
+                        </td>
+
+                        {/* SpO2 */}
+                        <td className="px-8 py-5">
+                          {v.spo2Status === "critical" ? (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-[12px] font-bold">
+                              ↓ {v.spo2}
+                            </span>
+                          ) : v.spo2Status === "abnormal" ? (
+                            <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[12px] font-bold">
+                              {v.spo2}
+                            </span>
+                          ) : (
+                            <span className="text-[14px] font-medium text-foreground">{v.spo2}</span>
+                          )}
+                        </td>
+
+                        {/* Temp */}
+                        <td className="px-8 py-5">
+                          <span className="text-[14px] font-medium text-foreground">{v.temp}</span>
+                        </td>
+
+                        {/* Resp */}
+                        <td className="px-8 py-5">
+                          <span className="text-[14px] font-medium text-foreground">{v.resp}</span>
+                        </td>
+
+                        {/* Pain */}
+                        <td className="px-8 py-5">
+                          <span className="text-[14px] font-medium text-foreground">{v.pain}</span>
+                        </td>
+
+                        {/* Recorded By */}
+                        <td className="px-8 py-5">
+                          <p className="text-[13px] font-medium text-foreground leading-tight">{v.recordedBy}</p>
+                          {v.notes && (
+                            <p className="text-[11px] text-muted-foreground font-medium mt-0.5">Notes attached</p>
+                          )}
+                        </td>
+
+                        {/* Actions */}
+                        <td className="px-8 py-5 text-center">
+                          <button
+                            onClick={() => router.push(`/staff/vitals/${v.id}`)}
+                            className="p-2 hover:bg-muted rounded-lg transition-colors inline-flex shadow-none"
+                            title="View vitals history"
+                          >
+                            <Eye className="w-5 h-5 text-primary" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
             </div>
-          ))}
-        </div>
-
-        {/* ── Desktop Table View ── */}
-        <div className="hidden md:block bg-card rounded-lg border border-border shadow-none overflow-hidden">
-          <div className="overflow-x-auto no-scrollbar">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-muted/30">
-                  {["PATIENT NAME", "BP (mmHg)", "HR", "SpO2", "Temp", "Resp", "Pain", "Recorded By", "Actions"].map((col, i) => (
-                    <th
-                      key={i}
-                      className={cn(
-                        "px-8 py-4 text-[11px] font-bold text-muted-foreground border-b border-border uppercase tracking-widest",
-                        i === 8 ? "text-center" : "text-left"
-                      )}
-                    >
-                      {col}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {filtered.map((v) => (
-                  <tr key={v.id} className="hover:bg-muted/30 transition-all">
-
-                    {/* Patient Name */}
-                    <td className="px-8 py-5">
-                      <span className="text-[14px] font-bold text-foreground">{v.name}</span>
-                    </td>
-
-                    {/* BP */}
-                    <td className="px-8 py-5">
-                      {v.bpStatus === "critical" ? (
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-[12px] font-bold">
-                          <AlertTriangle className="w-3 h-3 shrink-0" />{v.bp}
-                        </span>
-                      ) : v.bpStatus === "abnormal" ? (
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[12px] font-bold">
-                          {v.bp}
-                        </span>
-                      ) : (
-                        <span className="text-[14px] font-medium text-foreground">{v.bp}</span>
-                      )}
-                    </td>
-
-                    {/* HR */}
-                    <td className="px-8 py-5">
-                      <span className="text-[14px] font-medium text-foreground">{v.hr}</span>
-                    </td>
-
-                    {/* SpO2 */}
-                    <td className="px-8 py-5">
-                      {v.spo2Status === "critical" ? (
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-destructive/10 border border-destructive/20 text-destructive text-[12px] font-bold">
-                          ↓ {v.spo2}
-                        </span>
-                      ) : v.spo2Status === "abnormal" ? (
-                        <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-500 text-[12px] font-bold">
-                          {v.spo2}
-                        </span>
-                      ) : (
-                        <span className="text-[14px] font-medium text-foreground">{v.spo2}</span>
-                      )}
-                    </td>
-
-                    {/* Temp */}
-                    <td className="px-8 py-5">
-                      <span className="text-[14px] font-medium text-foreground">{v.temp}</span>
-                    </td>
-
-                    {/* Resp */}
-                    <td className="px-8 py-5">
-                      <span className="text-[14px] font-medium text-foreground">{v.resp}</span>
-                    </td>
-
-                    {/* Pain */}
-                    <td className="px-8 py-5">
-                      <span className="text-[14px] font-medium text-foreground">{v.pain}</span>
-                    </td>
-
-                    {/* Recorded By */}
-                    <td className="px-8 py-5">
-                      <p className="text-[13px] font-medium text-foreground leading-tight">{v.recordedBy}</p>
-                      {v.notes && (
-                        <p className="text-[11px] text-muted-foreground font-medium mt-0.5">Notes attached</p>
-                      )}
-                    </td>
-
-                    {/* Actions */}
-                    <td className="px-8 py-5 text-center">
-                      <button
-                        onClick={() => router.push(`/staff/vitals/${v.id}`)}
-                        className="p-2 hover:bg-muted rounded-lg transition-colors inline-flex shadow-none"
-                        title="View vitals history"
-                      >
-                        <Eye className="w-5 h-5 text-primary" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
+          </>
+        )}
       </div>
     </div>
   );
