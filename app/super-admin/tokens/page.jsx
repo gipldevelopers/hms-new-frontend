@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { CustomCalendar } from "@/components/ui/custom-calendar";
 import { format } from "date-fns";
+import { motion, AnimatePresence } from "framer-motion";
 
 // ─── Status badge ─────────────────────────────────────────────────────────────
 const STATUS_STYLE = {
@@ -42,40 +43,53 @@ function TokenGeneratedModal({ isOpen, onClose, token }) {
     return () => window.removeEventListener("keydown", h);
   }, [isOpen, onClose]);
 
-  if (!isOpen || !token) return null;
-
   return (
-    <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" onClick={onClose} />
-      <div className="relative bg-white dark:bg-[#111827] w-full max-w-[400px] rounded-[8px] border border-border overflow-hidden animate-in zoom-in-95 duration-200">
-        <button onClick={onClose} className="absolute right-4 top-4 p-1 hover:bg-muted rounded-full text-muted-foreground">
-          <X className="w-4 h-4" />
-        </button>
-        <div className="p-8 flex flex-col items-center text-center space-y-6">
-          <div className="w-16 h-16 bg-[#00A389] rounded-full flex items-center justify-center">
-            <Check className="w-8 h-8 text-white stroke-[3]" />
-          </div>
-          <div className="space-y-1">
-            <h2 className="text-[18px] font-bold text-foreground">Token Generated</h2>
-            <p className="text-[13px] text-muted-foreground">Successfully added to today&apos;s queue</p>
-          </div>
-          <div className="w-full bg-[#F5F7FF] dark:bg-primary/5 border border-primary/10 py-8 rounded-[8px] flex flex-col items-center gap-2">
-            <span className="text-[11px] font-bold text-primary/60 tracking-widest uppercase">Token Number</span>
-            <span className="text-[48px] font-bold text-[#3B4CB8] leading-none tracking-wide">{token.displayToken}</span>
-            <span className="text-[12px] text-muted-foreground font-medium">{token.patient?.name || "Patient"}</span>
-          </div>
-          <div className="grid grid-cols-2 gap-3 w-full">
-            <button onClick={onClose} className="h-11 border border-border rounded-[5px] text-[13px] font-bold text-foreground hover:bg-muted transition-all">
-              Close
+    <AnimatePresence>
+      {isOpen && token && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
+          />
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0, y: 16 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.95, opacity: 0, y: 16 }}
+            className="relative bg-white dark:bg-[#111827] w-full max-w-[400px] rounded-[8px] border border-border overflow-hidden z-10"
+          >
+            <button onClick={onClose} className="absolute right-4 top-4 p-1 hover:bg-muted rounded-full text-muted-foreground">
+              <X className="w-4 h-4" />
             </button>
-            <button onClick={() => window.print()} className="flex items-center justify-center gap-2 h-11 bg-[#3B4CB8] text-white rounded-[5px] text-[13px] font-bold hover:opacity-90 transition-all">
-              <Printer className="w-4 h-4" />
-              Print Token
-            </button>
-          </div>
+            <div className="p-8 flex flex-col items-center text-center space-y-6">
+              <div className="w-16 h-16 bg-[#00A389] rounded-full flex items-center justify-center">
+                <Check className="w-8 h-8 text-white stroke-[3]" />
+              </div>
+              <div className="space-y-1">
+                <h2 className="text-[18px] font-bold text-foreground">Token Generated</h2>
+                <p className="text-[13px] text-muted-foreground">Successfully added to today&apos;s queue</p>
+              </div>
+              <div className="w-full bg-[#F5F7FF] dark:bg-primary/5 border border-primary/10 py-8 rounded-[8px] flex flex-col items-center gap-2">
+                <span className="text-[11px] font-bold text-primary/60 tracking-widest uppercase">Token Number</span>
+                <span className="text-[48px] font-bold text-[#3B4CB8] leading-none tracking-wide">{token.displayToken}</span>
+                <span className="text-[12px] text-muted-foreground font-medium">{token.patient?.name || "Patient"}</span>
+              </div>
+              <div className="grid grid-cols-2 gap-3 w-full">
+                <button onClick={onClose} className="h-11 border border-border rounded-[5px] text-[13px] font-bold text-foreground hover:bg-muted transition-all">
+                  Close
+                </button>
+                <button onClick={() => window.print()} className="flex items-center justify-center gap-2 h-11 bg-[#3B4CB8] text-white rounded-[5px] text-[13px] font-bold hover:opacity-90 transition-all">
+                  <Printer className="w-4 h-4" />
+                  Print Token
+                </button>
+              </div>
+            </div>
+          </motion.div>
         </div>
-      </div>
-    </div>
+      )}
+    </AnimatePresence>
   );
 }
 
@@ -91,8 +105,6 @@ function PrefixModal({ isOpen, currentPrefix, onClose, onSave }) {
     if (isOpen) window.addEventListener("keydown", h);
     return () => window.removeEventListener("keydown", h);
   }, [isOpen, onClose]);
-
-  if (!isOpen) return null;
 
   const PRESETS = ["OPD", "GEN", "EMG", "IPD", "CON", "LAB"];
 
@@ -116,54 +128,69 @@ function PrefixModal({ isOpen, currentPrefix, onClose, onSave }) {
   };
 
   return (
-    <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" onClick={onClose} />
-      <div className="relative bg-white dark:bg-[#111827] w-full max-w-[380px] rounded-[8px] border border-border overflow-hidden animate-in zoom-in-95 duration-200">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-          <div>
-            <h2 className="text-[15px] font-bold text-foreground">Token Prefix Settings</h2>
-            <p className="text-[12px] text-muted-foreground mt-0.5">Applies to all new tokens from today</p>
-          </div>
-          <button onClick={onClose} className="p-1.5 hover:bg-muted rounded-[5px] text-muted-foreground"><X className="w-4 h-4" /></button>
-        </div>
-        <div className="p-5 space-y-4">
-          <div className="space-y-2">
-            <label className="text-[12px] font-bold text-muted-foreground uppercase tracking-wider">Custom Prefix</label>
-            <input
-              value={value}
-              onChange={(e) => { setValue(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6)); setError(""); }}
-              placeholder="e.g. OPD"
-              className="w-full h-11 px-4 bg-background border border-border rounded-[5px] text-[14px] font-bold text-foreground outline-none focus:border-primary transition-all tracking-widest"
-            />
-            {error && <p className="text-[11px] text-red-500 font-medium">{error}</p>}
-          </div>
-          <div className="space-y-2">
-            <label className="text-[12px] font-bold text-muted-foreground uppercase tracking-wider">Quick Presets</label>
-            <div className="flex flex-wrap gap-2">
-              {PRESETS.map((p) => (
-                <button key={p} onClick={() => setValue(p)}
-                  className={cn("px-3 h-8 rounded-[5px] text-[12px] font-bold border transition-all",
-                    value === p ? "bg-[#3B4CB8] text-white border-[#3B4CB8]" : "border-border text-foreground hover:bg-muted"
-                  )}>
-                  {p}
-                </button>
-              ))}
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="absolute inset-0 bg-black/40 backdrop-blur-[2px]"
+          />
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0, y: 16 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.95, opacity: 0, y: 16 }}
+            className="relative bg-white dark:bg-[#111827] w-full max-w-[380px] rounded-[8px] border border-border overflow-hidden z-10"
+          >
+            <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+              <div>
+                <h2 className="text-[15px] font-bold text-foreground">Token Prefix Settings</h2>
+                <p className="text-[12px] text-muted-foreground mt-0.5">Applies to all new tokens from today</p>
+              </div>
+              <button onClick={onClose} className="p-1.5 hover:bg-muted rounded-[5px] text-muted-foreground"><X className="w-4 h-4" /></button>
             </div>
-          </div>
-          <div className="pt-1 bg-muted/30 rounded-[5px] p-3 text-center">
-            <p className="text-[11px] text-muted-foreground font-medium">Preview</p>
-            <p className="text-[22px] font-bold text-[#3B4CB8] tracking-wide">{value || "OPD"}-001</p>
-          </div>
-          <div className="flex gap-3 pt-1">
-            <button onClick={onClose} className="flex-1 h-10 border border-border rounded-[5px] text-[13px] font-bold text-foreground hover:bg-muted transition-all">Cancel</button>
-            <button onClick={handleSave} disabled={saving} className="flex-1 h-10 bg-[#3B4CB8] text-white rounded-[5px] text-[13px] font-bold hover:opacity-90 transition-all disabled:opacity-50 flex items-center justify-center gap-2">
-              {saving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-              Save Prefix
-            </button>
-          </div>
+            <div className="p-5 space-y-4">
+              <div className="space-y-2">
+                <label className="text-[12px] font-bold text-muted-foreground uppercase tracking-wider">Custom Prefix</label>
+                <input
+                  value={value}
+                  onChange={(e) => { setValue(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 6)); setError(""); }}
+                  placeholder="e.g. OPD"
+                  className="w-full h-11 px-4 bg-background border border-border rounded-[5px] text-[14px] font-bold text-foreground outline-none focus:border-primary transition-all tracking-widest"
+                />
+                {error && <p className="text-[11px] text-red-500 font-medium">{error}</p>}
+              </div>
+              <div className="space-y-2">
+                <label className="text-[12px] font-bold text-muted-foreground uppercase tracking-wider">Quick Presets</label>
+                <div className="flex flex-wrap gap-2">
+                  {PRESETS.map((p) => (
+                    <button key={p} onClick={() => setValue(p)}
+                      className={cn("px-3 h-8 rounded-[5px] text-[12px] font-bold border transition-all",
+                        value === p ? "bg-[#3B4CB8] text-white border-[#3B4CB8]" : "border-border text-foreground hover:bg-muted"
+                      )}>
+                      {p}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="pt-1 bg-muted/30 rounded-[5px] p-3 text-center">
+                <p className="text-[11px] text-muted-foreground font-medium">Preview</p>
+                <p className="text-[22px] font-bold text-[#3B4CB8] tracking-wide">{value || "OPD"}-001</p>
+              </div>
+              <div className="flex gap-3 pt-1">
+                <button onClick={onClose} className="flex-1 h-10 border border-border rounded-[5px] text-[13px] font-bold text-foreground hover:bg-muted transition-all">Cancel</button>
+                <button onClick={handleSave} disabled={saving} className="flex-1 h-10 bg-[#3B4CB8] text-white rounded-[5px] text-[13px] font-bold hover:opacity-90 transition-all disabled:opacity-50 flex items-center justify-center gap-2">
+                  {saving && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                  Save Prefix
+                </button>
+              </div>
+            </div>
+          </motion.div>
         </div>
-      </div>
-    </div>
+      )}
+    </AnimatePresence>
   );
 }
 

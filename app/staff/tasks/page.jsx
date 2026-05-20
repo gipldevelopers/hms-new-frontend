@@ -290,7 +290,7 @@ function AddTaskModal({ onClose, onSave }) {
       <motion.div
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
         onClick={onClose}
-        className="absolute inset-0 bg-background/80 backdrop-blur-[4px]"
+        className="absolute inset-0 bg-black/60 backdrop-blur-[6px]"
       />
       <motion.div
         initial={{ scale: 0.95, opacity: 0, y: 16 }}

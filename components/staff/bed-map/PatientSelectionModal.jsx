@@ -15,8 +15,9 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { motion } from "framer-motion";
 
-export default function PatientSelectionModal({ isOpen, onClose, onSelect, bedLabel, branchId }) {
+export default function PatientSelectionModal({ onClose, onSelect, bedLabel, branchId }) {
   const [loading, setLoading] = useState(false);
   const [patients, setPatients] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -34,10 +35,8 @@ export default function PatientSelectionModal({ isOpen, onClose, onSelect, bedLa
 
   useEffect(() => {
     setMounted(true);
-    if (isOpen) {
-      fetchPatients();
-    }
-  }, [isOpen, branchId]);
+    fetchPatients();
+  }, [branchId]);
 
   const fetchPatients = async () => {
     try {
@@ -61,11 +60,26 @@ export default function PatientSelectionModal({ isOpen, onClose, onSelect, bedLa
     p.contact?.includes(searchQuery)
   );
 
-  if (!isOpen || !mounted) return null;
+  if (!mounted) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-background/80 backdrop-blur-md animate-in fade-in duration-300">
-      <div className="bg-card w-full max-w-2xl rounded-xl border border-border flex flex-col max-h-[85vh] overflow-hidden animate-in zoom-in-95 duration-300 shadow-none">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4">
+      {/* Backdrop overlay */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+        className="absolute inset-0 bg-black/60 backdrop-blur-[6px]"
+      />
+
+      {/* Modal card content */}
+      <motion.div
+        initial={{ scale: 0.95, opacity: 0, y: 16 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.95, opacity: 0, y: 16 }}
+        className="relative bg-card w-full max-w-2xl rounded-xl border border-border flex flex-col max-h-[85vh] overflow-hidden shadow-none"
+      >
         
         {/* Header */}
         <div className="p-6 border-b border-border flex items-center justify-between bg-card z-10 shadow-none">
@@ -155,9 +169,8 @@ export default function PatientSelectionModal({ isOpen, onClose, onSelect, bedLa
           )}
         </div>
 
-      </div>
+      </motion.div>
     </div>,
     document.body
   );
 }
-

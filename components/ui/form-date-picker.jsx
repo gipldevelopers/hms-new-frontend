@@ -6,26 +6,34 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { CustomCalendar } from "./custom-calendar";
 
-export function FormDatePicker({ label, required, value, onChange, placeholder, className, variant = "default", error, align = "bottom" }) {
+export function FormDatePicker({ label, required, value, onChange, placeholder, className, variant = "default", error, align = "bottom", mode = "date" }) {
   const [inputValue, setInputValue] = useState(
-    value ? format(new Date(value), "dd/MM/yyyy") : ""
+    value ? format(new Date(value), mode === "month-year" ? "MM/yyyy" : "dd/MM/yyyy") : ""
   );
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
 
   useEffect(() => {
     if (value) {
-      setInputValue(format(new Date(value), "dd/MM/yyyy"));
+      setInputValue(format(new Date(value), mode === "month-year" ? "MM/yyyy" : "dd/MM/yyyy"));
     } else {
       setInputValue("");
     }
-  }, [value]);
+  }, [value, mode]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (containerRef.current && !containerRef.current.contains(event.target)) {
-        setIsOpen(false);
+      if (containerRef.current && containerRef.current.contains(event.target)) {
+        return;
       }
+      // Don't close if clicking inside a dropdown list (radix portal)
+      if (event.target.closest && (
+        event.target.closest('[role="menu"]') || 
+        event.target.closest('[data-radix-popper-content-wrapper]')
+      )) {
+        return;
+      }
+      setIsOpen(false);
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
@@ -33,31 +41,52 @@ export function FormDatePicker({ label, required, value, onChange, placeholder, 
 
   const handleInputChange = (e) => {
     let val = e.target.value.replace(/\D/g, ""); // Remove non-digits
-    if (val.length > 8) val = val.slice(0, 8);
     
-    // Auto-format with slashes: DD/MM/YYYY
-    let formattedVal = "";
-    if (val.length > 0) {
-      formattedVal = val.slice(0, 2);
-      if (val.length > 2) {
-        formattedVal += "/" + val.slice(2, 4);
-        if (val.length > 4) {
-          formattedVal += "/" + val.slice(4, 8);
+    if (mode === "month-year") {
+      if (val.length > 6) val = val.slice(0, 6);
+      
+      let formattedVal = "";
+      if (val.length > 0) {
+        formattedVal = val.slice(0, 2);
+        if (val.length > 2) {
+          formattedVal += "/" + val.slice(2, 6);
         }
       }
-    }
-    
-    setInputValue(formattedVal);
-    
-    // If we have a full date, try to parse and update
-    if (val.length === 8) {
-      const day = parseInt(val.slice(0, 2));
-      const month = parseInt(val.slice(2, 4)) - 1;
-      const year = parseInt(val.slice(4, 8));
-      const date = new Date(year, month, day);
+      setInputValue(formattedVal);
       
-      if (!isNaN(date.getTime()) && date.getFullYear() === year && date.getMonth() === month && date.getDate() === day) {
-        onChange(date);
+      if (val.length === 6) {
+        const month = parseInt(val.slice(0, 2)) - 1;
+        const year = parseInt(val.slice(2, 6));
+        if (month >= 0 && month <= 11 && year >= 1000 && year <= 9999) {
+          const date = new Date(year, month, 1);
+          onChange(date);
+        }
+      }
+    } else {
+      if (val.length > 8) val = val.slice(0, 8);
+      
+      let formattedVal = "";
+      if (val.length > 0) {
+        formattedVal = val.slice(0, 2);
+        if (val.length > 2) {
+          formattedVal += "/" + val.slice(2, 4);
+          if (val.length > 4) {
+            formattedVal += "/" + val.slice(4, 8);
+          }
+        }
+      }
+      
+      setInputValue(formattedVal);
+      
+      if (val.length === 8) {
+        const day = parseInt(val.slice(0, 2));
+        const month = parseInt(val.slice(2, 4)) - 1;
+        const year = parseInt(val.slice(4, 8));
+        const date = new Date(year, month, day);
+        
+        if (!isNaN(date.getTime()) && date.getFullYear() === year && date.getMonth() === month && date.getDate() === day) {
+          onChange(date);
+        }
       }
     }
   };
@@ -76,9 +105,9 @@ export function FormDatePicker({ label, required, value, onChange, placeholder, 
           value={inputValue}
           onChange={handleInputChange}
           onFocus={() => setIsOpen(true)}
-          placeholder={placeholder || "DD/MM/YYYY"}
+          placeholder={placeholder || (mode === "month-year" ? "MM/YYYY" : "DD/MM/YYYY")}
           className={cn(
-            "w-full h-11 pl-11 pr-4 border rounded-[5px] text-[13px] font-medium text-foreground outline-none transition-all shadow-none placeholder:text-muted-foreground/60",
+            "w-full h-12 pl-11 pr-4 border rounded-[5px] text-[13px] font-bold text-foreground outline-none transition-all shadow-none placeholder:text-muted-foreground/60",
             error ? "border-red-500 focus:border-red-600 bg-red-50/50" : "border-border focus:border-primary",
             variant === "muted" ? "bg-muted/50" : "bg-background"
           )}
@@ -99,9 +128,10 @@ export function FormDatePicker({ label, required, value, onChange, placeholder, 
             <div className="relative animate-in zoom-in-95 duration-200">
               <CustomCalendar
                 selectedDate={value ? new Date(value) : null}
+                mode={mode}
                 onSelect={(date) => {
                   onChange(date);
-                  if (date) setInputValue(format(date, "dd/MM/yyyy"));
+                  if (date) setInputValue(format(date, mode === "month-year" ? "MM/yyyy" : "dd/MM/yyyy"));
                   setIsOpen(false);
                 }}
                 onClose={() => setIsOpen(false)}
@@ -116,9 +146,10 @@ export function FormDatePicker({ label, required, value, onChange, placeholder, 
           )}>
             <CustomCalendar
               selectedDate={value ? new Date(value) : null}
+              mode={mode}
               onSelect={(date) => {
                 onChange(date);
-                if (date) setInputValue(format(date, "dd/MM/yyyy"));
+                if (date) setInputValue(format(date, mode === "month-year" ? "MM/yyyy" : "dd/MM/yyyy"));
                 setIsOpen(false);
               }}
               onClose={() => setIsOpen(false)}
