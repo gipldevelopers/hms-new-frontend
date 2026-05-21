@@ -25,17 +25,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-const INITIAL_PATIENTS = [
-  { id: 1, name: "Rajesh Kumar", ageGender: "45 / Male", bed: "ICU-04", diagnosis: "Acute Myocardial Infarction", status: "Pending Discharge" },
-  { id: 2, name: "Maria Lopez", ageGender: "60 / Female", bed: "ICU-01", diagnosis: "Chronic Heart Failure", status: "Admitted" },
-  { id: 3, name: "John Smith", ageGender: "50 / Male", bed: "ICU-02", diagnosis: "Pneumonia", status: "Pending Discharge" },
-  { id: 4, name: "Anita Bhatt", ageGender: "30 / Female", bed: "ICU-03", diagnosis: "Severe Asthma Attack", status: "Admitted" },
-  { id: 5, name: "Carlos Vega", ageGender: "55 / Male", bed: "ICU-05", diagnosis: "Acute Stroke", status: "Admitted" },
-  { id: 6, name: "Helen Parker", ageGender: "40 / Female", bed: "ICU-06", diagnosis: "Diabetes Complications", status: "Pending Discharge" },
-  { id: 7, name: "William Johnson", ageGender: "70 / Male", bed: "ICU-07", diagnosis: "Sepsis", status: "Admitted" },
-  { id: 8, name: "Nina Patel", ageGender: "35 / Female", bed: "ICU-08", diagnosis: "Appendicitis", status: "Pending Discharge" },
-  { id: 9, name: "George Brown", ageGender: "65 / Male", bed: "ICU-09", diagnosis: "COPD Exacerbation", status: "Admitted" },
-];
+import { useEffect } from "react";
+import { toast } from "sonner";
 
 function CustomSelect({ value, onChange, options, placeholder, minWidth = "130px" }) {
   const selected = options.find((o) => o.value === value);
@@ -73,7 +64,9 @@ function CustomSelect({ value, onChange, options, placeholder, minWidth = "130px
 
 export default function WardPatientsPage() {
   const router = useRouter();
-  const [patients, setPatients] = useState(INITIAL_PATIENTS);
+  const [patients, setPatients] = useState([]);
+  const [wardsList, setWardsList] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [wardFilter, setWardFilter] = useState("All");
   const [statusFilter, setStatusFilter] = useState("All");
@@ -89,32 +82,120 @@ export default function WardPatientsPage() {
   // Transfer fields
   const [targetWard, setTargetWard] = useState("");
   const [targetBed, setTargetBed] = useState("");
+  const [availableBeds, setAvailableBeds] = useState([]);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("authtoken");
+      const headers = { Authorization: `Bearer ${token}` };
+
+      // Fetch Admissions
+      const admRes = await fetch("/api/admissions/overview?status=In Progress", { headers });
+      const admData = await admRes.json();
+      
+      const mapped = (Array.isArray(admData) ? admData : []).map(adm => ({
+        id: adm.id,
+        name: adm.patient?.name || "Unknown Patient",
+        ageGender: `${adm.patient?.age || '??'} / ${adm.patient?.gender || '??'}`,
+        bed: adm.bed?.label || "No Bed",
+        wardId: adm.wardId,
+        wardName: adm.ward?.name,
+        diagnosis: adm.reason || "No diagnosis provided",
+        status: adm.status === "In Progress" ? "Admitted" : adm.status,
+        patientId: adm.patientId,
+        bedId: adm.bedId
+      }));
+      setPatients(mapped);
+
+      // Fetch Infrastructure (Wards)
+      const infraRes = await fetch("/api/wards/overview", { headers });
+      const infraData = await infraRes.json();
+      setWardsList(Array.isArray(infraData) ? infraData : []);
+    } catch (e) {
+      toast.error("Failed to load data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
 
   const filtered = patients.filter((p) => {
     const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) ||
       p.bed.toLowerCase().includes(search.toLowerCase()) ||
       p.diagnosis.toLowerCase().includes(search.toLowerCase());
-    const matchesWard = wardFilter === "All" || p.bed.startsWith(wardFilter);
+    const matchesWard = wardFilter === "All" || p.wardName === wardFilter || p.bed.startsWith(wardFilter);
     const matchesStatus = statusFilter === "All" || p.status === statusFilter;
     return matchesSearch && matchesWard && matchesStatus;
   });
 
-  const handleDischarge = (id) => {
-    setPatients((prev) =>
-      prev.map((p) => (p.id === id ? { ...p, status: "Discharged" } : p))
-    );
-    setDischargeItem(null);
+  const handleDischarge = async (id) => {
+    try {
+      const token = localStorage.getItem("authtoken");
+      const res = await fetch(`/api/admissions/${id}`, {
+        method: "PATCH",
+        headers: { 
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ status: "Completed" })
+      });
+
+      if (res.ok) {
+        toast.success("Patient discharged successfully");
+        fetchData();
+        setDischargeItem(null);
+      } else {
+        const data = await res.json();
+        toast.error(data.error || "Discharge failed");
+      }
+    } catch (e) {
+      toast.error("Network error");
+    }
   };
 
-  const handleTransfer = (id) => {
+  const handleTransfer = async (id) => {
     if (!targetWard || !targetBed) return;
-    setPatients((prev) =>
-      prev.map((p) =>
-        p.id === id ? { ...p, bed: `${targetWard}-${targetBed}`, status: "Admitted" } : p
-      )
-    );
-    setTransferItem(null);
-    setTargetWard("");
+    try {
+      const token = localStorage.getItem("authtoken");
+      const res = await fetch(`/api/admissions/${id}`, {
+        method: "PATCH",
+        headers: { 
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ 
+          wardId: targetWard,
+          bedId: targetBed
+        })
+      });
+
+      if (res.ok) {
+        toast.success("Patient transferred successfully");
+        fetchData();
+        setTransferItem(null);
+        setTargetWard("");
+        setTargetBed("");
+      } else {
+        const data = await res.json();
+        toast.error(data.error || "Transfer failed");
+      }
+    } catch (e) {
+      toast.error("Network error");
+    }
+  };
+
+  const handleWardSelection = (wardId) => {
+    setTargetWard(wardId);
+    const ward = wardsList.find(w => w.id === wardId);
+    if (ward) {
+      setAvailableBeds(ward.beds?.filter(b => b.status === "AVAILABLE") || []);
+    } else {
+      setAvailableBeds([]);
+    }
     setTargetBed("");
   };
 
@@ -169,10 +250,7 @@ export default function WardPatientsPage() {
             minWidth="140px"
             options={[
               { label: "All Wards", value: "All" },
-              { label: "ICU", value: "ICU" },
-              { label: "Ward 1", value: "W1" },
-              { label: "Ward 2", value: "W2" },
-              { label: "Ward 3", value: "W3" },
+              ...wardsList.map(w => ({ label: w.name, value: w.name }))
             ]}
           />
           <CustomSelect
@@ -192,143 +270,151 @@ export default function WardPatientsPage() {
 
       {/* ── Dynamic Layout Grid or Table ── */}
       <div className="flex flex-col flex-1 ">
-        {/* Mobile Responsive Grid Layout */}
-        <div className="grid grid-cols-1 gap-4 md:hidden">
-          {filtered.map((item) => (
-            <div
-              key={item.id}
-              className="bg-card p-5 rounded-lg border border-border shadow-none "
-            >
-              <div className="flex justify-between items-start mb-3">
-                <div>
-                  <h3 className="text-[15px] font-bold text-foreground leading-tight">
-                    {item.name}
-                  </h3>
-                  <p className="text-[11px] text-blue-600 dark:text-blue-400 font-bold mt-1">
-                    {item.bed}
-                  </p>
-                </div>
-                <span className={statusBadge(item.status)}>{item.status}</span>
-              </div>
-              <p className="text-[13px] font-medium text-muted-foreground leading-tight  mt-1">
-                Age/Gender: {item.ageGender}
-              </p>
-              <p className="text-[14px] font-bold text-foreground leading-tight mt-2.5">
-                {item.diagnosis}
-              </p>
-              <div className="flex items-center justify-end pt-4 border-t border-border mt-4 ">
-                {item.status === "Pending Discharge" && (
-                  <button
-                    onClick={() => setDischargeItem(item)}
-                    className="p-2.5 hover:bg-muted bg-card border border-border rounded-lg flex items-center justify-center gap-1.5 transition-all text-[12px] font-bold text-foreground shadow-none outline-none"
-                  >
-                    <LogOut className="w-4 h-4 text-emerald-600 shrink-0 " />
-                    <span>Discharge</span>
-                  </button>
-                )}
-                {item.status === "Admitted" && (
-                  <button
-                    onClick={() => router.push(`/staff/admissions/transfer/${item.id}`)}
-                    className="p-2.5 hover:bg-muted bg-card border border-border rounded-lg flex items-center justify-center gap-1.5 transition-all text-[12px] font-bold text-foreground shadow-none outline-none"
-                  >
-                    <Send className="w-4 h-4 text-blue-600 shrink-0  rotate-45" />
-                    <span>Transfer</span>
-                  </button>
-                )}
-              </div>
-            </div>
-          ))}
-          {filtered.length === 0 && (
-            <div className="bg-card border border-border rounded-lg p-10 text-center text-muted-foreground font-medium italic text-[13px] ">
-              No patients found matching current criteria.
-            </div>
-          )}
-        </div>
-
-        {/* High Density Desktop Table Layout */}
-        <div className="hidden md:block bg-card border border-border rounded-lg overflow-hidden flex-1 shadow-none ">
-          <div className="overflow-x-auto no-scrollbar ">
-            <table className="w-full text-left border-collapse ">
-              <thead>
-                <tr className="bg-muted/30 ">
-                  <th className="px-6 py-4 text-[11px] font-bold text-muted-foreground tracking-wider  uppercase">
-                    Patient Name
-                  </th>
-                  <th className="px-6 py-4 text-[11px] font-bold text-muted-foreground tracking-wider  uppercase">
-                    Age/Gender
-                  </th>
-                  <th className="px-6 py-4 text-[11px] font-bold text-muted-foreground tracking-wider  uppercase">
-                    Bed No
-                  </th>
-                  <th className="px-6 py-4 text-[11px] font-bold text-muted-foreground tracking-wider  uppercase">
-                    Diagnosis
-                  </th>
-                  <th className="px-6 py-4 text-[11px] font-bold text-muted-foreground tracking-wider  uppercase">
-                    Status
-                  </th>
-                  <th className="px-6 py-4 text-[11px] font-bold text-muted-foreground tracking-wider  uppercase text-right">
-                    Action
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border ">
-                {filtered.map((item) => (
-                  <tr key={item.id} className="hover:bg-muted/30 transition-all group ">
-                    <td className="px-6 py-4 text-[14px] font-bold text-foreground ">
-                      {item.name}
-                    </td>
-                    <td className="px-6 py-4 text-[13px] font-medium text-muted-foreground ">
-                      {item.ageGender}
-                    </td>
-                    <td className="px-6 py-4 text-[13px] font-bold text-blue-600 dark:text-blue-400 ">
-                      {item.bed}
-                    </td>
-                    <td className="px-6 py-4 text-[13px] font-medium text-foreground  max-w-[220px] truncate leading-snug">
-                      {item.diagnosis}
-                    </td>
-                    <td className="px-6 py-4 ">
-                      <span className={statusBadge(item.status)}>{item.status}</span>
-                    </td>
-                    <td className="px-6 py-4 text-right ">
-                      <div className="flex items-center justify-end gap-2 ">
-                        {item.status === "Pending Discharge" && (
-                          <button
-                            onClick={() => setDischargeItem(item)}
-                            className="px-3.5 h-9 hover:bg-muted bg-card border border-border rounded-lg flex items-center justify-center gap-1.5 transition-all text-[12px] font-bold text-foreground shadow-none outline-none "
-                            title="Discharge Patient"
-                          >
-                            <LogOut className="w-3.5 h-3.5 text-emerald-600 shrink-0 " />
-                            <span>Discharge</span>
-                          </button>
-                        )}
-                        {item.status === "Admitted" && (
-                          <button
-                            onClick={() => router.push(`/staff/admissions/transfer/${item.id}`)}
-                            className="px-3.5 h-9 hover:bg-muted bg-card border border-border rounded-lg flex items-center justify-center gap-1.5 transition-all text-[12px] font-bold text-foreground shadow-none outline-none "
-                            title="Transfer Patient"
-                          >
-                            <Send className="w-3.5 h-3.5 text-blue-600 shrink-0  rotate-45" />
-                            <span>Transfer</span>
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-                {filtered.length === 0 && (
-                  <tr>
-                    <td
-                      colSpan={6}
-                      className="px-6 py-16 text-center text-[13px] font-medium text-muted-foreground italic "
-                    >
-                      No patients found.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
+        {loading ? (
+          <div className="flex-1 flex items-center justify-center p-20">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
           </div>
-        </div>
+        ) : (
+          <>
+            {/* Mobile Responsive Grid Layout */}
+            <div className="grid grid-cols-1 gap-4 md:hidden">
+              {filtered.map((item) => (
+                <div
+                  key={item.id}
+                  className="bg-card p-5 rounded-lg border border-border shadow-none "
+                >
+                  <div className="flex justify-between items-start mb-3">
+                    <div>
+                      <h3 className="text-[15px] font-bold text-foreground leading-tight">
+                        {item.name}
+                      </h3>
+                      <p className="text-[11px] text-blue-600 dark:text-blue-400 font-bold mt-1">
+                        {item.bed}
+                      </p>
+                    </div>
+                    <span className={statusBadge(item.status)}>{item.status}</span>
+                  </div>
+                  <p className="text-[13px] font-medium text-muted-foreground leading-tight  mt-1">
+                    Age/Gender: {item.ageGender}
+                  </p>
+                  <p className="text-[14px] font-bold text-foreground leading-tight mt-2.5">
+                    {item.diagnosis}
+                  </p>
+                  <div className="flex items-center justify-end pt-4 border-t border-border mt-4 ">
+                    {item.status === "Pending Discharge" && (
+                      <button
+                        onClick={() => setDischargeItem(item)}
+                        className="p-2.5 hover:bg-muted bg-card border border-border rounded-lg flex items-center justify-center gap-1.5 transition-all text-[12px] font-bold text-foreground shadow-none outline-none"
+                      >
+                        <LogOut className="w-4 h-4 text-emerald-600 shrink-0 " />
+                        <span>Discharge</span>
+                      </button>
+                    )}
+                    {item.status === "Admitted" && (
+                      <button
+                        onClick={() => setTransferItem(item)}
+                        className="p-2.5 hover:bg-muted bg-card border border-border rounded-lg flex items-center justify-center gap-1.5 transition-all text-[12px] font-bold text-foreground shadow-none outline-none"
+                      >
+                        <Send className="w-4 h-4 text-blue-600 shrink-0  rotate-45" />
+                        <span>Transfer</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+              {filtered.length === 0 && (
+                <div className="bg-card border border-border rounded-lg p-10 text-center text-muted-foreground font-medium italic text-[13px] ">
+                  No patients found matching current criteria.
+                </div>
+              )}
+            </div>
+
+            {/* High Density Desktop Table Layout */}
+            <div className="hidden md:block bg-card border border-border rounded-lg overflow-hidden flex-1 shadow-none ">
+              <div className="overflow-x-auto no-scrollbar ">
+                <table className="w-full text-left border-collapse ">
+                  <thead>
+                    <tr className="bg-muted/30 ">
+                      <th className="px-6 py-4 text-[11px] font-bold text-muted-foreground tracking-wider  uppercase">
+                        Patient Name
+                      </th>
+                      <th className="px-6 py-4 text-[11px] font-bold text-muted-foreground tracking-wider  uppercase">
+                        Age/Gender
+                      </th>
+                      <th className="px-6 py-4 text-[11px] font-bold text-muted-foreground tracking-wider  uppercase">
+                        Bed No
+                      </th>
+                      <th className="px-6 py-4 text-[11px] font-bold text-muted-foreground tracking-wider  uppercase">
+                        Diagnosis
+                      </th>
+                      <th className="px-6 py-4 text-[11px] font-bold text-muted-foreground tracking-wider  uppercase">
+                        Status
+                      </th>
+                      <th className="px-6 py-4 text-[11px] font-bold text-muted-foreground tracking-wider  uppercase text-right">
+                        Action
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border ">
+                    {filtered.map((item) => (
+                      <tr key={item.id} className="hover:bg-muted/30 transition-all group ">
+                        <td className="px-6 py-4 text-[14px] font-bold text-foreground ">
+                          {item.name}
+                        </td>
+                        <td className="px-6 py-4 text-[13px] font-medium text-muted-foreground ">
+                          {item.ageGender}
+                        </td>
+                        <td className="px-6 py-4 text-[13px] font-bold text-blue-600 dark:text-blue-400 ">
+                          {item.bed}
+                        </td>
+                        <td className="px-6 py-4 text-[13px] font-medium text-foreground  max-w-[220px] truncate leading-snug">
+                          {item.diagnosis}
+                        </td>
+                        <td className="px-6 py-4 ">
+                          <span className={statusBadge(item.status)}>{item.status}</span>
+                        </td>
+                        <td className="px-6 py-4 text-right ">
+                          <div className="flex items-center justify-end gap-2 ">
+                            {item.status === "Pending Discharge" && (
+                              <button
+                                onClick={() => setDischargeItem(item)}
+                                className="px-3.5 h-9 hover:bg-muted bg-card border border-border rounded-lg flex items-center justify-center gap-1.5 transition-all text-[12px] font-bold text-foreground shadow-none outline-none "
+                                title="Discharge Patient"
+                              >
+                                <LogOut className="w-3.5 h-3.5 text-emerald-600 shrink-0 " />
+                                <span>Discharge</span>
+                              </button>
+                            )}
+                            {item.status === "Admitted" && (
+                              <button
+                                onClick={() => setTransferItem(item)}
+                                className="px-3.5 h-9 hover:bg-muted bg-card border border-border rounded-lg flex items-center justify-center gap-1.5 transition-all text-[12px] font-bold text-foreground shadow-none outline-none "
+                                title="Transfer Patient"
+                              >
+                                <Send className="w-3.5 h-3.5 text-blue-600 shrink-0  rotate-45" />
+                                <span>Transfer</span>
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                    {filtered.length === 0 && (
+                      <tr>
+                        <td
+                          colSpan={6}
+                          className="px-6 py-16 text-center text-[13px] font-medium text-muted-foreground italic "
+                        >
+                          No patients found.
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       {/* ── Discharge Confirmation Modal ── */}
@@ -371,23 +457,21 @@ export default function WardPatientsPage() {
                 <div className="p-4 bg-muted/50 border border-border rounded-lg flex items-center justify-between gap-4 ">
                   <div className="flex items-center gap-3">
                     <div className="w-11 h-11 bg-blue-500/10 dark:bg-blue-500/5 text-blue-600 border border-blue-500/10 rounded-full flex items-center justify-center  shrink-0 overflow-hidden">
-                      <img
-                        src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=100"
-                        alt="Patient"
-                        className="w-full h-full object-cover"
-                      />
+                      <div className="w-full h-full flex items-center justify-center bg-primary/10 text-primary font-bold text-[18px]">
+                        {dischargeItem.name.charAt(0)}
+                      </div>
                     </div>
                     <div>
                       <h4 className="text-[14px] font-bold text-foreground leading-tight ">
                         {dischargeItem.name}
                       </h4>
                       <p className="text-[11px] font-medium text-muted-foreground mt-0.5  leading-tight">
-                        MRN: 884728 • Bed: {dischargeItem.bed}
+                        Bed: {dischargeItem.bed}
                       </p>
                     </div>
                   </div>
-                  <span className="bg-amber-500/10 text-amber-600 border border-amber-500/20 px-2 py-0.5 rounded-md text-[10px] font-bold  leading-tight">
-                    Pending Discharge
+                  <span className={statusBadge(dischargeItem.status)}>
+                    {dischargeItem.status}
                   </span>
                 </div>
               </div>
@@ -418,7 +502,7 @@ export default function WardPatientsPage() {
                           Discharge Summary Completed
                         </p>
                         <p className="text-[11px] font-medium text-muted-foreground mt-0.5  leading-tight">
-                          Signed by Dr. Evans
+                          Final assessment completed
                         </p>
                       </div>
                     </div>
@@ -546,27 +630,22 @@ export default function WardPatientsPage() {
                   </label>
                   <CustomSelect
                     value={targetWard}
-                    onChange={setTargetWard}
+                    onChange={handleWardSelection}
                     placeholder="Select Ward"
                     minWidth="100%"
-                    options={[
-                      { label: "ICU", value: "ICU" },
-                      { label: "Ward 1", value: "W1" },
-                      { label: "Ward 2", value: "W2" },
-                      { label: "Ward 3", value: "W3" },
-                    ]}
+                    options={wardsList.map(w => ({ label: w.name, value: w.id }))}
                   />
                 </div>
                 <div>
                   <label className="block text-[11px] font-bold text-muted-foreground uppercase leading-none mb-1.5 ">
                     Target Bed Number
                   </label>
-                  <input
-                    type="text"
-                    placeholder="e.g. B01, B02"
+                  <CustomSelect
                     value={targetBed}
-                    onChange={(e) => setTargetBed(e.target.value)}
-                    className="w-full h-11 px-4 bg-muted border border-border rounded-lg text-[13px] font-medium text-foreground outline-none transition-all shadow-none  focus:border-primary"
+                    onChange={setTargetBed}
+                    placeholder="Select Bed"
+                    minWidth="100%"
+                    options={availableBeds.map(b => ({ label: b.label, value: b.id }))}
                   />
                 </div>
               </div>

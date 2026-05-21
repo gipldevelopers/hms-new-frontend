@@ -1,35 +1,10 @@
 "use client";
 
-import React, { useState, Suspense } from "react";
+import React, { useState, Suspense, useEffect, use } from "react";
 import { useRouter, useParams, useSearchParams } from "next/navigation";
 import { AlertTriangle, ChevronRight, Calendar, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-// ─── Data ─────────────────────────────────────────────────────────────────────
-const patientMap = {
-  1:  { name: "John Doe",           bed: "Bed 402-B", mrn: "MRN: 987654321" },
-  2:  { name: "Mrs. Joseph Thiel",  bed: "Bed 201-A", mrn: "MRN: 123456789" },
-  3:  { name: "Ada Rempel",         bed: "Bed 305-C", mrn: "MRN: 234567890" },
-  4:  { name: "Alfonso Stiedemann", bed: "Bed 110-D", mrn: "MRN: 345678901" },
-  5:  { name: "Dianna Sanford",     bed: "Bed 220-B", mrn: "MRN: 456789012" },
-  6:  { name: "Marcus Reed",        bed: "Bed 315-A", mrn: "MRN: 567890123" },
-  7:  { name: "Amelia Zhao",        bed: "Bed 408-C", mrn: "MRN: 678901234" },
-  8:  { name: "Jason Patel",        bed: "Bed 502-B", mrn: "MRN: 789012345" },
-  9:  { name: "Sofia Martinez",     bed: "Bed 601-A", mrn: "MRN: 890123456" },
-  10: { name: "Liam Johnson",       bed: "Bed 703-D", mrn: "MRN: 901234567" },
-  11: { name: "Ella Thompson",      bed: "Bed 804-C", mrn: "MRN: 012345678" },
-};
-
-const entryDataMap = {
-  1: { bpSystolic: "185", bpDiastolic: "115", hr: "88", spo2: "86", respRate: "22", temp: "37.2", painScore: "4", notes: "Patient resting, complains of mild headache.", recordedAt: "Today, 10:45 AM", recordedBy: "Sarah Jenkins, RN", isCritical: true,  criticalMsg: "BP 185/115 mmHg, SpO2 86%" },
-  2: { bpSystolic: "120", bpDiastolic: "80",  hr: "72", spo2: "98", respRate: "16", temp: "36.8", painScore: "2", notes: "",                                              recordedAt: "Today, 08:00 AM", recordedBy: "Sarah Jenkins, RN", isCritical: false, criticalMsg: "" },
-  3: { bpSystolic: "118", bpDiastolic: "76",  hr: "68", spo2: "99", respRate: "14", temp: "36.9", painScore: "0", notes: "",                                              recordedAt: "Yesterday, 10:00 PM", recordedBy: "Mike Ross, RN",     isCritical: false, criticalMsg: "" },
-};
-
-const recentHistory = [
-  { time: "08:00 AM", bp: "BP 120/80", hr: "HR 72" },
-  { time: "04:00 AM", bp: "BP 118/76", hr: "HR 68" },
-];
+import { toast } from "sonner";
 
 // ─── Field Component ──────────────────────────────────────────────────────────
 function Field({ label, children }) {
@@ -82,32 +57,128 @@ function VitalsEntryContent() {
   const params       = useParams();
   const searchParams = useSearchParams();
 
-  const patientId = params?.patientId || "1";
+  const patientId = params?.patientId || "";
   const mode      = searchParams?.get("mode") || "add";   // "add" | "edit" | "view"
   const entryId   = searchParams?.get("entryId") || null;
+  const from      = searchParams?.get("from") || "vitals";
 
-  const patient = patientMap[patientId] || patientMap[1];
-  const prefill = entryId ? (entryDataMap[entryId] || entryDataMap[1]) : null;
+  const destPath  = from === "patient" 
+    ? `/staff/patients/${patientId}?tab=Vitals`
+    : `/staff/vitals/${patientId}`;
 
   const isView = mode === "view";
 
-  const [bpSystolic,  setBpSystolic]  = useState(prefill?.bpSystolic  || "");
-  const [bpDiastolic, setBpDiastolic] = useState(prefill?.bpDiastolic || "");
-  const [hr,          setHr]          = useState(prefill?.hr          || "");
-  const [spo2,        setSpo2]        = useState(prefill?.spo2        || "");
-  const [respRate,    setRespRate]    = useState(prefill?.respRate     || "");
-  const [temp,        setTemp]        = useState(prefill?.temp        || "");
-  const [painScore,   setPainScore]   = useState(prefill?.painScore   || "");
-  const [notes,       setNotes]       = useState(prefill?.notes       || "");
+  const [patient, setPatient] = useState(null);
+  const [recentHistory, setRecentHistory] = useState([]);
+  const [isSaving, setIsSaving] = useState(false);
+  const [currentUser, setCurrentUser] = useState("Staff");
 
-  const recordedAt  = prefill?.recordedAt  || "Today, 10:45 AM";
-  const recordedBy  = prefill?.recordedBy  || "Sarah Jenkins, RN";
-  const isCritical  = prefill?.isCritical  || false;
-  const criticalMsg = prefill?.criticalMsg || "";
+  const [bpSystolic,  setBpSystolic]  = useState("");
+  const [bpDiastolic, setBpDiastolic] = useState("");
+  const [hr,          setHr]          = useState("");
+  const [spo2,        setSpo2]        = useState("");
+  const [respRate,    setRespRate]    = useState("");
+  const [temp,        setTemp]        = useState("");
+  const [painScore,   setPainScore]   = useState("");
+  const [notes,       setNotes]       = useState("");
+
+  const recordedAt  = new Date().toLocaleString();
+  const recordedBy  = currentUser;
+
+  useEffect(() => {
+    try {
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      if (user.name) setCurrentUser(user.name);
+    } catch (e) {}
+  }, []);
+
+  useEffect(() => {
+    if (!patientId) return;
+    const fetchPatientAndVitals = async () => {
+      try {
+        const token = localStorage.getItem("authtoken");
+        const headers = { Authorization: `Bearer ${token}` };
+        
+        const patRes = await fetch(`/api/patients/${patientId}`, { headers });
+        const patData = await patRes.json();
+        setPatient(patData);
+
+        const vitRes = await fetch(`/api/vitals/patient/${patientId}`, { headers });
+        const vitData = await vitRes.json();
+        if (Array.isArray(vitData)) {
+           setRecentHistory(vitData.slice(0, 10));
+           
+           if (entryId && mode !== "add") {
+             const prefill = vitData.find(v => v.id === entryId);
+             if (prefill) {
+               setBpSystolic(prefill.systolic || "");
+               setBpDiastolic(prefill.diastolic || "");
+               setHr(prefill.heartRate || "");
+               setSpo2(prefill.spo2 || "");
+               setRespRate(prefill.respiratoryRate || "");
+               setTemp(prefill.temperature || "");
+               setPainScore(prefill.painLevel || "");
+               setNotes(prefill.notes || "");
+             }
+           }
+        }
+      } catch (e) {
+        console.error(e);
+      }
+    };
+    fetchPatientAndVitals();
+  }, [patientId, entryId, mode]);
+
+  const handleSave = async () => {
+    if (isView) return;
+    try {
+      setIsSaving(true);
+      const token = localStorage.getItem("authtoken");
+      const payload = {
+        patientId,
+        systolic: bpSystolic ? Number(bpSystolic) : null,
+        diastolic: bpDiastolic ? Number(bpDiastolic) : null,
+        heartRate: hr ? Number(hr) : null,
+        spo2: spo2 ? Number(spo2) : null,
+        respiratoryRate: respRate ? Number(respRate) : null,
+        temperature: temp ? Number(temp) : null,
+        painLevel: painScore ? Number(painScore) : null,
+        notes: notes || null,
+        recordedBy: currentUser,
+      };
+
+      const url = entryId && mode === "edit" ? `/api/vitals/${entryId}` : "/api/vitals";
+      const method = entryId && mode === "edit" ? "PATCH" : "POST";
+
+      const res = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+      
+      if (res.ok) {
+        toast.success("Vitals saved successfully");
+        router.push(destPath);
+      } else {
+        const err = await res.json();
+        toast.error("Failed to save vitals: " + err.error);
+      }
+    } catch (e) {
+      console.error(e);
+      toast.error("Error saving vitals.");
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const bpCritical  = !isView && (parseInt(bpSystolic) > 180 || parseInt(bpDiastolic) > 110);
   const spo2Critical = !isView && parseInt(spo2) < 90;
-  const showAlert   = isCritical || bpCritical || spo2Critical;
+
+  const uhid = patient?.id ? `UHID-${patient.id.toString().substring(0, 6).toUpperCase()}` : "Loading...";
+  const bedName = patient?.admissions?.[0]?.bed?.label || "No Bed";
 
   // ── Sidebar panel (shared between mobile bottom + desktop right) ──
   const SidebarContent = () => (
@@ -135,29 +206,7 @@ function VitalsEntryContent() {
         />
       </div>
 
-      {/* Critical Alert */}
-      {showAlert && (
-        <div className="bg-card rounded-lg border border-border p-5">
-          <p className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider mb-3">Critical Alert</p>
-          <div className="bg-destructive/5 border border-destructive/20 rounded-lg p-4">
-            <div className="flex items-center gap-2 mb-2">
-              <AlertTriangle className="w-4 h-4 text-destructive shrink-0" />
-              <p className="text-[13px] font-bold text-destructive">Abnormal Vitals</p>
-            </div>
-            <p className="text-[12px] text-destructive/80 font-medium mb-4 leading-relaxed">
-              {criticalMsg || `BP ${bpSystolic}/${bpDiastolic} mmHg, SpO2 ${spo2}%`}
-            </p>
-            <div className="flex gap-2">
-              <button className="flex-1 h-9 bg-destructive text-destructive-foreground rounded-lg text-[12px] font-bold hover:opacity-90 transition-all">
-                Notify Doctor
-              </button>
-              <button className="flex-1 h-9 bg-card border border-destructive/30 text-destructive rounded-lg text-[12px] font-bold hover:bg-destructive/5 transition-colors">
-                View Patient
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+
 
       {/* Vitals History */}
       <div className="bg-card rounded-lg border border-border p-5">
@@ -165,14 +214,18 @@ function VitalsEntryContent() {
           Vitals History (Last 10)
         </p>
         <div className="space-y-3">
-          {recentHistory.map((h, i) => (
+          {recentHistory.length === 0 ? (
+             <div className="text-[12px] font-medium text-muted-foreground">No recent vitals</div>
+          ) : recentHistory.map((h, i) => {
+            const hTime = new Date(h.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            return (
             <div key={i} className="flex items-center justify-between">
-              <span className="text-[12px] font-bold text-muted-foreground">{h.time}</span>
+              <span className="text-[12px] font-bold text-muted-foreground">{hTime}</span>
               <span className="text-[12px] font-medium text-foreground">
-                {h.bp}, {h.hr}
+                BP {h.systolic || 0}/{h.diastolic || 0}, HR {h.heartRate || "--"}
               </span>
             </div>
-          ))}
+          )})}
         </div>
         <button
           onClick={() => router.push(`/staff/vitals/${patientId}`)}
@@ -191,7 +244,7 @@ function VitalsEntryContent() {
       {/* ── Page Title ── */}
       <div className="flex items-center gap-3 mb-6">
         <button
-          onClick={() => router.push(`/staff/vitals/${patientId}`)}
+          onClick={() => router.push(destPath)}
           className="p-2 hover:bg-card rounded-lg transition-colors border border-transparent hover:border-border shrink-0"
         >
           <ArrowLeft className="w-5 h-5 text-foreground" />
@@ -211,22 +264,26 @@ function VitalsEntryContent() {
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
               <div>
                 <h2 className="text-[18px] md:text-[20px] font-bold text-foreground leading-tight">
-                  {patient.name}
+                  {patient?.name || "Patient"}
                 </h2>
                 <p className="text-[12px] text-muted-foreground font-medium mt-1">
-                  {patient.bed} • {patient.mrn}
+                  {bedName} • {uhid}
                 </p>
               </div>
               {!isView && (
                 <div className="flex gap-3 sm:shrink-0">
                   <button
-                    onClick={() => router.push(`/staff/vitals/${patientId}`)}
+                    onClick={() => router.push(destPath)}
                     className="flex-1 sm:flex-none h-10 px-5 bg-card border border-border rounded-lg text-[13px] font-bold text-foreground hover:bg-muted transition-all outline-none"
                   >
                     Cancel
                   </button>
-                  <button className="flex-1 sm:flex-none h-10 px-5 bg-primary text-primary-foreground rounded-lg text-[13px] font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all outline-none whitespace-nowrap">
-                    + Save Vitals
+                  <button 
+                    onClick={handleSave}
+                    disabled={isSaving}
+                    className="flex-1 sm:flex-none h-10 px-5 bg-primary text-primary-foreground rounded-lg text-[13px] font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all outline-none whitespace-nowrap disabled:opacity-50"
+                  >
+                    {isSaving ? "Saving..." : "+ Save Vitals"}
                   </button>
                 </div>
               )}

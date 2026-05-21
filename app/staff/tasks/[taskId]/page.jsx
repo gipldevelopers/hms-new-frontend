@@ -6,6 +6,7 @@ import {
   Clock, User, Check, X, AlertTriangle, ArrowLeft
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 // ─── mock data ────────────────────────────────────────────────────────────────
 const MOCK_TASKS = [
@@ -20,27 +21,137 @@ const MOCK_TASKS = [
   { id: 9,  patient: "Michael Brown",  bed: "E-50", title: "Update Records",           priority: "High",   dueTime: "01:30 PM", assignedTo: "Rachel Kim",    status: "In Progress" },
 ];
 
-const priorityClass = (p) => ({
-  High:   "bg-destructive/10 text-destructive border border-destructive/20 font-medium text-[11px] px-2.5 py-0.5 rounded-[var(--radius)] inline-flex shadow-none",
-  Medium: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 font-medium text-[11px] px-2.5 py-0.5 rounded-[var(--radius)] inline-flex shadow-none",
-  Low:    "bg-muted text-muted-foreground border border-border font-medium text-[11px] px-2.5 py-0.5 rounded-[var(--radius)] inline-flex shadow-none",
-}[p] ?? "text-muted-foreground text-[11px]");
+const priorityClass = (p) => {
+  const normalized = (p || "").toUpperCase();
+  if (normalized === "HIGH") {
+    return "bg-destructive/10 text-destructive border border-destructive/20 font-medium text-[11px] px-2.5 py-0.5 rounded-[var(--radius)] inline-flex shadow-none";
+  }
+  if (normalized === "MEDIUM") {
+    return "bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 font-medium text-[11px] px-2.5 py-0.5 rounded-[var(--radius)] inline-flex shadow-none";
+  }
+  return "bg-muted text-muted-foreground border border-border font-medium text-[11px] px-2.5 py-0.5 rounded-[var(--radius)] inline-flex shadow-none";
+};
 
-const statusBadge = (s) => ({
-  "In Progress": "bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 rounded-[var(--radius)] font-medium px-2.5 py-0.5 text-[11px] inline-flex shadow-none",
-  "Pending":     "bg-muted text-muted-foreground border border-border rounded-[var(--radius)] font-medium px-2.5 py-0.5 text-[11px] inline-flex shadow-none",
-  "Completed":   "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 rounded-[var(--radius)] font-medium px-2.5 py-0.5 text-[11px] inline-flex shadow-none",
-}[s] ?? "bg-muted text-muted-foreground border-border");
+const statusBadge = (s) => {
+  if (s === "In Progress") {
+    return "bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 rounded-[var(--radius)] font-medium px-2.5 py-0.5 text-[11px] inline-flex shadow-none";
+  }
+  if (s === "Completed") {
+    return "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 rounded-[var(--radius)] font-medium px-2.5 py-0.5 text-[11px] inline-flex shadow-none";
+  }
+  return "bg-muted text-muted-foreground border border-border rounded-[var(--radius)] font-medium px-2.5 py-0.5 text-[11px] inline-flex shadow-none";
+};
 
 export default function TaskDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const taskId = params.taskId;
+
+  const [task, setTask] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [status, setStatus] = useState("Pending");
   const [note, setNote] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [completedClicked, setCompletedClicked] = useState(false);
 
-  const taskId = parseInt(params.taskId, 10) || 1;
-  const task = MOCK_TASKS.find((t) => t.id === taskId) || MOCK_TASKS[0];
+  React.useEffect(() => {
+    const fetchTask = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem("authtoken");
+        const res = await fetch(`/api/tasks/${taskId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setTask(data);
+          setStatus(data.status);
+          setNote(data.description || "");
+        }
+      } catch (err) {
+        console.error("Error loading task detail:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    if (taskId) {
+      fetchTask();
+    }
+  }, [taskId]);
 
-  const [status, setStatus] = useState(task.status);
+  const updateStatus = async (newStatus) => {
+    try {
+      setSaving(true);
+      const token = localStorage.getItem("authtoken");
+      const res = await fetch(`/api/tasks/${taskId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ status: newStatus, description: note })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setTask(data);
+        setStatus(data.status);
+        setNote(data.description || "");
+      }
+    } catch (err) {
+      console.error("Error updating task status:", err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const saveNoteOnly = async () => {
+    try {
+      setSaving(true);
+      const token = localStorage.getItem("authtoken");
+      const res = await fetch(`/api/tasks/${taskId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ status, description: note })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setTask(data);
+        alert("Notes saved successfully");
+      }
+    } catch (err) {
+      console.error("Error saving task notes:", err);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-background">
+        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4" />
+        <p className="text-[13px] font-semibold text-muted-foreground">Loading task details...</p>
+      </div>
+    );
+  }
+
+  if (!task) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-background space-y-4">
+        <p className="text-[14px] font-bold text-muted-foreground">Task not found</p>
+        <button
+          onClick={() => router.push("/staff/tasks")}
+          className="h-10 px-4 bg-primary text-primary-foreground rounded-lg text-[13px] font-semibold transition-all"
+        >
+          Back to Tasks
+        </button>
+      </div>
+    );
+  }
+
+  const isNoteModified = note !== (task.description || "");
 
   return (
     <div className="p-5 bg-background text-foreground min-h-screen flex flex-col space-y-5 transition-colors duration-300 font-sans pb-20 shadow-none">
@@ -76,11 +187,11 @@ export default function TaskDetailPage() {
                 {task.patient}
               </h2>
               <span className="bg-destructive/10 text-destructive border border-destructive/20 font-medium text-[11px] px-2 py-0.5 rounded-[var(--radius)] inline-flex">
-                Critical
+                Admitted
               </span>
             </div>
             <p className="text-[13px] font-medium text-muted-foreground mt-1">
-              62 yrs • Male
+              Active Patient Profile
             </p>
           </div>
         </div>
@@ -124,7 +235,7 @@ export default function TaskDetailPage() {
             {task.title}
           </h3>
           <p className="text-[13px] font-medium text-muted-foreground mt-2 leading-relaxed">
-            Prepare patient for afternoon discharge. Ensure all paperwork is signed and final checks are completed before family arrives.
+            {task.title || "No title provided"}
           </p>
         </div>
 
@@ -134,7 +245,7 @@ export default function TaskDetailPage() {
             <Clock className="w-5 h-5 text-muted-foreground" />
             <div>
               <p className="text-[11px] font-medium text-muted-foreground leading-tight">Due time</p>
-              <p className="text-[13px] font-bold text-foreground mt-0.5">{task.dueTime} Today</p>
+              <p className="text-[13px] font-bold text-foreground mt-0.5">{task.dueTime}</p>
             </div>
           </div>
 
@@ -154,14 +265,16 @@ export default function TaskDetailPage() {
             <div className="relative">
               <span className="absolute -left-[24px] top-1.5 w-2 h-2 rounded-full bg-muted-foreground border border-background" />
               <p className="text-[13px] font-bold text-foreground leading-tight">Task Created</p>
-              <p className="text-[11px] font-medium text-muted-foreground mt-0.5">07:30 AM by Dr. Smith</p>
+              <p className="text-[11px] font-medium text-muted-foreground mt-0.5">
+                {new Date(task.createdAt || Date.now()).toLocaleDateString()} at {new Date(task.createdAt || Date.now()).toLocaleTimeString()}
+              </p>
             </div>
             
             {(status === "In Progress" || status === "Completed") && (
               <div className="relative">
                 <span className="absolute -left-[24px] top-1.5 w-2 h-2 rounded-full bg-blue-600 border border-background" />
                 <p className="text-[13px] font-bold text-foreground leading-tight">Started</p>
-                <p className="text-[11px] font-medium text-muted-foreground mt-0.5">08:15 AM by {task.assignedTo}</p>
+                <p className="text-[11px] font-medium text-muted-foreground mt-0.5">Assigned to {task.assignedTo}</p>
               </div>
             )}
 
@@ -169,7 +282,7 @@ export default function TaskDetailPage() {
               <div className="relative">
                 <span className="absolute -left-[24px] top-1.5 w-2 h-2 rounded-full bg-emerald-600 border border-background" />
                 <p className="text-[13px] font-bold text-foreground leading-tight">Completed</p>
-                <p className="text-[11px] font-medium text-muted-foreground mt-0.5">09:15 AM by {task.assignedTo}</p>
+                <p className="text-[11px] font-medium text-muted-foreground mt-0.5">Completed successfully</p>
               </div>
             )}
           </div>
@@ -177,7 +290,7 @@ export default function TaskDetailPage() {
 
         {/* Notes */}
         <div className="flex flex-col space-y-3">
-          <h4 className="text-[14px] font-bold text-foreground">Notes</h4>
+          <h4 className="text-[14px] font-bold text-foreground">Notes / Description</h4>
           <textarea
             className="w-full h-24 p-3 border border-border bg-background rounded-[var(--radius)] text-[13px] text-foreground focus:border-primary outline-none resize-none shadow-none font-normal placeholder:text-muted-foreground"
             placeholder="Add a note or observation..."
@@ -188,6 +301,16 @@ export default function TaskDetailPage() {
 
         {/* Bottom Actions */}
         <div className="flex justify-end items-center gap-3 pt-3">
+          {isNoteModified && (
+            <button
+              onClick={saveNoteOnly}
+              disabled={saving}
+              className="h-10 px-4 bg-muted hover:bg-muted/80 text-foreground border border-border rounded-[var(--radius)] text-[13px] font-semibold transition-all shadow-none"
+            >
+              Save Notes
+            </button>
+          )}
+
           <button
             onClick={() => router.back()}
             className="h-10 px-4 border border-destructive/20 hover:bg-destructive/10 text-destructive rounded-[var(--radius)] text-[13px] font-semibold transition-all shadow-none"
@@ -197,7 +320,8 @@ export default function TaskDetailPage() {
 
           {status === "Pending" && (
             <button
-              onClick={() => setStatus("In Progress")}
+              onClick={() => updateStatus("In Progress")}
+              disabled={saving}
               className="h-10 px-4 bg-primary hover:bg-primary/90 text-primary-foreground rounded-[var(--radius)] text-[13px] font-semibold flex items-center justify-center gap-1.5 transition-all shadow-none"
             >
               Start Task
@@ -206,7 +330,8 @@ export default function TaskDetailPage() {
 
           {status === "In Progress" && (
             <button
-              onClick={() => setStatus("Completed")}
+              onClick={() => updateStatus("Completed")}
+              disabled={saving}
               className="h-10 px-4 bg-primary hover:bg-primary/90 text-primary-foreground rounded-[var(--radius)] text-[13px] font-semibold flex items-center justify-center gap-1.5 transition-all shadow-none"
             >
               <Check className="w-4 h-4" /> Mark as Completed
@@ -215,8 +340,18 @@ export default function TaskDetailPage() {
 
           {status === "Completed" && (
             <button
-              disabled
-              className="h-10 px-4 bg-primary/60 text-primary-foreground rounded-[var(--radius)] text-[13px] font-semibold flex items-center justify-center gap-1.5 transition-all shadow-none cursor-not-allowed"
+              disabled={completedClicked}
+              onClick={() => {
+                setCompletedClicked(true);
+                toast.success("patient task completed");
+                router.push("/staff/tasks?status=Completed");
+              }}
+              className={cn(
+                "h-10 px-4 text-primary-foreground rounded-[var(--radius)] text-[13px] font-semibold flex items-center justify-center gap-1.5 transition-all shadow-none",
+                completedClicked
+                  ? "bg-primary/60 cursor-not-allowed"
+                  : "bg-primary hover:bg-primary/90"
+              )}
             >
               <Check className="w-4 h-4" /> Task Completed
             </button>

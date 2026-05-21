@@ -22,14 +22,14 @@ export function PrescriptionQueue() {
 
   return (
     <div className="p-4 sm:p-6 space-y-[20px] font-sans bg-[#f8f9fc] dark:bg-[#0a0f1d] min-h-screen">
-      {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white dark:bg-[#1e293b] p-5 rounded-[5px] border border-[#e2e8f0] dark:border-[#334155]">
+      {/* Header - Simplified */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-[18px] font-bold text-[#1e293b] dark:text-white">Prescription Queue</h1>
-          <p className="text-[12px] text-[#64748b] dark:text-[#94a3b8] font-bold mt-1 opacity-70">Manage and track all incoming prescriptions</p>
+          <h1 className="text-[20px] font-bold text-[#1e293b] dark:text-white leading-none">Prescription Queue</h1>
+          <p className="text-[12px] text-[#64748b] dark:text-[#94a3b8] font-bold mt-1.5 opacity-70">Manage and track all incoming prescriptions</p>
         </div>
         <div className="flex flex-col md:flex-row items-center gap-3 w-full md:w-auto">
-          <div className="relative w-full md:w-[250px]">
+          <div className="relative w-full md:w-[280px]">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#64748b] opacity-50" />
             <input 
               type="text"
@@ -39,41 +39,33 @@ export function PrescriptionQueue() {
           </div>
           
           <div className="flex items-center gap-3 w-full md:w-auto">
-            <div className="relative w-full md:w-[120px]">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="w-full h-11 px-4 bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-bold text-[#1e293b] dark:text-white flex items-center justify-between hover:bg-[#f8fafc] dark:hover:bg-[#334155] transition-all outline-none group data-[state=open]:border-primary">
-                    <span className="truncate">{deptFilter}</span>
-                    <ChevronDown className="w-4 h-4 text-[#64748b] group-hover:text-[#1e293b] dark:group-hover:text-white transition-colors" />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-[120px]">
-                  {["All", "Emergency", "Cardiology", "Neurology"].map((dept) => (
-                    <DropdownMenuItem key={dept} onClick={() => setDeptFilter(dept)} className="font-bold text-[13px]">
-                      {dept}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex-1 md:w-[130px] h-11 px-4 bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-bold text-[#1e293b] dark:text-white flex items-center justify-between hover:bg-[#f8fafc] dark:hover:bg-[#334155] transition-all outline-none group data-[state=open]:border-primary shadow-none">
+                  <span className="truncate text-left flex-1 mr-2">{deptFilter}</span>
+                  <ChevronDown className="w-4 h-4 text-[#64748b] transition-transform group-data-[state=open]:rotate-180" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-[180px] p-1 border-[#e2e8f0] dark:border-[#334155] rounded-[5px] shadow-none">
+                <DropdownMenuItem onClick={() => setDeptFilter("All")} className="font-bold text-[13px] h-10 px-3 rounded-[5px] cursor-pointer focus:bg-primary/5 focus:text-primary">All Departments</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setDeptFilter("Emergency")} className="font-bold text-[13px] h-10 px-3 rounded-[5px] cursor-pointer focus:bg-primary/5 focus:text-primary">Emergency</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setDeptFilter("Inpatient")} className="font-bold text-[13px] h-10 px-3 rounded-[5px] cursor-pointer focus:bg-primary/5 focus:text-primary">Inpatient</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
-            <div className="relative w-full md:w-[120px]">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="w-full h-11 px-4 bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-bold text-[#1e293b] dark:text-white flex items-center justify-between hover:bg-[#f8fafc] dark:hover:bg-[#334155] transition-all outline-none group data-[state=open]:border-primary">
-                    <span className="truncate">{doctorFilter}</span>
-                    <ChevronDown className="w-4 h-4 text-[#64748b] group-hover:text-[#1e293b] dark:group-hover:text-white transition-colors" />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-[120px]">
-                  {["All", "Dr. Smith", "Dr. Lee", "Dr. Kim"].map((doc) => (
-                    <DropdownMenuItem key={doc} onClick={() => setDoctorFilter(doc)} className="font-bold text-[13px]">
-                      {doc}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex-1 md:w-[130px] h-11 px-4 bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-bold text-[#1e293b] dark:text-white flex items-center justify-between hover:bg-[#f8fafc] dark:hover:bg-[#334155] transition-all outline-none group data-[state=open]:border-primary shadow-none">
+                  <span className="truncate text-left flex-1 mr-2">{doctorFilter}</span>
+                  <ChevronDown className="w-4 h-4 text-[#64748b] transition-transform group-data-[state=open]:rotate-180" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-[180px] p-1 border-[#e2e8f0] dark:border-[#334155] rounded-[5px] shadow-none">
+                <DropdownMenuItem onClick={() => setDoctorFilter("All")} className="font-bold text-[13px] h-10 px-3 rounded-[5px] cursor-pointer focus:bg-primary/5 focus:text-primary">All Doctors</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setDoctorFilter("Dr. Smith")} className="font-bold text-[13px] h-10 px-3 rounded-[5px] cursor-pointer focus:bg-primary/5 focus:text-primary">Dr. Smith</DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setDoctorFilter("Dr. Patel")} className="font-bold text-[13px] h-10 px-3 rounded-[5px] cursor-pointer focus:bg-primary/5 focus:text-primary">Dr. Patel</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </div>

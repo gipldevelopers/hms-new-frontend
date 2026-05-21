@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
-import { Search, ChevronDown, Clock, Check } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Search, ChevronDown, Clock, Check, Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
@@ -10,66 +11,85 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export default function NursingTasks() {
+export default function NursingTasks({ patientId }) {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [filterPriority, setFilterPriority] = useState("All");
+  const [tasks, setTasks] = useState([]);
+  const [loading, setLoading] = useState(true);
   
   const priorityOptions = ["All", "HIGH", "MEDIUM", "LOW"];
 
-  const [tasks, setTasks] = useState([
-    { 
-      name: "Change IV dressing", 
-      due: "Due in 2h", 
-      priority: "HIGH", 
-      priorityColor: "text-destructive", 
-      dotColor: "bg-destructive",
-      assignedTo: "Unassigned",
-      completed: false
-    },
-    { 
-      name: "Collect Blood Sample (CBC)", 
-      due: "Due in 4h", 
-      priority: "MEDIUM", 
-      priorityColor: "text-amber-500", 
-      dotColor: "bg-amber-500",
-      assignedTo: "Sarah Jenkins",
-      completed: false
-    },
-    { 
-      name: "Patient positioning / Turn", 
-      due: "Due in 5h", 
-      priority: "LOW", 
-      priorityColor: "text-emerald-500", 
-      dotColor: "bg-emerald-500",
-      assignedTo: "Unassigned",
-      completed: false
-    },
-    { 
-      name: "Incentive spirometry", 
-      due: "Due in 6h", 
-      priority: "MEDIUM", 
-      priorityColor: "text-amber-500", 
-      dotColor: "bg-amber-500",
-      assignedTo: "Sarah Jenkins",
-      completed: false
+  const fetchTasks = async (search = "", priority = "All") => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("authtoken");
+      const params = new URLSearchParams();
+      if (patientId) params.append("patientId", patientId);
+      if (search) params.append("search", search);
+      if (priority !== "All") params.append("priority", priority);
+
+      const res = await fetch(`/api/tasks?${params.toString()}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setTasks(data || []);
+      }
+    } catch (err) {
+      console.error("Error fetching patient tasks:", err);
+    } finally {
+      setLoading(false);
     }
-  ]);
-
-  const toggleTask = (idx) => {
-    const updated = [...tasks];
-    updated[idx].completed = !updated[idx].completed;
-    setTasks(updated);
   };
 
-  const handleAction = (type, task) => {
-    alert(`${type}: ${task.name}`);
+  useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      fetchTasks(searchQuery, filterPriority);
+    }, 300);
+
+    return () => clearTimeout(delayDebounce);
+  }, [patientId, searchQuery, filterPriority]);
+
+  const toggleTask = async (task) => {
+    try {
+      const newStatus = task.status === "Completed" ? "Pending" : "Completed";
+      const token = localStorage.getItem("authtoken");
+      const res = await fetch(`/api/tasks/${task.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ status: newStatus })
+      });
+      if (res.ok) {
+        fetchTasks(searchQuery, filterPriority);
+      }
+    } catch (err) {
+      console.error("Error updating task status:", err);
+    }
   };
 
-  const filteredTasks = tasks.filter(t => {
-    const matchesSearch = t.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesPriority = filterPriority === "All" || t.priority === filterPriority;
-    return matchesSearch && matchesPriority;
-  });
+  const handleAction = (task) => {
+    router.push(`/staff/tasks/${task.id}`);
+  };
+
+  const filteredTasks = tasks;
+
+  const getPriorityColor = (p) => {
+    const normalized = (p || "").toUpperCase();
+    if (normalized === "HIGH") return "text-destructive";
+    if (normalized === "MEDIUM") return "text-amber-500";
+    return "text-emerald-500";
+  };
+
+  const getDotColor = (p) => {
+    const normalized = (p || "").toUpperCase();
+    if (normalized === "HIGH") return "bg-destructive";
+    if (normalized === "MEDIUM") return "bg-amber-500";
+    return "bg-emerald-500";
+  };
 
   return (
     <div className="space-y-[20px] animate-in fade-in duration-500">
@@ -120,60 +140,65 @@ export default function NursingTasks() {
         </div>
         
         <div className="md:p-6 space-y-4">
-          {filteredTasks.map((task, idx) => (
-            <div key={idx} className={cn("p-4 md:p-5 bg-card md:bg-transparent border border-border rounded-lg transition-all group shadow-none", task.completed && "opacity-60")}>
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                <div className="flex items-start md:items-center gap-4 md:gap-6">
-                  <div className="shrink-0 pt-1 md:pt-0">
-                    <div 
-                      onClick={() => toggleTask(idx)}
-                      className={cn(
-                        "w-6 h-6 rounded-md border-2 flex items-center justify-center cursor-pointer transition-all",
-                        task.completed 
-                          ? "bg-primary border-primary text-primary-foreground" 
-                          : "border-border hover:border-primary"
-                      )}
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4" />
+              <p className="text-[13px] font-semibold text-muted-foreground">Loading tasks...</p>
+            </div>
+          ) : filteredTasks.length === 0 ? (
+            <div className="text-center p-12 border border-dashed border-border rounded-lg text-[13px] font-medium text-muted-foreground italic bg-card/50">
+              No tasks found
+            </div>
+          ) : (
+            filteredTasks.map((task) => (
+              <div key={task.id} className={cn("p-4 md:p-5 bg-card md:bg-transparent border border-border rounded-lg transition-all group shadow-none", task.status === "Completed" && "opacity-60")}>
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                  <div className="flex items-start md:items-center gap-4 md:gap-6">
+                    <div className="shrink-0 pt-1 md:pt-0">
+                      <div 
+                        onClick={() => toggleTask(task)}
+                        className={cn(
+                          "w-6 h-6 rounded-md border-2 flex items-center justify-center cursor-pointer transition-all",
+                          task.status === "Completed" 
+                            ? "bg-primary border-primary text-primary-foreground" 
+                            : "border-border hover:border-primary"
+                        )}
+                      >
+                        {task.status === "Completed" && <Check className="w-4 h-4 stroke-[3px]" />}
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <p className={cn("text-[15px] md:text-[16px] font-bold text-foreground mb-2 leading-tight", task.status === "Completed" && "line-through opacity-50")}>{task.title}</p>
+                      <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Clock className="w-3.5 h-3.5" />
+                          <span className="text-[12px] font-bold uppercase tracking-wide">{task.dueTime}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className={cn("w-1.5 h-1.5 rounded-full", getDotColor(task.priority))} />
+                          <span className={cn("text-[10px] font-black uppercase tracking-widest", getPriorityColor(task.priority))}>{task.priority}</span>
+                        </div>
+                        {task.assignedTo && (
+                           <span className="text-[12px] font-bold text-muted-foreground/80">
+                             Assigned: {task.assignedTo}
+                           </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center gap-3 w-full md:w-auto justify-end">
+                    <button 
+                      onClick={() => handleAction(task)}
+                      className="h-11 px-4 md:px-5 text-[11px] font-black text-primary bg-primary/5 border border-primary/10 rounded-lg hover:bg-primary/10 transition-all uppercase tracking-widest w-full md:w-auto outline-none flex items-center justify-center gap-1.5"
                     >
-                      {task.completed && <Check className="w-4 h-4 stroke-[3px]" />}
-                    </div>
+                      <Eye className="w-3.5 h-3.5" /> Details
+                    </button>
                   </div>
-                  <div className="flex-1">
-                    <p className={cn("text-[15px] md:text-[16px] font-bold text-foreground mb-2 leading-tight", task.completed && "line-through opacity-50")}>{task.name}</p>
-                    <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
-                      <div className="flex items-center gap-2 text-muted-foreground">
-                        <Clock className="w-3.5 h-3.5" />
-                        <span className="text-[12px] font-bold uppercase tracking-wide">{task.due}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className={cn("w-1.5 h-1.5 rounded-full", task.dotColor)} />
-                        <span className={cn("text-[10px] font-black uppercase tracking-widest", task.priorityColor)}>{task.priority}</span>
-                      </div>
-                      {task.assignedTo && (
-                         <span className="text-[12px] font-bold text-muted-foreground/80">
-                           {task.assignedTo}
-                         </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-2 md:flex items-center gap-3 w-full md:w-auto">
-                  <button 
-                    onClick={() => handleAction("Escalate", task)}
-                    className="h-11 px-4 md:px-5 text-[11px] font-black text-muted-foreground bg-muted border border-transparent rounded-lg hover:bg-muted/80 transition-all uppercase tracking-widest w-full md:w-auto outline-none"
-                  >
-                    Escalate
-                  </button>
-                  <button 
-                    onClick={() => handleAction("View", task)}
-                    className="h-11 px-4 md:px-5 text-[11px] font-black text-primary bg-primary/5 border border-primary/10 rounded-lg hover:bg-primary/10 transition-all uppercase tracking-widest w-full md:w-auto outline-none"
-                  >
-                    Details
-                  </button>
                 </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </div>
