@@ -9,7 +9,6 @@ import {
   FinancePageShell,
   FinanceSearchField,
   FinanceSelect,
-  FinanceStatCard,
   FinanceTableCard,
   FinanceToolbar,
 } from "@/components/finance/FinancePageChrome";
@@ -1632,111 +1631,98 @@ export default function InsurancePage() {
       />
 
       {/* 2. STATS CARDS GRID */}
-      <div className="grid grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
         {/* Total Claims (MTD) */}
-        <div className="flex items-start justify-between rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-white/10 dark:bg-[#101935]">
-          <div className="space-y-1">
-            <span className="text-[11px] text-gray-400 font-bold uppercase tracking-wider block">Total Claims (MTD)</span>
-            <span className="block text-3xl font-extrabold text-gray-800 dark:text-white">142</span>
-            <span className="text-[10px] text-emerald-500 font-bold flex items-center gap-1">
-              +12% <span className="text-gray-400 font-semibold">vs yesterday</span>
-            </span>
+        <div className="flex items-center gap-4 rounded-[5px] border border-[#E7E8EB] bg-white p-5 transition-all dark:border-white/10 dark:bg-[#101935]">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[5px] bg-primary/10 text-primary">
+            <FileText className="h-6 w-6" />
           </div>
-          <div className="w-10 h-10 rounded-lg bg-blue-50 flex items-center justify-center text-blue-600 shrink-0">
-            <FileText className="w-5 h-5" />
+          <div className="min-w-0">
+            <span className="text-[11px] text-gray-400 font-bold uppercase tracking-wider block">Total Claims (MTD)</span>
+            <span className="block text-[20px] font-bold leading-none text-[#1e293b] dark:text-white">142</span>
+            <span className="mt-3 block text-[12px] font-medium text-[#64748B] dark:text-slate-500">+12% vs yesterday</span>
           </div>
         </div>
 
         {/* Pending Pre-Auth */}
-        <div className="flex items-start justify-between rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-white/10 dark:bg-[#101935]">
-          <div className="space-y-1">
-            <span className="text-[11px] text-gray-400 font-bold uppercase tracking-wider block">Pending Pre-Auth</span>
-            <span className="block text-3xl font-extrabold text-gray-800 dark:text-white">28</span>
-            <span className="text-[10px] text-amber-500 font-bold flex items-center gap-1">
-              5 <span className="text-gray-400 font-semibold">urgent</span>
-            </span>
+        <div className="flex items-center gap-4 rounded-[5px] border border-[#E7E8EB] bg-white p-5 transition-all dark:border-white/10 dark:bg-[#101935]">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[5px] bg-amber-500/10 text-amber-500">
+            <Clock className="h-6 w-6" />
           </div>
-          <div className="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center text-amber-500 shrink-0">
-            <Clock className="w-5 h-5" />
+          <div className="min-w-0">
+            <span className="text-[11px] text-gray-400 font-bold uppercase tracking-wider block">Pending Pre-Auth</span>
+            <span className="block text-[20px] font-bold leading-none text-[#1e293b] dark:text-white">28</span>
+            <span className="mt-3 block text-[12px] font-medium text-[#64748B] dark:text-slate-500">5 urgent</span>
           </div>
         </div>
 
         {/* Approved Amount */}
-        <div className="flex items-start justify-between rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-white/10 dark:bg-[#101935]">
-          <div className="space-y-1">
-            <span className="text-[11px] text-gray-400 font-bold uppercase tracking-wider block">Approved Amount</span>
-            <span className="block text-3xl font-extrabold text-gray-800 dark:text-white">₹45,200</span>
-            <span className="text-[10px] text-emerald-500 font-bold flex items-center gap-1">
-              +8% <span className="text-gray-400 font-semibold">vs last month</span>
-            </span>
+        <div className="flex items-center gap-4 rounded-[5px] border border-[#E7E8EB] bg-white p-5 transition-all dark:border-white/10 dark:bg-[#101935]">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[5px] bg-emerald-500/10 text-emerald-500">
+            <ShieldCheck className="h-6 w-6" />
           </div>
-          <div className="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-500 shrink-0">
-            <ShieldCheck className="w-5 h-5" />
+          <div className="min-w-0">
+            <span className="text-[11px] text-gray-400 font-bold uppercase tracking-wider block">Approved Amount</span>
+            <span className="block text-[20px] font-bold leading-none text-[#1e293b] dark:text-white">₹45,200</span>
+            <span className="mt-3 block text-[12px] font-medium text-[#64748B] dark:text-slate-500">+8% vs last month</span>
           </div>
         </div>
 
         {/* Rejected Claims */}
-        <div className="flex items-start justify-between rounded-xl border border-gray-100 bg-white p-4 shadow-sm transition-all hover:shadow-md dark:border-white/10 dark:bg-[#101935]">
-          <div className="space-y-1">
-            <span className="text-[11px] text-gray-400 font-bold uppercase tracking-wider block">Rejected Claims</span>
-            <span className="block text-3xl font-extrabold text-gray-800 dark:text-white">12</span>
-            <span className="text-[10px] text-[#ef4444] font-bold flex items-center gap-1">
-              -2% <span className="text-gray-400 font-semibold">vs last month</span>
-            </span>
+        <div className="flex items-center gap-4 rounded-[5px] border border-[#E7E8EB] bg-white p-5 transition-all dark:border-white/10 dark:bg-[#101935]">
+          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[5px] bg-rose-500/10 text-rose-500">
+            <XCircle className="h-6 w-6" />
           </div>
-          <div className="w-10 h-10 rounded-lg bg-red-50 flex items-center justify-center text-red-500 shrink-0">
-            <XCircle className="w-5 h-5" />
+          <div className="min-w-0">
+            <span className="text-[11px] text-gray-400 font-bold uppercase tracking-wider block">Rejected Claims</span>
+            <span className="block text-[20px] font-bold leading-none text-[#1e293b] dark:text-white">12</span>
+            <span className="mt-3 block text-[12px] font-medium text-[#64748B] dark:text-slate-500">-2% vs last month</span>
           </div>
         </div>
       </div>
 
       {/* 3. TABLE FILTERING & SEARCH CONTROLS */}
-      <div className="flex items-center justify-between gap-4 overflow-hidden rounded-xl border border-gray-100/90 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-[#101935]">
+      <FinanceToolbar>
         {/* Search */}
-        <div className="relative w-80">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-slate-500" />
-          <Input
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search claim, patient or provider..."
-            className="h-9.5 border-gray-200 pl-9 text-xs focus-visible:ring-[#2E37A4] dark:border-white/10 dark:bg-[#0B1121] dark:text-white dark:placeholder:text-slate-500"
-          />
-        </div>
+        <FinanceSearchField
+          value={searchQuery}
+          onChange={setSearchQuery}
+          placeholder="Search claim, patient or provider..."
+          className="sm:w-[320px]"
+        />
 
         {/* Dropdown status selector */}
-        <div className="relative">
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="h-9.5 min-w-[120px] appearance-none rounded-lg border border-gray-200 bg-white pl-3 pr-8 text-xs font-semibold text-gray-700 focus:border-gray-300 focus:outline-none dark:border-white/10 dark:bg-[#0B1121] dark:text-slate-200"
-          >
-            <option value="All">All</option>
-            <option value="Approved">Approved</option>
-            <option value="Pending">Pending</option>
-            <option value="Rejected">Rejected</option>
-          </select>
-          <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-gray-400 dark:text-slate-500" />
-        </div>
-      </div>
+        <FinanceSelect
+          value={statusFilter}
+          onChange={setStatusFilter}
+          placeholder="Filter by status"
+          options={[
+            { label: "All Claims", value: "All" },
+            { label: "Approved", value: "Approved" },
+            { label: "Pending", value: "Pending" },
+            { label: "Rejected", value: "Rejected" },
+          ]}
+        />
+      </FinanceToolbar>
 
       {/* 4. MAIN CLAIMS TABLE */}
-      <div className="overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm dark:border-white/10 dark:bg-[#101935]">
+      <FinanceTableCard>
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="border-b border-gray-100 bg-slate-50/50 text-[10px] font-bold text-gray-400 dark:border-white/10 dark:bg-white/5 dark:text-slate-400">
-              <th className="pl-6">Claim ID</th>
-              <th>Patient</th>
-              <th>Provider</th>
-              <th>Total Amount</th>
-              <th>Date</th>
-              <th>Status</th>
-              <th className="pr-6 text-center">Action</th>
+            <tr className="bg-muted/30">
+              <th className="border-b border-border px-6 py-4 text-left text-[11px] font-bold tracking-widest text-muted-foreground">CLAIM ID</th>
+              <th className="border-b border-border px-6 py-4 text-left text-[11px] font-bold tracking-widest text-muted-foreground">PATIENT</th>
+              <th className="border-b border-border px-6 py-4 text-left text-[11px] font-bold tracking-widest text-muted-foreground">PROVIDER</th>
+              <th className="border-b border-border px-6 py-4 text-left text-[11px] font-bold tracking-widest text-muted-foreground">TOTAL AMOUNT</th>
+              <th className="border-b border-border px-6 py-4 text-left text-[11px] font-bold tracking-widest text-muted-foreground">DATE</th>
+              <th className="border-b border-border px-6 py-4 text-left text-[11px] font-bold tracking-widest text-muted-foreground">STATUS</th>
+              <th className="border-b border-border px-6 py-4 text-right text-[11px] font-bold tracking-widest text-muted-foreground">ACTION</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100 text-xs font-semibold text-[#0E1726] dark:divide-white/10 dark:text-slate-200">
+          <tbody className="divide-y divide-border">
             {filteredClaims.length === 0 ? (
               <tr>
-                <td colSpan="7" className="py-10 text-center text-gray-400 dark:text-slate-500">
+                <td colSpan="7" className="px-6 py-16 text-center text-[12px] font-bold text-muted-foreground">
                   No claims found matching filters.
                 </td>
               </tr>
@@ -1744,36 +1730,36 @@ export default function InsurancePage() {
               filteredClaims.map((claim) => {
                 const providerMeta = PROVIDERS[claim.provider] || { initial: "P", bg: "bg-gray-50 text-gray-600 border-gray-100", dot: "bg-gray-500" };
                 return (
-                  <tr key={claim.id} className="h-13 transition-colors hover:bg-slate-50/30 dark:hover:bg-white/5">
-                    <td className="pl-6 text-sm font-medium align-middle text-[#0E1726] dark:text-white">{claim.id}</td>
-                    <td className="text-sm font-medium align-middle text-[#0E1726] dark:text-slate-200">{claim.patient}</td>
-                    <td className="align-middle">
+                  <tr key={claim.id} className="transition-colors hover:bg-muted/20">
+                    <td className="whitespace-nowrap px-6 py-5 text-[14px] font-bold text-foreground">{claim.id}</td>
+                    <td className="whitespace-nowrap px-6 py-5 text-[14px] font-bold text-foreground">{claim.patient}</td>
+                    <td className="px-6 py-5">
                       <div className="flex items-center gap-2">
-                        <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${providerMeta.bg} border border-[#e0f2fe]/40 shrink-0`}>
+                        <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[5px] border border-[#e0f2fe]/40 text-[10px] font-bold ${providerMeta.bg}`}>
                           {providerMeta.initial}
                         </div>
-                        <span className="text-sm font-medium text-[#0E1726] dark:text-slate-200">{claim.provider}</span>
+                        <span className="text-[13px] font-medium text-muted-foreground">{claim.provider}</span>
                       </div>
                     </td>
-                    <td className="text-sm font-medium align-middle text-[#0E1726] dark:text-slate-200">{claim.amount}</td>
-                    <td className="text-sm font-medium align-middle text-[#0E1726] dark:text-slate-200">{claim.date}</td>
-                    <td className="align-middle">
+                    <td className="whitespace-nowrap px-6 py-5 text-[13px] font-medium text-muted-foreground">{claim.amount}</td>
+                    <td className="whitespace-nowrap px-6 py-5 text-[13px] font-medium text-muted-foreground">{claim.date}</td>
+                    <td className="whitespace-nowrap px-6 py-5">
                       <Badge
-                        className={`font-semibold px-2.5 py-0.5 rounded-full border-0 text-[10px] shadow-none capitalize ${
+                        className={`rounded-[5px] border px-3 py-1 text-[11px] font-bold shadow-none capitalize ${
                           claim.status === "Approved"
-                            ? "bg-[#E8F8F0] text-[#0F9D58] hover:bg-[#E8F8F0]"
+                            ? "border-emerald-200 bg-emerald-100 text-emerald-700 hover:bg-emerald-100"
                             : claim.status === "Pending"
-                            ? "bg-[#FFF4E5] text-[#F2994A] hover:bg-[#FFF4E5]"
-                            : "bg-[#FDF2F2] text-[#EB5757] hover:bg-[#FDF2F2]"
+                            ? "border-amber-200 bg-amber-100 text-amber-700 hover:bg-amber-100"
+                            : "border-red-200 bg-red-100 text-red-700 hover:bg-red-100"
                         }`}
                       >
                         {claim.status}
                       </Badge>
                     </td>
-                    <td className="pr-6 text-center align-middle">
+                    <td className="px-6 py-5 text-right">
                       <button
                         onClick={() => setSelectedClaim(claim)}
-                        className="inline-flex items-center justify-center p-1.5 text-[#0F172A] transition-all hover:scale-110 hover:text-[#2E37A4] active:scale-95 dark:text-slate-300"
+                        className="inline-flex items-center justify-center rounded-[5px] p-2 text-foreground transition-all hover:bg-muted hover:text-primary"
                       >
                         <Eye className="w-4.5 h-4.5" />
                       </button>
@@ -1784,7 +1770,7 @@ export default function InsurancePage() {
             )}
           </tbody>
         </table>
-      </div>
+      </FinanceTableCard>
 
       {/* 5. MODAL: VERIFY PATIENT INSURANCE */}
       <Dialog open={isVerifyOpen} onOpenChange={setIsVerifyOpen}>
@@ -2087,3 +2073,4 @@ export default function InsurancePage() {
     </FinancePageShell>
   );
 }
+

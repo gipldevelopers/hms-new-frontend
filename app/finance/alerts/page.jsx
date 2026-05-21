@@ -138,10 +138,10 @@ function AlertCard({ item }) {
   const Icon = item.icon;
 
   return (
-    <div className="rounded-[5px] border border-border bg-card p-5 shadow-none">
+    <div className="rounded-[5px] border border-[#E7E8EB] bg-white p-5 shadow-none dark:border-white/10 dark:bg-[#101935]">
       <div className="flex gap-4">
         <div
-          className={`mt-1 flex h-14 w-14 shrink-0 items-center justify-center self-start rounded-2xl ${item.iconBg}`}
+          className={`mt-1 flex h-12 w-12 shrink-0 items-center justify-center self-start rounded-[5px] ${item.iconBg}`}
         >
           <Icon className={`h-5 w-5 ${item.iconColor}`} />
         </div>
@@ -149,23 +149,25 @@ function AlertCard({ item }) {
         <div className="min-w-0 flex-1">
           <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
             <div>
-              <h2 className="text-[1.05rem] font-semibold text-slate-950 dark:text-white">
+              <h2 className="text-[16px] font-bold text-[#1e293b] dark:text-white">
                 {item.title}
               </h2>
-              <p className="mt-2 text-[1rem] text-slate-400 dark:text-slate-500">{item.description}</p>
+              <p className="mt-2 text-[13px] font-medium leading-relaxed text-[#64748B] dark:text-slate-500">
+                {item.description}
+              </p>
             </div>
-            <span className="whitespace-nowrap text-sm text-slate-400 dark:text-slate-500">
+            <span className="whitespace-nowrap text-[12px] font-medium text-[#64748B] dark:text-slate-500">
               {item.time}
             </span>
           </div>
 
-          <div className="mt-5 flex flex-wrap gap-3">
+          <div className="mt-5 flex flex-wrap gap-2.5">
             {item.chips.map((chip) => {
               const ChipIcon = chip.icon;
               return (
                 <span
                   key={chip.label}
-                  className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-sm text-muted-foreground"
+                  className="inline-flex items-center gap-2 rounded-[5px] border border-[#E7E8EB] bg-[#F8F9FC] px-3 py-2 text-[12px] font-medium text-[#64748B] dark:border-white/10 dark:bg-[#0A0F1D] dark:text-slate-400"
                 >
                   <ChipIcon className="h-4 w-4" />
                   {chip.label}
@@ -196,19 +198,19 @@ export default function FinanceAlertsPage() {
 
           <div className="space-y-5">
             <FinanceSectionCard className="p-5">
-              <h2 className="mb-5 text-[18px] font-bold text-foreground">
+              <h2 className="mb-5 text-[16px] font-bold text-[#1e293b] dark:text-white">
                 Billing Status Overview
               </h2>
               <div className="grid grid-cols-2 gap-4">
                 {statusOverview.map((item) => (
                   <div
                     key={item.label}
-                    className="rounded-[5px] bg-background px-4 py-4"
+                    className="rounded-[5px] border border-[#E7E8EB] bg-[#F8F9FC] px-4 py-4 dark:border-white/10 dark:bg-[#0A0F1D]"
                   >
-                    <div className={`text-[2rem] font-bold ${item.color}`}>
+                    <div className={`text-[24px] font-bold ${item.color}`}>
                       {item.value}
                     </div>
-                    <div className="mt-1 text-sm uppercase tracking-[0.08em] text-muted-foreground">
+                    <div className="mt-1 text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748B] dark:text-slate-500">
                       {item.label}
                     </div>
                   </div>
@@ -219,24 +221,24 @@ export default function FinanceAlertsPage() {
             <FinanceSectionCard className="p-5">
               <div className="mb-5 flex items-center gap-3">
                 <span className="h-2 w-2 rounded-full bg-rose-500" />
-                <h2 className="text-[18px] font-bold text-foreground">
+                <h2 className="text-[16px] font-bold text-[#1e293b] dark:text-white">
                   Top Critical Invoices
                 </h2>
               </div>
 
               <div className="space-y-5">
                 {criticalInvoices.map((item) => (
-                  <div key={item.title}>
+                  <div key={item.title} className="rounded-[5px] bg-[#F8F9FC] p-4 dark:bg-[#0A0F1D]">
                     <div className="flex items-start justify-between gap-4">
                       <div>
-                        <p className="text-[1.02rem] font-semibold text-slate-950 dark:text-white">
+                        <p className="text-[14px] font-bold text-[#1e293b] dark:text-white">
                           {item.title}
                         </p>
-                        <p className="mt-1 text-[1rem] text-slate-400 dark:text-slate-500">
+                        <p className="mt-1 text-[12px] font-medium text-[#64748B] dark:text-slate-500">
                           {item.amount}
                         </p>
                       </div>
-                      <span className="rounded-full bg-rose-50 px-3 py-1 text-xs font-semibold text-rose-500">
+                      <span className="rounded-[5px] bg-rose-50 px-3 py-1 text-[11px] font-bold text-rose-500">
                         {item.due}
                       </span>
                     </div>
@@ -246,7 +248,7 @@ export default function FinanceAlertsPage() {
             </FinanceSectionCard>
 
             <FinanceSectionCard className="p-5">
-              <h2 className="mb-5 text-[18px] font-bold text-foreground">
+              <h2 className="mb-5 text-[16px] font-bold text-[#1e293b] dark:text-white">
                 Recent Billing Activity
               </h2>
 
@@ -255,10 +257,12 @@ export default function FinanceAlertsPage() {
                   <div key={item.text} className="flex items-start gap-3">
                     <span className="mt-2 h-2 w-2 rounded-full bg-slate-200" />
                     <div>
-                      <p className="text-[1rem] font-semibold text-slate-950 dark:text-white">
+                      <p className="text-[13px] font-bold text-[#1e293b] dark:text-white">
                         {item.text}
                       </p>
-                      <p className="mt-1 text-sm text-slate-400 dark:text-slate-500">{item.time}</p>
+                      <p className="mt-1 text-[12px] font-medium text-[#64748B] dark:text-slate-500">
+                        {item.time}
+                      </p>
                     </div>
                   </div>
                 ))}

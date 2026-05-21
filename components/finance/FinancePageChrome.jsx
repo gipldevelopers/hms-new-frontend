@@ -13,7 +13,7 @@ export function FinancePageShell({ children, className }) {
   return (
     <div
       className={cn(
-        "min-h-screen bg-background p-4 sm:p-6 font-sans text-[#1e293b] dark:text-white transition-colors duration-300",
+        "min-h-screen bg-[#F8F9FC] p-4 sm:p-6 font-sans text-[#1e293b] dark:bg-[#0A0F1D] dark:text-white transition-colors duration-300",
         className
       )}
     >
@@ -26,11 +26,11 @@ export function FinanceHeader({ title, description, actions, className }) {
   return (
     <div className={cn("flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between", className)}>
       <div>
-        <h1 className="text-[20px] font-bold leading-none tracking-tight text-foreground">
+        <h1 className="text-[20px] font-bold leading-none tracking-tight text-[#1e293b] dark:text-white">
           {title}
         </h1>
         {description ? (
-          <p className="mt-1 text-[12px] font-medium text-muted-foreground">
+          <p className="mt-1 text-[12px] font-medium text-[#64748B] dark:text-slate-500">
             {description}
           </p>
         ) : null}
@@ -53,7 +53,7 @@ export function FinanceStatCard({ title, value, icon: Icon, color = "blue", meta
   };
 
   return (
-    <div className="flex w-full items-center gap-4 rounded-[5px] border border-border bg-card p-5 transition-all">
+    <div className="flex w-full items-center gap-4 rounded-[5px] border border-[#E7E8EB] bg-white p-5 transition-all dark:border-white/10 dark:bg-[#101935]">
       <div
         className={cn(
           "flex h-12 w-12 shrink-0 items-center justify-center rounded-[5px]",
@@ -63,11 +63,11 @@ export function FinanceStatCard({ title, value, icon: Icon, color = "blue", meta
         <Icon className="h-6 w-6" />
       </div>
       <div className="min-w-0">
-        <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+        <p className="mb-1.5 text-[11px] font-bold uppercase tracking-wider text-[#64748B] dark:text-slate-500">
           {title}
         </p>
-        <p className="text-[20px] font-bold leading-none text-foreground">{value}</p>
-        {meta ? <p className="mt-3 text-[12px] font-medium text-muted-foreground">{meta}</p> : null}
+        <p className="text-[20px] font-bold leading-none text-[#1e293b] dark:text-white">{value}</p>
+        {meta ? <p className="mt-3 text-[12px] font-medium text-[#64748B] dark:text-slate-500">{meta}</p> : null}
       </div>
     </div>
   );
@@ -75,7 +75,7 @@ export function FinanceStatCard({ title, value, icon: Icon, color = "blue", meta
 
 export function FinanceToolbar({ children, className }) {
   return (
-    <div className={cn("rounded-[5px] border border-border bg-card p-4 shadow-none", className)}>
+    <div className={cn("rounded-[5px] border border-[#E7E8EB] bg-white p-4 shadow-none dark:border-white/10 dark:bg-[#101935]", className)}>
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         {children}
       </div>
@@ -91,13 +91,13 @@ export function FinanceSearchField({
 }) {
   return (
     <div className={cn("relative w-full sm:w-[260px]", className)}>
-      <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+      <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[#64748B] dark:text-slate-500" />
       <input
         type="text"
         value={value}
         onChange={(event) => onChange(event.target.value)}
         placeholder={placeholder}
-        className="h-[44px] w-full rounded-[5px] border border-border bg-background pl-11 pr-4 text-[13px] font-medium text-foreground outline-none transition-all focus:border-primary"
+        className="h-[44px] w-full rounded-[5px] border border-[#E7E8EB] bg-[#F8F9FC] pl-11 pr-4 text-[13px] font-medium text-[#1e293b] outline-none transition-all focus:border-primary dark:border-white/10 dark:bg-[#0A0F1D] dark:text-white"
       />
     </div>
   );
@@ -118,30 +118,30 @@ export function FinanceSelect({
     <DropdownMenu>
       <DropdownMenuTrigger
         className={cn(
-          "group flex h-[44px] min-w-[180px] items-center gap-3 rounded-[5px] border border-border bg-card px-4 outline-none transition-all hover:border-primary w-full sm:w-auto",
+          "group flex h-[44px] min-w-[180px] w-full items-center gap-3 rounded-[5px] border border-[#E7E8EB] bg-white px-4 outline-none transition-all hover:border-primary sm:w-auto dark:border-white/10 dark:bg-[#101935]",
           className
         )}
       >
         {Icon ? <Icon className="h-4 w-4 shrink-0 text-primary" /> : null}
         <span
           className={cn(
-            "flex-1 truncate text-left text-[13px] font-bold",
-            !selected && "text-muted-foreground"
+            "flex-1 truncate text-left text-[13px] font-bold text-[#1e293b] dark:text-white",
+            !selected && "text-[#64748B] dark:text-slate-500"
           )}
         >
           {selected?.label || placeholder}
         </span>
-        <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground transition-colors group-hover:text-primary" />
+        <ChevronDown className="h-4 w-4 shrink-0 text-[#64748B] transition-colors group-hover:text-primary dark:text-slate-500" />
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align={align}
-        className="z-[500] w-[calc(100vw-48px)] rounded-[5px] border-border bg-card p-1 shadow-xl sm:w-[200px]"
+        className="z-[500] w-[calc(100vw-48px)] rounded-[5px] border border-[#E7E8EB] bg-white p-1 shadow-xl sm:w-[200px] dark:border-white/10 dark:bg-[#101935]"
       >
         {options.map((option) => (
           <DropdownMenuItem
             key={option.value}
             onClick={() => onChange(option.value)}
-            className="mb-0.5 flex cursor-pointer items-center justify-between rounded-[3px] px-3 py-2 text-[13px] font-semibold"
+            className="mb-0.5 flex cursor-pointer items-center justify-between rounded-[5px] px-3 py-2 text-[13px] font-semibold text-[#1e293b] dark:text-white"
           >
             {option.label}
             {value === option.value ? <Check className="h-4 w-4 text-primary" /> : null}
@@ -154,7 +154,7 @@ export function FinanceSelect({
 
 export function FinanceTableCard({ children, className }) {
   return (
-    <div className={cn("overflow-hidden rounded-[5px] border border-border bg-card shadow-none", className)}>
+    <div className={cn("overflow-hidden rounded-[5px] border border-[#E7E8EB] bg-white shadow-none dark:border-white/10 dark:bg-[#101935]", className)}>
       {children}
     </div>
   );
@@ -162,7 +162,7 @@ export function FinanceTableCard({ children, className }) {
 
 export function FinanceSectionCard({ children, className }) {
   return (
-    <section className={cn("rounded-[5px] border border-border bg-card shadow-none", className)}>
+    <section className={cn("rounded-[5px] border border-[#E7E8EB] bg-white shadow-none dark:border-white/10 dark:bg-[#101935]", className)}>
       {children}
     </section>
   );
