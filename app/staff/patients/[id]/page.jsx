@@ -89,12 +89,15 @@ export default function PatientDetailsPage({ params }) {
           <div className="space-y-5">
             <div className="flex justify-between items-center">
               <h2 className="text-[18px] font-bold text-foreground leading-none">Nursing Tasks</h2>
-              <button className="bg-primary text-primary-foreground px-6 h-[40px] rounded-lg text-[12px] font-bold flex items-center justify-center gap-2 hover:bg-primary/90 transition-all shadow-none">
+              <button 
+                onClick={() => router.push("/staff/tasks")}
+                className="bg-primary text-primary-foreground px-6 h-[40px] rounded-lg text-[12px] font-bold flex items-center justify-center gap-2 hover:bg-primary/90 transition-all shadow-none"
+              >
                 <Plus className="w-4 h-4" />
                 Add Tasks
               </button>
             </div>
-            <NursingTasks />
+            <NursingTasks patientId={resolvedParams.id} />
           </div>
         );
       case "Lab Results":

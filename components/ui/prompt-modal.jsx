@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Plus, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 export function PromptModal({ 
-  isOpen, 
   onClose, 
   onConfirm, 
   title = "Add New Item", 
@@ -15,21 +15,17 @@ export function PromptModal({
   const [value, setValue] = useState(initialValue);
 
   useEffect(() => {
-    if (isOpen) {
-      setValue(initialValue);
-      document.body.style.overflow = "hidden";
-      const handleEsc = (e) => {
-        if (e.key === "Escape") onClose();
-      };
-      window.addEventListener("keydown", handleEsc);
-      return () => {
-        document.body.style.overflow = "unset";
-        window.removeEventListener("keydown", handleEsc);
-      };
-    }
-  }, [isOpen, initialValue, onClose]);
-
-  if (!isOpen) return null;
+    setValue(initialValue);
+    document.body.style.overflow = "hidden";
+    const handleEsc = (e) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", handleEsc);
+    return () => {
+      document.body.style.overflow = "unset";
+      window.removeEventListener("keydown", handleEsc);
+    };
+  }, [initialValue, onClose]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -40,8 +36,20 @@ export function PromptModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-black/60 backdrop-blur-[6px] animate-in fade-in duration-200">
-      <div className="bg-white dark:bg-[#101935] w-full max-w-[400px] rounded-[5px] shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200 border border-[#E7E8EB] dark:border-white/10">
+    <div className="fixed inset-0 z-[500] flex items-center justify-center p-4">
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+        className="absolute inset-0 bg-black/60 backdrop-blur-[6px]"
+      />
+      <motion.div
+        initial={{ scale: 0.95, opacity: 0, y: 16 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.95, opacity: 0, y: 16 }}
+        className="relative bg-white dark:bg-[#101935] w-full max-w-[400px] rounded-[5px] shadow-2xl overflow-hidden border border-[#E7E8EB] dark:border-white/10"
+      >
         <div className="p-6 border-b border-gray-100 dark:border-white/5 flex justify-between items-center bg-[#F8F9FC] dark:bg-[#1e293b]/30">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-[5px] bg-[#F0F2FF] dark:bg-[#101935] flex items-center justify-center border border-[#E7E8EB] dark:border-white/10">
@@ -49,7 +57,7 @@ export function PromptModal({
             </div>
             <h2 className="text-[15px] font-bold text-[#1e293b] dark:text-white">{title}</h2>
           </div>
-          <button onClick={onClose} className="text-gray-400 hover:text-red-500 transition-colors">
+          <button type="button" onClick={onClose} className="text-gray-400 hover:text-red-500 transition-colors">
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -83,7 +91,7 @@ export function PromptModal({
             </button>
           </div>
         </form>
-      </div>
+      </motion.div>
     </div>
   );
 }

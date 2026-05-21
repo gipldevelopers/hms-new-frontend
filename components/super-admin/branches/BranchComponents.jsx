@@ -7,6 +7,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { StatCard } from "../dashboard/StatCard";
+import { motion, AnimatePresence } from "framer-motion";
 
 // --- STATS ROW COMPONENT ---
 export function BranchStats() {
@@ -77,37 +78,51 @@ export function DeleteConfirmationModal({ isOpen, onClose, onConfirm, itemName, 
     }
   }, [isOpen, onClose]);
 
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-[500] flex items-center justify-center p-4 bg-black/60 backdrop-blur-[6px] animate-in fade-in duration-200">
-      <div className="bg-white dark:bg-[#101935] w-full max-w-[400px] rounded-[5px] shadow-xl overflow-hidden animate-in zoom-in-95 duration-200 border border-red-50 dark:border-red-900/20">
-        <div className="p-8 text-center">
-          <div className="w-16 h-16 bg-red-50 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Trash2 className="w-8 h-8 text-red-500" />
-          </div>
-          <h2 className="text-[20px] font-bold text-[#1e293b] dark:text-white mb-2">{title}</h2>
-          <p className="text-gray-400 text-[14px] leading-relaxed">
-            Are you sure you want to delete <span className="font-bold text-gray-600 dark:text-gray-300">"{itemName}"</span>? This action cannot be undone.
-          </p>
-        </div>
-
-        <div className="flex border-t border-gray-100 dark:border-white/5">
-          <button 
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-[500] flex items-center justify-center p-4">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             onClick={onClose}
-            className="flex-1 h-14 text-[14px] font-bold text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 transition-all"
+            className="absolute inset-0 bg-black/60 backdrop-blur-[6px]"
+          />
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0, y: 16 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.95, opacity: 0, y: 16 }}
+            className="relative bg-white dark:bg-[#101935] w-full max-w-[400px] rounded-[5px] shadow-xl overflow-hidden border border-red-50 dark:border-red-900/20"
           >
-            Cancel
-          </button>
-          <button 
-            onClick={onConfirm}
-            className="flex-1 h-14 text-[14px] font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-all border-l border-gray-100 dark:border-white/5"
-          >
-            Delete
-          </button>
+            <div className="p-8 text-center">
+              <div className="w-16 h-16 bg-red-50 dark:bg-red-900/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Trash2 className="w-8 h-8 text-red-500" />
+              </div>
+              <h2 className="text-[20px] font-bold text-[#1e293b] dark:text-white mb-2">{title}</h2>
+              <p className="text-gray-400 text-[14px] leading-relaxed">
+                Are you sure you want to delete <span className="font-bold text-gray-600 dark:text-gray-300">"{itemName}"</span>? This action cannot be undone.
+              </p>
+            </div>
+
+            <div className="flex border-t border-gray-100 dark:border-white/5">
+              <button 
+                onClick={onClose}
+                className="flex-1 h-14 text-[14px] font-bold text-gray-400 hover:bg-gray-50 dark:hover:bg-white/5 transition-all"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={onConfirm}
+                className="flex-1 h-14 text-[14px] font-bold text-red-500 hover:bg-red-50 dark:hover:bg-red-900/10 transition-all border-l border-gray-100 dark:border-white/5"
+              >
+                Delete
+              </button>
+            </div>
+          </motion.div>
         </div>
-      </div>
-    </div>
+      )}
+    </AnimatePresence>
   );
 }
 

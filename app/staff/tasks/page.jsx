@@ -15,6 +15,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { FormDatePicker } from "@/components/ui/form-date-picker";
+import { format } from "date-fns";
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
 function CustomSelect({ value, onChange, options, placeholder, minWidth = "140px", icon: Icon }) {
@@ -78,31 +80,100 @@ const dueClass = (due, status) => {
     : "text-muted-foreground font-medium text-[13px]";
 };
 
-// ─── mock data ────────────────────────────────────────────────────────────────
-const MOCK_TASKS = [
-  { id: 1,  patient: "Robert Chen",    bed: "A-12", title: "Discharge Preparation",    priority: "MEDIUM", dueTime: "10:00 AM", assignedTo: "Sarah J.",   status: "In Progress" },
-  { id: 2,  patient: "Maria Garcia",   bed: "A-14", title: "Administer Pain Medica...", priority: "LOW",    dueTime: "10:15 AM", assignedTo: "Unassigned", status: "Pending"     },
-  { id: 3,  patient: "James Wilson",   bed: "A-15", title: "Check Vitals",             priority: "HIGH",   dueTime: "09:00 AM", assignedTo: "David M.",   status: "Completed"   },
-  { id: 4,  patient: "Emma Thompson",  bed: "A-18", title: "Change Wound Dressing",    priority: "MEDIUM", dueTime: "11:30 AM", assignedTo: "Sarah J.",   status: "Pending"     },
-  { id: 5,  patient: "William Davis",  bed: "A-21", title: "Check Vitals",             priority: "LOW",    dueTime: "08:00 AM", assignedTo: "David M.",   status: "Completed"   },
-  { id: 6,  patient: "Sophia Martinez",bed: "B-15", title: "Administer Medication",    priority: "MEDIUM", dueTime: "09:15 AM", assignedTo: "Lisa R.",    status: "In Progress" },
-  { id: 7,  patient: "James Wilson",   bed: "C-34", title: "Schedule Test",            priority: "HIGH",   dueTime: "10:30 AM", assignedTo: "Tom G.",     status: "Pending"     },
-  { id: 8,  patient: "Emily Johnson",  bed: "D-42", title: "Review Chart",             priority: "LOW",    dueTime: "11:00 AM", assignedTo: "Sara T.",    status: "Completed"   },
-  { id: 9,  patient: "Michael Brown",  bed: "E-50", title: "Update Records",           priority: "HIGH",   dueTime: "01:30 PM", assignedTo: "Rachel K.",  status: "In Progress" },
-];
+// ─── Custom Time Picker ───────────────────────────────────────────────────────
+function CustomTimePicker({ value, onChange }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = React.useRef(null);
 
-const PATIENTS = [
-  { name: "Robert Chen",     bed: "A-12" },
-  { name: "Maria Garcia",    bed: "A-14" },
-  { name: "James Wilson",    bed: "A-15" },
-  { name: "Emma Thompson",   bed: "A-18" },
-  { name: "William Davis",   bed: "A-21" },
-  { name: "Sophia Martinez", bed: "B-15" },
-  { name: "Emily Johnson",   bed: "D-42" },
-  { name: "Michael Brown",   bed: "E-50" },
-];
+  // Parse 24h format "10:30"
+  const initialHour = value ? value.split(":")[0] : "10";
+  const initialMinute = value ? value.split(":")[1] : "30";
 
-const NURSES = ["Sarah Jenkins", "David Miller", "Lisa Roberts", "Tom Green", "Sara Thomas", "Rachel Kim"];
+  const [hour, setHour] = useState(initialHour);
+  const [minute, setMinute] = useState(initialMinute);
+
+  const hours = Array.from({ length: 24 }, (_, i) => i.toString().padStart(2, "0"));
+  const minutes = Array.from({ length: 60 }, (_, i) => i.toString().padStart(2, "0"));
+
+  React.useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  React.useEffect(() => {
+    if (value) {
+      const [h, m] = value.split(":");
+      if (h) setHour(h);
+      if (m) setMinute(m);
+    }
+  }, [value]);
+
+  const handleSelectHour = (h) => {
+    setHour(h);
+    onChange(`${h}:${minute}`);
+  };
+
+  const handleSelectMinute = (m) => {
+    setMinute(m);
+    onChange(`${hour}:${m}`);
+  };
+
+  return (
+    <div className="relative w-full" ref={dropdownRef}>
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full h-11 px-4 bg-muted border border-border rounded-lg text-[13px] font-medium text-left flex items-center justify-between outline-none focus:border-primary transition-all shadow-none text-foreground"
+      >
+        <span>{value || "10:30"}</span>
+        <Clock className="w-4 h-4 text-muted-foreground shrink-0" />
+      </button>
+      {isOpen && (
+        <div 
+          className="absolute bottom-full mb-1 left-0 z-[600] border border-border bg-card shadow-2xl rounded-lg overflow-hidden flex h-[200px] w-[140px]"
+        >
+          {/* Hour Column */}
+          <div className="w-1/2 overflow-y-auto border-r border-border py-1 no-scrollbar bg-card">
+            {hours.map((h) => (
+              <button
+                key={h}
+                type="button"
+                className={cn(
+                  "w-full py-1.5 text-[12px] font-bold transition-all block text-center",
+                  hour === h ? "bg-primary text-white" : "text-foreground hover:bg-muted"
+                )}
+                onClick={() => handleSelectHour(h)}
+              >
+                {h}
+              </button>
+            ))}
+          </div>
+          {/* Minute Column */}
+          <div className="w-1/2 overflow-y-auto py-1 no-scrollbar bg-card">
+            {minutes.map((m) => (
+              <button
+                key={m}
+                type="button"
+                className={cn(
+                  "w-full py-1.5 text-[12px] font-bold transition-all block text-center",
+                  minute === m ? "bg-primary text-white" : "text-foreground hover:bg-muted"
+                )}
+                onClick={() => handleSelectMinute(m)}
+              >
+                {m}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 // ─── Add Task Modal ───────────────────────────────────────────────────────────
 function AddTaskModal({ onClose, onSave }) {
@@ -113,10 +184,40 @@ function AddTaskModal({ onClose, onSave }) {
   const [description, setDescription] = useState("");
   const [bedLabel, setBedLabel] = useState("");
   const [priority, setPriority] = useState("MEDIUM");
-  const [dueDate, setDueDate] = useState("Today, 10:30 AM");
-  const [assignNurse, setAssignNurse] = useState("Unassigned");
+  const [dueDateVal, setDueDateVal] = useState(new Date());
+  const [dueTime, setDueTime] = useState("10:30");
+  const [selectedNurse, setSelectedNurse] = useState(null);
   const [nurseOpen, setNurseOpen] = useState(false);
   const [priorityOpen, setPriorityOpen] = useState(false);
+
+  const patientRef = React.useRef(null);
+  const priorityRef = React.useRef(null);
+  const nurseRef = React.useRef(null);
+
+  const [patients, setPatients] = useState([]);
+  const [nurses, setNurses] = useState([]);
+  const [loadingOptions, setLoadingOptions] = useState(true);
+
+  React.useEffect(() => {
+    const fetchOptions = async () => {
+      try {
+        const token = localStorage.getItem("authtoken");
+        const res = await fetch("/api/tasks/filters", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setPatients(data.patients || []);
+          setNurses(data.nurses || []);
+        }
+      } catch (err) {
+        console.error("Error loading task options:", err);
+      } finally {
+        setLoadingOptions(false);
+      }
+    };
+    fetchOptions();
+  }, []);
 
   React.useEffect(() => {
     const handleKeyDown = (e) => {
@@ -130,20 +231,55 @@ function AddTaskModal({ onClose, onSave }) {
     };
   }, [onClose]);
 
-  const filteredPatients = PATIENTS.filter((p) =>
+  React.useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (patientRef.current && !patientRef.current.contains(event.target)) {
+        setPatientOpen(false);
+      }
+      if (priorityRef.current && !priorityRef.current.contains(event.target)) {
+        setPriorityOpen(false);
+      }
+      if (nurseRef.current && !nurseRef.current.contains(event.target)) {
+        setNurseOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const filteredPatients = patients.filter((p) =>
     p.name.toLowerCase().includes(patientSearch.toLowerCase()) ||
     p.bed.toLowerCase().includes(patientSearch.toLowerCase())
   );
 
   const handleSave = () => {
     if (!selectedPatient || !title) return;
+
+    // Format Date
+    const dateFormatted = dueDateVal ? format(new Date(dueDateVal), "dd MMM yyyy") : format(new Date(), "dd MMM yyyy");
+
+    // Format Time to 12-hour AM/PM format
+    let timeFormatted = "";
+    if (dueTime) {
+      const [hourStr, minStr] = dueTime.split(":");
+      const hour = parseInt(hourStr, 10);
+      const ampm = hour >= 12 ? "PM" : "AM";
+      const formattedHour = hour % 12 || 12;
+      timeFormatted = `${formattedHour}:${minStr} ${ampm}`;
+    }
+
+    const combinedDueDate = `${dateFormatted}, ${timeFormatted}`;
+
     onSave({
-      patient: selectedPatient.name,
-      bed: bedLabel || selectedPatient.bed,
+      patientId: selectedPatient.id,
       title,
+      description,
+      bedLabel: bedLabel || selectedPatient.bed,
       priority,
-      dueTime: dueDate,
-      assignedTo: assignNurse === "Unassigned" ? "Unassigned" : assignNurse.split(" ")[0] + " " + assignNurse.split(" ")[1]?.[0] + ".",
+      dueDate: combinedDueDate,
+      assignedToId: selectedNurse ? selectedNurse.id : null,
       status: "Pending",
     });
     onClose();
@@ -154,7 +290,7 @@ function AddTaskModal({ onClose, onSave }) {
       <motion.div
         initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
         onClick={onClose}
-        className="absolute inset-0 bg-background/80 backdrop-blur-[4px]"
+        className="absolute inset-0 bg-black/60 backdrop-blur-[6px]"
       />
       <motion.div
         initial={{ scale: 0.95, opacity: 0, y: 16 }}
@@ -171,10 +307,10 @@ function AddTaskModal({ onClose, onSave }) {
         </div>
 
         {/* Modal Body */}
-        <div className="px-5 py-5 space-y-5 max-h-[70vh] overflow-y-auto no-scrollbar">
+        <div className="px-5 py-5 space-y-5 max-h-[70vh] overflow-y-auto no-scrollbar pb-10">
 
           {/* Select Patient */}
-          <div>
+          <div ref={patientRef}>
             <label className="block text-[12px] font-bold text-muted-foreground mb-2 uppercase tracking-wide">
               Select Patient <span className="text-destructive">*</span>
             </label>
@@ -202,16 +338,22 @@ function AddTaskModal({ onClose, onSave }) {
                     />
                   </div>
                   <div className="max-h-[180px] overflow-y-auto no-scrollbar">
-                    {filteredPatients.map((p) => (
-                      <button
-                        key={p.name}
-                        onClick={() => { setSelectedPatient(p); setBedLabel(p.bed); setPatientOpen(false); }}
-                        className="w-full px-4 py-2.5 text-left text-[13px] font-medium hover:bg-muted flex items-center justify-between"
-                      >
-                        <span className="text-foreground font-semibold">{p.name}</span>
-                        <span className="text-[11px] text-muted-foreground font-bold">Bed {p.bed}</span>
-                      </button>
-                    ))}
+                    {loadingOptions ? (
+                      <p className="p-3 text-[12px] text-muted-foreground italic">Loading patients...</p>
+                    ) : filteredPatients.length === 0 ? (
+                      <p className="p-3 text-[12px] text-muted-foreground italic">No admitted patients found</p>
+                    ) : (
+                      filteredPatients.map((p) => (
+                        <button
+                          key={p.id}
+                          onClick={() => { setSelectedPatient(p); setBedLabel(p.bed); setPatientOpen(false); }}
+                          className="w-full px-4 py-2.5 text-left text-[13px] font-medium hover:bg-muted flex items-center justify-between"
+                        >
+                          <span className="text-foreground font-semibold">{p.name}</span>
+                          <span className="text-[11px] text-muted-foreground font-bold">Bed {p.bed}</span>
+                        </button>
+                      ))
+                    )}
                   </div>
                 </div>
               )}
@@ -261,7 +403,7 @@ function AddTaskModal({ onClose, onSave }) {
               />
             </div>
 
-            <div>
+            <div ref={priorityRef}>
               <label className="block text-[12px] font-bold text-muted-foreground mb-2 uppercase tracking-wide">
                 Priority
               </label>
@@ -291,54 +433,69 @@ function AddTaskModal({ onClose, onSave }) {
             </div>
           </div>
 
-          {/* Due Date + Assigned To */}
+          {/* Due Date & Time Pickers */}
           <div className="grid grid-cols-2 gap-5">
             <div>
               <label className="block text-[12px] font-bold text-muted-foreground mb-2 uppercase tracking-wide">
-                Due date & time
+                Due Date <span className="text-destructive">*</span>
               </label>
-              <input
-                type="text"
-                value={dueDate}
-                onChange={(e) => setDueDate(e.target.value)}
-                placeholder="e.g. Today, 10:30 AM"
-                className="w-full h-11 px-4 bg-muted border border-border rounded-lg text-[13px] font-medium text-foreground outline-none focus:border-primary transition-all shadow-none"
+              <FormDatePicker
+                value={dueDateVal}
+                onChange={(date) => setDueDateVal(date)}
+                variant="muted"
+                placeholder="Select Date"
+                align="top"
               />
             </div>
 
             <div>
               <label className="block text-[12px] font-bold text-muted-foreground mb-2 uppercase tracking-wide">
-                Assign to nurse
+                Due Time <span className="text-destructive">*</span>
               </label>
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setNurseOpen(!nurseOpen)}
-                  className="w-full h-11 px-4 bg-muted border border-border rounded-lg text-[13px] font-medium text-left flex items-center justify-between outline-none focus:border-primary transition-all shadow-none text-foreground"
-                >
-                  <span className="truncate">{assignNurse}</span>
-                  <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
-                </button>
-                {nurseOpen && (
-                  <div className="absolute top-12 left-0 right-0 z-50 bg-card border border-border rounded-lg overflow-hidden shadow-none">
-                    <button
-                      onClick={() => { setAssignNurse("Unassigned"); setNurseOpen(false); }}
-                      className="w-full px-4 py-2 text-left text-[13px] font-medium hover:bg-muted text-foreground"
-                    >
-                      Unassigned
-                    </button>
-                    {NURSES.map((n) => (
+              <CustomTimePicker
+                value={dueTime}
+                onChange={(time) => setDueTime(time)}
+              />
+            </div>
+          </div>
+
+          {/* Assign to nurse (Now full width dropup) */}
+          <div ref={nurseRef}>
+            <label className="block text-[12px] font-bold text-muted-foreground mb-2 uppercase tracking-wide">
+              Assign to nurse
+            </label>
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setNurseOpen(!nurseOpen)}
+                className="w-full h-11 px-4 bg-muted border border-border rounded-lg text-[13px] font-medium text-left flex items-center justify-between outline-none focus:border-primary transition-all shadow-none text-foreground"
+              >
+                <span className="truncate">{selectedNurse ? selectedNurse.name : "Unassigned"}</span>
+                <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
+              </button>
+              {nurseOpen && (
+                <div className="absolute bottom-full mb-1 left-0 right-0 z-50 bg-card border border-border rounded-lg overflow-hidden shadow-none max-h-[180px] overflow-y-auto no-scrollbar">
+                  <button
+                    onClick={() => { setSelectedNurse(null); setNurseOpen(false); }}
+                    className="w-full px-4 py-2 text-left text-[13px] font-medium hover:bg-muted text-foreground"
+                  >
+                    Unassigned
+                  </button>
+                  {loadingOptions ? (
+                    <p className="p-3 text-[12px] text-muted-foreground italic">Loading staff...</p>
+                  ) : (
+                    nurses.map((n) => (
                       <button
-                        key={n}
-                        onClick={() => { setAssignNurse(n); setNurseOpen(false); }}
-                        className="w-full px-4 py-2 text-left text-[13px] font-medium hover:bg-muted text-foreground"
+                        key={n.id}
+                        onClick={() => { setSelectedNurse(n); setNurseOpen(false); }}
+                        className="w-full px-4 py-2.5 text-left text-[13px] font-medium hover:bg-muted text-foreground"
                       >
-                        {n}
+                        {n.name}
                       </button>
-                    ))}
-                  </div>
-                )}
-              </div>
+                    ))
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
@@ -367,13 +524,26 @@ function AddTaskModal({ onClose, onSave }) {
 
 export default function TasksPage() {
   const router = useRouter();
-  const [tasks, setTasks] = useState(MOCK_TASKS);
+  const [tasks, setTasks] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [priorityFilter, setPriorityFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [wardFilter, setWardFilter] = useState("");
+  const [timeFilter, setTimeFilter] = useState("");
+  const [wardOptions, setWardOptions] = useState([]);
+
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const statusParam = params.get("status");
+      if (statusParam) {
+        setStatusFilter(statusParam);
+      }
+    }
+  }, []);
 
   const priorityOptions = [
     { label: "High", value: "HIGH" },
@@ -387,24 +557,85 @@ export default function TasksPage() {
     { label: "Completed", value: "Completed" },
   ];
 
-  const wardOptions = [
-    { label: "Ward A", value: "A-" },
-    { label: "Ward B", value: "B-" },
-    { label: "Ward C", value: "C-" },
-  ];
+  // Fetch dynamic wards on mount
+  React.useEffect(() => {
+    const fetchWards = async () => {
+      try {
+        const token = localStorage.getItem("authtoken");
+        const res = await fetch("/api/vitals/filters", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setWardOptions(data.wards || []);
+        }
+      } catch (err) {
+        console.error("Error fetching ward options:", err);
+      }
+    };
+    fetchWards();
+  }, []);
 
-  const filtered = tasks.filter((t) => {
-    const s = searchQuery.toLowerCase();
-    const matchSearch   = t.patient.toLowerCase().includes(s) || t.title.toLowerCase().includes(s);
-    const matchPriority = !priorityFilter || t.priority === priorityFilter;
-    const matchStatus   = !statusFilter   || t.status   === statusFilter;
-    const matchWard     = !wardFilter     || t.bed.startsWith(wardFilter);
-    return matchSearch && matchPriority && matchStatus && matchWard;
-  });
+  // Fetch tasks with dynamic backend filters (300ms debounce)
+  React.useEffect(() => {
+    const delayDebounce = setTimeout(() => {
+      const fetchTasks = async () => {
+        try {
+          setLoading(true);
+          const token = localStorage.getItem("authtoken");
+          const params = new URLSearchParams();
+          if (searchQuery) params.append("search", searchQuery);
+          if (priorityFilter) params.append("priority", priorityFilter);
+          if (statusFilter) params.append("status", statusFilter);
+          if (wardFilter) params.append("ward", wardFilter);
+          if (timeFilter) params.append("time", timeFilter);
 
-  const handleAddTask = (task) => {
-    setTasks((prev) => [{ id: prev.length + 1, ...task }, ...prev]);
+          const res = await fetch(`/api/tasks?${params.toString()}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          if (res.ok) {
+            const data = await res.json();
+            setTasks(data || []);
+          }
+        } catch (err) {
+          console.error("Error fetching tasks:", err);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchTasks();
+    }, 300);
+
+    return () => clearTimeout(delayDebounce);
+  }, [searchQuery, priorityFilter, statusFilter, wardFilter, timeFilter]);
+
+  const handleAddTask = async (taskData) => {
+    try {
+      const token = localStorage.getItem("authtoken");
+      const res = await fetch("/api/tasks", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(taskData)
+      });
+      if (res.ok) {
+        // Refresh task listing
+        const freshRes = await fetch("/api/tasks", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (freshRes.ok) {
+          const data = await freshRes.json();
+          setTasks(data || []);
+        }
+      }
+    } catch (err) {
+      console.error("Error creating task:", err);
+    }
   };
+
+  const filtered = tasks;
 
   return (
     <div className="p-5 bg-background text-foreground min-h-screen flex flex-col space-y-5 transition-colors duration-300 font-sans pb-20 shadow-none">
@@ -437,105 +668,120 @@ export default function TasksPage() {
         <div className="flex flex-wrap items-center gap-3 sm:gap-4 w-full sm:w-auto">
           <CustomSelect value={priorityFilter} onChange={setPriorityFilter} options={priorityOptions} placeholder="Priority" minWidth="130px" icon={ListTodo} />
           <CustomSelect value={statusFilter}   onChange={setStatusFilter}   options={statusOptions}   placeholder="Status"   minWidth="130px" icon={Activity} />
-          <CustomSelect value={wardFilter}     onChange={setWardFilter}     options={wardOptions}     placeholder="Ward / Bed" minWidth="135px" icon={MapPin} />
-          <CustomSelect value=""               onChange={() => {}}           options={[{ label: "Today", value: "today" }, { label: "This Week", value: "week" }]} placeholder="Time" minWidth="110px" icon={Clock} />
+          <CustomSelect value={wardFilter}     onChange={setWardFilter}     options={wardOptions}     placeholder="Ward" minWidth="135px" icon={MapPin} />
+          <CustomSelect value={timeFilter} onChange={setTimeFilter} options={[{ label: "Today", value: "today" }, { label: "This Week", value: "week" }]} placeholder="Time" minWidth="110px" icon={Clock} />
         </div>
       </div>
 
-      {/* ── Mobile Card View ── */}
-      <div className="grid grid-cols-1 gap-5 md:hidden">
-        {filtered.map((task) => (
-          <div key={task.id} className="bg-card text-card-foreground p-5 rounded-lg border border-border shadow-none">
-            <div className="flex justify-between items-start mb-3">
-              <div>
-                <p className="text-[15px] font-bold text-foreground leading-tight">{task.patient}</p>
-                <p className="text-[11px] text-primary font-bold mt-0.5">{task.bed}</p>
+      {/* ── Loading Spinner ── */}
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-20 bg-card rounded-lg border border-border">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mb-4" />
+          <p className="text-[13px] font-semibold text-muted-foreground">Loading tasks...</p>
+        </div>
+      ) : (
+        <>
+          {/* ── Mobile Card View ── */}
+          <div className="grid grid-cols-1 gap-5 md:hidden">
+            {filtered.map((task) => (
+              <div key={task.id} className="bg-card text-card-foreground p-5 rounded-lg border border-border shadow-none">
+                <div className="flex justify-between items-start mb-3">
+                  <div>
+                    <p className="text-[15px] font-bold text-foreground leading-tight">{task.patient}</p>
+                    <p className="text-[11px] text-primary font-bold mt-0.5">{task.bed}</p>
+                  </div>
+                  <span className={cn("px-2.5 py-1 rounded-lg text-[11px] font-medium border inline-flex", statusBadge(task.status))}>
+                    {task.status}
+                  </span>
+                </div>
+                <p className="text-[13px] font-semibold text-foreground mb-3">{task.title}</p>
+                <div className="flex items-center justify-between pt-3 border-t border-border">
+                  <div className="flex items-center gap-3">
+                    <span className={priorityClass(task.priority)}>{task.priority}</span>
+                    <span className={dueClass(task.dueTime, task.status)}>{task.dueTime}</span>
+                  </div>
+                  <button
+                    onClick={() => router.push(`/staff/tasks/${task.id}`)}
+                    className="p-2 hover:bg-muted rounded-lg transition-colors shadow-none"
+                  >
+                    <Eye className="w-4 h-4 text-foreground" />
+                  </button>
+                </div>
               </div>
-              <span className={cn("px-2.5 py-1 rounded-lg text-[11px] font-medium border inline-flex", statusBadge(task.status))}>
-                {task.status}
-              </span>
-            </div>
-            <p className="text-[13px] font-semibold text-foreground mb-3">{task.title}</p>
-            <div className="flex items-center justify-between pt-3 border-t border-border">
-              <div className="flex items-center gap-3">
-                <span className={priorityClass(task.priority)}>{task.priority}</span>
-                <span className={dueClass(task.dueTime, task.status)}>{task.dueTime}</span>
+            ))}
+            {filtered.length === 0 && (
+              <div className="bg-card text-center p-10 border border-border rounded-lg text-[13px] font-medium text-muted-foreground italic">
+                No tasks found
               </div>
-              <button
-                onClick={() => router.push(`/staff/tasks/${task.id}`)}
-                className="p-2 hover:bg-muted rounded-lg transition-colors shadow-none"
-              >
-                <Eye className="w-4 h-4 text-foreground" />
-              </button>
+            )}
+          </div>
+
+          {/* ── Desktop Table View ── */}
+          <div className="hidden md:block bg-card text-card-foreground rounded-lg border border-border overflow-hidden shadow-none">
+            <div className="overflow-x-auto no-scrollbar">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr className="bg-muted/30 border-b border-border">
+                    {["Patient", "Bed", "Task Title", "Priority", "Due Time", "Assigned", "Status", "Action"].map((col, i) => (
+                      <th key={i} className={cn(
+                        "px-6 py-3.5 text-[12px] font-semibold text-muted-foreground",
+                        i === 7 ? "text-center" : "text-left"
+                      )}>
+                        {col}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {filtered.map((task) => (
+                    <tr key={task.id} className="hover:bg-muted/30 transition-all">
+                      <td className="px-6 py-4">
+                        <span className="text-[14px] font-semibold text-foreground">{task.patient}</span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="text-[13px] font-semibold text-primary">{task.bed}</span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="text-[14px] font-semibold text-foreground">{task.title}</span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={priorityClass(task.priority)}>{task.priority}</span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={dueClass(task.dueTime, task.status)}>{task.dueTime}</span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={cn("text-[13px] font-medium", task.assignedTo === "Unassigned" ? "text-muted-foreground" : "text-foreground")}>{task.assignedTo}</span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className={cn(statusBadge(task.status))}>
+                          {task.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-center">
+                        <button
+                          onClick={() => router.push(`/staff/tasks/${task.id}`)}
+                          className="p-2 hover:bg-muted rounded-lg transition-colors inline-flex text-foreground shadow-none"
+                          title="View task"
+                        >
+                          <Eye className="w-4.5 h-4.5" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                  {filtered.length === 0 && (
+                    <tr>
+                      <td colSpan={8} className="px-6 py-16 text-center text-[13px] font-medium text-muted-foreground italic">
+                        No tasks found
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
-        ))}
-      </div>
-
-      {/* ── Desktop Table View ── */}
-      <div className="hidden md:block bg-card text-card-foreground rounded-lg border border-border overflow-hidden shadow-none">
-        <div className="overflow-x-auto no-scrollbar">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="bg-muted/30 border-b border-border">
-                {["Patient", "Bed", "Task Title", "Priority", "Due Time", "Assigned", "Status", "Action"].map((col, i) => (
-                  <th key={i} className={cn(
-                    "px-6 py-3.5 text-[12px] font-semibold text-muted-foreground",
-                    i === 7 ? "text-center" : "text-left"
-                  )}>
-                    {col}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {filtered.map((task) => (
-                <tr key={task.id} className="hover:bg-muted/30 transition-all">
-                  <td className="px-6 py-4">
-                    <span className="text-[14px] font-semibold text-foreground">{task.patient}</span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="text-[13px] font-semibold text-primary">{task.bed}</span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className="text-[14px] font-semibold text-foreground">{task.title}</span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={priorityClass(task.priority)}>{task.priority}</span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={dueClass(task.dueTime, task.status)}>{task.dueTime}</span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={cn("text-[13px] font-medium", task.assignedTo === "Unassigned" ? "text-muted-foreground" : "text-foreground")}>{task.assignedTo}</span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <span className={cn(statusBadge(task.status))}>
-                      {task.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-center">
-                    <button
-                      onClick={() => router.push(`/staff/tasks/${task.id}`)}
-                      className="p-2 hover:bg-muted rounded-lg transition-colors inline-flex text-foreground shadow-none"
-                      title="View task"
-                    >
-                      <Eye className="w-4.5 h-4.5" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-              {filtered.length === 0 && (
-                <tr>
-                  <td colSpan={8} className="px-6 py-16 text-center text-[13px] font-medium text-muted-foreground italic">
-                    No tasks found
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+        </>
+      )}
 
       {/* ── Add Task Modal ── */}
       <AnimatePresence>
