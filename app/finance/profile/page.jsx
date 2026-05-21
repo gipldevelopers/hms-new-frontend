@@ -80,9 +80,6 @@ export default function FinanceProfilePage() {
             <h1 className="text-[24px] font-bold leading-tight text-foreground">
               Billing Profile
             </h1>
-            <p className="text-[13px] font-medium text-muted-foreground">
-              Contact admin to update billing account details
-            </p>
           </div>
 
           <div className="flex w-full items-center gap-3 rounded-lg border border-emerald-100 bg-emerald-50 px-4 py-2 sm:w-auto dark:border-emerald-500/20 dark:bg-emerald-500/10">

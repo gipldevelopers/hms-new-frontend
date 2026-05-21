@@ -194,7 +194,6 @@ export default function FinanceReportsPage() {
     <FinancePageShell>
         <FinanceHeader
           title="Billing Insights"
-          description="Track and analyze billing and claims data."
           actions={
             <>
             <Button

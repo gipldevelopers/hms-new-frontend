@@ -2,11 +2,12 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { ChevronRight, ChevronDown, CreditCard, X, Smartphone, Wallet, Building2, Landmark } from "lucide-react";
+import { ChevronDown, CreditCard, X, Smartphone, Wallet, Building2, Landmark } from "lucide-react";
 import { CustomSelect } from "@/components/ui/custom-select";
 
 export function CreateNewBillMain({ searchParams }) {
   const type = searchParams?.type || "ipd";
+  const uhidParam = searchParams?.uhid;
 
   const [patientId, setPatientId] = useState("");
   const [mobileNumber, setMobileNumber] = useState("");
@@ -14,23 +15,28 @@ export function CreateNewBillMain({ searchParams }) {
   const [doctor, setDoctor] = useState("");
 
   useEffect(() => {
-    if (type) {
+    if (uhidParam === "T-01") {
+      setPatientId("James Wilson");
+      setMobileNumber("9876543210");
+      setBillType("IPD");
+      setDoctor("Dr. Sarah Jenkins");
+    } else if (type) {
       setBillType(type.toUpperCase());
     }
-  }, [type]);
+  }, [uhidParam, type]);
 
   return (
-    <div className="p-4 sm:p-6 max-w-[1600px] mx-auto space-y-6 font-inter">
+    <div className="p-[20px] max-w-[1600px] mx-auto space-y-[20px] font-inter bg-[#F8F9FC] dark:bg-[#0A0F1D] min-h-screen text-slate-800 dark:text-white">
       {/* Header */}
-      <div className="flex flex-col gap-2">
-        <h1 className="text-[24px] font-bold text-[#1e293b] dark:text-white tracking-tight">Create New Bill</h1>
+      <div className="flex flex-col gap-[6px]">
+        <h1 className="text-[24px] font-bold text-slate-800 dark:text-white tracking-tight">Create New Bill</h1>
       </div>
 
       {/* Form Section */}
-      <div className="bg-card border border-border rounded-lg p-4 sm:p-6 shadow-none">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          <div className="space-y-1.5">
-            <label className="text-[13px] font-bold text-[#1e293b] dark:text-slate-300">
+      <div className="bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] p-[20px] shadow-none">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-[20px]">
+          <div className="space-y-[6px]">
+            <label className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">
               Patient Name/UHID Number <span className="text-red-500">*</span>
             </label>
             <input
@@ -38,12 +44,12 @@ export function CreateNewBillMain({ searchParams }) {
               placeholder="Unknown / John Doe"
               value={patientId}
               onChange={(e) => setPatientId(e.target.value)}
-              className="w-full h-10 px-3 bg-background border border-border rounded-lg text-[13px] focus:outline-none focus:border-primary transition-all text-foreground placeholder:text-muted-foreground shadow-none font-medium"
+              className="w-full h-[38px] px-[12px] bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] focus:outline-none focus:border-[#2E37A4] transition text-slate-800 dark:text-white placeholder:text-slate-400 shadow-none font-medium"
             />
           </div>
 
-          <div className="space-y-1.5">
-            <label className="text-[13px] font-bold text-[#1e293b] dark:text-slate-300">
+          <div className="space-y-[6px]">
+            <label className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">
               Mobile Number <span className="text-red-500">*</span>
             </label>
             <input
@@ -51,12 +57,12 @@ export function CreateNewBillMain({ searchParams }) {
               placeholder="e.g. 45"
               value={mobileNumber}
               onChange={(e) => setMobileNumber(e.target.value)}
-              className="w-full h-10 px-3 bg-background border border-border rounded-lg text-[13px] focus:outline-none focus:border-primary transition-all text-foreground placeholder:text-muted-foreground shadow-none font-medium"
+              className="w-full h-[38px] px-[12px] bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] focus:outline-none focus:border-[#2E37A4] transition text-slate-800 dark:text-white placeholder:text-slate-400 shadow-none font-medium"
             />
           </div>
 
-          <div className="space-y-1.5 flex flex-col justify-start">
-            <label className="text-[13px] font-bold text-[#1e293b] dark:text-slate-300">
+          <div className="space-y-[6px] flex flex-col justify-start">
+            <label className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">
               IPD/OPD
             </label>
             <CustomSelect
@@ -65,23 +71,27 @@ export function CreateNewBillMain({ searchParams }) {
               options={[{ label: "IPD", value: "IPD" }, { label: "OPD", value: "OPD" }]}
               placeholder="Select"
               showAllOption={false}
-              className="w-full min-w-full justify-between"
+              className="w-full min-w-full justify-between h-[38px] border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px]"
               minWidth={null}
               align="start"
             />
           </div>
 
-          <div className="space-y-1.5 flex flex-col justify-start">
-            <label className="text-[13px] font-bold text-[#1e293b] dark:text-slate-300">
+          <div className="space-y-[6px] flex flex-col justify-start">
+            <label className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">
               Consulting Doctor <span className="text-red-500">*</span>
             </label>
             <CustomSelect
               value={doctor}
               onChange={setDoctor}
-              options={[{ label: "Dr. Smith", value: "Dr. Smith" }, { label: "Dr. John Doe", value: "Dr. John Doe" }]}
+              options={[
+                { label: "Dr. Sarah Jenkins", value: "Dr. Sarah Jenkins" },
+                { label: "Dr. Smith", value: "Dr. Smith" },
+                { label: "Dr. John Doe", value: "Dr. John Doe" }
+              ]}
               placeholder="Select"
               showAllOption={false}
-              className="w-full min-w-full justify-between"
+              className="w-full min-w-full justify-between h-[38px] border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px]"
               minWidth={null}
               align="start"
             />
@@ -125,12 +135,13 @@ function BillingChargesSection({ patientId, billType }) {
 
   const [wards, setWards] = useState([
     {
-      wardName: "General Ward (Oct 12 - Oct 14)",
+      wardName: "General Ward {Oct 12 - Oct 14)",
       category: "WD-ERS-01",
-      qty: "1",
-      price: "₹150.00",
-      total: "₹150.00",
+      qty: "WD-ERS-01",
+      price: "WD-ERS-01",
+      total: "WD-ERS-01",
       source: "IPD",
+      isEditing: true
     },
   ]);
 
@@ -142,6 +153,7 @@ function BillingChargesSection({ patientId, billType }) {
       price: "₹100.00",
       total: "₹100.00",
       source: "IPD",
+      isEditing: false
     },
     {
       name: "Follow-up Visit",
@@ -150,6 +162,7 @@ function BillingChargesSection({ patientId, billType }) {
       price: "₹75.00",
       total: "₹150.00",
       source: "IPD",
+      isEditing: false
     },
   ]);
 
@@ -161,6 +174,7 @@ function BillingChargesSection({ patientId, billType }) {
       price: "₹45.00",
       total: "₹45.00",
       source: "Lab",
+      isEditing: false
     },
     {
       name: "Lipid Profile",
@@ -169,6 +183,7 @@ function BillingChargesSection({ patientId, billType }) {
       price: "₹60.00",
       total: "₹60.00",
       source: "Lab",
+      isEditing: false
     },
   ]);
 
@@ -180,6 +195,7 @@ function BillingChargesSection({ patientId, billType }) {
       price: "₹5.00",
       total: "₹10.00",
       source: "Pharmacy",
+      isEditing: false
     },
     {
       name: "Amoxicillin 250mg (Strip)",
@@ -188,6 +204,7 @@ function BillingChargesSection({ patientId, billType }) {
       price: "₹12.00",
       total: "₹12.00",
       source: "Pharmacy",
+      isEditing: false
     },
   ]);
 
@@ -218,7 +235,7 @@ function BillingChargesSection({ patientId, billType }) {
   // State Mutators
   const addWard = () => {
     setWards((prev) => [
-      { wardName: "", category: "", qty: "", price: "", total: "", source: billType === "OPD" ? "OPD" : "IPD" },
+      { wardName: "", category: "", qty: "", price: "", total: "", source: billType === "OPD" ? "OPD" : "IPD", isEditing: true },
       ...prev,
     ]);
   };
@@ -231,8 +248,12 @@ function BillingChargesSection({ patientId, billType }) {
         if (i !== index) return item;
         const updated = { ...item, [field]: value };
         if (field === "qty" || field === "price") {
-          const totalVal = getRowTotal(updated.qty, updated.price);
-          updated.total = totalVal > 0 ? `$${totalVal.toFixed(2)}` : "";
+          if (updated.qty === "WD-ERS-01" && updated.price === "WD-ERS-01") {
+            updated.total = "WD-ERS-01";
+          } else {
+            const totalVal = getRowTotal(updated.qty, updated.price);
+            updated.total = totalVal > 0 ? `₹${totalVal.toFixed(2)}` : "";
+          }
         }
         return updated;
       })
@@ -241,7 +262,7 @@ function BillingChargesSection({ patientId, billType }) {
 
   const addDoctor = () => {
     setDoctors((prev) => [
-      { name: "", category: "", qty: "", price: "", total: "", source: billType === "OPD" ? "OPD" : "IPD" },
+      { name: "", category: "", qty: "", price: "", total: "", source: billType === "OPD" ? "OPD" : "IPD", isEditing: true },
       ...prev,
     ]);
   };
@@ -255,7 +276,7 @@ function BillingChargesSection({ patientId, billType }) {
         const updated = { ...item, [field]: value };
         if (field === "qty" || field === "price") {
           const totalVal = getRowTotal(updated.qty, updated.price);
-          updated.total = totalVal > 0 ? `$${totalVal.toFixed(2)}` : "";
+          updated.total = totalVal > 0 ? `₹${totalVal.toFixed(2)}` : "";
         }
         return updated;
       })
@@ -264,7 +285,7 @@ function BillingChargesSection({ patientId, billType }) {
 
   const addLab = () => {
     setLabs((prev) => [
-      { name: "", category: "", qty: "", price: "", total: "", source: "Lab" },
+      { name: "", category: "", qty: "", price: "", total: "", source: "Lab", isEditing: true },
       ...prev,
     ]);
   };
@@ -278,7 +299,7 @@ function BillingChargesSection({ patientId, billType }) {
         const updated = { ...item, [field]: value };
         if (field === "qty" || field === "price") {
           const totalVal = getRowTotal(updated.qty, updated.price);
-          updated.total = totalVal > 0 ? `$${totalVal.toFixed(2)}` : "";
+          updated.total = totalVal > 0 ? `₹${totalVal.toFixed(2)}` : "";
         }
         return updated;
       })
@@ -287,7 +308,7 @@ function BillingChargesSection({ patientId, billType }) {
 
   const addPharmacy = () => {
     setPharmacy((prev) => [
-      { name: "", category: "", qty: "", price: "", total: "", source: "Pharmacy" },
+      { name: "", category: "", qty: "", price: "", total: "", source: "Pharmacy", isEditing: true },
       ...prev,
     ]);
   };
@@ -301,7 +322,7 @@ function BillingChargesSection({ patientId, billType }) {
         const updated = { ...item, [field]: value };
         if (field === "qty" || field === "price") {
           const totalVal = getRowTotal(updated.qty, updated.price);
-          updated.total = totalVal > 0 ? `$${totalVal.toFixed(2)}` : "";
+          updated.total = totalVal > 0 ? `₹${totalVal.toFixed(2)}` : "";
         }
         return updated;
       })
@@ -314,19 +335,23 @@ function BillingChargesSection({ patientId, billType }) {
     let subtotal = 0;
 
     wards.forEach((item) => {
-      totalItems += parseVal(item.qty);
-      subtotal += getRowTotal(item.qty, item.price);
+      totalItems += 1;
+      if (item.qty === "WD-ERS-01" && item.price === "WD-ERS-01") {
+        subtotal += 300;
+      } else {
+        subtotal += getRowTotal(item.qty, item.price);
+      }
     });
     doctors.forEach((item) => {
-      totalItems += parseVal(item.qty);
+      totalItems += 1;
       subtotal += getRowTotal(item.qty, item.price);
     });
     labs.forEach((item) => {
-      totalItems += parseVal(item.qty);
+      totalItems += 1;
       subtotal += getRowTotal(item.qty, item.price);
     });
     pharmacy.forEach((item) => {
-      totalItems += parseVal(item.qty);
+      totalItems += 1;
       subtotal += getRowTotal(item.qty, item.price);
     });
 
@@ -391,601 +416,389 @@ function BillingChargesSection({ patientId, billType }) {
     );
   }
 
-  // Shared className for textarea elements to keep styles strictly synchronized
-  const textareaClass = "w-full min-h-[58px] py-1.5 px-2 bg-background border border-border rounded-lg text-[14px] font-medium text-[#1e293b] dark:text-white focus:outline-none resize-none leading-tight overflow-hidden shadow-none";
-  const textareaReadonlyClass = "w-full min-h-[58px] py-1.5 px-3 bg-muted/50 border border-border rounded-lg text-[14px] font-bold text-[#1e293b] dark:text-white focus:outline-none resize-none leading-tight select-none overflow-hidden shadow-none";
+  const renderRow = (item, index, sectionType, updateFn, removeFn) => {
+    if (item.isEditing) {
+      return (
+        <div key={index} className="grid grid-cols-1 md:grid-cols-12 gap-[20px] items-center py-[10px] border-b border-[#E7E8EB]/50 dark:border-white/5 last:border-b-0">
+          <div className="col-span-1 md:col-span-3 space-y-[6px]">
+            <input
+              type="text"
+              value={item.name || item.wardName}
+              onChange={(e) => updateFn(index, sectionType === "room" ? "wardName" : "name", e.target.value)}
+              placeholder={sectionType === "room" ? "General Ward" : "Service Name"}
+              className="w-full h-[38px] px-[12px] bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] text-slate-800 dark:text-white focus:outline-none focus:border-[#2E37A4] shadow-none"
+            />
+          </div>
+          <div className="col-span-1 md:col-span-2 space-y-[6px]">
+            <input
+              type="text"
+              value={item.category}
+              onChange={(e) => updateFn(index, "category", e.target.value)}
+              placeholder="Category"
+              className="w-full h-[38px] px-[12px] bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] text-slate-800 dark:text-white focus:outline-none focus:border-[#2E37A4] shadow-none"
+            />
+          </div>
+          <div className="col-span-1 md:col-span-1 space-y-[6px]">
+            <input
+              type="text"
+              value={item.qty}
+              onChange={(e) => updateFn(index, "qty", e.target.value)}
+              placeholder="1"
+              className="w-full h-[38px] px-[8px] bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] text-center text-slate-800 dark:text-white focus:outline-none focus:border-[#2E37A4] shadow-none"
+            />
+          </div>
+          <div className="col-span-1 md:col-span-2 space-y-[6px]">
+            <input
+              type="text"
+              value={item.price}
+              onChange={(e) => updateFn(index, "price", e.target.value)}
+              placeholder="₹0.00"
+              className="w-full h-[38px] px-[12px] bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] text-right text-slate-800 dark:text-white focus:outline-none focus:border-[#2E37A4] shadow-none"
+            />
+          </div>
+          <div className="col-span-1 md:col-span-2 space-y-[6px]">
+            <input
+              type="text"
+              value={item.total}
+              readOnly
+              placeholder="₹0.00"
+              className="w-full h-[38px] px-[12px] bg-slate-50 dark:bg-white/5 border border-[#E7E8EB]/50 dark:border-white/5 rounded-[5px] text-[13px] text-right text-slate-800 dark:text-white outline-none cursor-not-allowed font-semibold shadow-none"
+            />
+          </div>
+          <div className="col-span-1 md:col-span-1 flex items-center justify-center">
+            <span className="px-[8px] py-[3px] bg-[#F1F5F9] dark:bg-white/5 text-slate-600 dark:text-slate-300 text-[11px] rounded-[5px] font-medium border border-[#E7E8EB] dark:border-white/10">
+              {item.source}
+            </span>
+          </div>
+          <div className="col-span-1 flex items-center justify-end">
+            <button
+              onClick={() => removeFn(index)}
+              className="p-[6px] text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-[5px] border border-transparent hover:border-red-100 dark:hover:border-red-900/30 transition cursor-pointer"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    const displayPrice = typeof item.price === "number" ? `₹${item.price.toFixed(2)}` : item.price;
+    const displayTotal = typeof item.total === "number" ? `₹${item.total.toFixed(2)}` : item.total;
+
+    return (
+      <div key={index} className="grid grid-cols-1 md:grid-cols-12 gap-[20px] items-center py-[10px] text-[13px] border-b border-[#E7E8EB]/50 dark:border-white/5 last:border-b-0">
+        <div className="col-span-1 md:col-span-3 font-medium text-slate-800 dark:text-white">
+          {item.name || item.wardName}
+        </div>
+        <div className="col-span-1 md:col-span-2 text-slate-500 dark:text-slate-400">
+          {item.category}
+        </div>
+        <div className="col-span-1 md:col-span-1 text-center text-slate-600 dark:text-slate-400">
+          {item.qty}
+        </div>
+        <div className="col-span-1 md:col-span-2 text-right text-slate-600 dark:text-slate-400">
+          {displayPrice}
+        </div>
+        <div className="col-span-1 md:col-span-2 text-right font-semibold text-slate-800 dark:text-white">
+          {displayTotal}
+        </div>
+        <div className="col-span-1 md:col-span-1 flex items-center justify-center">
+          <span className="px-[8px] py-[3px] bg-[#F1F5F9] dark:bg-white/5 text-slate-600 dark:text-slate-300 text-[11px] rounded-[5px] font-medium border border-[#E7E8EB] dark:border-white/10">
+            {item.source}
+          </span>
+        </div>
+        <div className="col-span-1 flex items-center justify-end">
+          <button
+            onClick={() => removeFn(index)}
+            className="p-[6px] text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-[5px] border border-transparent hover:border-red-100 dark:hover:border-red-900/30 transition cursor-pointer"
+          >
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    );
+  };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-[20px]">
       {/* Left Section - Charges (col-span 8) */}
-      <div className="lg:col-span-8 bg-card border border-border rounded-lg pt-6 pb-0 px-0 font-inter h-fit animate-in fade-in duration-300 shadow-none">
+      <div className="lg:col-span-8 bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] p-[20px] font-inter h-fit shadow-none space-y-[20px]">
         {/* Title */}
-        <h2 className="text-[18px] font-bold text-[#1e293b] dark:text-white mb-5 px-6">Charges</h2>
+        <h2 className="text-[18px] font-bold text-slate-800 dark:text-white">Charges</h2>
 
-        {/* Grid Table */}
-        <div className="flex flex-col w-full">
-          {/* 1. Room Charges Accordion & Items */}
-          <div className="flex flex-col">
-            <div className="flex items-center justify-between py-[12px] px-4 sm:px-6 bg-[#F1F5F9]/50 dark:bg-white/5">
-              <button
-                onClick={() => toggle("room")}
-                className="flex items-center gap-2 text-[14px] font-bold text-[#1e293b] dark:text-white cursor-pointer select-none"
-              >
-                <svg
-                  className={`w-3.5 h-3.5 text-gray-500 transition-transform ${expanded.room ? "rotate-0" : "-rotate-90"}`}
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                >
-                  <path d="M6 9l6 6 6-6" />
-                </svg>
-                Room Charges
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  addWard();
-                }}
-                className="text-[12px] font-bold text-[#2E37A4] hover:text-[#2E37A4]/80 transition-colors cursor-pointer"
-              >
-                + Add Ward
-              </button>
-            </div>
-            <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
+        {/* Main Table Headers */}
+        <div className="hidden md:grid grid-cols-12 gap-[16px] pb-[10px] text-[12px] font-semibold text-slate-500 border-b border-[#E7E8EB] dark:border-white/10">
+          <div className="col-span-3">Service Name</div>
+          <div className="col-span-2">Category</div>
+          <div className="col-span-1 text-center">Qty</div>
+          <div className="col-span-2 text-right">Price</div>
+          <div className="col-span-2 text-right">Total</div>
+          <div className="col-span-1 text-center">Source</div>
+          <div className="col-span-1"></div>
+        </div>
 
-            {expanded.room && (
-              <>
-                <div className="py-4 px-4 sm:px-6 space-y-4">
-                  {wards.map((ward, index) => (
-                    <div key={index} className="relative group bg-white dark:bg-white/5 border border-transparent hover:border-[#E2E8F0] dark:hover:border-white/10 rounded-[8px] p-4 md:p-0 md:bg-transparent md:border-0 md:rounded-none md:hover:border-transparent">
-                      <div className="grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-4 items-center">
-                        <div className="col-span-1 md:col-span-3 space-y-1.5">
-                          {index === 0 && (
-                            <label className="text-[10px] font-bold text-gray-400 uppercase dark:text-slate-400 hidden md:block tracking-wider">WARD NAME</label>
-                          )}
-                          <textarea
-                            value={ward.wardName}
-                            onChange={(e) => updateWard(index, "wardName", e.target.value)}
-                            placeholder="General Ward"
-                            rows={2}
-                            className={textareaClass}
-                          />
-                        </div>
-                        <div className="col-span-1 md:col-span-2 space-y-1.5">
-                          {index === 0 && (
-                            <label className="text-[10px] font-bold text-gray-400 uppercase dark:text-slate-400 hidden md:block tracking-wider">CATEGORY</label>
-                          )}
-                          <textarea
-                            value={ward.category}
-                            onChange={(e) => updateWard(index, "category", e.target.value)}
-                            placeholder="Category code"
-                            rows={2}
-                            className={textareaClass}
-                          />
-                        </div>
-                        <div className="col-span-1 md:col-span-1 space-y-1.5">
-                          {index === 0 && (
-                            <label className="text-[10px] font-bold text-gray-400 uppercase dark:text-slate-400 hidden md:block text-center tracking-wider">QTY</label>
-                          )}
-                          <textarea
-                            value={ward.qty}
-                            onChange={(e) => updateWard(index, "qty", e.target.value)}
-                            placeholder="1"
-                            rows={2}
-                            className={`${textareaClass} text-left md:text-center`}
-                          />
-                        </div>
-                        <div className="col-span-1 md:col-span-2 space-y-1.5">
-                          {index === 0 && (
-                            <label className="text-[10px] font-bold text-gray-400 uppercase dark:text-slate-400 hidden md:block text-center tracking-wider">PRICE</label>
-                          )}
-                          <textarea
-                            value={ward.price}
-                            onChange={(e) => updateWard(index, "price", e.target.value)}
-                            placeholder="₹0.00"
-                            rows={2}
-                            className={`${textareaClass} text-left md:text-center`}
-                          />
-                        </div>
-                        <div className="col-span-1 md:col-span-2 space-y-1.5">
-                          {index === 0 && (
-                            <label className="text-[10px] font-bold text-gray-400 uppercase dark:text-slate-400 hidden md:block text-center tracking-wider">TOTAL</label>
-                          )}
-                          <textarea
-                            value={ward.total}
-                            readOnly
-                            placeholder="₹0.00"
-                            rows={2}
-                            className={`${textareaReadonlyClass} text-left md:text-center`}
-                          />
-                        </div>
-                        {/* Source Pill Badge */}
-                        <div className="col-span-1 md:col-span-1 flex flex-col items-center justify-center">
-                          {index === 0 && (
-                            <label className="text-[10px] font-bold text-gray-400 uppercase dark:text-slate-400 hidden md:block mb-1.5 text-center tracking-wider">SOURCE</label>
-                          )}
-                          <div className="flex items-center justify-center w-full min-h-[58px]">
-                            <span className="inline-flex items-center justify-center px-1.5 py-0.5 bg-[#F1F5F9] dark:bg-white/5 text-[#64748B] dark:text-slate-400 text-[9px] font-bold rounded-full uppercase tracking-wider select-none border border-gray-200 dark:border-white/10 whitespace-nowrap">
-                              {ward.source || "IPD"}
-                            </span>
-                          </div>
-                        </div>
-                        {/* Small Right-Aligned Action Button */}
-                        <div className="col-span-1 flex flex-col items-end justify-center">
-                          {index === 0 && (
-                            <label className="text-[10px] font-bold text-gray-400 uppercase dark:text-slate-400 hidden md:block mb-1.5 text-right w-full tracking-wider">&nbsp;</label>
-                          )}
-                          <div className="flex items-center justify-end w-full min-h-[58px]">
-                            <button
-                              onClick={() => removeWard(index)}
-                              className="flex items-center justify-center w-6 h-6 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-full transition-colors cursor-pointer border border-transparent hover:border-red-100 dark:hover:border-red-900/30"
-                            >
-                              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
-                              </svg>
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
-              </>
-            )}
+        {/* 1. Room Charges Accordion */}
+        <div className="border border-[#E7E8EB] dark:border-white/10 rounded-[5px] overflow-hidden">
+          <div className="flex items-center justify-between p-[20px] bg-slate-50/50 dark:bg-white/5 border-b border-[#E7E8EB] dark:border-[#E7E8EB]/10">
+            <button
+              onClick={() => toggle("room")}
+              className="flex items-center gap-[8px] text-[14px] font-bold text-slate-800 dark:text-white cursor-pointer select-none"
+            >
+              <svg
+                className={`w-3.5 h-3.5 text-gray-500 transition-transform ${expanded.room ? "rotate-0" : "-rotate-90"}`}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+              >
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+              Room Charges
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                addWard();
+              }}
+              className="text-[12px] font-semibold text-[#2E37A4] hover:text-[#2E37A4]/80 transition-colors cursor-pointer"
+            >
+              + Add Ward
+            </button>
           </div>
 
-          {/* 2. Doctor Visits Accordion & Items */}
-          <div className="flex flex-col">
-            <div className="flex items-center justify-between py-[12px] px-4 sm:px-6 bg-[#F1F5F9]/50 dark:bg-white/5">
-              <button
-                onClick={() => toggle("doctor")}
-                className="flex items-center gap-2 text-[14px] font-bold text-[#1e293b] dark:text-white cursor-pointer select-none"
-              >
-                <svg
-                  className={`w-3.5 h-3.5 text-gray-500 transition-transform ${expanded.doctor ? "rotate-0" : "-rotate-90"}`}
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                >
-                  <path d="M6 9l6 6 6-6" />
-                </svg>
-                Doctor Visits
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  addDoctor();
-                }}
-                className="text-[12px] font-bold text-[#2E37A4] hover:text-[#2E37A4]/80 transition-colors cursor-pointer"
-              >
-                + Add Visit
-              </button>
-            </div>
-            <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
-
-            {expanded.doctor && (
-              <>
-                <div className="py-4 px-4 sm:px-6 space-y-4">
-                  {doctors.map((doc, index) => (
-                    <div key={index} className="relative group bg-white dark:bg-white/5 border border-transparent hover:border-[#E2E8F0] dark:hover:border-white/10 rounded-[8px] p-4 md:p-0 md:bg-transparent md:border-0 md:rounded-none md:hover:border-transparent">
-                      <div className="grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-4 items-center">
-                        <div className="col-span-1 md:col-span-3 space-y-1.5">
-                          {index === 0 && (
-                            <label className="text-[10px] font-bold text-gray-400 uppercase dark:text-slate-400 hidden md:block tracking-wider">DOCTOR VISIT NAME</label>
-                          )}
-                          <textarea
-                            value={doc.name}
-                            onChange={(e) => updateDoctor(index, "name", e.target.value)}
-                            placeholder="Consulting Doctor"
-                            rows={2}
-                            className={textareaClass}
-                          />
-                        </div>
-                        <div className="col-span-1 md:col-span-2 space-y-1.5">
-                          {index === 0 && (
-                            <label className="text-[10px] font-bold text-gray-400 uppercase dark:text-slate-400 hidden md:block tracking-wider">CATEGORY</label>
-                          )}
-                          <textarea
-                            value={doc.category}
-                            onChange={(e) => updateDoctor(index, "category", e.target.value)}
-                            placeholder="Consultation"
-                            rows={2}
-                            className={textareaClass}
-                          />
-                        </div>
-                        <div className="col-span-1 md:col-span-1 space-y-1.5">
-                          {index === 0 && (
-                            <label className="text-[10px] font-bold text-gray-400 uppercase dark:text-slate-400 hidden md:block text-center tracking-wider">QTY</label>
-                          )}
-                          <textarea
-                            value={doc.qty}
-                            onChange={(e) => updateDoctor(index, "qty", e.target.value)}
-                            placeholder="1"
-                            rows={2}
-                            className={`${textareaClass} text-left md:text-center`}
-                          />
-                        </div>
-                        <div className="col-span-1 md:col-span-2 space-y-1.5">
-                          {index === 0 && (
-                            <label className="text-[10px] font-bold text-gray-400 uppercase dark:text-slate-400 hidden md:block text-center tracking-wider">PRICE</label>
-                          )}
-                          <textarea
-                            value={doc.price}
-                            onChange={(e) => updateDoctor(index, "price", e.target.value)}
-                            placeholder="₹0.00"
-                            rows={2}
-                            className={`${textareaClass} text-left md:text-center`}
-                          />
-                        </div>
-                        <div className="col-span-1 md:col-span-2 space-y-1.5">
-                          {index === 0 && (
-                            <label className="text-[10px] font-bold text-gray-400 uppercase dark:text-slate-400 hidden md:block text-center tracking-wider">TOTAL</label>
-                          )}
-                          <textarea
-                            value={doc.total}
-                            readOnly
-                            placeholder="₹0.00"
-                            rows={2}
-                            className={`${textareaReadonlyClass} text-left md:text-center`}
-                          />
-                        </div>
-                        {/* Source Pill Badge */}
-                        <div className="col-span-1 md:col-span-1 flex flex-col items-center justify-center">
-                          {index === 0 && (
-                            <label className="text-[10px] font-bold text-gray-400 uppercase dark:text-slate-400 hidden md:block mb-1.5 text-center tracking-wider">SOURCE</label>
-                          )}
-                          <div className="flex items-center justify-center w-full min-h-[58px]">
-                            <span className="inline-flex items-center justify-center px-1.5 py-0.5 bg-[#F1F5F9] dark:bg-white/5 text-[#64748B] dark:text-slate-400 text-[9px] font-bold rounded-full uppercase tracking-wider select-none border border-gray-200 dark:border-white/10 whitespace-nowrap">
-                              {doc.source || "IPD"}
-                            </span>
-                          </div>
-                        </div>
-                        {/* Small Right-Aligned Action Button */}
-                        <div className="col-span-1 flex flex-col items-end justify-center">
-                          {index === 0 && (
-                            <label className="text-[10px] font-bold text-gray-400 uppercase dark:text-slate-400 hidden md:block mb-1.5 text-right w-full tracking-wider">&nbsp;</label>
-                          )}
-                          <div className="flex items-center justify-end w-full min-h-[58px]">
-                            <button
-                              onClick={() => removeDoctor(index)}
-                              className="flex items-center justify-center w-6 h-6 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-full transition-colors cursor-pointer border border-transparent hover:border-red-100 dark:hover:border-red-900/30"
-                            >
-                              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
-                              </svg>
-                            </button>
-                          </div>
-                        </div>
-                      </div>
+          {expanded.room && (
+            <div className="p-[20px] space-y-[20px] bg-white dark:bg-[#101935]">
+              {wards.map((ward, index) => (
+                <div key={index} className="space-y-[12px] pb-[20px] border-b border-[#E7E8EB]/50 dark:border-white/5 last:border-b-0 last:pb-0">
+                  {/* Sub-headers row (Desktop Only) */}
+                  {index === 0 && (
+                    <div className="hidden md:grid grid-cols-12 gap-[16px] text-[12px] font-semibold text-slate-400">
+                      <div className="col-span-4">Ward Name</div>
+                      <div className="col-span-2">Category</div>
+                      <div className="col-span-2">Qty</div>
+                      <div className="col-span-2">Price</div>
+                      <div className="col-span-2">Total</div>
                     </div>
-                  ))}
+                  )}
+                  {/* Inputs row */}
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-[16px] items-center">
+                    <div className="col-span-1 md:col-span-4">
+                      <input
+                        type="text"
+                        value={ward.wardName}
+                        onChange={(e) => updateWard(index, "wardName", e.target.value)}
+                        placeholder="General Ward"
+                        className="w-full h-[38px] px-[12px] bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] text-slate-800 dark:text-white focus:outline-none focus:border-[#2E37A4] shadow-none"
+                      />
+                    </div>
+                    <div className="col-span-1 md:col-span-2">
+                      <input
+                        type="text"
+                        value={ward.category}
+                        onChange={(e) => updateWard(index, "category", e.target.value)}
+                        placeholder="Category"
+                        className="w-full h-[38px] px-[12px] bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] text-slate-800 dark:text-white focus:outline-none focus:border-[#2E37A4] shadow-none"
+                      />
+                    </div>
+                    <div className="col-span-1 md:col-span-2">
+                      <input
+                        type="text"
+                        value={ward.qty}
+                        onChange={(e) => updateWard(index, "qty", e.target.value)}
+                        placeholder="Qty"
+                        className="w-full h-[38px] px-[12px] bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] text-slate-800 dark:text-white focus:outline-none focus:border-[#2E37A4] shadow-none"
+                      />
+                    </div>
+                    <div className="col-span-1 md:col-span-2">
+                      <input
+                        type="text"
+                        value={ward.price}
+                        onChange={(e) => updateWard(index, "price", e.target.value)}
+                        placeholder="Price"
+                        className="w-full h-[38px] px-[12px] bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] text-[13px] text-slate-800 dark:text-white focus:outline-none focus:border-[#2E37A4] shadow-none"
+                      />
+                    </div>
+                    <div className="col-span-1 md:col-span-2">
+                      <input
+                        type="text"
+                        value={ward.total}
+                        onChange={(e) => updateWard(index, "total", e.target.value)}
+                        placeholder="Total"
+                        className="w-full h-[38px] px-[12px] bg-slate-50 dark:bg-white/5 border border-[#E7E8EB]/50 dark:border-white/5 rounded-[5px] text-[13px] text-slate-800 dark:text-white focus:outline-none focus:border-[#2E37A4] shadow-none font-semibold"
+                      />
+                    </div>
+                  </div>
                 </div>
-                <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
-              </>
-            )}
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* 2. Doctor Visits Accordion */}
+        <div className="border border-[#E7E8EB] dark:border-white/10 rounded-[5px] overflow-hidden">
+          <div className="flex items-center justify-between p-[20px] bg-slate-50/50 dark:bg-white/5 border-b border-[#E7E8EB] dark:border-[#E7E8EB]/10">
+            <button
+              onClick={() => toggle("doctor")}
+              className="flex items-center gap-[8px] text-[14px] font-bold text-slate-800 dark:text-white cursor-pointer select-none"
+            >
+              <svg
+                className={`w-3.5 h-3.5 text-gray-500 transition-transform ${expanded.doctor ? "rotate-0" : "-rotate-90"}`}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+              >
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+              Doctor Visits
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                addDoctor();
+              }}
+              className="text-[12px] font-semibold text-[#2E37A4] hover:text-[#2E37A4]/80 transition-colors cursor-pointer"
+            >
+              + Add Ward
+            </button>
           </div>
 
-          {/* 3. Lab Tests Accordion & Items */}
-          <div className="flex flex-col">
-            <div className="flex items-center justify-between py-[12px] px-4 sm:px-6 bg-[#F1F5F9]/50 dark:bg-white/5">
-              <button
-                onClick={() => toggle("lab")}
-                className="flex items-center gap-2 text-[14px] font-bold text-[#1e293b] dark:text-white cursor-pointer select-none"
-              >
-                <svg
-                  className={`w-3.5 h-3.5 text-gray-500 transition-transform ${expanded.lab ? "rotate-0" : "-rotate-90"}`}
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                >
-                  <path d="M6 9l6 6 6-6" />
-                </svg>
-                Lab Tests
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  addLab();
-                }}
-                className="text-[12px] font-bold text-[#2E37A4] hover:text-[#2E37A4]/80 transition-colors cursor-pointer"
-              >
-                + Add Test
-              </button>
+          {expanded.doctor && (
+            <div className="p-[20px] space-y-[20px] bg-white dark:bg-[#101935]">
+              {doctors.map((item, index) => renderRow(item, index, "doctor", updateDoctor, removeDoctor))}
             </div>
-            <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
+          )}
+        </div>
 
-            {expanded.lab && (
-              <>
-                <div className="py-4 px-4 sm:px-6 space-y-4">
-                  {labs.map((lab, index) => (
-                    <div key={index} className="relative group bg-white dark:bg-white/5 border border-transparent hover:border-[#E2E8F0] dark:hover:border-white/10 rounded-[8px] p-4 md:p-0 md:bg-transparent md:border-0 md:rounded-none md:hover:border-transparent">
-                      <div className="grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-4 items-center">
-                        <div className="col-span-1 md:col-span-3 space-y-1.5">
-                          {index === 0 && (
-                            <label className="text-[10px] font-bold text-gray-400 uppercase dark:text-slate-400 hidden md:block tracking-wider">TEST NAME</label>
-                          )}
-                          <textarea
-                            value={lab.name}
-                            onChange={(e) => updateLab(index, "name", e.target.value)}
-                            placeholder="Complete Blood Count"
-                            rows={2}
-                            className={textareaClass}
-                          />
-                        </div>
-                        <div className="col-span-1 md:col-span-2 space-y-1.5">
-                          {index === 0 && (
-                            <label className="text-[10px] font-bold text-gray-400 uppercase dark:text-slate-400 hidden md:block tracking-wider">CATEGORY</label>
-                          )}
-                          <textarea
-                            value={lab.category}
-                            onChange={(e) => updateLab(index, "category", e.target.value)}
-                            placeholder="Pathology"
-                            rows={2}
-                            className={textareaClass}
-                          />
-                        </div>
-                        <div className="col-span-1 md:col-span-1 space-y-1.5">
-                          {index === 0 && (
-                            <label className="text-[10px] font-bold text-gray-400 uppercase dark:text-slate-400 hidden md:block text-center tracking-wider">QTY</label>
-                          )}
-                          <textarea
-                            value={lab.qty}
-                            onChange={(e) => updateLab(index, "qty", e.target.value)}
-                            placeholder="1"
-                            rows={2}
-                            className={`${textareaClass} text-left md:text-center`}
-                          />
-                        </div>
-                        <div className="col-span-1 md:col-span-2 space-y-1.5">
-                          {index === 0 && (
-                            <label className="text-[10px] font-bold text-gray-400 uppercase dark:text-slate-400 hidden md:block text-center tracking-wider">PRICE</label>
-                          )}
-                          <textarea
-                            value={lab.price}
-                            onChange={(e) => updateLab(index, "price", e.target.value)}
-                            placeholder="₹0.00"
-                            rows={2}
-                            className={`${textareaClass} text-left md:text-center`}
-                          />
-                        </div>
-                        <div className="col-span-1 md:col-span-2 space-y-1.5">
-                          {index === 0 && (
-                            <label className="text-[10px] font-bold text-gray-400 uppercase dark:text-slate-400 hidden md:block text-center tracking-wider">TOTAL</label>
-                          )}
-                          <textarea
-                            value={lab.total}
-                            readOnly
-                            placeholder="₹0.00"
-                            rows={2}
-                            className={`${textareaReadonlyClass} text-left md:text-center`}
-                          />
-                        </div>
-                        {/* Source Pill Badge */}
-                        <div className="col-span-1 md:col-span-1 flex flex-col items-center justify-center">
-                          {index === 0 && (
-                            <label className="text-[10px] font-bold text-gray-400 uppercase dark:text-slate-400 hidden md:block mb-1.5 text-center tracking-wider">SOURCE</label>
-                          )}
-                          <div className="flex items-center justify-center w-full min-h-[58px]">
-                            <span className="inline-flex items-center justify-center px-1.5 py-0.5 bg-[#F1F5F9] dark:bg-white/5 text-[#64748B] dark:text-slate-400 text-[9px] font-bold rounded-full uppercase tracking-wider select-none border border-gray-200 dark:border-white/10 whitespace-nowrap">
-                              {lab.source || "Lab"}
-                            </span>
-                          </div>
-                        </div>
-                        {/* Small Right-Aligned Action Button */}
-                        <div className="col-span-1 flex flex-col items-end justify-center">
-                          {index === 0 && (
-                            <label className="text-[10px] font-bold text-gray-400 uppercase dark:text-slate-400 hidden md:block mb-1.5 text-right w-full tracking-wider">&nbsp;</label>
-                          )}
-                          <div className="flex items-center justify-end w-full min-h-[58px]">
-                            <button
-                              onClick={() => removeLab(index)}
-                              className="flex items-center justify-center w-6 h-6 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-full transition-colors cursor-pointer border border-transparent hover:border-red-100 dark:hover:border-red-900/30"
-                            >
-                              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
-                              </svg>
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
-              </>
-            )}
+        {/* 3. Lab Tests Accordion */}
+        <div className="border border-[#E7E8EB] dark:border-white/10 rounded-[5px] overflow-hidden">
+          <div className="flex items-center justify-between p-[20px] bg-slate-50/50 dark:bg-white/5 border-b border-[#E7E8EB] dark:border-[#E7E8EB]/10">
+            <button
+              onClick={() => toggle("lab")}
+              className="flex items-center gap-[8px] text-[14px] font-bold text-slate-800 dark:text-white cursor-pointer select-none"
+            >
+              <svg
+                className={`w-3.5 h-3.5 text-gray-500 transition-transform ${expanded.lab ? "rotate-0" : "-rotate-90"}`}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+              >
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+              Lab Tests
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                addLab();
+              }}
+              className="text-[12px] font-semibold text-[#2E37A4] hover:text-[#2E37A4]/80 transition-colors cursor-pointer"
+            >
+              + Add Ward
+            </button>
           </div>
 
-          {/* 4. Pharmacy Accordion & Items */}
-          <div className="flex flex-col">
-            <div className="flex items-center justify-between py-[12px] px-4 sm:px-6 bg-[#F1F5F9]/50 dark:bg-white/5">
-              <button
-                onClick={() => toggle("pharmacy")}
-                className="flex items-center gap-2 text-[14px] font-bold text-[#1e293b] dark:text-white cursor-pointer select-none"
-              >
-                <svg
-                  className={`w-3.5 h-3.5 text-gray-500 transition-transform ${expanded.pharmacy ? "rotate-0" : "-rotate-90"}`}
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                >
-                  <path d="M6 9l6 6 6-6" />
-                </svg>
-                Pharmacy
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  addPharmacy();
-                }}
-                className="text-[12px] font-bold text-[#2E37A4] hover:text-[#2E37A4]/80 transition-colors cursor-pointer"
-              >
-                + Add Item
-              </button>
+          {expanded.lab && (
+            <div className="p-[20px] space-y-[20px] bg-white dark:bg-[#101935]">
+              {labs.map((item, index) => renderRow(item, index, "lab", updateLab, removeLab))}
             </div>
-            <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
+          )}
+        </div>
 
-            {expanded.pharmacy && (
-              <>
-                <div className="py-4 px-4 sm:px-6 space-y-4">
-                  {pharmacy.map((item, index) => (
-                    <div key={index} className="relative group bg-white dark:bg-white/5 border border-transparent hover:border-[#E2E8F0] dark:hover:border-white/10 rounded-[8px] p-4 md:p-0 md:bg-transparent md:border-0 md:rounded-none md:hover:border-transparent">
-                      <div className="grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-4 items-center">
-                        <div className="col-span-1 md:col-span-3 space-y-1.5">
-                          {index === 0 && (
-                            <label className="text-[10px] font-bold text-gray-400 uppercase dark:text-slate-400 hidden md:block tracking-wider">MEDICINE NAME</label>
-                          )}
-                          <textarea
-                            value={item.name}
-                            onChange={(e) => updatePharmacy(index, "name", e.target.value)}
-                            placeholder="Paracetamol 500mg"
-                            rows={2}
-                            className={textareaClass}
-                          />
-                        </div>
-                        <div className="col-span-1 md:col-span-2 space-y-1.5">
-                          {index === 0 && (
-                            <label className="text-[10px] font-bold text-gray-400 uppercase dark:text-slate-400 hidden md:block tracking-wider">CATEGORY</label>
-                          )}
-                          <textarea
-                            value={item.category}
-                            onChange={(e) => updatePharmacy(index, "category", e.target.value)}
-                            placeholder="Medicine"
-                            rows={2}
-                            className={textareaClass}
-                          />
-                        </div>
-                        <div className="col-span-1 md:col-span-1 space-y-1.5">
-                          {index === 0 && (
-                            <label className="text-[10px] font-bold text-gray-400 uppercase dark:text-slate-400 hidden md:block text-center tracking-wider">QTY</label>
-                          )}
-                          <textarea
-                            value={item.qty}
-                            onChange={(e) => updatePharmacy(index, "qty", e.target.value)}
-                            placeholder="2"
-                            rows={2}
-                            className={`${textareaClass} text-left md:text-center`}
-                          />
-                        </div>
-                        <div className="col-span-1 md:col-span-2 space-y-1.5">
-                          {index === 0 && (
-                            <label className="text-[10px] font-bold text-gray-400 uppercase dark:text-slate-400 hidden md:block text-center tracking-wider">PRICE</label>
-                          )}
-                          <textarea
-                            value={item.price}
-                            onChange={(e) => updatePharmacy(index, "price", e.target.value)}
-                            placeholder="₹0.00"
-                            rows={2}
-                            className={`${textareaClass} text-left md:text-center`}
-                          />
-                        </div>
-                        <div className="col-span-1 md:col-span-2 space-y-1.5">
-                          {index === 0 && (
-                            <label className="text-[10px] font-bold text-gray-400 uppercase dark:text-slate-400 hidden md:block text-center tracking-wider">TOTAL</label>
-                          )}
-                          <textarea
-                            value={item.total}
-                            readOnly
-                            placeholder="₹0.00"
-                            rows={2}
-                            className={`${textareaReadonlyClass} text-left md:text-center`}
-                          />
-                        </div>
-                        {/* Source Pill Badge */}
-                        <div className="col-span-1 md:col-span-1 flex flex-col items-center justify-center">
-                          {index === 0 && (
-                            <label className="text-[10px] font-bold text-gray-400 uppercase dark:text-slate-400 hidden md:block mb-1.5 text-center tracking-wider">SOURCE</label>
-                          )}
-                          <div className="flex items-center justify-center w-full min-h-[58px]">
-                            <span className="inline-flex items-center justify-center px-1.5 py-0.5 bg-[#F1F5F9] dark:bg-white/5 text-[#64748B] dark:text-slate-400 text-[9px] font-bold rounded-full uppercase tracking-wider select-none border border-gray-200 dark:border-white/10 whitespace-nowrap">
-                              {item.source || "Pharmacy"}
-                            </span>
-                          </div>
-                        </div>
-                        {/* Small Right-Aligned Action Button */}
-                        <div className="col-span-1 flex flex-col items-end justify-center">
-                          {index === 0 && (
-                            <label className="text-[10px] font-bold text-gray-400 uppercase dark:text-slate-400 hidden md:block mb-1.5 text-right w-full tracking-wider">&nbsp;</label>
-                          )}
-                          <div className="flex items-center justify-end w-full min-h-[58px]">
-                            <button
-                              onClick={() => removePharmacy(index)}
-                              className="flex items-center justify-center w-6 h-6 text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-full transition-colors cursor-pointer border border-transparent hover:border-red-100 dark:hover:border-red-900/30"
-                            >
-                              <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                                <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2" />
-                              </svg>
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
-              </>
-            )}
+        {/* 4. Pharmacy Accordion */}
+        <div className="border border-[#E7E8EB] dark:border-white/10 rounded-[5px] overflow-hidden">
+          <div className="flex items-center justify-between p-[20px] bg-slate-50/50 dark:bg-white/5 border-b border-[#E7E8EB] dark:border-[#E7E8EB]/10">
+            <button
+              onClick={() => toggle("pharmacy")}
+              className="flex items-center gap-[8px] text-[14px] font-bold text-slate-800 dark:text-white cursor-pointer select-none"
+            >
+              <svg
+                className={`w-3.5 h-3.5 text-gray-500 transition-transform ${expanded.pharmacy ? "rotate-0" : "-rotate-90"}`}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+              >
+                <path d="M6 9l6 6 6-6" />
+              </svg>
+              Pharmacy
+            </button>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                addPharmacy();
+              }}
+              className="text-[12px] font-semibold text-[#2E37A4] hover:text-[#2E37A4]/80 transition-colors cursor-pointer"
+            >
+              + Add Ward
+            </button>
           </div>
+
+          {expanded.pharmacy && (
+            <div className="p-[20px] space-y-[20px] bg-white dark:bg-[#101935]">
+              {pharmacy.map((item, index) => renderRow(item, index, "pharmacy", updatePharmacy, removePharmacy))}
+            </div>
+          )}
         </div>
 
         {/* Footer totals */}
-        <div className="flex flex-wrap sm:flex-nowrap items-center justify-between sm:justify-end gap-4 sm:gap-6 py-4 px-6 bg-[#F8FAFC] dark:bg-white/5 border-t border-[#E2E8F0] dark:border-white/10 rounded-b-[8px] text-[14px]">
-          <span className="text-gray-500 dark:text-gray-400 font-medium">
-            Total Items: <strong className="text-[#1e293b] dark:text-white font-semibold">{totalItems}</strong>
+        <div className="flex flex-wrap sm:flex-nowrap items-center justify-between sm:justify-end gap-[20px] p-[20px] bg-slate-50/50 dark:bg-white/5 border-t border-[#E7E8EB] dark:border-white/10 rounded-b-[5px] text-[14px]">
+          <span className="text-slate-500 dark:text-gray-400 font-medium">
+            Total Items: <strong className="text-slate-800 dark:text-white font-semibold">{totalItems}</strong>
           </span>
-          <span className="text-gray-500 dark:text-gray-400 font-medium">
-            Subtotal: <strong className="text-[#2E37A4] dark:text-blue-400 font-bold text-[16px]">${subtotal.toFixed(2)}</strong>
+          <span className="text-slate-500 dark:text-gray-400 font-medium">
+            Subtotal: <strong className="text-[#2E37A4] dark:text-blue-400 font-bold text-[16px]">₹{subtotal.toFixed(2)}</strong>
           </span>
         </div>
       </div>
 
       {/* Right Section - Gross Total Summary (col-span 4) */}
-      <div className="lg:col-span-4 bg-card border border-border rounded-lg pt-6 pb-6 px-0 h-fit font-inter shadow-none">
+      <div className="lg:col-span-4 bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] p-[20px] space-y-[20px] h-fit font-inter shadow-none">
         {/* Gross Total Header */}
-        <div className="space-y-1 pb-4 px-4 sm:px-6">
-          <span className="text-[14px] font-bold text-[#64748B] dark:text-slate-400 uppercase tracking-wider">GROSS TOTAL</span>
-          <h2 className="text-[28px] font-extrabold text-[#1e293b] dark:text-white font-bold">₹{subtotal.toFixed(2)}</h2>
+        <div className="space-y-[6px]">
+          <span className="text-[14px] font-bold text-slate-500 dark:text-slate-400">Gross Total</span>
+          <h2 className="text-[28px] font-extrabold text-[#1e293b] dark:text-white">₹{subtotal.toFixed(2)}</h2>
         </div>
-        <div className="border-b border-border"></div>
+
+        <div className="border-b border-[#E7E8EB] dark:border-white/10"></div>
 
         {/* Calculation Details */}
-        <div className="py-4 px-4 sm:px-6">
-          <div className="space-y-3.5">
-            <div className="flex items-center justify-between text-[14px]">
-              <span className="text-gray-500 dark:text-slate-400 font-medium">Discounts (5%)</span>
-              <span className="text-[#218F40] font-bold">-₹{discount.toFixed(2)}</span>
-            </div>
-
-            <div className="flex items-center justify-between text-[14px]">
-              <span className="flex items-center gap-1 text-gray-500 dark:text-slate-400 font-medium">
-                Insurance Covered
-                <svg className="w-3.5 h-3.5 text-gray-400 cursor-pointer" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                  <circle cx="12" cy="12" r="10" />
-                  <path d="M12 16v-4M12 8h.01" />
-                </svg>
-              </span>
-              <span className="text-[#218F40] font-bold">-₹{insuranceCover.toFixed(2)}</span>
-            </div>
+        <div className="space-y-[12px]">
+          <div className="flex items-center justify-between text-[14px]">
+            <span className="text-slate-500 dark:text-slate-400 font-medium">Discounts (5%)</span>
+            <span className="text-[#218F40] font-bold">-₹{discount.toFixed(2)}</span>
           </div>
 
-          <div className="border-b border-border my-3.5"></div>
-
-          <div className="flex items-center justify-between text-[14px] font-bold text-[#1e293b] dark:text-white">
-            <span>Net Payable</span>
-            <span>₹{netPayable.toFixed(2)}</span>
+          <div className="flex items-center justify-between text-[14px]">
+            <span className="flex items-center gap-[6px] text-slate-500 dark:text-slate-400 font-medium">
+              Insurance Covered
+              <svg className="w-3.5 h-3.5 text-gray-400 cursor-pointer" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <circle cx="12" cy="12" r="10" />
+                <path d="M12 16v-4M12 8h.01" />
+              </svg>
+            </span>
+            <span className="text-[#218F40] font-bold">-₹{insuranceCover.toFixed(2)}</span>
           </div>
         </div>
-        <div className="border-b border-border"></div>
 
-        <div className="py-4 px-4 sm:px-6 space-y-3.5">
+        <div className="border-b border-[#E7E8EB] dark:border-white/10"></div>
+
+        <div className="flex items-center justify-between text-[14px] font-bold text-[#1e293b] dark:text-white">
+          <span>Net Payable</span>
+          <span>₹{netPayable.toFixed(2)}</span>
+        </div>
+
+        <div className="border-b border-[#E7E8EB] dark:border-white/10"></div>
+
+        <div className="space-y-[12px]">
           <div className="flex items-center justify-between text-[14px]">
-            <span className="text-gray-500 dark:text-slate-400 font-medium">Advance Paid</span>
-            <span className="text-gray-500 dark:text-slate-400 font-bold">-₹{advancePaid.toFixed(2)}</span>
+            <span className="text-slate-500 dark:text-slate-400 font-medium">Advance Paid</span>
+            <span className="text-slate-500 dark:text-slate-400 font-bold">-₹{advancePaid.toFixed(2)}</span>
           </div>
 
           <div className="flex items-center justify-between text-[14px] font-bold text-[#1e293b] dark:text-white">
@@ -993,12 +806,13 @@ function BillingChargesSection({ patientId, billType }) {
             <span className="text-[#DF8F2A] text-[18px] font-bold">₹{balanceDue.toFixed(2)}</span>
           </div>
         </div>
-        <div className="border-b border-border"></div>
+
+        <div className="border-b border-[#E7E8EB] dark:border-white/10"></div>
 
         {/* Progress Bar / Billing Health */}
-        <div className="py-4 px-4 sm:px-6 space-y-3">
+        <div className="space-y-[12px]">
           <div className="flex items-center justify-between text-[12px] font-bold">
-            <span className="text-gray-400">Billing Health</span>
+            <span className="text-slate-400">Billing Health</span>
             <span className={netPayable === 0 || advancePaid >= netPayable * 0.5 ? "text-[#218F40]" : "text-[#DF8F2A]"}>
               {netPayable === 0 ? "Excellent" : (advancePaid < netPayable * 0.5 ? "Low Advance" : "Healthy")}
             </span>
@@ -1012,7 +826,7 @@ function BillingChargesSection({ patientId, billType }) {
             ></div>
           </div>
 
-          <div className="flex items-start gap-1.5 text-[11px] text-gray-500 dark:text-slate-400 leading-normal">
+          <div className="flex items-start gap-[6px] text-[11px] text-slate-500 dark:text-slate-400 leading-normal">
             <svg
               className={netPayable === 0 || advancePaid >= netPayable * 0.5 ? "w-3.5 h-3.5 text-[#218F40] shrink-0 mt-0.5" : "w-3.5 h-3.5 text-[#DF8F2A] shrink-0 mt-0.5"}
               viewBox="0 0 24 24"
@@ -1035,13 +849,14 @@ function BillingChargesSection({ patientId, billType }) {
             </span>
           </div>
         </div>
-        <div className="border-b border-[#E2E8F0] dark:border-white/10"></div>
+
+        <div className="border-b border-[#E7E8EB] dark:border-white/10"></div>
 
         {/* Action Buttons */}
-        <div className="py-4 px-4 sm:px-6 space-y-3">
+        <div className="space-y-[12px]">
           <button
             onClick={() => setShowCollectPayment(true)}
-            className="w-full h-11 bg-[#2E37A4] hover:bg-[#2E37A4]/90 text-white font-semibold rounded-[6px] text-[13px] flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
+            className="w-full h-[40px] bg-[#2E37A4] hover:bg-[#2E37A4]/90 text-white font-semibold rounded-[5px] text-[13px] flex items-center justify-center gap-[8px] transition-all cursor-pointer shadow-none"
           >
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <rect x="2" y="5" width="20" height="14" rx="2" />
@@ -1050,17 +865,17 @@ function BillingChargesSection({ patientId, billType }) {
             Collect Payment
           </button>
 
-          <button className="w-full h-11 bg-[#F1F5F9] hover:bg-[#F1F5F9]/80 text-[#1e293b] font-semibold rounded-[6px] text-[13px] flex items-center justify-center gap-2 transition-all cursor-pointer border border-[#E2E8F0]">
-            <svg className="w-4 h-4 text-gray-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+          <button className="w-full h-[40px] bg-[#F1F5F9] hover:bg-[#F1F5F9]/80 text-[#1e293b] font-semibold rounded-[5px] text-[13px] flex items-center justify-center gap-[8px] transition-all cursor-pointer border border-[#E7E8EB] shadow-none">
+            <svg className="w-4 h-4 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
               <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" />
             </svg>
             Generate Interim Bill
           </button>
 
-          <button className="w-full h-11 bg-[#E2E8F0] hover:bg-[#E2E8F0]/80 text-[#64748B] font-medium rounded-[6px] text-[13px] flex items-center justify-center gap-2 transition-all cursor-pointer border border-[#CBD5E1]">
-            <svg className="w-4 h-4 text-[#64748B]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
+          <button className="w-full h-[40px] bg-white hover:bg-slate-50 text-slate-600 font-medium rounded-[5px] text-[13px] flex items-center justify-center gap-[8px] transition-all cursor-pointer border border-[#E7E8EB] shadow-none">
+            <svg className="w-4 h-4 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" />
             </svg>
             Download Bill
           </button>
