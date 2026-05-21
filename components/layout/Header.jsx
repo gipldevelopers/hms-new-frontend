@@ -219,8 +219,22 @@ export default function Header({
                 </p>
               </div>
               <div className="p-1">
-                <button className="w-full flex items-center gap-3 px-3 py-2 text-[12px] font-bold text-gray-500 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-white/[0.05] rounded-[5px] transition-colors tracking-tight">
+                <button
+                  onClick={() => {
+                    const role = user?.role || "super-admin";
+                    const profilePath = role === "reception" || role === "pharmacy" ? `/${role}/settings` : `/${role}/profile`;
+                    router.push(profilePath);
+                    setIsProfileOpen(false);
+                  }}
+                  className="w-full flex items-center gap-3 px-3 py-2 text-[12px] font-bold text-gray-500 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-white/[0.05] rounded-[5px] transition-colors tracking-tight"
+                >
                   <User className="w-4 h-4" /> Account
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-3 px-3 py-2 text-[12px] font-bold text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-[5px] transition-colors tracking-tight"
+                >
+                  <LogOut className="w-4 h-4" /> Logout
                 </button>
               </div>
             </div>

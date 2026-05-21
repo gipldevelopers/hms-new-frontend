@@ -73,6 +73,41 @@ export function FinanceStatCard({ title, value, icon: Icon, color = "blue", meta
   );
 }
 
+export function CompactStatCard({ title, value, icon: Icon, color = "blue", meta }) {
+  const iconStyles = {
+    blue: "bg-primary/10 text-primary",
+    emerald: "bg-emerald-500/10 text-emerald-500",
+    amber: "bg-amber-500/10 text-amber-500",
+    rose: "bg-rose-500/10 text-rose-500",
+    indigo: "bg-indigo-500/10 text-indigo-500",
+    slate: "bg-slate-500/10 text-slate-500",
+  };
+
+  return (
+    <div className="flex w-full items-center gap-3 rounded-[5px] border border-[#E7E8EB] bg-white p-3 transition-all dark:border-white/10 dark:bg-[#101935]">
+      <div
+        className={cn(
+          "flex h-9 w-9 shrink-0 items-center justify-center rounded-[5px]",
+          iconStyles[color] || iconStyles.blue
+        )}
+      >
+        <Icon className="h-[18px] w-[18px]" />
+      </div>
+      <div className="min-w-0">
+        <p className="mb-1 text-[10px] font-bold uppercase tracking-wider text-[#64748B] dark:text-slate-500 leading-tight">
+          {title}
+        </p>
+        <p className="text-[16px] font-bold leading-none text-[#1e293b] dark:text-white">{value}</p>
+        {meta ? (
+          <p className="mt-1.5 text-[11px] font-medium text-[#64748B] dark:text-slate-500 leading-tight">
+            {meta}
+          </p>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
 export function FinanceToolbar({ children, className }) {
   return (
     <div className={cn("rounded-[5px] border border-[#E7E8EB] bg-white p-4 shadow-none dark:border-white/10 dark:bg-[#101935]", className)}>

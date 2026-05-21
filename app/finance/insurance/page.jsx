@@ -11,6 +11,7 @@ import {
   FinanceSelect,
   FinanceTableCard,
   FinanceToolbar,
+  CompactStatCard,
 } from "@/components/finance/FinancePageChrome";
 import {
   Search,
@@ -35,11 +36,9 @@ import {
   Download,
   Info,
 } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-} from "@/components/ui/dialog";
+import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
+
 
 // --- MOCK PROVIDERS WITH BRANDS & COLORS ---
 const PROVIDERS = {
@@ -235,6 +234,26 @@ export default function InsurancePage() {
   const [isNewClaimOpen, setIsNewClaimOpen] = useState(false);
   const [selectedClaim, setSelectedClaim] = useState(null);
 
+  // Consolidated modal scroll-lock and escape key hook
+  const isAnyModalOpen = isVerifyOpen || isNewClaimOpen || selectedClaim !== null;
+  useEffect(() => {
+    if (isAnyModalOpen) {
+      document.body.style.overflow = "hidden";
+      const handleEsc = (e) => {
+        if (e.key === "Escape") {
+          setIsVerifyOpen(false);
+          setIsNewClaimOpen(false);
+          setSelectedClaim(null);
+        }
+      };
+      window.addEventListener("keydown", handleEsc);
+      return () => {
+        document.body.style.overflow = "unset";
+        window.removeEventListener("keydown", handleEsc);
+      };
+    }
+  }, [isAnyModalOpen]);
+
   // Verify Patient Insurance portal states
   const [isVerifyingInsurance, setIsVerifyingInsurance] = useState(false);
   const [verifyUhid, setVerifyUhid] = useState("P-109234");
@@ -411,7 +430,7 @@ export default function InsurancePage() {
 
     return (
       <div className="min-h-screen flex-1 space-y-6 bg-[#f8fafc] p-6 transition-colors duration-300 dark:bg-[#0B1121]">
-        
+
         {/* Navigation Breadcrumb & Page title */}
         <div className="flex justify-between items-center">
           <div className="space-y-1">
@@ -421,17 +440,17 @@ export default function InsurancePage() {
         </div>
 
         <div className="flex min-h-[580px] flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm dark:border-white/10 dark:bg-[#101935]">
-          
+
           {/* Main content grid */}
-          <div className="flex-1 p-6 grid grid-cols-4 gap-6 items-start">
-            
-            {/* Left Content (3 Columns) */}
-            <div className="col-span-3 space-y-6">
-              
+          <div className="flex-1 p-6 grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
+
+            {/* Left Content (3 Columns on desktop, 1 on mobile) */}
+            <div className="col-span-1 lg:col-span-3 space-y-6">
+
               {/* Card 1: Patient Lookup */}
               <div className="space-y-4 rounded-xl border border-slate-100 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-[#0B1121]">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-gray-800 dark:text-white">Patient Lookup</h3>
-                
+
                 <div className="space-y-1.5">
                   <span className="text-[10px] text-gray-400 font-bold block">Patient UHID / Policy Number</span>
                   <div className="flex gap-3">
@@ -444,7 +463,7 @@ export default function InsurancePage() {
                         className="h-10 rounded-lg border-slate-150 pl-10 text-xs focus-visible:ring-[#2E37A4] dark:border-white/10 dark:bg-[#101935] dark:text-white dark:placeholder:text-slate-500"
                       />
                     </div>
-                    <button 
+                    <button
                       onClick={() => {
                         setVerifyStatus("checking");
                         setTimeout(() => {
@@ -461,12 +480,12 @@ export default function InsurancePage() {
 
                 {/* Profile Box */}
                 {matchedPat && (
-                  <div className="mt-2.5 flex items-center justify-between rounded-xl border border-slate-50 bg-[#f8fafc]/40 p-4 dark:border-white/10 dark:bg-white/5">
-                    <div className="flex items-center gap-3.5">
+                  <div className="mt-2.5 flex flex-col sm:flex-row items-start sm:items-center justify-between rounded-xl border border-slate-50 bg-[#f8fafc]/40 p-4 dark:border-white/10 dark:bg-white/5 gap-4">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3.5 w-full">
                       <div className="w-10 h-10 rounded-full bg-slate-50 border border-[#e0f2fe]/50 flex items-center justify-center text-xs font-bold text-[#2E37A4] shrink-0">
                         {matchedPat.name.split(" ").map(n => n[0]).join("")}
                       </div>
-                      <div className="grid grid-cols-4 gap-x-8 gap-y-1.5 text-xs">
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-8 gap-y-3.5 text-xs w-full">
                         <div>
                           <span className="text-[9px] text-gray-400 font-bold block mb-0.5">Patient Name</span>
                           <span className="text-gray-800 font-bold block truncate max-w-[120px]">{matchedPat.name}</span>
@@ -502,7 +521,7 @@ export default function InsurancePage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-x-6 gap-y-4 text-xs pt-1.5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 text-xs pt-1.5">
                   <div className="space-y-1.5">
                     <span className="text-[10px] text-gray-400 font-bold block">Insurance Provider</span>
                     <div className="relative">
@@ -562,7 +581,7 @@ export default function InsurancePage() {
 
             {/* Right Panel: Verification status card (1 Column) */}
             <div className="space-y-4 shrink-0">
-              
+
               {/* Coverage Check box */}
               {verifyStatus === "checking" ? (
                 <div className="flex min-h-[340px] flex-col items-center justify-center space-y-4 rounded-xl border border-slate-100 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-[#0B1121]">
@@ -574,7 +593,7 @@ export default function InsurancePage() {
                 </div>
               ) : hasVerifiedPolicy ? (
                 <div className="flex min-h-[340px] flex-col overflow-hidden rounded-xl border-2 border-emerald-500 bg-white shadow-sm dark:bg-[#0B1121]">
-                  
+
                   {/* Green Top bar */}
                   <div className="bg-[#E8F8F0] py-6 px-4 flex flex-col items-center justify-center border-b border-slate-50 text-center space-y-3.5">
                     <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-[#0F9D58]">
@@ -606,7 +625,7 @@ export default function InsurancePage() {
 
                     <div className="border-t border-slate-50 pt-3 space-y-2">
                       <span className="text-[9px] text-gray-400 font-bold block uppercase tracking-wider">Coverage Highlights</span>
-                      
+
                       <div className="flex justify-between font-medium">
                         <span className="text-gray-400">Co-pay (Outpatient)</span>
                         <span className="text-gray-800 font-bold">$25.00</span>
@@ -622,9 +641,9 @@ export default function InsurancePage() {
                     </div>
 
                     {/* Download Benefit button */}
-                    <Button 
+                    <Button
                       onClick={() => alert("Downloading Policy Benefits PDF...")}
-                      variant="outline" 
+                      variant="outline"
                       className="w-full border-slate-150 text-gray-700 hover:bg-slate-50 text-[10px] font-bold py-2 h-9 rounded-lg flex items-center justify-center gap-1.5 shadow-sm mt-1"
                     >
                       <Download className="w-3.5 h-3.5" />
@@ -652,24 +671,24 @@ export default function InsurancePage() {
           </div>
 
           {/* Footer controls */}
-          <div className="flex items-center justify-between border-t border-slate-50 bg-slate-50/10 px-6 py-4 dark:border-white/10 dark:bg-white/5">
-            <div>
+          <div className="flex flex-col sm:flex-row gap-4 justify-between items-center border-t border-slate-50 bg-slate-50/10 px-6 py-4 dark:border-white/10 dark:bg-white/5">
+            <div className="w-full sm:w-auto flex justify-start">
               <Button
                 onClick={() => setIsVerifyingInsurance(false)}
                 variant="ghost"
                 type="button"
-                className="text-xs text-gray-600 hover:text-gray-800 hover:bg-slate-50 px-4 h-9.5 rounded-lg flex items-center gap-1.5 transition-all font-bold"
+                className="text-xs text-gray-600 hover:text-gray-800 hover:bg-slate-50 px-4 h-9.5 rounded-lg flex items-center gap-1.5 transition-all font-bold w-full sm:w-auto justify-center"
               >
                 <ArrowLeft className="w-4 h-4" />
                 Back
               </Button>
             </div>
-            <div className="flex gap-3">
+            <div className="flex flex-col-reverse sm:flex-row gap-3 w-full sm:w-auto">
               <Button
                 onClick={() => setIsVerifyingInsurance(false)}
                 variant="outline"
                 type="button"
-                className="border-gray-200 text-gray-700 hover:bg-slate-50 text-xs font-bold px-4.5 h-9.5 rounded-lg transition-all"
+                className="border-gray-200 text-gray-700 hover:bg-slate-50 text-xs font-bold px-4.5 h-9.5 rounded-lg transition-all w-full sm:w-auto"
               >
                 Cancel
               </Button>
@@ -683,7 +702,7 @@ export default function InsurancePage() {
                   }, 1200);
                 }}
                 type="button"
-                className="bg-[#2E37A4] hover:bg-[#1e257a] text-white text-xs font-bold px-5.5 h-9.5 rounded-lg shadow-md transition-all flex items-center gap-1"
+                className="bg-[#2E37A4] hover:bg-[#1e257a] text-white text-xs font-bold px-5.5 h-9.5 rounded-lg shadow-md transition-all flex items-center justify-center gap-1 w-full sm:w-auto"
               >
                 Verify
               </button>
@@ -707,11 +726,11 @@ export default function InsurancePage() {
         </div>
 
         {/* 2. TWO-COLUMN WIZARD LAYOUT */}
-        <div className="grid grid-cols-4 gap-6 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
           {/* LEFT SIDEBAR: Claim Steps */}
           <div className="bg-white border border-slate-100 rounded-xl p-5 shadow-sm dark:bg-[#0B1121] dark:border-white/10">
-            <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wider border-b border-gray-50 pb-2.5">Claim Steps</h2>
-            <div className="space-y-4">
+            <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wider border-b border-gray-50 pb-2.5 mb-4 sm:mb-0">Claim Steps</h2>
+            <div className="flex flex-row overflow-x-auto sm:flex-col gap-4 sm:space-y-4 sm:gap-0 pb-2 sm:pb-0 scrollbar-none whitespace-nowrap">
               {[
                 { number: 1, label: "Patient Selection" },
                 { number: 2, label: "Treatment Details" },
@@ -721,26 +740,24 @@ export default function InsurancePage() {
                 const isActive = currentStep === step.number;
                 const isCompleted = currentStep > step.number;
                 return (
-                  <div key={step.number} className="flex items-center gap-3">
+                  <div key={step.number} className="flex items-center gap-3 shrink-0">
                     <div
-                      className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-all border ${
-                        isActive
-                          ? "bg-[#2E37A4] text-white border-[#2E37A4]"
-                          : isCompleted
+                      className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-all border ${isActive
+                        ? "bg-[#2E37A4] text-white border-[#2E37A4]"
+                        : isCompleted
                           ? "bg-[#E8F8F0] text-[#0F9D58] border-[#E8F8F0]"
                           : "bg-slate-50 text-gray-400 border-slate-100"
-                      }`}
+                        }`}
                     >
                       {isCompleted ? <Check className="w-3 h-3" /> : step.number}
                     </div>
                     <span
-                      className={`text-xs font-bold ${
-                        isActive
-                          ? "text-[#2E37A4]"
-                          : isCompleted
+                      className={`text-xs font-bold ${isActive
+                        ? "text-[#2E37A4]"
+                        : isCompleted
                           ? "text-[#0F9D58]"
                           : "text-gray-400"
-                      }`}
+                        }`}
                     >
                       {step.label}
                     </span>
@@ -751,7 +768,7 @@ export default function InsurancePage() {
           </div>
 
           {/* RIGHT CONTENT CARD: Step specific form */}
-          <div className="col-span-3 bg-white border border-slate-100 rounded-xl shadow-sm overflow-hidden flex flex-col">
+          <div className="col-span-1 lg:col-span-3 bg-white border border-slate-100 rounded-xl shadow-sm overflow-hidden flex flex-col">
             {/* Step Content */}
             {currentStep === 1 && (
               <div className="p-6 space-y-5">
@@ -845,7 +862,7 @@ export default function InsurancePage() {
                 copay: "20%",
                 amount: "₹4,500.00"
               };
-              
+
               return (
                 <div className="p-6 space-y-6">
                   {/* Step Header */}
@@ -855,15 +872,15 @@ export default function InsurancePage() {
                   </div>
 
                   {/* Main Grid: Form on the Left (col-span-3), Context Cards on the Right (col-span-1) */}
-                  <div className="grid grid-cols-4 gap-6 items-start">
-                    
+                  <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
+
                     {/* Left Form (3 Columns) */}
-                    <div className="col-span-3 space-y-6">
-                      
+                    <div className="col-span-1 lg:col-span-3 space-y-6">
+
                       {/* Section 1: Diagnosis Information */}
                       <div className="space-y-3.5">
                         <h3 className="text-xs font-bold text-gray-800 uppercase tracking-wider">Diagnosis Information</h3>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div>
                             <span className="text-xs text-gray-500 font-bold mb-1.5 block">Primary Diagnosis (ICD-10)</span>
                             <div className="relative">
@@ -894,7 +911,7 @@ export default function InsurancePage() {
                       {/* Section 2: Treatment & Procedure */}
                       <div className="space-y-3.5">
                         <h3 className="text-xs font-bold text-gray-800 uppercase tracking-wider">Treatment & Procedure</h3>
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div>
                             <span className="text-xs text-gray-500 font-bold mb-1.5 block">Procedure Code (CPT)</span>
                             <div className="relative">
@@ -943,7 +960,7 @@ export default function InsurancePage() {
                       {/* Section 3: Billing Context */}
                       <div className="space-y-3.5">
                         <h3 className="text-xs font-bold text-gray-800 uppercase tracking-wider">Billing Context</h3>
-                        <div className="bg-[#EEF2F6]/55 border border-[#E2E8F0] rounded-xl p-4.5 flex justify-between items-center shadow-sm">
+                        <div className="bg-[#EEF2F6]/55 border border-[#E2E8F0] rounded-xl p-4.5 flex flex-col sm:flex-row gap-3 justify-between sm:items-center shadow-sm">
                           <div>
                             <span className="text-xs font-bold text-[#0F172A] block">Total Billed Amount</span>
                             <span className="text-[10px] text-gray-400 font-semibold block mt-1">
@@ -958,7 +975,7 @@ export default function InsurancePage() {
 
                     {/* Right Context Cards (1 Column) */}
                     <div className="space-y-4 shrink-0">
-                      
+
                       {/* Patient Context Card */}
                       <div className="bg-white border border-slate-100 rounded-xl p-4.5 shadow-sm space-y-4">
                         <h4 className="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider border-b border-slate-50 pb-2">Patient Context</h4>
@@ -1051,11 +1068,11 @@ export default function InsurancePage() {
                   </div>
 
                   {/* Main Grid: Forms/Docs on the Left (col-span-3), Context Cards on the Right (col-span-1) */}
-                  <div className="grid grid-cols-4 gap-6 items-start">
-                    
+                  <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
+
                     {/* Left Documents Container (3 Columns) */}
-                    <div className="col-span-3 space-y-6">
-                      
+                    <div className="col-span-1 lg:col-span-3 space-y-6">
+
                       {/* Required Documents list */}
                       <div className="space-y-4">
                         <div className="flex justify-between items-center">
@@ -1065,7 +1082,7 @@ export default function InsurancePage() {
 
                         <div className="space-y-3">
                           {/* File 1: Discharge Summary */}
-                          <div className="border border-slate-100 rounded-xl p-3.5 bg-white shadow-sm hover:shadow transition-shadow flex justify-between items-center">
+                          <div className="border border-slate-100 rounded-xl p-3.5 bg-white shadow-sm hover:shadow transition-shadow flex flex-col sm:flex-row justify-between sm:items-center gap-3">
                             <div className="flex items-center gap-3">
                               <div className="w-10 h-10 rounded-lg bg-indigo-50/50 flex items-center justify-center text-[#2E37A4]">
                                 <FileText className="w-5 h-5" />
@@ -1119,7 +1136,7 @@ export default function InsurancePage() {
                           </div>
 
                           {/* File 2: Itemized Bill */}
-                          <div className="border border-slate-100 rounded-xl p-3.5 bg-white shadow-sm hover:shadow transition-shadow flex justify-between items-center">
+                          <div className="border border-slate-100 rounded-xl p-3.5 bg-white shadow-sm hover:shadow transition-shadow flex flex-col sm:flex-row justify-between sm:items-center gap-3">
                             <div className="flex items-center gap-3">
                               <div className="w-10 h-10 rounded-lg bg-indigo-50/50 flex items-center justify-center text-[#2E37A4]">
                                 <FileText className="w-5 h-5" />
@@ -1165,7 +1182,7 @@ export default function InsurancePage() {
                                         });
                                       }
                                     }}
-                                    className="absolute inset-0 opacity-0 cursor-pointer"
+                                    className="absolute inset-0 opacity-1 cursor-pointer"
                                   />
                                 </div>
                               )}
@@ -1173,7 +1190,7 @@ export default function InsurancePage() {
                           </div>
 
                           {/* File 3: Lab Reports */}
-                          <div className="border border-slate-100 rounded-xl p-3.5 bg-white shadow-sm hover:shadow transition-shadow flex justify-between items-center">
+                          <div className="border border-slate-100 rounded-xl p-3.5 bg-white shadow-sm hover:shadow transition-shadow flex flex-col sm:flex-row justify-between sm:items-center gap-3">
                             <div className="flex items-center gap-3">
                               <div className="w-10 h-10 rounded-lg bg-slate-50 flex items-center justify-center text-gray-400">
                                 {uploadedFiles.labReports ? <FileText className="w-5 h-5 text-[#2E37A4]" /> : <UploadCloud className="w-5 h-5" />}
@@ -1219,7 +1236,7 @@ export default function InsurancePage() {
                                         });
                                       }
                                     }}
-                                    className="absolute inset-0 opacity-0 cursor-pointer"
+                                    className="absolute inset-0 opacity-1 cursor-pointer"
                                   />
                                 </div>
                               )}
@@ -1260,7 +1277,7 @@ export default function InsurancePage() {
 
                     {/* Right Context Cards (1 Column) */}
                     <div className="space-y-4 shrink-0">
-                      
+
                       {/* Patient Context Card */}
                       <div className="bg-white border border-slate-100 rounded-xl p-4.5 shadow-sm space-y-4">
                         <h4 className="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider border-b border-slate-50 pb-2">Patient Context</h4>
@@ -1358,11 +1375,11 @@ export default function InsurancePage() {
                   </div>
 
                   {/* Main Grid: Form/Review on the Left (col-span-3), Context Cards on the Right (col-span-1) */}
-                  <div className="grid grid-cols-4 gap-6 items-start">
-                    
+                  <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
+
                     {/* Left Review Panel (3 Columns) */}
-                    <div className="col-span-3 space-y-6">
-                      
+                    <div className="col-span-1 lg:col-span-3 space-y-6">
+
                       {/* Alert notice */}
                       <div className="bg-[#e0f2fe]/35 border border-[#bae6fd]/50 rounded-xl p-4.5 flex gap-3.5 shadow-sm">
                         <AlertCircle className="w-5 h-5 text-[#0284c7] shrink-0 mt-0.5" />
@@ -1388,8 +1405,8 @@ export default function InsurancePage() {
                             Edit
                           </button>
                         </div>
-                        
-                        <div className="grid grid-cols-2 gap-y-4 gap-x-6 text-xs pt-1">
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6 text-xs pt-1">
                           <div>
                             <span className="text-[10px] text-gray-400 font-bold block mb-1">Primary Diagnosis</span>
                             <span className="text-gray-800 font-bold block leading-relaxed">{treatmentDetails.primaryDiagnosis || "Not provided"}</span>
@@ -1430,7 +1447,7 @@ export default function InsurancePage() {
                           </button>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4 pt-1">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
                           {/* File list cards */}
                           {[
                             { key: "dischargeSummary", label: "Discharge Summary", fallback: "discharge_summary_RJ.pdf" },
@@ -1484,7 +1501,7 @@ export default function InsurancePage() {
 
                     {/* Right Context Cards (1 Column) */}
                     <div className="space-y-4 shrink-0">
-                      
+
                       {/* Patient Context Card */}
                       <div className="bg-white border border-slate-100 rounded-xl p-4.5 shadow-sm space-y-4">
                         <h4 className="text-[10px] font-extrabold text-gray-400 uppercase tracking-wider border-b border-slate-50 pb-2">Patient Context</h4>
@@ -1576,7 +1593,7 @@ export default function InsurancePage() {
                   <button
                     onClick={handleWizardNext}
                     type="button"
-                    className="bg-[#2E37A4] hover:bg-[#1e257a] text-white text-xs font-bold px-5 h-9.5 rounded-lg shadow-md transition-all flex items-center gap-1"
+                    className="bg-[#2E37A4] hover:bg-[#1e257a] text-white text-xs font-bold px-2 h-9.5 rounded-lg shadow-md transition-all flex items-center gap-1"
                   >
                     Save & Next
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -1604,6 +1621,7 @@ export default function InsurancePage() {
       <FinanceHeader
         title="Insurance Management"
         description="Manage insurance claims, pre-auths, and TPA settles."
+        className="flex-row items-center justify-between gap-3"
         actions={
           <>
             <Button
@@ -1611,19 +1629,19 @@ export default function InsurancePage() {
                 setIsVerifyingInsurance(true);
               }}
               variant="outline"
-              className="h-[48px] rounded-[5px] border-primary px-5 text-[13px] font-bold text-primary hover:bg-primary/5 hover:text-primary"
+              className="h-[32px] rounded-[5px] border-primary px-3 text-[11px] font-bold text-primary hover:bg-primary/5 hover:text-primary whitespace-nowrap flex items-center gap-1.5"
             >
-              <Shield className="w-4 h-4" />
+              <Shield className="w-3.5 h-3.5" />
               Verify Patient
-          </Button>
-          <button
+            </Button>
+            <button
               onClick={() => {
                 setIsCreatingClaim(true);
                 setCurrentStep(1);
               }}
-              className="flex h-[48px] items-center gap-2 rounded-[5px] bg-primary px-6 text-[13px] font-bold text-white shadow-none transition-all hover:opacity-90"
+              className="flex h-[32px] items-center gap-1.5 rounded-[5px] bg-primary px-4 text-[11px] font-bold text-white shadow-none transition-all hover:opacity-90 whitespace-nowrap"
             >
-              <Plus className="w-4.5 h-4.5" />
+              <Plus className="w-3.5 h-3.5" />
               New Claim
             </button>
           </>
@@ -1631,54 +1649,35 @@ export default function InsurancePage() {
       />
 
       {/* 2. STATS CARDS GRID */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
-        {/* Total Claims (MTD) */}
-        <div className="flex items-center gap-4 rounded-[5px] border border-[#E7E8EB] bg-white p-5 transition-all dark:border-white/10 dark:bg-[#101935]">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[5px] bg-primary/10 text-primary">
-            <FileText className="h-6 w-6" />
-          </div>
-          <div className="min-w-0">
-            <span className="text-[11px] text-gray-400 font-bold uppercase tracking-wider block">Total Claims (MTD)</span>
-            <span className="block text-[20px] font-bold leading-none text-[#1e293b] dark:text-white">142</span>
-            <span className="mt-3 block text-[12px] font-medium text-[#64748B] dark:text-slate-500">+12% vs yesterday</span>
-          </div>
-        </div>
-
-        {/* Pending Pre-Auth */}
-        <div className="flex items-center gap-4 rounded-[5px] border border-[#E7E8EB] bg-white p-5 transition-all dark:border-white/10 dark:bg-[#101935]">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[5px] bg-amber-500/10 text-amber-500">
-            <Clock className="h-6 w-6" />
-          </div>
-          <div className="min-w-0">
-            <span className="text-[11px] text-gray-400 font-bold uppercase tracking-wider block">Pending Pre-Auth</span>
-            <span className="block text-[20px] font-bold leading-none text-[#1e293b] dark:text-white">28</span>
-            <span className="mt-3 block text-[12px] font-medium text-[#64748B] dark:text-slate-500">5 urgent</span>
-          </div>
-        </div>
-
-        {/* Approved Amount */}
-        <div className="flex items-center gap-4 rounded-[5px] border border-[#E7E8EB] bg-white p-5 transition-all dark:border-white/10 dark:bg-[#101935]">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[5px] bg-emerald-500/10 text-emerald-500">
-            <ShieldCheck className="h-6 w-6" />
-          </div>
-          <div className="min-w-0">
-            <span className="text-[11px] text-gray-400 font-bold uppercase tracking-wider block">Approved Amount</span>
-            <span className="block text-[20px] font-bold leading-none text-[#1e293b] dark:text-white">₹45,200</span>
-            <span className="mt-3 block text-[12px] font-medium text-[#64748B] dark:text-slate-500">+8% vs last month</span>
-          </div>
-        </div>
-
-        {/* Rejected Claims */}
-        <div className="flex items-center gap-4 rounded-[5px] border border-[#E7E8EB] bg-white p-5 transition-all dark:border-white/10 dark:bg-[#101935]">
-          <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-[5px] bg-rose-500/10 text-rose-500">
-            <XCircle className="h-6 w-6" />
-          </div>
-          <div className="min-w-0">
-            <span className="text-[11px] text-gray-400 font-bold uppercase tracking-wider block">Rejected Claims</span>
-            <span className="block text-[20px] font-bold leading-none text-[#1e293b] dark:text-white">12</span>
-            <span className="mt-3 block text-[12px] font-medium text-[#64748B] dark:text-slate-500">-2% vs last month</span>
-          </div>
-        </div>
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <CompactStatCard
+          title="Total Claims (MTD)"
+          value="142"
+          icon={FileText}
+          color="blue"
+          meta="+12% vs yesterday"
+        />
+        <CompactStatCard
+          title="Pending Pre-Auth"
+          value="28"
+          icon={Clock}
+          color="amber"
+          meta="5 urgent"
+        />
+        <CompactStatCard
+          title="Approved Amount"
+          value="₹45,200"
+          icon={ShieldCheck}
+          color="emerald"
+          meta="+8% vs last month"
+        />
+        <CompactStatCard
+          title="Rejected Claims"
+          value="12"
+          icon={XCircle}
+          color="rose"
+          meta="-2% vs last month"
+        />
       </div>
 
       {/* 3. TABLE FILTERING & SEARCH CONTROLS */}
@@ -1707,369 +1706,475 @@ export default function InsurancePage() {
 
       {/* 4. MAIN CLAIMS TABLE */}
       <FinanceTableCard>
-        <table className="w-full text-left border-collapse">
-          <thead>
-            <tr className="bg-muted/30">
-              <th className="border-b border-border px-6 py-4 text-left text-[11px] font-bold tracking-widest text-muted-foreground">CLAIM ID</th>
-              <th className="border-b border-border px-6 py-4 text-left text-[11px] font-bold tracking-widest text-muted-foreground">PATIENT</th>
-              <th className="border-b border-border px-6 py-4 text-left text-[11px] font-bold tracking-widest text-muted-foreground">PROVIDER</th>
-              <th className="border-b border-border px-6 py-4 text-left text-[11px] font-bold tracking-widest text-muted-foreground">TOTAL AMOUNT</th>
-              <th className="border-b border-border px-6 py-4 text-left text-[11px] font-bold tracking-widest text-muted-foreground">DATE</th>
-              <th className="border-b border-border px-6 py-4 text-left text-[11px] font-bold tracking-widest text-muted-foreground">STATUS</th>
-              <th className="border-b border-border px-6 py-4 text-right text-[11px] font-bold tracking-widest text-muted-foreground">ACTION</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
-            {filteredClaims.length === 0 ? (
-              <tr>
-                <td colSpan="7" className="px-6 py-16 text-center text-[12px] font-bold text-muted-foreground">
-                  No claims found matching filters.
-                </td>
+        <div className="overflow-x-auto w-full">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-muted/30">
+                <th className="border-b border-border px-6 py-4 text-left text-[11px] font-bold tracking-widest text-muted-foreground">CLAIM ID</th>
+                <th className="border-b border-border px-6 py-4 text-left text-[11px] font-bold tracking-widest text-muted-foreground">PATIENT</th>
+                <th className="border-b border-border px-6 py-4 text-left text-[11px] font-bold tracking-widest text-muted-foreground">PROVIDER</th>
+                <th className="border-b border-border px-6 py-4 text-left text-[11px] font-bold tracking-widest text-muted-foreground">TOTAL AMOUNT</th>
+                <th className="border-b border-border px-6 py-4 text-left text-[11px] font-bold tracking-widest text-muted-foreground">DATE</th>
+                <th className="border-b border-border px-6 py-4 text-left text-[11px] font-bold tracking-widest text-muted-foreground">STATUS</th>
+                <th className="border-b border-border px-6 py-4 text-right text-[11px] font-bold tracking-widest text-muted-foreground">ACTION</th>
               </tr>
-            ) : (
-              filteredClaims.map((claim) => {
-                const providerMeta = PROVIDERS[claim.provider] || { initial: "P", bg: "bg-gray-50 text-gray-600 border-gray-100", dot: "bg-gray-500" };
-                return (
-                  <tr key={claim.id} className="transition-colors hover:bg-muted/20">
-                    <td className="whitespace-nowrap px-6 py-5 text-[14px] font-bold text-foreground">{claim.id}</td>
-                    <td className="whitespace-nowrap px-6 py-5 text-[14px] font-bold text-foreground">{claim.patient}</td>
-                    <td className="px-6 py-5">
-                      <div className="flex items-center gap-2">
-                        <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[5px] border border-[#e0f2fe]/40 text-[10px] font-bold ${providerMeta.bg}`}>
-                          {providerMeta.initial}
+            </thead>
+            <tbody className="divide-y divide-border">
+              {filteredClaims.length === 0 ? (
+                <tr>
+                  <td colSpan="7" className="px-6 py-16 text-center text-[12px] font-bold text-muted-foreground">
+                    No claims found matching filters.
+                  </td>
+                </tr>
+              ) : (
+                filteredClaims.map((claim) => {
+                  const providerMeta = PROVIDERS[claim.provider] || { initial: "P", bg: "bg-gray-50 text-gray-600 border-gray-100", dot: "bg-gray-500" };
+                  return (
+                    <tr key={claim.id} className="transition-colors hover:bg-muted/20">
+                      <td className="whitespace-nowrap px-6 py-5 text-[14px] font-bold text-foreground">{claim.id}</td>
+                      <td className="whitespace-nowrap px-6 py-5 text-[14px] font-bold text-foreground">{claim.patient}</td>
+                      <td className="px-6 py-5">
+                        <div className="flex items-center gap-2">
+                          <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-[5px] border border-[#e0f2fe]/40 text-[10px] font-bold ${providerMeta.bg}`}>
+                            {providerMeta.initial}
+                          </div>
+                          <span className="text-[13px] font-medium text-muted-foreground">{claim.provider}</span>
                         </div>
-                        <span className="text-[13px] font-medium text-muted-foreground">{claim.provider}</span>
-                      </div>
-                    </td>
-                    <td className="whitespace-nowrap px-6 py-5 text-[13px] font-medium text-muted-foreground">{claim.amount}</td>
-                    <td className="whitespace-nowrap px-6 py-5 text-[13px] font-medium text-muted-foreground">{claim.date}</td>
-                    <td className="whitespace-nowrap px-6 py-5">
-                      <Badge
-                        className={`rounded-[5px] border px-3 py-1 text-[11px] font-bold shadow-none capitalize ${
-                          claim.status === "Approved"
+                      </td>
+                      <td className="whitespace-nowrap px-6 py-5 text-[13px] font-medium text-muted-foreground">{claim.amount}</td>
+                      <td className="whitespace-nowrap px-6 py-5 text-[13px] font-medium text-muted-foreground">{claim.date}</td>
+                      <td className="whitespace-nowrap px-6 py-5">
+                        <Badge
+                          className={`rounded-[5px] border px-3 py-1 text-[11px] font-bold shadow-none capitalize ${claim.status === "Approved"
                             ? "border-emerald-200 bg-emerald-100 text-emerald-700 hover:bg-emerald-100"
                             : claim.status === "Pending"
-                            ? "border-amber-200 bg-amber-100 text-amber-700 hover:bg-amber-100"
-                            : "border-red-200 bg-red-100 text-red-700 hover:bg-red-100"
-                        }`}
-                      >
-                        {claim.status}
-                      </Badge>
-                    </td>
-                    <td className="px-6 py-5 text-right">
-                      <button
-                        onClick={() => setSelectedClaim(claim)}
-                        className="inline-flex items-center justify-center rounded-[5px] p-2 text-foreground transition-all hover:bg-muted hover:text-primary"
-                      >
-                        <Eye className="w-4.5 h-4.5" />
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
+                              ? "border-amber-200 bg-amber-100 text-amber-700 hover:bg-amber-100"
+                              : "border-red-200 bg-red-100 text-red-700 hover:bg-red-100"
+                            }`}
+                        >
+                          {claim.status}
+                        </Badge>
+                      </td>
+                      <td className="px-6 py-5 text-right">
+                        <button
+                          onClick={() => setSelectedClaim(claim)}
+                          className="inline-flex items-center justify-center rounded-[5px] p-2 text-foreground transition-all hover:bg-muted hover:text-primary"
+                        >
+                          <Eye className="w-4.5 h-4.5" />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
       </FinanceTableCard>
 
       {/* 5. MODAL: VERIFY PATIENT INSURANCE */}
-      <Dialog open={isVerifyOpen} onOpenChange={setIsVerifyOpen}>
-        <DialogContent className="max-w-[500px] p-0 border-0 rounded-xl overflow-hidden bg-white shadow-lg">
-          <div className="px-5 py-3.5 border-b border-gray-100 flex justify-between items-center bg-white">
-            <DialogTitle className="text-base font-bold text-gray-900">Verify Patient Insurance</DialogTitle>
-            <button onClick={() => setIsVerifyOpen(false)} className="text-gray-400 hover:text-gray-600">
-              <X className="w-5 h-5" />
-            </button>
-          </div>
+      <AnimatePresence>
+        {isVerifyOpen && (
+          <div className="fixed inset-0 z-[500] flex items-center justify-center p-4">
+            {/* Backdrop overlay */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsVerifyOpen(false)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-[6px]"
+            />
 
-          <form onSubmit={handleVerifySubmit}>
-            <div className="p-5 bg-white space-y-4">
-              {/* Form Input fields */}
-              <div>
-                <span className="text-xs text-gray-800 font-bold mb-1.5 block">Patient Name / ID</span>
-                <Input
-                  required
-                  value={verifyName}
-                  onChange={(e) => setVerifyName(e.target.value)}
-                  placeholder="Enter Patient Name or ID..."
-                  className="h-10 text-xs border-gray-200 focus-visible:ring-[#2E37A4]"
-                />
-              </div>
-
-              <div>
-                <span className="text-xs text-gray-800 font-bold mb-1.5 block">Insurance Provider</span>
-                <div className="relative">
-                  <select
-                    value={verifyProvider}
-                    onChange={(e) => setVerifyProvider(e.target.value)}
-                    className="h-10 border border-gray-200 rounded-md w-full bg-white px-3 text-xs text-gray-700 font-semibold appearance-none focus:outline-none focus:border-gray-300"
-                  >
-                    {Object.keys(PROVIDERS).map((p) => (
-                      <option key={p} value={p}>{p}</option>
-                    ))}
-                  </select>
-                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+            {/* Modal card content */}
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 16 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 16 }}
+              className="relative bg-white dark:bg-[#0F172A] w-full max-w-[500px] rounded-[5px] shadow-none overflow-hidden border border-gray-100 dark:border-white/5"
+            >
+              {/* Header */}
+              <div className="px-8 py-6 flex justify-between items-center border-b border-gray-100 dark:border-white/5">
+                <div className="space-y-1">
+                  <h2 className="text-[20px] font-bold text-[#1e293b] dark:text-white leading-none">
+                    Verify Patient Insurance
+                  </h2>
                 </div>
-              </div>
-
-              <div>
-                <span className="text-xs text-gray-800 font-bold mb-1.5 block">Policy / Member ID</span>
-                <Input
-                  required
-                  value={verifyPolicy}
-                  onChange={(e) => setVerifyPolicy(e.target.value)}
-                  placeholder="Enter policy or member ID..."
-                  className="h-10 text-xs border-gray-200 focus-visible:ring-[#2E37A4]"
-                />
-              </div>
-
-              {/* Status Alert logs */}
-              {verifyStatus === "checking" && (
-                <div className="bg-indigo-50/50 border border-indigo-100 rounded-xl p-3.5 flex items-center gap-3">
-                  <Activity className="w-5 h-5 text-indigo-600 animate-pulse" />
-                  <span className="text-xs text-indigo-600 font-semibold">Contacting TPA verification gateway...</span>
-                </div>
-              )}
-
-              {verifyStatus === "success" && (
-                <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-3.5 flex flex-col gap-1.5">
-                  <div className="flex items-center gap-2 text-emerald-600">
-                    <CheckCircle2 className="w-5 h-5 shrink-0" />
-                    <span className="text-xs font-bold">Policy Verified Active</span>
-                  </div>
-                  <p className="text-[10px] text-emerald-600/90 font-medium pl-7">
-                    Policy is active. Approved copay is 80%. TPA Cashless Pre-Auth eligible for standard services.
-                  </p>
-                </div>
-              )}
-            </div>
-
-            {/* Footer */}
-            <div className="px-5 py-3 border-t border-gray-100 bg-white flex justify-end gap-3">
-              <Button
-                type="button"
-                onClick={() => setIsVerifyOpen(false)}
-                variant="ghost"
-                className="text-xs text-gray-500 hover:text-gray-800 font-bold h-9.5 rounded-lg"
-              >
-                Close
-              </Button>
-              {verifyStatus !== "success" && (
-                <Button
-                  type="submit"
-                  disabled={verifyStatus === "checking"}
-                  className="bg-[#2E37A4] hover:bg-[#1e257a] text-white text-xs font-bold px-4 py-2 h-9.5 rounded-lg shadow-sm transition-all"
+                <button
+                  type="button"
+                  onClick={() => setIsVerifyOpen(false)}
+                  className="group p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-full transition-colors"
                 >
-                  Verify Coverage
-                </Button>
-              )}
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
-
-      {/* 6. MODAL: NEW CLAIM SUBMISSION */}
-      <Dialog open={isNewClaimOpen} onOpenChange={setIsNewClaimOpen}>
-        <DialogContent className="max-w-[500px] p-0 border-0 rounded-xl overflow-hidden bg-white shadow-lg">
-          <div className="px-5 py-3.5 border-b border-gray-100 flex justify-between items-center bg-white">
-            <DialogTitle className="text-base font-bold text-gray-900">New Cashless Claim Submission</DialogTitle>
-            <button onClick={() => setIsNewClaimOpen(false)} className="text-gray-400 hover:text-gray-600">
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-
-          <form onSubmit={handleNewClaimSubmit}>
-            <div className="p-5 bg-white space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <span className="text-xs text-gray-800 font-bold mb-1.5 block">Patient Name</span>
-                  <Input
-                    required
-                    value={newPatient}
-                    onChange={(e) => setNewPatient(e.target.value)}
-                    placeholder="E.g., John Doe"
-                    className="h-10 text-xs border-gray-200 focus-visible:ring-[#2E37A4]"
-                  />
-                </div>
-                <div>
-                  <span className="text-xs text-gray-800 font-bold mb-1.5 block">Patient UHID</span>
-                  <Input
-                    required
-                    value={newUHID}
-                    onChange={(e) => setNewUHID(e.target.value)}
-                    placeholder="E.g., P-882988"
-                    className="h-10 text-xs border-gray-200 focus-visible:ring-[#2E37A4]"
-                  />
-                </div>
+                  <X className="w-5 h-5 text-gray-400 group-hover:text-gray-600" />
+                </button>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <span className="text-xs text-gray-800 font-bold mb-1.5 block">Insurance Provider</span>
+              {/* Body */}
+              <form onSubmit={handleVerifySubmit} className="px-4 sm:px-8 py-5 sm:py-8 space-y-6 max-h-[75vh] overflow-y-auto custom-scrollbar">
+
+                {/* Form Input fields */}
+                <div className="space-y-2">
+                  <label className="text-[13px] font-bold text-gray-600 dark:text-gray-300 ml-1">Patient Name / ID</label>
+                  <input
+                    type="text"
+                    required
+                    value={verifyName}
+                    onChange={(e) => setVerifyName(e.target.value)}
+                    placeholder="Enter Patient Name or ID..."
+                    className="w-full h-[48px] px-4 rounded-[5px] border border-gray-200 dark:border-white/10 dark:bg-[#1E293B] text-[14px] text-gray-700 dark:text-white placeholder:text-gray-400 outline-none focus:border-primary transition-all shadow-sm"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[13px] font-bold text-gray-600 dark:text-gray-300 ml-1">Insurance Provider</label>
                   <div className="relative">
                     <select
-                      value={newProvider}
-                      onChange={(e) => setNewProvider(e.target.value)}
-                      className="h-10 border border-gray-200 rounded-md w-full bg-white px-3 text-xs text-gray-700 font-semibold appearance-none focus:outline-none focus:border-gray-300"
+                      value={verifyProvider}
+                      onChange={(e) => setVerifyProvider(e.target.value)}
+                      className="w-full h-[48px] px-4 rounded-[5px] border border-gray-200 dark:border-white/10 dark:bg-[#1E293B] text-[14px] text-gray-700 dark:text-white appearance-none outline-none focus:border-primary transition-all shadow-sm cursor-pointer font-semibold"
                     >
                       {Object.keys(PROVIDERS).map((p) => (
                         <option key={p} value={p}>{p}</option>
                       ))}
                     </select>
-                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                   </div>
                 </div>
-                <div>
-                  <span className="text-xs text-gray-800 font-bold mb-1.5 block">Policy ID</span>
-                  <Input
+
+                <div className="space-y-2">
+                  <label className="text-[13px] font-bold text-gray-600 dark:text-gray-300 ml-1">Policy / Member ID</label>
+                  <input
+                    type="text"
                     required
-                    value={newPolicy}
-                    onChange={(e) => setNewPolicy(e.target.value)}
-                    placeholder="E.g., POL-KP-1029"
-                    className="h-10 text-xs border-gray-200 focus-visible:ring-[#2E37A4]"
+                    value={verifyPolicy}
+                    onChange={(e) => setVerifyPolicy(e.target.value)}
+                    placeholder="Enter policy or member ID..."
+                    className="w-full h-[48px] px-4 rounded-[5px] border border-gray-200 dark:border-white/10 dark:bg-[#1E293B] text-[14px] text-gray-700 dark:text-white placeholder:text-gray-400 outline-none focus:border-primary transition-all shadow-sm"
                   />
                 </div>
+
+                {/* Status Alert logs */}
+                {verifyStatus === "checking" && (
+                  <div className="p-4 bg-indigo-50 dark:bg-indigo-500/5 rounded-[5px] border border-indigo-100 dark:border-indigo-500/20 flex items-start gap-3">
+                    <Activity className="w-4 h-4 text-indigo-500 mt-0.5 animate-pulse" />
+                    <div className="space-y-1">
+                      <h4 className="text-[11px] font-bold text-indigo-600 dark:text-indigo-500">TPA Verification Gateway</h4>
+                      <p className="text-[11px] text-indigo-700/70 dark:text-indigo-400/70 leading-relaxed">Contacting secure endpoint to verify patient eligibility status...</p>
+                    </div>
+                  </div>
+                )}
+
+                {verifyStatus === "success" && (
+                  <div className="p-4 bg-emerald-50 dark:bg-emerald-500/5 rounded-[5px] border border-emerald-100 dark:border-emerald-500/20 flex items-start gap-3">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0 animate-bounce" />
+                    <div className="space-y-1">
+                      <h4 className="text-[11px] font-bold text-emerald-600 dark:text-emerald-500">Policy Verified Active</h4>
+                      <p className="text-[11px] text-emerald-700/70 dark:text-emerald-400/70 leading-relaxed">
+                        Policy is active. Approved copay is 80%. TPA Cashless Pre-Auth eligible for standard services.
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Action Buttons */}
+                <div className="flex flex-col-reverse sm:flex-row justify-end items-stretch sm:items-center gap-3 sm:gap-4 pt-4 border-t border-gray-100 dark:border-white/5 w-full">
+                  <button
+                    type="button"
+                    onClick={() => setIsVerifyOpen(false)}
+                    className="px-8 h-[48px] rounded-[5px] text-gray-500 font-bold text-[13px] hover:text-primary transition-all w-full sm:w-auto"
+                  >
+                    Close
+                  </button>
+                  {verifyStatus !== "success" && (
+                    <button
+                      type="submit"
+                      disabled={verifyStatus === "checking"}
+                      className="bg-primary text-white px-10 h-[48px] rounded-[5px] font-bold text-[13px] hover:opacity-90 transition-all shadow-none disabled:opacity-50 w-full sm:w-auto flex items-center justify-center"
+                    >
+                      {verifyStatus === "checking" ? "Verifying..." : "Verify Coverage"}
+                    </button>
+                  )}
+                </div>
+
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* 6. MODAL: NEW CLAIM SUBMISSION */}
+      <AnimatePresence>
+        {isNewClaimOpen && (
+          <div className="fixed inset-0 z-[500] flex items-center justify-center p-4">
+            {/* Backdrop overlay */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsNewClaimOpen(false)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-[6px]"
+            />
+
+            {/* Modal card content */}
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 16 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 16 }}
+              className="relative bg-white dark:bg-[#0F172A] w-full max-w-[540px] rounded-[5px] shadow-none overflow-hidden border border-gray-100 dark:border-white/5"
+            >
+              {/* Header */}
+              <div className="px-4 sm:px-8 py-5 sm:py-6 flex justify-between items-center border-b border-gray-100 dark:border-white/5">
+                <div className="space-y-1">
+                  <h2 className="text-[20px] font-bold text-[#1e293b] dark:text-white leading-none">
+                    New Cashless Claim Submission
+                  </h2>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsNewClaimOpen(false)}
+                  className="group p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-full transition-colors"
+                >
+                  <X className="w-5 h-5 text-gray-400 group-hover:text-gray-600" />
+                </button>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <span className="text-xs text-gray-800 font-bold mb-1.5 block">Claim Amount (INR)</span>
-                  <Input
-                    required
-                    type="number"
-                    value={newAmount}
-                    onChange={(e) => setNewAmount(e.target.value)}
-                    placeholder="E.g., 5000"
-                    className="h-10 text-xs border-gray-200 focus-visible:ring-[#2E37A4]"
-                  />
-                </div>
-                <div>
-                  <span className="text-xs text-gray-800 font-bold mb-1.5 block">Diagnostic ICD-10 Code</span>
-                  <Input
-                    required
-                    value={newDiagnostics}
-                    onChange={(e) => setNewDiagnostics(e.target.value)}
-                    placeholder="E.g., Influenza"
-                    className="h-10 text-xs border-gray-200 focus-visible:ring-[#2E37A4]"
-                  />
-                </div>
-              </div>
-            </div>
+              {/* Body */}
+              <form onSubmit={handleNewClaimSubmit} className="px-4 sm:px-8 py-5 sm:py-6 space-y-6 max-h-[75vh] overflow-y-auto custom-scrollbar">
 
-            {/* Footer */}
-            <div className="px-5 py-3 border-t border-gray-100 bg-white flex justify-end gap-3">
-              <Button
-                type="button"
-                onClick={() => setIsNewClaimOpen(false)}
-                variant="ghost"
-                className="text-xs text-gray-500 hover:text-gray-800 font-bold h-9.5 rounded-lg"
-              >
-                Cancel
-              </Button>
-              <Button
-                type="submit"
-                className="bg-[#2E37A4] hover:bg-[#1e257a] text-white text-xs font-bold px-4 py-2 h-9.5 rounded-lg shadow-sm transition-all"
-              >
-                Submit Claim
-              </Button>
-            </div>
-          </form>
-        </DialogContent>
-      </Dialog>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+                  <div className="space-y-2">
+                    <label className="text-[13px] font-bold text-gray-600 dark:text-gray-300 ml-1">Patient Name</label>
+                    <input
+                      type="text"
+                      required
+                      value={newPatient}
+                      onChange={(e) => setNewPatient(e.target.value)}
+                      placeholder="E.g., John Doe"
+                      className="w-full h-[48px] px-4 rounded-[5px] border border-gray-200 dark:border-white/10 dark:bg-[#1E293B] text-[14px] text-gray-700 dark:text-white placeholder:text-gray-400 outline-none focus:border-primary transition-all shadow-sm"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[13px] font-bold text-gray-600 dark:text-gray-300 ml-1">Patient UHID</label>
+                    <input
+                      type="text"
+                      required
+                      value={newUHID}
+                      onChange={(e) => setNewUHID(e.target.value)}
+                      placeholder="E.g., P-882988"
+                      className="w-full h-[48px] px-4 rounded-[5px] border border-gray-200 dark:border-white/10 dark:bg-[#1E293B] text-[14px] text-gray-700 dark:text-white placeholder:text-gray-400 outline-none focus:border-primary transition-all shadow-sm"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+                  <div className="space-y-2">
+                    <label className="text-[13px] font-bold text-gray-600 dark:text-gray-300 ml-1">Insurance Provider</label>
+                    <div className="relative">
+                      <select
+                        value={newProvider}
+                        onChange={(e) => setNewProvider(e.target.value)}
+                        className="w-full h-[48px] px-4 rounded-[5px] border border-gray-200 dark:border-white/10 dark:bg-[#1E293B] text-[14px] text-gray-700 dark:text-white appearance-none outline-none focus:border-primary transition-all shadow-sm cursor-pointer font-semibold"
+                      >
+                        {Object.keys(PROVIDERS).map((p) => (
+                          <option key={p} value={p}>{p}</option>
+                        ))}
+                      </select>
+                      <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[13px] font-bold text-gray-600 dark:text-gray-300 ml-1">Policy ID</label>
+                    <input
+                      type="text"
+                      required
+                      value={newPolicy}
+                      onChange={(e) => setNewPolicy(e.target.value)}
+                      placeholder="E.g., POL-KP-1029"
+                      className="w-full h-[48px] px-4 rounded-[5px] border border-gray-200 dark:border-white/10 dark:bg-[#1E293B] text-[14px] text-gray-700 dark:text-white placeholder:text-gray-400 outline-none focus:border-primary transition-all shadow-sm"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+                  <div className="space-y-2">
+                    <label className="text-[13px] font-bold text-gray-600 dark:text-gray-300 ml-1">Claim Amount (INR)</label>
+                    <input
+                      type="number"
+                      required
+                      value={newAmount}
+                      onChange={(e) => setNewAmount(e.target.value)}
+                      placeholder="E.g., 5000"
+                      className="w-full h-[48px] px-4 rounded-[5px] border border-gray-200 dark:border-white/10 dark:bg-[#1E293B] text-[14px] text-gray-700 dark:text-white placeholder:text-gray-400 outline-none focus:border-primary transition-all shadow-sm"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[13px] font-bold text-gray-600 dark:text-gray-300 ml-1">Diagnostic ICD-10 Code</label>
+                    <input
+                      type="text"
+                      required
+                      value={newDiagnostics}
+                      onChange={(e) => setNewDiagnostics(e.target.value)}
+                      placeholder="E.g., Influenza"
+                      className="w-full h-[48px] px-4 rounded-[5px] border border-gray-200 dark:border-white/10 dark:bg-[#1E293B] text-[14px] text-gray-700 dark:text-white placeholder:text-gray-400 outline-none focus:border-primary transition-all shadow-sm"
+                    />
+                  </div>
+                </div>
+
+                {/* Disclaimer */}
+                <div className="p-4 bg-sky-50 dark:bg-sky-500/5 rounded-[5px] border border-sky-100 dark:border-sky-500/20 flex items-start gap-3">
+                  <AlertCircle className="w-4 h-4 text-sky-500 mt-0.5" />
+                  <div className="space-y-1">
+                    <h4 className="text-[11px] font-bold text-sky-600 dark:text-sky-500">Cashless Claim Processing</h4>
+                    <p className="text-[11px] text-sky-700/70 dark:text-sky-400/70 leading-relaxed">System will automatically submit this cashless claim to the TPA queue for medical necessity evaluation and corporate policy matching.</p>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex flex-col-reverse sm:flex-row justify-end items-stretch sm:items-center gap-3 sm:gap-4 pt-4 border-t border-gray-100 dark:border-white/5">
+                  <button
+                    type="button"
+                    onClick={() => setIsNewClaimOpen(false)}
+                    className="px-8 h-[48px] rounded-[5px] text-gray-500 font-bold text-[13px] hover:text-primary transition-all w-full sm:w-auto"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="bg-primary text-white px-10 h-[48px] rounded-[5px] font-bold text-[13px] hover:opacity-90 transition-all shadow-none w-full sm:w-auto flex items-center justify-center"
+                  >
+                    Submit Claim
+                  </button>
+                </div>
+
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* 7. MODAL: VIEW CLAIM DETAILS */}
-      <Dialog open={selectedClaim !== null} onOpenChange={(open) => !open && setSelectedClaim(null)}>
-        <DialogContent className="max-w-[550px] p-0 border-0 rounded-xl overflow-hidden bg-white shadow-lg">
-          <div className="px-5 py-3.5 border-b border-gray-100 flex justify-between items-center bg-white">
-            <DialogTitle className="text-base font-bold text-gray-900">Claim Information</DialogTitle>
-            <button onClick={() => setSelectedClaim(null)} className="text-gray-400 hover:text-gray-600">
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-
-          {selectedClaim && (
-            <div className="p-5 bg-white space-y-4">
-              {/* Header Info */}
-              <div className="flex justify-between items-center border-b border-gray-100 pb-3">
-                <div>
-                  <span className="text-[10px] text-[#2E37A4] font-bold block">{selectedClaim.id}</span>
-                  <span className="text-base font-bold text-gray-900 block">{selectedClaim.patient}</span>
-                </div>
-                <Badge
-                  className={`font-bold px-2 py-0.5 rounded-md border-0 text-[10px] shadow-none capitalize ${
-                    selectedClaim.status === "Approved"
-                      ? "bg-emerald-50 text-emerald-600 hover:bg-emerald-50"
-                      : selectedClaim.status === "Pending"
-                      ? "bg-amber-50 text-amber-600 hover:bg-amber-50"
-                      : "bg-red-50 text-red-600 hover:bg-red-50"
-                  }`}
-                >
-                  {selectedClaim.status}
-                </Badge>
-              </div>
-
-              {/* Grid detail stats */}
-              <div className="grid grid-cols-2 gap-3.5 text-xs">
-                <div className="border border-gray-100 rounded-lg py-1.5 px-3 bg-white">
-                  <span className="text-[10px] text-gray-400 font-semibold uppercase block">UHID</span>
-                  <span className="text-gray-800 font-extrabold block mt-0.5">{selectedClaim.uhid}</span>
-                </div>
-                <div className="border border-gray-100 rounded-lg py-1.5 px-3 bg-white">
-                  <span className="text-[10px] text-gray-400 font-semibold uppercase block">Policy Number</span>
-                  <span className="text-gray-800 font-extrabold block mt-0.5">{selectedClaim.policyNo}</span>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3.5 text-xs">
-                <div className="border border-gray-100 rounded-lg py-1.5 px-3 bg-white">
-                  <span className="text-[10px] text-gray-400 font-semibold uppercase block">Provider</span>
-                  <span className="text-gray-800 font-extrabold block mt-0.5">{selectedClaim.provider}</span>
-                </div>
-                <div className="border border-gray-100 rounded-lg py-1.5 px-3 bg-white">
-                  <span className="text-[10px] text-gray-400 font-semibold uppercase block">Co-Pay Exclusions</span>
-                  <span className="text-gray-800 font-extrabold block mt-0.5">{selectedClaim.coPay}</span>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3.5 text-xs">
-                <div className="border border-gray-100 rounded-lg py-1.5 px-3 bg-white">
-                  <span className="text-[10px] text-gray-400 font-semibold uppercase block">Claim Amount</span>
-                  <span className="text-gray-800 font-extrabold block mt-0.5">{selectedClaim.amount}</span>
-                </div>
-                <div className="border border-gray-100 rounded-lg py-1.5 px-3 bg-white">
-                  <span className="text-[10px] text-gray-400 font-semibold uppercase block">Date Processed</span>
-                  <span className="text-gray-800 font-extrabold block mt-0.5">{selectedClaim.date}</span>
-                </div>
-              </div>
-
-              {/* Exclusions and Notes */}
-              <div>
-                <span className="text-xs text-gray-800 font-bold block mb-1">Diagnostic Details</span>
-                <div className="bg-slate-50 border border-gray-100 rounded-lg p-2.5 text-xs font-semibold text-gray-700">
-                  {selectedClaim.diagnostics}
-                </div>
-              </div>
-
-              <div>
-                <span className="text-xs text-gray-800 font-bold block mb-1">TPA Remarks & Logs</span>
-                <div className="bg-slate-50 border border-gray-100 rounded-lg p-2.5 text-xs font-medium text-gray-600 leading-relaxed">
-                  {selectedClaim.notes}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Footer */}
-          <div className="px-5 py-3 border-t border-gray-100 bg-white flex justify-end">
-            <Button
+      <AnimatePresence>
+        {selectedClaim !== null && (
+          <div className="fixed inset-0 z-[500] flex items-center justify-center p-4">
+            {/* Backdrop overlay */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               onClick={() => setSelectedClaim(null)}
-              className="bg-[#2E37A4] hover:bg-[#1e257a] text-white text-xs font-bold px-4 py-2 h-9.5 rounded-lg shadow-sm transition-all"
+              className="absolute inset-0 bg-black/60 backdrop-blur-[6px]"
+            />
+
+            {/* Modal card content */}
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0, y: 16 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.95, opacity: 0, y: 16 }}
+              className="relative bg-white dark:bg-[#0F172A] w-full max-w-[550px] rounded-[5px] shadow-none overflow-hidden border border-gray-100 dark:border-white/5"
             >
-              Okay
-            </Button>
+              {/* Header */}
+              <div className="px-4 sm:px-8 py-5 sm:py-6 flex justify-between items-center border-b border-gray-100 dark:border-white/5">
+                <div className="space-y-1">
+                  <h2 className="text-[20px] font-bold text-[#1e293b] dark:text-white leading-none">
+                    Claim Information
+                  </h2>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSelectedClaim(null)}
+                  className="group p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-full transition-colors"
+                >
+                  <X className="w-5 h-5 text-gray-400 group-hover:text-gray-600" />
+                </button>
+              </div>
+
+              {/* Body */}
+              <div className="px-4 sm:px-8 py-5 sm:py-6 space-y-6 max-h-[75vh] overflow-y-auto custom-scrollbar">
+
+                {/* Header Info */}
+                <div className="flex justify-between items-center border-b border-gray-100 dark:border-white/5 pb-4">
+                  <div>
+                    <span className="text-[11px] text-primary font-bold block uppercase tracking-wider">{selectedClaim.id}</span>
+                    <span className="text-[18px] font-extrabold text-[#1e293b] dark:text-white block mt-0.5">{selectedClaim.patient}</span>
+                  </div>
+                  <Badge
+                    className={`rounded-[5px] border px-3.5 py-1 text-[11px] font-bold shadow-none capitalize ${selectedClaim.status === "Approved"
+                      ? "border-emerald-200 bg-emerald-100 text-emerald-700 hover:bg-emerald-100"
+                      : selectedClaim.status === "Pending"
+                        ? "border-amber-200 bg-amber-100 text-amber-700 hover:bg-amber-100"
+                        : "border-red-200 bg-red-100 text-red-700 hover:bg-red-100"
+                      }`}
+                  >
+                    {selectedClaim.status}
+                  </Badge>
+                </div>
+
+                {/* Grid detail stats */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+                  <div className="border border-gray-100 dark:border-white/5 rounded-[5px] py-3.5 px-4 bg-gray-50/50 dark:bg-white/[0.01]">
+                    <span className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider block">UHID</span>
+                    <span className="text-[#1e293b] dark:text-white text-[15px] font-extrabold block mt-1">{selectedClaim.uhid}</span>
+                  </div>
+                  <div className="border border-gray-100 dark:border-white/5 rounded-[5px] py-3.5 px-4 bg-gray-50/50 dark:bg-white/[0.01]">
+                    <span className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider block">Policy Number</span>
+                    <span className="text-[#1e293b] dark:text-white text-[15px] font-extrabold block mt-1">{selectedClaim.policyNo}</span>
+                  </div>
+                </div>
+
+                {/* Details Grid 2 */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+                  <div className="border border-gray-100 dark:border-white/5 rounded-[5px] py-3.5 px-4 bg-gray-50/50 dark:bg-white/[0.01]">
+                    <span className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider block">Provider</span>
+                    <span className="text-[#1e293b] dark:text-white text-[15px] font-extrabold block mt-1">{selectedClaim.provider}</span>
+                  </div>
+                  <div className="border border-gray-100 dark:border-white/5 rounded-[5px] py-3.5 px-4 bg-gray-50/50 dark:bg-white/[0.01]">
+                    <span className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider block">Co-Pay Exclusions</span>
+                    <span className="text-[#1e293b] dark:text-white text-[15px] font-extrabold block mt-1">{selectedClaim.coPay}</span>
+                  </div>
+                </div>
+
+                {/* Details Grid 3 */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4">
+                  <div className="border border-gray-100 dark:border-white/5 rounded-[5px] py-3.5 px-4 bg-gray-50/50 dark:bg-white/[0.01]">
+                    <span className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider block">Claim Amount</span>
+                    <span className="text-primary text-[15px] font-extrabold block mt-1">{selectedClaim.amount}</span>
+                  </div>
+                  <div className="border border-gray-100 dark:border-white/5 rounded-[5px] py-3.5 px-4 bg-gray-50/50 dark:bg-white/[0.01]">
+                    <span className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider block">Date Processed</span>
+                    <span className="text-[#1e293b] dark:text-white text-[15px] font-extrabold block mt-1">{selectedClaim.date}</span>
+                  </div>
+                </div>
+
+                {/* Exclusions and Notes */}
+                <div className="space-y-2">
+                  <span className="text-[13px] font-bold text-gray-600 dark:text-gray-300 ml-1 block">Diagnostic Details</span>
+                  <div className="p-4 bg-gray-50 dark:bg-white/[0.02] border border-gray-100 dark:border-white/5 rounded-[5px] text-[13px] text-gray-700 dark:text-gray-300 font-semibold shadow-sm">
+                    {selectedClaim.diagnostics}
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <span className="text-[13px] font-bold text-gray-600 dark:text-gray-300 ml-1 block">TPA Remarks & Logs</span>
+                  <div className="p-4 bg-[#f8fafc] dark:bg-white/[0.02] border border-gray-100 dark:border-white/5 rounded-[5px] text-[13px] text-gray-600 dark:text-gray-400 font-medium leading-relaxed shadow-sm">
+                    {selectedClaim.notes}
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex flex-col sm:flex-row justify-end items-stretch sm:items-center gap-3 sm:gap-4 pt-4 border-t border-gray-100 dark:border-white/5">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedClaim(null)}
+                    className="bg-primary text-white w-full sm:w-auto px-10 h-[48px] rounded-[5px] font-bold text-[13px] hover:opacity-90 transition-all shadow-none flex items-center justify-center"
+                  >
+                    Okay
+                  </button>
+                </div>
+
+              </div>
+            </motion.div>
           </div>
-        </DialogContent>
-      </Dialog>
+        )}
+      </AnimatePresence>
     </FinancePageShell>
   );
 }

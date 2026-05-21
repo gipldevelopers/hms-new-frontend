@@ -13,7 +13,7 @@ export const metadata = {
 };
 
 import { ThemeProvider } from "@/components/ThemeProvider";
-import { Toaster } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
 import { GlobalLoader, RootContent } from "@/components/GlobalLoader";
 import { Suspense } from "react";
 
@@ -37,7 +37,7 @@ export default function RootLayout({ children }) {
                 {children}
              </Suspense>
           </RootContent>
-          <Toaster position="top-right" richColors />
+          <Toaster position="top-right" richColors closeButton />
         </ThemeProvider>
       </body>
     </html>

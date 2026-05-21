@@ -11,6 +11,7 @@ import {
   FinanceSearchField,
   FinanceSelect,
   FinanceStatCard,
+  CompactStatCard,
   FinanceTableCard,
   FinanceToolbar,
 } from "@/components/finance/FinancePageChrome";
@@ -217,7 +218,7 @@ const tableData = [
 const StatCard = ({ stat }) => {
   const Icon = stat.icon;
   return (
-    <FinanceStatCard
+    <CompactStatCard
       title={stat.title}
       value={stat.value}
       icon={Icon}
@@ -237,26 +238,36 @@ const StatCard = ({ stat }) => {
 
 // 2. Status Badge Helper
 const getStatusBadge = (status) => {
-  // Matching the orange/amber tint from the screenshot for most statuses
-  const baseClasses = "px-3 py-1 rounded-full text-xs font-medium";
+  const baseClasses = "inline-flex min-w-[82px] justify-center rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider border";
   switch (status.toLowerCase()) {
     case "completed":
     case "paid":
+      return (
+        <span className={`${baseClasses} bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20`}>
+          {status}
+        </span>
+      );
     case "pending":
+      return (
+        <span className={`${baseClasses} bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20`}>
+          {status}
+        </span>
+      );
     case "overdue":
       return (
-        <span className={`${baseClasses} bg-orange-50 text-orange-500`}>
+        <span className={`${baseClasses} bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20`}>
           {status}
         </span>
       );
     default:
       return (
-        <span className={`${baseClasses} bg-gray-100 text-gray-600`}>
+        <span className={`${baseClasses} bg-slate-50 text-slate-600 border-slate-100 dark:bg-slate-500/10 dark:text-slate-400 dark:border-white/5`}>
           {status}
         </span>
       );
   }
 };
+
 
 // 3. Collect Payment Modal Component
 const CollectPaymentModal = ({ isOpen, onClose, invoice }) => {
@@ -266,17 +277,17 @@ const CollectPaymentModal = ({ isOpen, onClose, invoice }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[600px] p-0 border-0 rounded-xl overflow-hidden bg-white">
-        <div className="px-5 py-3.5 border-b border-gray-100 flex justify-between items-center bg-white">
+      <DialogContent className="max-w-[600px] p-0 border-0 rounded-xl overflow-hidden bg-white flex flex-col">
+        <div className="px-4 sm:px-6 py-3.5 border-b border-gray-100 flex justify-between items-center bg-white shrink-0">
           <DialogTitle className="text-base font-bold text-gray-900">Collect Payment</DialogTitle>
           <button onClick={() => onClose(false)} className="text-gray-400 hover:text-gray-600">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="p-5 bg-white space-y-3.5">
+        <div className="px-4 sm:px-6 py-4 sm:py-5 bg-white space-y-3.5 flex-1 overflow-y-auto">
           {/* Invoice Summary Box */}
-          <div className="bg-gray-50/80 rounded-lg p-4 flex justify-between items-center border border-gray-100">
+          <div className="bg-gray-50/80 rounded-lg p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border border-gray-100">
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <span className="font-bold text-gray-900">{invoice.invoiceId}</span>
@@ -288,7 +299,7 @@ const CollectPaymentModal = ({ isOpen, onClose, invoice }) => {
                 Patient: {invoice.patient} • UHID: {invoice.uhid}
               </p>
             </div>
-            <div className="text-right">
+            <div className="text-left sm:text-right">
               <p className="text-xs text-gray-500 font-medium mb-1">Due Amount</p>
               <p className="text-lg font-bold text-rose-500">{invoice.dueAmount}</p>
             </div>
@@ -313,7 +324,7 @@ const CollectPaymentModal = ({ isOpen, onClose, invoice }) => {
           {/* Payment Method */}
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">Payment Method</label>
-            <div className="grid grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               {[
                 { id: "Cash", icon: Banknote },
                 { id: "Card", icon: CreditCard },
@@ -364,8 +375,14 @@ const CollectPaymentModal = ({ isOpen, onClose, invoice }) => {
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-3 border-t border-gray-100 bg-white flex justify-end">
-          <button className="bg-[#312e81] hover:bg-[#1e1b4b] text-white font-semibold px-6 h-9 rounded-lg shadow-sm">
+        <div className="px-4 sm:px-6 py-3 border-t border-gray-100 bg-white flex flex-col sm:flex-row justify-end items-stretch sm:items-center gap-3 shrink-0">
+          <button 
+            onClick={() => onClose(false)} 
+            className="flex items-center justify-center border border-transparent text-gray-500 hover:text-gray-800 font-semibold px-6 h-9 rounded-lg hover:bg-gray-50 transition-all text-sm w-full sm:w-auto"
+          >
+            Cancel
+          </button>
+          <button className="flex items-center justify-center bg-[#312e81] hover:bg-[#1e1b4b] text-white font-semibold px-6 h-9 rounded-lg shadow-sm w-full sm:w-auto">
             Confirm & Collect
           </button>
         </div>
@@ -385,20 +402,20 @@ const ReviewInvoiceModal = ({ isOpen, onClose, invoice }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[620px] p-0 border-0 rounded-xl overflow-hidden bg-white">
-        <div className="px-5 py-3.5 border-b border-gray-100 flex justify-between items-center bg-white">
+      <DialogContent className="max-w-[620px] p-0 border-0 rounded-xl overflow-hidden bg-white flex flex-col">
+        <div className="px-4 sm:px-6 py-3.5 border-b border-gray-100 flex justify-between items-center bg-white shrink-0">
           <DialogTitle className="text-base font-bold text-gray-900">Invoice Details</DialogTitle>
           <button onClick={() => onClose(false)} className="text-gray-400 hover:text-gray-600">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="p-3.5 bg-[#fafafa]">
-          <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm">
+        <div className="p-3.5 bg-[#fafafa] flex-1 overflow-y-auto">
+          <div className="bg-white border border-gray-100 rounded-xl p-4 sm:p-5 shadow-sm space-y-4">
             {/* Header / Logo */}
-            <div className="flex justify-between items-start mb-4">
+            <div className="flex justify-between items-start mb-1">
               <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-lg bg-[#312e81] flex items-center justify-center text-white shadow-sm">
+                <div className="w-10 h-10 rounded-lg bg-[#312e81] flex items-center justify-center text-white shadow-sm shrink-0">
                   <Activity className="w-5 h-5" />
                 </div>
                 <div>
@@ -406,13 +423,13 @@ const ReviewInvoiceModal = ({ isOpen, onClose, invoice }) => {
                   <p className="text-[10px] text-gray-400">123 Health Ave, Medical District</p>
                 </div>
               </div>
-              <span className={`text-[9px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wide border ${statusBadgeBg}`}>
+              <span className={`text-[9px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wide border shrink-0 ${statusBadgeBg}`}>
                 {statusText}
               </span>
             </div>
 
             {/* Billed To & Invoice Details */}
-            <div className="grid grid-cols-2 gap-4 mb-4 border-t border-b border-gray-50 py-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-1 border-t border-b border-gray-50 py-3">
               <div>
                 <p className="text-[10px] text-gray-400 mb-0.5">Billed To:</p>
                 <p className="font-bold text-gray-900 text-xs">{invoice.patient}</p>
@@ -426,7 +443,7 @@ const ReviewInvoiceModal = ({ isOpen, onClose, invoice }) => {
             </div>
 
             {/* Line Items */}
-            <div className="mb-4">
+            <div className="mb-1">
               <div className="flex justify-between text-[10px] font-bold text-gray-400 uppercase tracking-wide mb-2 border-b border-gray-100 pb-1">
                 <span>Description</span>
                 <span className="text-right w-24">Amount</span>
@@ -443,8 +460,8 @@ const ReviewInvoiceModal = ({ isOpen, onClose, invoice }) => {
             </div>
 
             {/* Totals */}
-            <div className="flex justify-end mb-4 border-t border-gray-50 pt-2">
-              <div className="w-1/2 space-y-1.5">
+            <div className="flex justify-end mb-1 border-t border-gray-50 pt-2">
+              <div className="w-full sm:w-1/2 space-y-1.5">
                 <div className="flex justify-between text-xs">
                   <span className="text-gray-400 font-medium">Subtotal</span>
                   <span className="text-gray-900 font-bold">{invoice.totalAmount}</span>
@@ -462,14 +479,14 @@ const ReviewInvoiceModal = ({ isOpen, onClose, invoice }) => {
 
             {/* Paid Banner */}
             {isPaid && (
-              <div className="bg-[#ecfdf5] border border-emerald-100 rounded-lg p-2.5 flex justify-between items-center mb-3">
+              <div className="bg-[#ecfdf5] border border-emerald-100 rounded-lg p-2.5 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3">
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
                     <CheckCircle2 className="w-3 text-emerald-600" />
                   </div>
                   <span className="text-emerald-800 text-xs font-semibold">Paid via {invoice.paymentMethod || "Credit Card"}</span>
                 </div>
-                <span className="text-emerald-700 font-extrabold text-xs">{invoice.totalAmount}</span>
+                <span className="text-emerald-700 font-extrabold text-xs shrink-0">{invoice.totalAmount}</span>
               </div>
             )}
             
@@ -486,19 +503,15 @@ const ReviewInvoiceModal = ({ isOpen, onClose, invoice }) => {
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-3 border-t border-gray-100 bg-white flex justify-between">
-          <div className="flex justify-start">
-            <Button variant="outline" className="flex items-center gap-1.5 border-gray-200 text-gray-700 bg-white h-9 text-xs font-bold px-4 hover:bg-gray-50 transition-all rounded-lg">
-              <Printer className="w-3.5 h-3.5 text-gray-500" />
-              Print Receipt
-            </Button>
-          </div>
-          <div className="flex justify-end">
-            <button className="bg-[#312e81] hover:bg-[#1e1b4b] text-white text-xs font-bold px-4 h-9 flex items-center gap-1.5 rounded-lg shadow-sm transition-all">
-              <Download className="w-3.5 h-3.5" />
-              Download PDF
-            </button>
-          </div>
+        <div className="px-4 sm:px-6 py-3 border-t border-gray-100 bg-white flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 shrink-0">
+          <Button variant="outline" onClick={() => toast.info("Printing receipt...")} className="flex items-center justify-center gap-1.5 border-gray-200 text-gray-700 bg-white h-9 text-xs font-bold px-4 hover:bg-gray-50 transition-all rounded-lg w-full sm:w-auto">
+            <Printer className="w-3.5 h-3.5 text-gray-500" />
+            Print Receipt
+          </Button>
+          <button onClick={() => toast.info("Downloading PDF invoice...")} className="bg-[#312e81] hover:bg-[#1e1b4b] text-white text-xs font-bold px-4 h-9 flex items-center justify-center gap-1.5 rounded-lg shadow-sm transition-all w-full sm:w-auto">
+            <Download className="w-3.5 h-3.5" />
+            Download PDF
+          </button>
         </div>
       </DialogContent>
     </Dialog>
@@ -517,15 +530,15 @@ const ProcessRefundModal = ({ isOpen, onClose, invoice }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[600px] p-0 border-0 rounded-xl overflow-hidden bg-white shadow-lg">
-        <div className="px-5 py-3.5 border-b border-gray-100 flex justify-between items-center bg-white">
+      <DialogContent className="max-w-[600px] p-0 border-0 rounded-xl overflow-hidden bg-white shadow-lg flex flex-col">
+        <div className="px-4 sm:px-6 py-3.5 border-b border-gray-100 flex justify-between items-center bg-white shrink-0">
           <DialogTitle className="text-lg font-bold text-gray-900">Process Refund</DialogTitle>
           <button onClick={() => onClose(false)} className="text-gray-400 hover:text-gray-600">
             <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="p-5 bg-white space-y-3.5">
+        <div className="px-4 sm:px-6 py-4 sm:py-5 bg-white space-y-3.5 flex-1 overflow-y-auto">
           {/* Overpayment Warning Card */}
           <div className="bg-[#fef2f2] border border-[#fee2e2] rounded-xl p-3 flex flex-col gap-2">
             <div className="flex justify-between items-start">
@@ -544,7 +557,7 @@ const ProcessRefundModal = ({ isOpen, onClose, invoice }) => {
           </div>
 
           {/* Billed vs Paid 2-Column Row */}
-          <div className="grid grid-cols-2 gap-3.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-3.5">
             <div className="border border-gray-100 rounded-lg py-2 px-3.5 bg-white">
               <span className="text-xs text-gray-400 font-semibold uppercase tracking-wide">Total Billed</span>
               <p className="text-base font-extrabold text-gray-800 mt-0.5">{billedAmt}</p>
@@ -558,7 +571,7 @@ const ProcessRefundModal = ({ isOpen, onClose, invoice }) => {
           {/* Refund Method Selection */}
           <div>
             <span className="text-sm text-gray-800 font-bold mb-2 block">Refund Method</span>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {[
                 { id: "Source", label: "Original Source", icon: RotateCcw },
                 { id: "Cash", label: "Cash", icon: Banknote },
@@ -592,7 +605,7 @@ const ProcessRefundModal = ({ isOpen, onClose, invoice }) => {
                 );
               })}
             </div>
-            <div className="h-4 mt-1.5 overflow-hidden">
+            <div className="min-h-8 mt-1.5 overflow-hidden">
               <span className="text-[10px] text-gray-400 block transition-all">
                 {refundMethod === "Source" && "Original source (Card ending in 4242) will take 3-5 business days."}
                 {refundMethod === "Cash" && "Cash refunds are processed immediately at the billing counter."}
@@ -628,16 +641,16 @@ const ProcessRefundModal = ({ isOpen, onClose, invoice }) => {
         </div>
 
         {/* Footer */}
-        <div className="px-5 py-3 border-t border-gray-100 bg-white flex justify-end gap-3.5">
+        <div className="px-4 sm:px-6 py-3 border-t border-gray-100 bg-white flex flex-col-reverse sm:flex-row justify-end items-stretch sm:items-center gap-3 shrink-0">
           <button
             onClick={() => onClose(false)}
-            className="text-sm text-gray-500 hover:text-gray-800 font-bold transition-colors"
+            className="flex items-center justify-center border border-transparent text-gray-500 hover:text-gray-800 font-bold h-9 rounded-lg hover:bg-gray-50 transition-colors text-sm w-full sm:w-auto"
           >
             Cancel
           </button>
           <button 
             onClick={() => onClose(false)}
-            className="bg-[#312e81] hover:bg-[#1e1b4b] text-white text-sm font-bold px-4 py-2 h-9.5 rounded-lg shadow-sm transition-all"
+            className="flex items-center justify-center bg-[#312e81] hover:bg-[#1e1b4b] text-white text-sm font-bold px-4 h-9.5 rounded-lg shadow-sm transition-all w-full sm:w-auto"
           >
             Confirm & Refund
           </button>
@@ -734,21 +747,22 @@ function PatientBillingPageContent() {
     <FinancePageShell>
       <FinanceHeader
         title="Payment Management"
+        className="flex-row items-center justify-between gap-3"
         actions={
           <button
             onClick={() => {
               const firstPending = tableData.find(r => r.status === "Pending") || tableData[0];
               handleOpenModal(firstPending);
             }}
-            className="flex h-[48px] items-center justify-center gap-3 rounded-[5px] bg-primary px-8 text-[13px] font-bold text-white transition-all hover:opacity-90"
+            className="flex h-[32px] items-center justify-center gap-1.5 rounded-[5px] bg-primary px-4 text-[11px] font-bold text-white transition-all hover:opacity-90 whitespace-nowrap"
           >
-            <Plus className="h-4 w-4" />
+            <Plus className="h-3.5 w-3.5" />
             Collect Payment
           </button>
         }
       />
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {statsData.map((stat, index) => (
           <StatCard key={index} stat={stat} />
         ))}
@@ -793,7 +807,7 @@ function PatientBillingPageContent() {
                 <th className="border-b border-border px-8 py-4 text-left text-[11px] font-bold tracking-widest text-muted-foreground">DUE AMOUNT</th>
                 <th className="border-b border-border px-8 py-4 text-left text-[11px] font-bold tracking-widest text-muted-foreground">DATE</th>
                 <th className="border-b border-border px-8 py-4 text-left text-[11px] font-bold tracking-widest text-muted-foreground">STATUS</th>
-                <th className="border-b border-border px-8 py-4 text-right text-[11px] font-bold tracking-widest text-muted-foreground">ACTION</th>
+                <th className="border-b border-border px-8 py-4 text-left text-[11px] font-bold tracking-widest text-muted-foreground">ACTION</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -806,20 +820,25 @@ function PatientBillingPageContent() {
               ) : (
                 filteredData.map((row, index) => (
                 <tr key={index} className="transition-colors hover:bg-muted/20">
-                  <td className="px-8 py-4 text-[14px] font-bold text-foreground">{row.invoiceId}</td>
-                  <td className="px-8 py-4 text-[14px] font-bold text-foreground">{row.patient}</td>
-                  <td className="px-8 py-4 text-[13px] font-medium text-muted-foreground">{row.uhid}</td>
-                  <td className="px-8 py-4 text-[13px] font-medium text-muted-foreground">{row.totalAmount}</td>
-                  <td className="px-8 py-4 text-[14px] font-bold text-[#EF4444]">{row.dueAmount}</td>
-                  <td className="px-8 py-4 text-[13px] font-medium text-muted-foreground">{row.date}</td>
+                  <td className="whitespace-nowrap px-8 py-4 text-[14px] font-bold leading-tight text-foreground">{row.invoiceId}</td>
+                  <td className="whitespace-nowrap px-8 py-4 text-[14px] font-bold leading-tight text-foreground">{row.patient}</td>
+                  <td className="whitespace-nowrap px-8 py-4 text-[13px] font-medium text-muted-foreground">{row.uhid}</td>
+                  <td className="whitespace-nowrap px-8 py-4 text-[13px] font-medium text-muted-foreground">{row.totalAmount}</td>
+                  <td className={`whitespace-nowrap px-8 py-4 text-[13px] font-bold ${
+                    row.dueAmount === "₹00.00" || row.dueAmount === "₹0.00"
+                      ? "text-emerald-600 dark:text-emerald-400"
+                      : "text-[#EF4444]"
+                  }`}>{row.dueAmount}</td>
+                  <td className="whitespace-nowrap px-8 py-4 text-[13px] font-medium text-muted-foreground">{row.date}</td>
                   <td className="px-8 py-4">
                     {getStatusBadge(row.status)}
                   </td>
                   <td className="px-8 py-4">
-                    <div className="flex items-center justify-end gap-3">
+                    <div className="flex items-center justify-start gap-3">
                       <button 
+                        type="button"
                         onClick={() => handleOpenReviewModal(row)}
-                        className="flex h-9 min-w-[80px] items-center justify-center text-[#0E1726] transition-colors hover:text-[#2E37A4] dark:text-slate-300"
+                        className="inline-flex h-10 w-10 items-center justify-center rounded-full text-[#2E37A4] transition-all hover:bg-[#DBEAFE]/40 hover:text-[#1e257a]"
                       >
                         <Eye className="w-5 h-5" strokeWidth={1.8} />
                       </button>

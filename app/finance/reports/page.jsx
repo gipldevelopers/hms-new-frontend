@@ -8,6 +8,7 @@ import {
   FinanceSectionCard,
   FinanceSelect,
   FinanceStatCard,
+  CompactStatCard,
 } from "@/components/finance/FinancePageChrome";
 import {
   AlertTriangle,
@@ -150,7 +151,7 @@ function InsightCard({ card }) {
   const Icon = card.icon;
 
   return (
-    <FinanceStatCard
+    <CompactStatCard
       title={card.title}
       value={card.value}
       icon={Icon}
@@ -170,13 +171,13 @@ function InsightCard({ card }) {
 
 function ClaimsStatus({ status }) {
   const colors = {
-    Approved: "bg-emerald-100 text-emerald-700 border-emerald-200",
-    Pending: "bg-amber-100 text-amber-700 border-amber-200",
-    Rejected: "bg-red-100 text-red-700 border-red-200",
+    Approved: "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20",
+    Pending: "bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20",
+    Rejected: "bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20",
   };
 
   return (
-    <span className={`inline-flex items-center justify-center rounded-[5px] border px-3 py-1 text-[11px] font-bold ${colors[status]}`}>
+    <span className={`inline-flex min-w-[82px] items-center justify-center rounded-full border px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider ${colors[status] || "bg-slate-50 text-slate-600 border-slate-100 dark:bg-slate-500/10 dark:text-slate-400 dark:border-white/5"}`}>
       {status}
     </span>
   );
@@ -195,24 +196,25 @@ export default function FinanceReportsPage() {
         <FinanceHeader
           title="Billing Insights"
           description="Track and analyze billing and claims data."
+          className="flex-row items-center justify-between gap-3"
           actions={
             <>
             <Button
               variant="outline"
-              className="h-[48px] rounded-[5px] border-primary px-5 text-[13px] font-bold text-primary hover:bg-primary/5 hover:text-primary"
+              className="h-[32px] rounded-[5px] border-primary px-3 text-[11px] font-bold text-primary hover:bg-primary/5 hover:text-primary whitespace-nowrap flex items-center justify-center gap-1.5"
             >
-              <Download className="mr-2 h-4 w-4" />
+              <Download className="w-3.5 h-3.5" />
               Download
             </Button>
-            <Button className="h-[48px] rounded-[5px] bg-primary px-5 text-[13px] font-bold text-white hover:opacity-90">
-              <FileSpreadsheet className="mr-2 h-4 w-4" />
+            <Button className="h-[32px] rounded-[5px] bg-primary px-4 text-[11px] font-bold text-white hover:opacity-90 whitespace-nowrap flex items-center justify-center gap-1.5">
+              <FileSpreadsheet className="w-3.5 h-3.5" />
               Export CSV
             </Button>
             </>
           }
         />
 
-        <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           {insightCards.map((card) => (
             <InsightCard key={card.title} card={card} />
           ))}
@@ -258,7 +260,7 @@ export default function FinanceReportsPage() {
                   ))}
                 </div>
 
-                <div className="relative z-10 flex h-full items-end justify-around gap-6">
+                <div className="relative z-10 flex h-full items-end justify-around gap-2 sm:gap-6">
                   {bars.map((item) => {
                     const consultationHeight =
                       (item.consultations / maxTotal) * 220 + 34;
@@ -280,7 +282,7 @@ export default function FinanceReportsPage() {
                             style={{ height: `${consultationHeight}px` }}
                           />
                         </div>
-                        <p className="text-sm text-slate-400 dark:text-slate-500">{item.week}</p>
+                        <p className="text-[11px] sm:text-sm text-slate-400 dark:text-slate-500">{item.week}</p>
                       </div>
                     );
                   })}

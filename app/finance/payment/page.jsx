@@ -1,7 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -11,6 +13,7 @@ import {
   FinanceSearchField,
   FinanceSelect,
   FinanceStatCard,
+  CompactStatCard,
   FinanceTableCard,
   FinanceToolbar,
 } from "@/components/finance/FinancePageChrome";
@@ -214,301 +217,413 @@ const tableData = [
 
 // --- HELPER COMPONENTS ---
 
-// 1. Stat Card Component
-const StatCard = ({ stat }) => {
-  const Icon = stat.icon;
-  return (
-    <FinanceStatCard
-      title={stat.title}
-      value={stat.value}
-      icon={Icon}
-      color={
-        stat.iconColor.includes("emerald")
-          ? "emerald"
-          : stat.iconColor.includes("amber")
-          ? "amber"
-          : stat.iconColor.includes("rose")
-          ? "rose"
-          : "blue"
-      }
-      meta={`${stat.change} ${stat.subtitle}`}
-    />
-  );
-};
-
 // 2. Status Badge Helper
 const getStatusBadge = (status) => {
-  // Matching the orange/amber tint from the screenshot for most statuses
-  const baseClasses = "px-3 py-1 rounded-full text-xs font-medium";
+  const baseClasses = "inline-flex min-w-[82px] justify-center rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider border";
   switch (status.toLowerCase()) {
     case "completed":
     case "paid":
+      return (
+        <span className={`${baseClasses} bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20`}>
+          {status}
+        </span>
+      );
     case "pending":
+      return (
+        <span className={`${baseClasses} bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20`}>
+          {status}
+        </span>
+      );
     case "overdue":
       return (
-        <span className={`${baseClasses} bg-orange-50 text-orange-500`}>
+        <span className={`${baseClasses} bg-rose-50 text-rose-600 border-rose-100 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20`}>
           {status}
         </span>
       );
     default:
       return (
-        <span className={`${baseClasses} bg-gray-100 text-gray-600`}>
+        <span className={`${baseClasses} bg-slate-50 text-slate-600 border-slate-100 dark:bg-slate-500/10 dark:text-slate-400 dark:border-white/5`}>
           {status}
         </span>
       );
   }
 };
 
-// 3. Collect Payment Modal Component
+
 const CollectPaymentModal = ({ isOpen, onClose, invoice }) => {
   const [paymentMethod, setPaymentMethod] = useState("Card");
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+      const handleEsc = (e) => {
+        if (e.key === "Escape") onClose(false);
+      };
+      window.addEventListener("keydown", handleEsc);
+      return () => {
+        document.body.style.overflow = "unset";
+        window.removeEventListener("keydown", handleEsc);
+      };
+    }
+  }, [isOpen, onClose]);
 
   if (!invoice) return null;
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[600px] p-0 border-0 rounded-xl overflow-hidden bg-white">
-        <div className="px-5 py-3.5 border-b border-gray-100 flex justify-between items-center bg-white">
-          <DialogTitle className="text-base font-bold text-gray-900">Collect Payment</DialogTitle>
-          <button onClick={() => onClose(false)} className="text-gray-400 hover:text-gray-600">
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-[500] flex items-center justify-center p-4">
+          {/* Backdrop overlay */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => onClose(false)}
+            className="absolute inset-0 bg-black/60 backdrop-blur-[6px]"
+          />
 
-        <div className="p-5 bg-white space-y-3.5">
-          {/* Invoice Summary Box */}
-          <div className="bg-gray-50/80 rounded-lg p-4 flex justify-between items-center border border-gray-100">
-            <div>
-              <div className="flex items-center gap-2 mb-1">
-                <span className="font-bold text-gray-900">{invoice.invoiceId}</span>
-                <span className="bg-orange-100 text-orange-500 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                  Pending
-                </span>
+          {/* Modal card content */}
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0, y: 16 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.95, opacity: 0, y: 16 }}
+            className="relative bg-white dark:bg-[#0F172A] w-full max-w-[600px] rounded-[5px] shadow-none overflow-hidden border border-gray-100 dark:border-white/5 flex flex-col max-h-[calc(100vh-32px)]"
+          >
+            {/* Header */}
+            <div className="px-4 sm:px-8 py-4 sm:py-6 flex justify-between items-center border-b border-gray-100 dark:border-white/5 shrink-0">
+              <div className="space-y-1">
+                <h2 className="text-[20px] font-bold text-[#1e293b] dark:text-white leading-none">
+                  Collect Payment
+                </h2>
               </div>
-              <p className="text-sm text-gray-500">
-                Patient: {invoice.patient} • UHID: {invoice.uhid}
-              </p>
+              <button 
+                type="button"
+                onClick={() => onClose(false)}
+                className="group p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-400 group-hover:text-gray-600" />
+              </button>
             </div>
-            <div className="text-right">
-              <p className="text-xs text-gray-500 font-medium mb-1">Due Amount</p>
-              <p className="text-lg font-bold text-rose-500">{invoice.dueAmount}</p>
-            </div>
-          </div>
 
-          {/* Paying Amount */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Paying Amount</label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <IndianRupee className="h-4 w-4 text-gray-400" />
-              </div>
-              <Input
-                type="text"
-                defaultValue={invoice.dueAmount.replace("₹", "")}
-                className="pl-8 font-medium h-11 border-gray-200"
-              />
-            </div>
-            <p className="text-xs text-gray-400 mt-2">Remaining balance will be ₹0.00</p>
-          </div>
-
-          {/* Payment Method */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">Payment Method</label>
-            <div className="grid grid-cols-4 gap-3">
-              {[
-                { id: "Cash", icon: Banknote },
-                { id: "Card", icon: CreditCard },
-                { id: "UPI", icon: Smartphone },
-                { id: "Bank", icon: Landmark },
-              ].map((method) => {
-                const Icon = method.icon;
-                const isSelected = paymentMethod === method.id;
-                return (
-                  <button
-                    key={method.id}
-                    onClick={() => setPaymentMethod(method.id)}
-                    className={`flex flex-col items-center justify-center py-2.5 rounded-lg border transition-all ${
-                      isSelected
-                        ? "border-[#312e81] bg-indigo-50/30"
-                        : "border-gray-200 hover:border-gray-300"
-                    }`}
-                  >
-                    <Icon
-                      className={`w-5 h-5 mb-1.5 ${
-                        isSelected ? "text-[#312e81]" : "text-gray-400"
-                      }`}
-                    />
-                    <span
-                      className={`text-xs font-semibold ${
-                        isSelected ? "text-[#312e81]" : "text-gray-500"
-                      }`}
-                    >
-                      {method.id}
+            {/* Body */}
+            <div className="px-4 sm:px-8 py-5 sm:py-8 space-y-6 flex-1 overflow-y-auto custom-scrollbar bg-slate-50/20 dark:bg-transparent">
+              
+              {/* Invoice Summary Box - premium alert style */}
+              <div className="p-4 bg-sky-50 dark:bg-sky-500/5 rounded-[5px] border border-sky-100 dark:border-sky-500/20 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[14px] font-bold text-sky-950 dark:text-sky-400 leading-none">{invoice.invoiceId}</span>
+                    <span className="bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-[5px]">
+                      Pending
                     </span>
-                  </button>
-                );
-              })}
+                  </div>
+                  <p className="text-[12px] text-sky-800/80 dark:text-sky-300/60 font-semibold">
+                    Patient: {invoice.patient} • UHID: {invoice.uhid}
+                  </p>
+                </div>
+                <div className="text-left sm:text-right">
+                  <p className="text-[11px] text-sky-800/70 dark:text-sky-300/40 font-bold mb-0.5 uppercase tracking-wide">Due Amount</p>
+                  <p className="text-[20px] font-black text-rose-500">{invoice.dueAmount}</p>
+                </div>
+              </div>
+
+              {/* Paying Amount input */}
+              <div className="space-y-2">
+                <label className="text-[13px] font-bold text-gray-600 dark:text-gray-300 ml-1">Paying Amount</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <IndianRupee className="h-4.5 w-4.5 text-gray-400" />
+                  </div>
+                  <input
+                    type="text"
+                    defaultValue={invoice.dueAmount.replace("₹", "")}
+                    className="w-full h-[48px] pl-10 pr-4 rounded-[5px] border border-gray-200 dark:border-white/10 dark:bg-[#1E293B] text-[14px] text-gray-700 dark:text-white placeholder:text-gray-400 outline-none focus:border-primary transition-all shadow-sm font-semibold"
+                  />
+                </div>
+                <p className="text-[11px] text-gray-400 font-semibold ml-1">Remaining balance will be ₹0.00</p>
+              </div>
+
+              {/* Payment Method */}
+              <div className="space-y-2">
+                <label className="text-[13px] font-bold text-gray-600 dark:text-gray-300 ml-1">Payment Method</label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                  {[
+                    { id: "Cash", icon: Banknote },
+                    { id: "Card", icon: CreditCard },
+                    { id: "UPI", icon: Smartphone },
+                    { id: "Bank", icon: Landmark },
+                  ].map((method) => {
+                    const Icon = method.icon;
+                    const isSelected = paymentMethod === method.id;
+                    return (
+                      <button
+                        key={method.id}
+                        type="button"
+                        onClick={() => setPaymentMethod(method.id)}
+                        className={`flex flex-col items-center justify-center py-3.5 rounded-[5px] border transition-all ${
+                          isSelected
+                            ? "border-primary bg-primary/5 text-primary"
+                            : "border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 bg-white dark:bg-[#1E293B]"
+                        }`}
+                      >
+                        <Icon
+                          className={`w-5 h-5 mb-2 ${
+                            isSelected ? "text-primary" : "text-gray-400 dark:text-gray-500"
+                          }`}
+                        />
+                        <span
+                          className={`text-[12px] font-bold ${
+                            isSelected ? "text-primary" : "text-gray-500 dark:text-gray-400"
+                          }`}
+                        >
+                          {method.id}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Transaction Reference */}
+              <div className="space-y-2">
+                <label className="text-[13px] font-bold text-gray-600 dark:text-gray-300 ml-1">
+                  Transaction Reference (Optional)
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g., TXN-123456789"
+                  className="w-full h-[48px] px-4 rounded-[5px] border border-gray-200 dark:border-white/10 dark:bg-[#1E293B] text-[14px] text-gray-700 dark:text-white placeholder:text-gray-400 outline-none focus:border-primary transition-all shadow-sm font-medium"
+                />
+              </div>
+
             </div>
-          </div>
 
-          {/* Transaction Reference */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Transaction Reference (Optional)
-            </label>
-            <Input
-              type="text"
-              placeholder="e.g., TXN-123456789"
-              className="h-11 border-gray-200 placeholder:text-gray-400"
-            />
-          </div>
+            {/* Footer */}
+            <div className="px-4 sm:px-8 py-4 sm:py-6 border-t border-gray-100 dark:border-white/5 flex flex-col-reverse sm:flex-row justify-end items-stretch sm:items-center gap-3 sm:gap-4 shrink-0">
+              <button 
+                type="button" 
+                onClick={() => onClose(false)}
+                className="px-4 sm:px-8 h-[48px] rounded-[5px] text-gray-500 font-bold text-[13px] hover:text-primary transition-all bg-transparent border border-transparent"
+              >
+                Cancel
+              </button>
+              <button 
+                type="button"
+                onClick={() => {
+                  toast.success("Payment collected successfully");
+                  onClose(false);
+                }}
+                className="bg-primary text-white px-6 sm:px-10 h-[48px] rounded-[5px] font-bold text-[13px] hover:opacity-90 transition-all shadow-none"
+              >
+                Confirm & Collect
+              </button>
+            </div>
+          </motion.div>
         </div>
-
-        {/* Footer */}
-        <div className="px-5 py-3 border-t border-gray-100 bg-white flex justify-end">
-          <button className="bg-[#312e81] hover:bg-[#1e1b4b] text-white font-semibold px-6 h-9 rounded-lg shadow-sm">
-            Confirm & Collect
-          </button>
-        </div>
-      </DialogContent>
-    </Dialog>
+      )}
+    </AnimatePresence>
   );
 };
 
 // 4. Review Invoice Modal Component
 const ReviewInvoiceModal = ({ isOpen, onClose, invoice }) => {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+      const handleEsc = (e) => {
+        if (e.key === "Escape") onClose(false);
+      };
+      window.addEventListener("keydown", handleEsc);
+      return () => {
+        document.body.style.overflow = "unset";
+        window.removeEventListener("keydown", handleEsc);
+      };
+    }
+  }, [isOpen, onClose]);
+
   if (!invoice) return null;
 
   const status = invoice.status.toLowerCase();
   const isPaid = status === "completed" || status === "paid";
-  const statusBadgeBg = isPaid ? "bg-emerald-50 text-emerald-500 border-emerald-100" : "bg-orange-50 text-orange-500 border-orange-100";
+  const statusBadgeBg = isPaid ? "bg-emerald-500 text-white" : "bg-amber-500 text-white";
   const statusText = isPaid ? "PAID" : "PENDING";
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[620px] p-0 border-0 rounded-xl overflow-hidden bg-white">
-        <div className="px-5 py-3.5 border-b border-gray-100 flex justify-between items-center bg-white">
-          <DialogTitle className="text-base font-bold text-gray-900">Invoice Details</DialogTitle>
-          <button onClick={() => onClose(false)} className="text-gray-400 hover:text-gray-600">
-            <X className="w-5 h-5" />
-          </button>
-        </div>
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-[500] flex items-center justify-center p-4">
+          {/* Backdrop overlay */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => onClose(false)}
+            className="absolute inset-0 bg-black/60 backdrop-blur-[6px]"
+          />
 
-        <div className="p-3.5 bg-[#fafafa]">
-          <div className="bg-white border border-gray-100 rounded-xl p-5 shadow-sm">
-            {/* Header / Logo */}
-            <div className="flex justify-between items-start mb-4">
-              <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-lg bg-[#312e81] flex items-center justify-center text-white shadow-sm">
-                  <Activity className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-gray-900 text-sm">MediCore Hospital</h3>
-                  <p className="text-[10px] text-gray-400">123 Health Ave, Medical District</p>
-                </div>
+          {/* Modal card content */}
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0, y: 16 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.95, opacity: 0, y: 16 }}
+            className="relative bg-white dark:bg-[#0F172A] w-full max-w-[620px] rounded-[5px] shadow-none overflow-hidden border border-gray-100 dark:border-white/5 flex flex-col max-h-[calc(100vh-32px)]"
+          >
+            {/* Header */}
+            <div className="px-4 sm:px-8 py-4 sm:py-6 flex justify-between items-center border-b border-gray-100 dark:border-white/5 shrink-0">
+              <div className="space-y-1">
+                <h2 className="text-[20px] font-bold text-[#1e293b] dark:text-white leading-none">
+                  Invoice Details
+                </h2>
               </div>
-              <span className={`text-[9px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wide border ${statusBadgeBg}`}>
-                {statusText}
-              </span>
+              <button 
+                type="button"
+                onClick={() => onClose(false)}
+                className="group p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-400 group-hover:text-gray-600" />
+              </button>
             </div>
 
-            {/* Billed To & Invoice Details */}
-            <div className="grid grid-cols-2 gap-4 mb-4 border-t border-b border-gray-50 py-3">
-              <div>
-                <p className="text-[10px] text-gray-400 mb-0.5">Billed To:</p>
-                <p className="font-bold text-gray-900 text-xs">{invoice.patient}</p>
-                <p className="text-[10px] text-gray-400 font-medium">UHID: {invoice.uhid}</p>
-              </div>
-              <div>
-                <p className="text-[10px] text-gray-400 mb-0.5">Invoice Details:</p>
-                <p className="font-bold text-gray-900 text-xs">{invoice.invoiceId.replace("#", "")}</p>
-                <p className="text-[10px] text-gray-400 font-medium">Date: {invoice.date}</p>
-              </div>
-            </div>
-
-            {/* Line Items */}
-            <div className="mb-4">
-              <div className="flex justify-between text-[10px] font-bold text-gray-400 uppercase tracking-wide mb-2 border-b border-gray-100 pb-1">
-                <span>Description</span>
-                <span className="text-right w-24">Amount</span>
-              </div>
-              {(invoice.items || [
-                { name: "General Consultation", amount: "₹500.00" },
-                { name: "Basic Vitals Check", amount: "₹100.00" }
-              ]).map((item, idx) => (
-                <div key={idx} className="flex justify-between items-center text-xs text-gray-700 py-1.5">
-                  <span className="font-semibold text-gray-800">{item.name}</span>
-                  <span className="font-bold text-gray-900 text-right w-24">{item.amount}</span>
-                </div>
-              ))}
-            </div>
-
-            {/* Totals */}
-            <div className="flex justify-end mb-4 border-t border-gray-50 pt-2">
-              <div className="w-1/2 space-y-1.5">
-                <div className="flex justify-between text-xs">
-                  <span className="text-gray-400 font-medium">Subtotal</span>
-                  <span className="text-gray-900 font-bold">{invoice.totalAmount}</span>
-                </div>
-                <div className="flex justify-between text-xs">
-                  <span className="text-gray-400 font-medium">Tax (0%)</span>
-                  <span className="text-gray-900 font-bold">₹0.00</span>
-                </div>
-                <div className="flex justify-between items-center pt-1.5 border-t border-gray-100">
-                  <span className="font-bold text-xs text-gray-900">Total</span>
-                  <span className="font-extrabold text-gray-900 text-base">{invoice.totalAmount}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Paid Banner */}
-            {isPaid && (
-              <div className="bg-[#ecfdf5] border border-emerald-100 rounded-lg p-2.5 flex justify-between items-center mb-3">
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
-                    <CheckCircle2 className="w-3 text-emerald-600" />
+            {/* Body */}
+            <div className="px-4 sm:px-8 py-5 sm:py-8 space-y-6 flex-1 overflow-y-auto custom-scrollbar bg-slate-50/50 dark:bg-[#0B1121]/20">
+              
+              <div className="bg-white dark:bg-[#1E293B]/20 border border-gray-150 dark:border-white/5 rounded-[5px] p-4 sm:p-6 space-y-6 shadow-sm">
+                
+                {/* Header / Logo */}
+                <div className="flex justify-between items-start">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-[5px] bg-primary flex items-center justify-center text-white shadow-sm shrink-0">
+                      <Activity className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h3 className="font-extrabold text-gray-900 dark:text-white text-[15px]">MediCore Hospital</h3>
+                      <p className="text-[11px] text-gray-400 dark:text-gray-500 font-semibold">123 Health Ave, Medical District</p>
+                    </div>
                   </div>
-                  <span className="text-emerald-800 text-xs font-semibold">Paid via {invoice.paymentMethod || "Credit Card"}</span>
+                  <span className={`text-[10px] font-bold px-3 py-1 rounded-[5px] uppercase tracking-wider ${statusBadgeBg}`}>
+                    {statusText}
+                  </span>
                 </div>
-                <span className="text-emerald-700 font-extrabold text-xs">{invoice.totalAmount}</span>
-              </div>
-            )}
-            
-            {/* Initiate Refund Button */}
-            {isPaid && (
-              <div className="flex justify-end">
-                <button className="flex items-center gap-1.5 px-3 py-1.5 border border-gray-200 text-gray-500 hover:text-gray-700 text-[11px] font-semibold rounded-md hover:bg-gray-50 transition-colors bg-white shadow-sm">
-                  <RefreshCcw className="w-3 h-3 text-gray-400" />
-                  Initiate Refund
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
 
-        {/* Footer */}
-        <div className="px-5 py-3 border-t border-gray-100 bg-white flex justify-between">
-          <div className="flex justify-start">
-                        <Button variant="outline" className="flex items-center gap-1.5 border-gray-200 text-gray-700 bg-white h-9 text-xs font-bold px-4 hover:bg-gray-50 transition-all rounded-lg">
-              <Printer className="w-3.5 h-3.5 text-gray-500" />
-              Print Receipt
-            </Button>
-          </div>
-          <div className="flex justify-end">
-            <button className="bg-[#312e81] hover:bg-[#1e1b4b] text-white text-xs font-bold px-4 h-9 flex items-center gap-1.5 rounded-lg shadow-sm transition-all">
-              <Download className="w-3.5 h-3.5" />
-              Download PDF
-            </button>
-          </div>
+                {/* Billed To & Invoice Details */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 border-t border-b border-gray-100 dark:border-white/5 py-4">
+                  <div>
+                    <span className="text-[10px] text-gray-400 dark:text-gray-500 font-bold block uppercase tracking-wide mb-1">Billed To:</span>
+                    <p className="font-bold text-gray-800 dark:text-white text-[13px]">{invoice.patient}</p>
+                    <p className="text-[11px] text-gray-500 dark:text-gray-400 font-bold mt-0.5">UHID: {invoice.uhid}</p>
+                  </div>
+                  <div>
+                    <span className="text-[10px] text-gray-400 dark:text-gray-500 font-bold block uppercase tracking-wide mb-1">Invoice Details:</span>
+                    <p className="font-bold text-gray-800 dark:text-white text-[13px]">{invoice.invoiceId.replace("#", "")}</p>
+                    <p className="text-[11px] text-gray-500 dark:text-gray-400 font-bold mt-0.5">Date: {invoice.date}</p>
+                  </div>
+                </div>
+
+                {/* Line Items */}
+                <div>
+                  <div className="flex justify-between text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wide mb-3 border-b border-gray-100 dark:border-white/5 pb-1.5">
+                    <span>Description</span>
+                    <span className="text-right w-28">Amount</span>
+                  </div>
+                  <div className="space-y-3">
+                    {(invoice.items || [
+                      { name: "General Consultation", amount: "₹500.00" },
+                      { name: "Basic Vitals Check", amount: "₹100.00" }
+                    ]).map((item, idx) => (
+                      <div key={idx} className="flex justify-between items-center text-[13px] text-gray-700 dark:text-gray-300">
+                        <span className="font-bold text-gray-800 dark:text-white">{item.name}</span>
+                        <span className="font-bold text-gray-900 dark:text-white text-right w-28">{item.amount}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Totals */}
+                <div className="flex justify-end border-t border-gray-100 dark:border-white/5 pt-4">
+                  <div className="w-full sm:w-1/2 space-y-2">
+                    <div className="flex justify-between text-[12px] font-semibold text-gray-500 dark:text-gray-400">
+                      <span>Subtotal</span>
+                      <span className="text-gray-800 dark:text-white font-bold">{invoice.totalAmount}</span>
+                    </div>
+                    <div className="flex justify-between text-[12px] font-semibold text-gray-500 dark:text-gray-400">
+                      <span>Tax (0%)</span>
+                      <span className="text-gray-800 dark:text-white font-bold">₹0.00</span>
+                    </div>
+                    <div className="flex justify-between items-center pt-2.5 border-t border-gray-100 dark:border-white/5">
+                      <span className="font-extrabold text-[13px] text-gray-900 dark:text-white uppercase tracking-wide">Total</span>
+                      <span className="font-black text-gray-950 dark:text-white text-[18px]">{invoice.totalAmount}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Paid Banner */}
+                {isPaid && (
+                  <div className="bg-emerald-50 dark:bg-emerald-500/5 border border-emerald-100 dark:border-emerald-500/20 rounded-[5px] p-4 flex justify-between items-center gap-3">
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center shrink-0">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                      </div>
+                      <span className="text-emerald-800 dark:text-emerald-400 text-[12px] font-bold">Paid via {invoice.paymentMethod || "Credit Card"}</span>
+                    </div>
+                    <span className="text-emerald-700 dark:text-emerald-400 font-black text-[13px] shrink-0">{invoice.totalAmount}</span>
+                  </div>
+                )}
+                
+                {/* Initiate Refund Button */}
+                {isPaid && (
+                  <div className="flex justify-end">
+                    <button className="flex items-center gap-1.5 px-4 py-2 border border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-400 hover:text-primary dark:hover:text-white text-[11px] font-bold rounded-[5px] hover:bg-gray-50 dark:hover:bg-white/5 transition-all bg-white dark:bg-transparent shadow-sm">
+                      <RefreshCcw className="w-3.5 h-3.5" />
+                      Initiate Refund
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="px-4 sm:px-8 py-4 sm:py-6 border-t border-gray-100 dark:border-white/5 bg-white dark:bg-[#0F172A] flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 sm:gap-4 shrink-0">
+              <button 
+                type="button"
+                onClick={() => toast.info("Printing receipt...")}
+                className="flex items-center justify-center gap-2 border border-gray-200 dark:border-white/10 text-gray-700 dark:text-gray-300 bg-white dark:bg-transparent h-[44px] text-[13px] font-bold px-5 hover:bg-gray-50 dark:hover:bg-white/5 transition-all rounded-[5px] shadow-sm w-full sm:w-auto"
+              >
+                <Printer className="w-4 h-4 text-gray-500" />
+                Print Receipt
+              </button>
+              <button 
+                type="button"
+                onClick={() => toast.info("Downloading PDF invoice...")}
+                className="bg-primary text-white text-[13px] font-bold px-6 h-[44px] flex items-center justify-center gap-2 rounded-[5px] hover:opacity-90 shadow-none transition-all w-full sm:w-auto"
+              >
+                <Download className="w-4 h-4" />
+                Download PDF
+              </button>
+            </div>
+          </motion.div>
         </div>
-      </DialogContent>
-    </Dialog>
+      )}
+    </AnimatePresence>
   );
 };
 
 // 5. Process Refund Modal Component
 const ProcessRefundModal = ({ isOpen, onClose, invoice }) => {
   const [refundMethod, setRefundMethod] = useState("Source");
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+      const handleEsc = (e) => {
+        if (e.key === "Escape") onClose(false);
+      };
+      window.addEventListener("keydown", handleEsc);
+      return () => {
+        document.body.style.overflow = "unset";
+        window.removeEventListener("keydown", handleEsc);
+      };
+    }
+  }, [isOpen, onClose]);
 
   if (!invoice) return null;
 
@@ -517,128 +632,178 @@ const ProcessRefundModal = ({ isOpen, onClose, invoice }) => {
   const paidAmt = invoice.totalPaid || "₹2,500.00";
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[600px] p-0 border-0 rounded-xl overflow-hidden bg-white shadow-lg">
-        <div className="px-5 py-3.5 border-b border-gray-100 flex justify-between items-center bg-white">
-          <DialogTitle className="text-lg font-bold text-gray-900">Process Refund</DialogTitle>
-          <button onClick={() => onClose(false)} className="text-gray-400 hover:text-gray-600">
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        <div className="p-5 bg-white space-y-3.5">
-          {/* Overpayment Warning Card */}
-          <div className="bg-[#fef2f2] border border-[#fee2e2] rounded-xl p-3 flex flex-col gap-2">
-            <div className="flex justify-between items-start">
-              <div>
-                <h4 className="font-bold text-[#b91c1c] text-sm">Overpayment Detected</h4>
-                <p className="text-xs text-[#f87171] mt-0.5 font-medium">Patient has paid more than the final bill amount.</p>
-              </div>
-              <div className="w-8 h-8 rounded-full bg-[#fee2e2] flex items-center justify-center shrink-0">
-                <AlertCircle className="w-4.5 h-4.5 text-[#ef4444]" />
-              </div>
-            </div>
-            <div className="border-t border-[#fee2e2] pt-2 flex justify-between items-center">
-              <span className="text-[#b91c1c] text-sm font-semibold">Refund Amount</span>
-              <span className="text-[#ef4444] text-2xl font-extrabold">{refundAmt}</span>
-            </div>
-          </div>
-
-          {/* Billed vs Paid 2-Column Row */}
-          <div className="grid grid-cols-2 gap-3.5">
-            <div className="border border-gray-100 rounded-lg py-2 px-3.5 bg-white">
-              <span className="text-xs text-gray-400 font-semibold uppercase tracking-wide">Total Billed</span>
-              <p className="text-base font-extrabold text-gray-800 mt-0.5">{billedAmt}</p>
-            </div>
-            <div className="border border-gray-100 rounded-lg py-2 px-3.5 bg-white">
-              <span className="text-xs text-gray-400 font-semibold uppercase tracking-wide">Total Paid (Advance)</span>
-              <p className="text-base font-extrabold text-gray-800 mt-0.5">{paidAmt}</p>
-            </div>
-          </div>
-
-          {/* Refund Method Selection */}
-          <div>
-            <span className="text-sm text-gray-800 font-bold mb-2 block">Refund Method</span>
-            <div className="grid grid-cols-3 gap-3">
-              {[
-                { id: "Source", label: "Original Source", icon: RotateCcw },
-                { id: "Cash", label: "Cash", icon: Banknote },
-                { id: "Bank", label: "Bank Transfer", icon: Landmark },
-              ].map((method) => {
-                const Icon = method.icon;
-                const isSelected = refundMethod === method.id;
-                return (
-                  <button
-                    key={method.id}
-                    onClick={() => setRefundMethod(method.id)}
-                    className={`flex flex-col items-center justify-center py-2.5 rounded-lg border transition-all ${
-                      isSelected
-                        ? "border-[#312e81] bg-indigo-50/20"
-                        : "border-gray-200 hover:border-gray-300 bg-white"
-                    }`}
-                  >
-                    <Icon
-                      className={`w-4.5 h-4.5 mb-1 ${
-                        isSelected ? "text-[#312e81]" : "text-gray-400"
-                      }`}
-                    />
-                    <span
-                      className={`text-xs font-bold ${
-                        isSelected ? "text-[#312e81]" : "text-gray-500"
-                      }`}
-                    >
-                      {method.label}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-            <div className="h-4 mt-1.5 overflow-hidden">
-              <span className="text-[10px] text-gray-400 block transition-all">
-                {refundMethod === "Source" && "Original source (Card ending in 4242) will take 3-5 business days."}
-                {refundMethod === "Cash" && "Cash refunds are processed immediately at the billing counter."}
-                {refundMethod === "Bank" && "Bank transfers will be processed to the patient's verified account in 1-2 business days."}
-              </span>
-            </div>
-          </div>
-
-          {/* Refund Reason */}
-          <div>
-            <span className="text-sm text-gray-800 font-bold mb-1.5 block">Refund Reason</span>
-            <div className="relative">
-              <select className="h-10 border border-gray-200 rounded-md w-full bg-white px-3 text-sm text-gray-700 font-medium appearance-none focus:outline-none focus:border-gray-300">
-                <option>Advance Payment Overages</option>
-                <option>Treatment Cancelled</option>
-                <option>Billing Error</option>
-                <option>Other</option>
-              </select>
-              <div className="absolute inset-y-0 right-3 flex items-center pointer-events-none text-gray-400">
-                <ChevronDown className="w-4 h-4" />
-              </div>
-            </div>
-          </div>
-
-          {/* Notes Optional */}
-          <div>
-            <span className="text-sm text-gray-800 font-bold mb-1.5 block">Notes (Optional)</span>
-            <textarea
-              placeholder="Add internal notes regarding this refund..."
-              className="h-14 border border-gray-200 rounded-md w-full p-2.5 text-sm text-gray-700 placeholder:text-gray-400 bg-white border resize-none focus:outline-none focus:border-gray-300"
-            />
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="px-5 py-3 border-t border-gray-100 bg-white flex justify-end">
-          <button 
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-[500] flex items-center justify-center p-4">
+          {/* Backdrop overlay */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             onClick={() => onClose(false)}
-            className="bg-[#312e81] hover:bg-[#1e1b4b] text-white text-sm font-bold px-4 py-2 h-9.5 rounded-lg shadow-sm transition-all"
+            className="absolute inset-0 bg-black/60 backdrop-blur-[6px]"
+          />
+
+          {/* Modal card content */}
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0, y: 16 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.95, opacity: 0, y: 16 }}
+            className="relative bg-white dark:bg-[#0F172A] w-full max-w-[600px] rounded-[5px] shadow-none overflow-hidden border border-gray-100 dark:border-white/5 flex flex-col max-h-[calc(100vh-32px)]"
           >
-            Confirm & Refund
-          </button>
+            {/* Header */}
+            <div className="px-4 sm:px-8 py-4 sm:py-6 flex justify-between items-center border-b border-gray-100 dark:border-white/5 shrink-0">
+              <div className="space-y-1">
+                <h2 className="text-[20px] font-bold text-[#1e293b] dark:text-white leading-none">
+                  Process Refund
+                </h2>
+              </div>
+              <button 
+                type="button"
+                onClick={() => onClose(false)}
+                className="group p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-full transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-400 group-hover:text-gray-600" />
+              </button>
+            </div>
+
+            {/* Body */}
+            <form 
+              onSubmit={(e) => {
+                e.preventDefault();
+                toast.success("Refund processed successfully!");
+                onClose(false);
+              }}
+              className="px-4 sm:px-8 py-5 sm:py-8 space-y-6 flex-1 overflow-y-auto custom-scrollbar"
+            >
+              
+              {/* Overpayment Warning Card */}
+              <div className="p-4 bg-red-50 dark:bg-red-500/5 rounded-[5px] border border-red-100 dark:border-red-500/20 flex flex-col sm:flex-row items-stretch sm:items-start gap-3 justify-between">
+                <div className="flex gap-3">
+                  <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center shrink-0">
+                    <AlertCircle className="w-5 h-5 text-red-600" />
+                  </div>
+                  <div className="space-y-1">
+                    <h4 className="text-[13px] font-bold text-red-800 dark:text-red-400">Overpayment Detected</h4>
+                    <p className="text-[11px] text-red-700/80 dark:text-red-400/70 font-semibold leading-relaxed">Patient has paid more than the final bill amount.</p>
+                  </div>
+                </div>
+                <div className="text-left sm:text-right">
+                  <span className="text-[10px] text-red-600 dark:text-red-400 font-bold block uppercase tracking-wider">Refund Amount</span>
+                  <span className="text-red-600 dark:text-red-400 text-[20px] font-black">{refundAmt}</span>
+                </div>
+              </div>
+
+              {/* Billed vs Paid Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="border border-gray-150 dark:border-white/5 rounded-[5px] py-3 px-4 bg-white dark:bg-transparent">
+                  <span className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider">Total Billed</span>
+                  <p className="text-[15px] font-extrabold text-gray-800 dark:text-white mt-0.5">{billedAmt}</p>
+                </div>
+                <div className="border border-gray-150 dark:border-white/5 rounded-[5px] py-3 px-4 bg-white dark:bg-transparent">
+                  <span className="text-[10px] text-gray-400 dark:text-gray-500 font-bold uppercase tracking-wider">Total Paid (Advance)</span>
+                  <p className="text-[15px] font-extrabold text-gray-800 dark:text-white mt-0.5">{paidAmt}</p>
+                </div>
+              </div>
+
+              {/* Refund Method */}
+              <div className="space-y-2">
+                <span className="text-[13px] font-bold text-gray-600 dark:text-gray-300 ml-1 block">Refund Method</span>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {[
+                    { id: "Source", label: "Original Source", icon: RotateCcw },
+                    { id: "Cash", label: "Cash", icon: Banknote },
+                    { id: "Bank", label: "Bank Transfer", icon: Landmark },
+                  ].map((method) => {
+                    const Icon = method.icon;
+                    const isSelected = refundMethod === method.id;
+                    return (
+                      <button
+                        key={method.id}
+                        type="button"
+                        onClick={() => setRefundMethod(method.id)}
+                        className={`flex flex-col items-center justify-center py-3.5 rounded-[5px] border transition-all ${
+                          isSelected
+                            ? "border-primary bg-primary/5 text-primary"
+                            : "border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 bg-white dark:bg-[#1E293B]"
+                        }`}
+                      >
+                        <Icon
+                          className={`w-5 h-5 mb-2 ${
+                            isSelected ? "text-primary" : "text-gray-400 dark:text-gray-500"
+                          }`}
+                        />
+                        <span
+                          className={`text-[12px] font-bold ${
+                            isSelected ? "text-primary" : "text-gray-500 dark:text-gray-400"
+                          }`}
+                        >
+                          {method.label}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+                <div className="min-h-8 overflow-hidden mt-1 ml-1">
+                  <span className="text-[11px] text-gray-400 dark:text-gray-500 font-semibold block transition-all">
+                    {refundMethod === "Source" && "Original source (Card ending in 4242) will take 3-5 business days."}
+                    {refundMethod === "Cash" && "Cash refunds are processed immediately at the billing counter."}
+                    {refundMethod === "Bank" && "Bank transfers will be processed to the patient's verified account in 1-2 business days."}
+                  </span>
+                </div>
+              </div>
+
+              {/* Refund Reason */}
+              <div className="space-y-2">
+                <span className="text-[13px] font-bold text-gray-600 dark:text-gray-300 ml-1 block">Refund Reason</span>
+                <div className="relative">
+                  <select className="w-full h-[48px] px-4 rounded-[5px] border border-gray-200 dark:border-white/10 bg-white dark:bg-[#1E293B] text-[14px] text-gray-700 dark:text-white outline-none focus:border-primary transition-all shadow-sm appearance-none font-semibold">
+                    <option>Advance Payment Overages</option>
+                    <option>Treatment Cancelled</option>
+                    <option>Billing Error</option>
+                    <option>Other</option>
+                  </select>
+                  <div className="absolute inset-y-0 right-4 flex items-center pointer-events-none text-gray-400">
+                    <ChevronDown className="w-4 h-4" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Notes */}
+              <div className="space-y-2">
+                <span className="text-[13px] font-bold text-gray-600 dark:text-gray-300 ml-1 block">Notes (Optional)</span>
+                <textarea
+                  placeholder="Add internal notes regarding this refund..."
+                  className="w-full h-20 p-4 rounded-[5px] border border-gray-200 dark:border-white/10 bg-white dark:bg-[#1E293B] text-[14px] text-gray-700 dark:text-white placeholder:text-gray-400 outline-none focus:border-primary transition-all shadow-sm resize-none"
+                />
+              </div>
+
+            </form>
+
+            {/* Footer */}
+            <div className="px-4 sm:px-8 py-4 sm:py-6 border-t border-gray-100 dark:border-white/5 flex flex-col-reverse sm:flex-row justify-end items-stretch sm:items-center gap-3 sm:gap-4 shrink-0">
+              <button 
+                type="button" 
+                onClick={() => onClose(false)}
+                className="px-4 sm:px-8 h-[48px] rounded-[5px] text-gray-500 font-bold text-[13px] hover:text-primary transition-all bg-transparent border border-transparent"
+              >
+                Cancel
+              </button>
+              <button 
+                type="submit"
+                onClick={() => {
+                  toast.success("Refund processed successfully");
+                  onClose(false);
+                }}
+                className="bg-primary text-white px-6 sm:px-10 h-[48px] rounded-[5px] font-bold text-[13px] hover:opacity-90 transition-all shadow-none"
+              >
+                Confirm & Refund
+              </button>
+            </div>
+          </motion.div>
         </div>
-      </DialogContent>
-    </Dialog>
+      )}
+    </AnimatePresence>
   );
 };
 
@@ -683,23 +848,41 @@ export default function PaymentPage() {
     <FinancePageShell>
       <FinanceHeader
         title="Payment Management"
+        className="flex-row items-center justify-between gap-3"
         actions={
           <button
             onClick={() => {
               const firstPending = tableData.find(r => r.status === "Pending") || tableData[0];
               handleOpenModal(firstPending);
             }}
-            className="flex h-[48px] items-center justify-center gap-3 rounded-[5px] bg-primary px-8 text-[13px] font-bold text-white transition-all hover:opacity-90"
+            className="flex h-[32px] items-center justify-center gap-1.5 rounded-[5px] bg-primary px-4 text-[11px] font-bold text-white transition-all hover:opacity-90 whitespace-nowrap"
           >
-            <Plus className="h-4 w-4" />
+            <Plus className="h-3.5 w-3.5" />
             Collect Payment
           </button>
         }
       />
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         {statsData.map((stat, index) => (
-          <StatCard key={index} stat={stat} />
+          <CompactStatCard
+            key={index}
+            title={stat.title}
+            value={stat.value}
+            icon={stat.icon}
+            color={
+              stat.iconColor.includes("emerald")
+                ? "emerald"
+                : stat.iconColor.includes("amber")
+                ? "amber"
+                : stat.iconColor.includes("rose")
+                ? "rose"
+                : stat.iconColor.includes("indigo")
+                ? "indigo"
+                : "blue"
+            }
+            meta={`${stat.change} ${stat.subtitle}`}
+          />
         ))}
       </div>
 
@@ -742,7 +925,7 @@ export default function PaymentPage() {
                 <th className="whitespace-nowrap border-b border-border px-8 py-4 text-left text-[11px] font-bold tracking-widest text-muted-foreground">DUE AMOUNT</th>
                 <th className="whitespace-nowrap border-b border-border px-8 py-4 text-left text-[11px] font-bold tracking-widest text-muted-foreground">DATE</th>
                 <th className="whitespace-nowrap border-b border-border px-8 py-4 text-left text-[11px] font-bold tracking-widest text-muted-foreground">STATUS</th>
-                <th className="whitespace-nowrap border-b border-border px-8 py-4 text-right text-[11px] font-bold tracking-widest text-muted-foreground">ACTIONS</th>
+                <th className="whitespace-nowrap border-b border-border px-8 py-4 text-left text-[11px] font-bold tracking-widest text-muted-foreground">ACTIONS</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
@@ -759,19 +942,24 @@ export default function PaymentPage() {
                   <td className="whitespace-nowrap px-8 py-4 text-[14px] font-bold leading-tight text-foreground">{row.patient}</td>
                   <td className="whitespace-nowrap px-8 py-4 text-[13px] font-medium text-muted-foreground">{row.uhid}</td>
                   <td className="whitespace-nowrap px-8 py-4 text-[13px] font-medium text-muted-foreground">{row.totalAmount}</td>
-                  <td className="whitespace-nowrap px-8 py-3 text-[14px] font-bold text-[#EF4444]">{row.dueAmount}</td>
+                  <td className={`whitespace-nowrap px-8 py-4 text-[13px] font-bold ${
+                    row.dueAmount === "₹00.00" || row.dueAmount === "₹0.00"
+                      ? "text-emerald-600 dark:text-emerald-400"
+                      : "text-[#EF4444]"
+                  }`}>{row.dueAmount}</td>
                   <td className="whitespace-nowrap px-8 py-4 text-[13px] font-medium text-muted-foreground">{row.date}</td>
                   <td className="px-8 py-4">
                     {getStatusBadge(row.status)}
                   </td>
                   <td className="px-8 py-4">
-                    <div className="flex items-center justify-end gap-4">
+                    <div className="flex items-center justify-start gap-4">
                     <button 
-                  onClick={() => handleOpenReviewModal(row)}
-                  className="inline-flex items-center justify-center text-[#2E37A4] transition-colors hover:opacity-80"
-                >
-                  <Eye className="w-5 h-5" strokeWidth={1.8} />
-                </button>
+                      type="button"
+                      onClick={() => handleOpenReviewModal(row)}
+                      className="inline-flex h-10 w-10 items-center justify-center rounded-full text-[#2E37A4] transition-all hover:bg-[#DBEAFE]/40 hover:text-[#1e257a]"
+                    >
+                      <Eye className="w-5 h-5" strokeWidth={1.8} />
+                    </button>
                     <button 
                       onClick={() => {
                         if (row.actionText === "Collect" || row.actionText === "Pay") {

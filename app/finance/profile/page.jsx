@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle2, CreditCard, EyeOff, AlertCircle } from "lucide-react";
+import { CheckCircle2, CreditCard, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 function Switch({ checked, onChange }) {
   return (
@@ -37,7 +38,10 @@ function ReadonlyField({ label, value }) {
   );
 }
 
-function PaymentField({ label, placeholder, error }) {
+function PaymentField({ label, placeholder, error, type = "text", value, onChange }) {
+  const [showPassword, setShowPassword] = useState(false);
+  const isPassword = type === "password";
+
   return (
     <div className="space-y-2">
       <label className="text-[12px] font-bold uppercase tracking-wider text-muted-foreground">
@@ -50,12 +54,21 @@ function PaymentField({ label, placeholder, error }) {
         )}
       >
         <input
-          type="password"
+          type={isPassword ? (showPassword ? "text" : "password") : "text"}
           placeholder={placeholder}
-          defaultValue={error ? "********" : ""}
-          className="h-full w-full bg-transparent pl-4 pr-10 text-[13px] font-medium text-foreground outline-none placeholder:text-muted-foreground"
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          className="h-full w-full rounded-lg bg-transparent pl-4 pr-10 text-[13px] font-medium text-foreground outline-none placeholder:text-muted-foreground"
         />
-        <EyeOff className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        {isPassword && (
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-[#4F46E5] transition-colors"
+          >
+            {showPassword ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+          </button>
+        )}
       </div>
       {error ? (
         <div className="flex items-center gap-1.5 px-1 text-[11px] font-bold text-red-500">
@@ -71,6 +84,11 @@ export default function FinanceProfilePage() {
   const [paymentConfirmation, setPaymentConfirmation] = useState(true);
   const [upcomingInvoices, setUpcomingInvoices] = useState(true);
   const [failedPayments, setFailedPayments] = useState(false);
+
+  // Controlled input state
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newCardNumber, setNewCardNumber] = useState("");
+  const [confirmCardNumber, setConfirmCardNumber] = useState("");
 
   return (
     <div className="min-h-screen bg-background p-4 pb-20 font-sans transition-colors duration-300 md:p-5">
@@ -124,19 +142,30 @@ export default function FinanceProfilePage() {
               <PaymentField
                 label="Current Password"
                 placeholder="Enter current password"
-                error
+                error={currentPassword.length > 0 && currentPassword.length < 6}
+                type="password"
+                value={currentPassword}
+                onChange={setCurrentPassword}
               />
               <PaymentField
                 label="New Card Number"
                 placeholder="Enter new card number"
+                value={newCardNumber}
+                onChange={setNewCardNumber}
               />
               <PaymentField
                 label="Confirm New Card Number"
                 placeholder="Confirm new card number"
+                value={confirmCardNumber}
+                onChange={setConfirmCardNumber}
               />
             </div>
 
-            <button className="mt-2 h-11 w-full rounded-lg bg-primary text-[13px] font-bold text-primary-foreground transition-all hover:opacity-90">
+            <button
+              type="button"
+              onClick={() => toast.success("Payment information updated successfully!")}
+              className="mt-2 h-11 w-full rounded-lg bg-primary text-[13px] font-bold text-primary-foreground transition-all hover:opacity-90"
+            >
               Update Payment Info
             </button>
           </div>
@@ -184,7 +213,11 @@ export default function FinanceProfilePage() {
               </div>
             </div>
 
-            <button className="mt-8 h-11 w-full rounded-lg border border-primary text-[13px] font-bold text-primary transition-all hover:bg-primary/5">
+            <button
+              type="button"
+              onClick={() => toast.success("Invoice preferences saved successfully!")}
+              className="mt-8 h-11 w-full rounded-lg border border-primary text-[13px] font-bold text-primary transition-all hover:bg-primary/5"
+            >
               Save Preferences
             </button>
           </div>

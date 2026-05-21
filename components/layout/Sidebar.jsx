@@ -317,10 +317,26 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) 
               <DropdownMenuLabel className="font-bold text-[11px] text-gray-400 tracking-widest px-3 py-2">
                 User Account
               </DropdownMenuLabel>
-              <DropdownMenuItem className="gap-3 h-11 cursor-pointer font-semibold text-[13px] px-3 focus:bg-primary/5 focus:text-primary">
+              <DropdownMenuItem
+                onClick={() => {
+                  const profilePath = currentRole === "reception" || currentRole === "pharmacy"
+                    ? `/${currentRole}/settings`
+                    : `/${currentRole}/profile`;
+                  router.push(profilePath);
+                }}
+                className="gap-3 h-11 cursor-pointer font-semibold text-[13px] px-3 focus:bg-primary/5 focus:text-primary"
+              >
                 <User className="w-4 h-4" /> Profile
               </DropdownMenuItem>
-              <DropdownMenuItem className="gap-3 h-11 cursor-pointer font-semibold text-[13px] px-3 focus:bg-primary/5 focus:text-primary">
+              <DropdownMenuItem
+                onClick={() => {
+                  const settingsPath = currentRole === "reception" || currentRole === "pharmacy"
+                    ? `/${currentRole}/settings`
+                    : `/${currentRole}/profile`;
+                  router.push(settingsPath);
+                }}
+                className="gap-3 h-11 cursor-pointer font-semibold text-[13px] px-3 focus:bg-primary/5 focus:text-primary"
+              >
                 <SettingsIcon className="w-4 h-4" /> Settings
               </DropdownMenuItem>
               <DropdownMenuSeparator className="bg-gray-100 dark:bg-white/5" />

@@ -1,6 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
@@ -11,6 +13,7 @@ import {
   FinanceSearchField,
   FinanceSelect,
   FinanceStatCard,
+  CompactStatCard,
   FinanceTableCard,
   FinanceToolbar,
 } from "@/components/finance/FinancePageChrome";
@@ -370,7 +373,7 @@ function StatCard({ card }) {
   const Icon = card.icon;
 
   return (
-    <FinanceStatCard
+    <CompactStatCard
       title={card.title}
       value={card.value}
       icon={Icon}
@@ -381,7 +384,9 @@ function StatCard({ card }) {
           ? "amber"
           : card.tone.icon.includes("rose")
           ? "rose"
-          : "indigo"
+          : card.tone.icon.includes("violet")
+          ? "indigo"
+          : "blue"
       }
       meta={card.change}
     />
@@ -389,28 +394,30 @@ function StatCard({ card }) {
 }
 
 function StatusPill({ status }) {
+  const normalizedStatus = status ? status.toLowerCase() : "";
   const statusStyles = {
-    Approved: "bg-emerald-100 text-emerald-700",
-    Pending: "bg-amber-100 text-amber-600",
-    Rejected: "bg-rose-100 text-rose-600",
+    approved: "border-emerald-100 bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20",
+    pending: "border-amber-100 bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20",
+    rejected: "border-rose-100 bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400 dark:border-rose-500/20",
   };
+
+  const styleClass = statusStyles[normalizedStatus] || "border-slate-100 bg-slate-50 text-slate-600 dark:bg-slate-500/10 dark:text-slate-400 dark:border-white/5";
 
   return (
     <span
-      className={`inline-flex min-w-[78px] justify-center rounded-full px-3 py-1 text-xs font-medium ${
-        statusStyles[status] || "bg-slate-100 text-slate-600"
-      }`}
+      className={`inline-flex min-w-[82px] justify-center rounded-full px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider border ${styleClass}`}
     >
       {status}
     </span>
   );
 }
 
+
 function DiscountTypePill({ value }) {
   return (
-    <Badge className="rounded-full border-0 bg-slate-100 px-3 py-1 text-xs font-medium normal-case tracking-normal text-slate-500 hover:bg-slate-100 dark:bg-white/10 dark:text-slate-300">
+    <span className="inline-flex rounded-[5px] border border-gray-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 px-2.5 py-1 text-[11px] font-bold text-gray-500 dark:text-slate-400 uppercase tracking-wide">
       {value}
-    </Badge>
+    </span>
   );
 }
 
@@ -440,220 +447,265 @@ function buildRequestDetails(request) {
 }
 
 function RequestDetailsDialog({ request, open, onOpenChange }) {
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+      const handleEsc = (e) => {
+        if (e.key === "Escape") onOpenChange(false);
+      };
+      window.addEventListener("keydown", handleEsc);
+      return () => {
+        document.body.style.overflow = "unset";
+        window.removeEventListener("keydown", handleEsc);
+      };
+    }
+  }, [open, onOpenChange]);
+
   if (!request) return null;
 
-  const statusStyles = {
-    Approved: "bg-emerald-100 text-emerald-700",
-    Pending: "bg-amber-100 text-amber-600",
-    Rejected: "bg-rose-100 text-rose-600",
-  };
-  const isPending = request.status === "Pending";
+  const isPending = request.status && request.status.toLowerCase() === "pending";
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[calc(100vh-64px)] max-w-[760px] grid-rows-[auto_minmax(0,1fr)_auto] gap-0 rounded-[24px] border border-slate-200 bg-white p-0 shadow-[0_30px_90px_rgba(15,23,42,0.22)] dark:border-white/10 dark:bg-[#101935]">
-        <div className="flex items-center justify-between border-b border-slate-200 px-6 py-5 dark:border-white/10">
-          <div className="flex items-center gap-4">
-            <DialogTitle className="text-[1.5rem] font-bold text-slate-900 dark:text-white">
-              Request {request.id}
-            </DialogTitle>
-            <span
-              className={`inline-flex rounded-full px-3 py-1 text-[11px] font-medium ${
-                statusStyles[request.status] || "bg-slate-100 text-slate-600"
-              }`}
-            >
-              {request.status}
-            </span>
-          </div>
-          <button
-            type="button"
+    <AnimatePresence>
+      {open && (
+        <div className="fixed inset-0 z-[500] flex items-center justify-center p-4">
+          {/* Backdrop overlay */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             onClick={() => onOpenChange(false)}
-            className="rounded-full p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 dark:hover:bg-white/10 dark:hover:text-slate-200"
-            aria-label="Close request details"
+            className="absolute inset-0 bg-black/60 backdrop-blur-[6px]"
+          />
+
+          {/* Modal card content */}
+          <motion.div
+            initial={{ scale: 0.95, opacity: 0, y: 16 }}
+            animate={{ scale: 1, opacity: 1, y: 0 }}
+            exit={{ scale: 0.95, opacity: 0, y: 16 }}
+            className="relative bg-white dark:bg-[#0F172A] w-full max-w-[700px] rounded-[5px] shadow-none overflow-hidden border border-gray-100 dark:border-white/5 flex flex-col max-h-[calc(100vh-32px)]"
           >
-            <X className="h-6 w-6" />
-          </button>
-        </div>
-
-        <div className="max-h-[calc(100vh-220px)] space-y-5 overflow-y-auto px-5 py-5">
-          <section className="rounded-[24px] border border-slate-200 bg-white p-4 shadow-[0_8px_24px_rgba(15,23,42,0.06)] dark:border-white/10 dark:bg-[#0B1121]">
-            <div className="mb-4 flex items-center gap-3 text-base font-semibold text-slate-900 dark:text-white">
-              <FileText className="h-4.5 w-4.5 text-[#3B47D8]" />
-              <span>Request Summary</span>
-            </div>
-            <div className="grid gap-5 md:grid-cols-4">
-              <div className="space-y-2">
-                <p className="text-xs uppercase tracking-[0.12em] text-slate-400">
-                  Requested By
-                </p>
-                <div className="flex items-center gap-3">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-full bg-violet-100 text-xs font-semibold text-violet-700">
-                    {request.requestedBy
-                      .split(" ")
-                      .map((part) => part[0])
-                      .join("")
-                      .slice(0, 2)}
-                  </div>
-                  <p className="text-sm text-slate-900 dark:text-white">{request.requestedBy}</p>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <p className="text-xs uppercase tracking-[0.12em] text-slate-400">
-                  Date & Time
-                </p>
-                <div className="flex items-center gap-2 whitespace-nowrap text-sm text-slate-900 dark:text-white">
-                  <CalendarDays className="h-4 w-4 text-slate-500" />
-                  <span>{request.requestedAt}</span>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <p className="text-xs uppercase tracking-[0.12em] text-slate-400">
-                  Discount Type
-                </p>
-                <DiscountTypePill value={request.discountType} />
-              </div>
-              <div className="space-y-2">
-                <p className="text-xs uppercase tracking-[0.12em] text-slate-400">
-                  Requested Amount
-                </p>
-                <div className="flex items-center gap-2 text-sm font-semibold text-[#3B47D8]">
-                  <BadgePercent className="h-4 w-4" />
-                  <span>{request.amount}</span>
-                  <span className="text-xs font-medium text-slate-400">
-                    ({request.percentage})
-                  </span>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section className="rounded-[24px] border border-slate-200 bg-white p-4 shadow-[0_8px_24px_rgba(15,23,42,0.06)] dark:border-white/10 dark:bg-[#0B1121]">
-            <div className="mb-4 flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3 text-base font-semibold text-slate-900 dark:text-white">
-                <UserRound className="h-4.5 w-4.5 text-[#3B47D8]" />
-                <span>Patient & Bill Details</span>
-              </div>
-              <button
-                type="button"
-                className="inline-flex items-center gap-2 text-xs font-medium text-[#3B47D8] transition hover:text-[#2b35ae]"
-              >
-                View Full Bill
-                <ExternalLink className="h-4 w-4" />
-              </button>
-            </div>
-
-            <div className="mb-4 rounded-[20px] border border-slate-200 bg-slate-50/60 p-4">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-blue-100 text-base font-semibold text-blue-700">
-                  {request.patientInitials}
-                </div>
-                <div>
-                  <p className="text-base font-semibold text-slate-900 dark:text-white">
-                    {request.patientName}
-                  </p>
-                  <p className="text-xs text-slate-500">{request.patientMeta}</p>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-3 text-xs">
-              <div className="flex items-center justify-between gap-4">
-                <span className="text-slate-500">Bill Number</span>
-                <span className="font-medium text-slate-900 dark:text-white">{request.billNumber}</span>
-              </div>
-              <div className="flex items-center justify-between gap-4">
-                <span className="text-slate-500">Gross Total</span>
-                <span className="font-medium text-slate-900 dark:text-white">{request.grossTotal}</span>
-              </div>
-              <div className="flex items-center justify-between gap-4">
-                <span className="text-slate-500">Proposed Discount</span>
-                <span className="rounded-lg bg-blue-50 px-3 py-1 font-medium text-[#3B47D8]">
-                  {request.proposedDiscount}
-                </span>
-              </div>
-              <div className="border-t border-slate-200 pt-4">
-                <div className="flex items-center justify-between gap-4">
-                  <span className="text-base font-semibold text-slate-900 dark:text-white">
-                    Revised Net Payable
-                  </span>
-                  <span className="text-[1.3rem] font-bold text-slate-900 dark:text-white">
-                    {request.revisedNetPayable}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section className="rounded-[24px] border border-slate-200 bg-white p-4 shadow-[0_8px_24px_rgba(15,23,42,0.06)] dark:border-white/10 dark:bg-[#0B1121]">
-            <div className="mb-4 flex items-center gap-3 text-base font-semibold text-slate-900 dark:text-white">
-              <ReceiptText className="h-4.5 w-4.5 text-[#6A63FF]" />
-              <span>Reason & Documents</span>
-            </div>
-
-            <div className="mb-4 rounded-[20px] border border-slate-200 bg-slate-50/60 p-4 text-xs italic leading-6 text-slate-500">
-              &quot;{request.reason}&quot;
-            </div>
-
-            <div className="flex items-center justify-between gap-4 rounded-[20px] border border-slate-200 bg-white px-4 py-3">
+            {/* Header */}
+            <div className="px-4 sm:px-8 py-5 sm:py-6 flex justify-between items-center border-b border-gray-100 dark:border-white/5 shrink-0">
               <div className="flex items-center gap-4">
-                <div className="rounded-2xl bg-rose-50 p-2.5">
-                  <Paperclip className="h-4.5 w-4.5 text-rose-500" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-slate-900 dark:text-white">
-                    {request.documentName}
-                  </p>
-                  <p className="text-xs text-slate-400">{request.documentMeta}</p>
-                </div>
+                <h2 className="text-[20px] font-bold text-[#1e293b] dark:text-white leading-none">
+                  Request {request.id}
+                </h2>
+                <StatusPill status={request.status} />
               </div>
               <button
                 type="button"
-                className="rounded-full border border-slate-200 p-2.5 text-slate-500 transition hover:bg-slate-50 hover:text-[#3B47D8]"
-                aria-label={`Download ${request.documentName}`}
+                onClick={() => onOpenChange(false)}
+                className="group p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-full transition-colors"
+                aria-label="Close request details"
               >
-                <Download className="h-4.5 w-4.5" />
+                <X className="w-5 h-5 text-gray-400 group-hover:text-gray-600" />
               </button>
             </div>
-          </section>
-        </div>
 
-        <div className="flex items-center justify-between gap-4 border-t border-slate-200 bg-slate-50 px-6 py-4 dark:border-white/10 dark:bg-white/5">
-          <Button
-            variant="outline"
-            className="h-11 rounded-2xl border-slate-200 bg-white px-4 text-[11px] font-medium leading-none text-slate-700 hover:bg-slate-100"
-          >
-            <MessageSquareText className="mr-2 h-4 w-4" />
-            Request Info
-          </Button>
+            {/* Body */}
+            <div className="px-4 sm:px-8 py-5 sm:py-6 space-y-6 flex-1 overflow-y-auto custom-scrollbar bg-slate-50/50 dark:bg-[#0B1121]/20">
+              
+              {/* Section 1: Summary */}
+              <section className="bg-white dark:bg-[#1E293B]/20 border border-gray-150 dark:border-white/5 rounded-[5px] p-5 space-y-4 shadow-sm">
+                <div className="flex items-center gap-3 text-[14px] font-bold text-slate-800 dark:text-white">
+                  <FileText className="h-4.5 w-4.5 text-primary" />
+                  <span>Request Summary</span>
+                </div>
+                <div className="grid gap-4 sm:gap-5 grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                      Requested By
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <div className="flex h-7 w-7 items-center justify-center rounded-full bg-violet-100 text-[10px] font-bold text-violet-700 uppercase">
+                        {request.requestedBy
+                          .split(" ")
+                          .map((part) => part[0])
+                          .join("")
+                          .slice(0, 2)}
+                      </div>
+                      <p className="text-[13px] font-semibold text-gray-700 dark:text-white">{request.requestedBy}</p>
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                      Date & Time
+                    </p>
+                    <div className="flex items-center gap-1.5 text-[13px] font-semibold text-gray-700 dark:text-white">
+                      <CalendarDays className="h-4 w-4 text-gray-400" />
+                      <span>{request.requestedAt}</span>
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                      Discount Type
+                    </p>
+                    <div>
+                      <DiscountTypePill value={request.discountType} />
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-[10px] font-bold uppercase tracking-wider text-gray-400">
+                      Requested Amount
+                    </p>
+                    <div className="flex items-center gap-1.5 text-[13px] font-bold text-primary">
+                      <BadgePercent className="h-4 w-4" />
+                      <span>{request.amount}</span>
+                      <span className="text-[11px] font-semibold text-gray-400">
+                        ({request.percentage})
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </section>
 
-          <div className="flex items-center gap-4">
-            <Button
-              variant="outline"
-              disabled={!isPending}
-              className={`h-11 rounded-2xl px-4 text-[11px] font-medium leading-none ${
-                isPending
-                  ? "border-rose-200 bg-white text-rose-500 hover:bg-rose-50 hover:text-rose-600"
-                  : "border-slate-200 bg-slate-100 text-slate-400 hover:bg-slate-100 hover:text-slate-400"
-              }`}
-            >
-              <XCircle className="mr-2 h-4 w-4" />
-              Reject
-            </Button>
-            <Button
-              disabled={!isPending}
-              className={`h-11 rounded-2xl px-4 text-[11px] font-medium leading-none ${
-                isPending
-                  ? "bg-[#2E37A4] text-white hover:bg-[#232b82]"
-                  : "bg-slate-200 text-slate-400 hover:bg-slate-200"
-              }`}
-            >
-              <CheckCircle2 className="mr-2 h-4 w-4" />
-              Approve
-            </Button>
-          </div>
+              {/* Section 2: Patient & Bill Details */}
+              <section className="bg-white dark:bg-[#1E293B]/20 border border-gray-150 dark:border-white/5 rounded-[5px] p-5 space-y-4 shadow-sm">
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3 text-[14px] font-bold text-slate-800 dark:text-white">
+                    <UserRound className="h-4.5 w-4.5 text-primary" />
+                    <span>Patient & Bill Details</span>
+                  </div>
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-1 text-[11px] font-bold text-primary transition hover:opacity-80"
+                  >
+                    View Full Bill
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+
+                {/* Patient overview card matching payments sky-blue style */}
+                <div className="p-4 bg-sky-50 dark:bg-sky-500/5 rounded-[5px] border border-sky-100 dark:border-sky-500/20 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <span className="text-[14px] font-bold text-sky-950 dark:text-sky-400 leading-none">{request.patientName}</span>
+                      <span className="bg-sky-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-[5px] uppercase shrink-0">
+                        {request.patientInitials}
+                      </span>
+                    </div>
+                    <p className="text-[12px] text-sky-800/80 dark:text-sky-300/60 font-semibold">
+                      {request.patientMeta}
+                    </p>
+                  </div>
+                  <div className="text-left sm:text-right">
+                    <p className="text-[11px] text-sky-800/70 dark:text-sky-300/40 font-bold mb-0.5 uppercase tracking-wide">Gross Total</p>
+                    <p className="text-[20px] font-black text-slate-800 dark:text-white">{request.grossTotal}</p>
+                  </div>
+                </div>
+
+                <div className="space-y-3 pt-2 text-[13px] border-t border-gray-100 dark:border-white/5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-400 font-semibold">Bill Number</span>
+                    <span className="font-bold text-gray-800 dark:text-white">{request.billNumber}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-gray-400 font-semibold">Proposed Discount</span>
+                    <span className="rounded-[5px] bg-blue-50 dark:bg-blue-900/20 px-2.5 py-1 text-[11px] font-bold text-primary uppercase tracking-wide">
+                      {request.proposedDiscount}
+                    </span>
+                  </div>
+                  <div className="border-t border-dashed border-gray-200 dark:border-white/10 pt-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[14px] font-extrabold text-gray-800 dark:text-white">
+                        Revised Net Payable
+                      </span>
+                      <span className="text-[20px] font-black text-[#EF4444]">
+                        {request.revisedNetPayable}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* Section 3: Reason & Documents */}
+              <section className="bg-white dark:bg-[#1E293B]/20 border border-gray-150 dark:border-white/5 rounded-[5px] p-5 space-y-4 shadow-sm">
+                <div className="flex items-center gap-3 text-[14px] font-bold text-slate-800 dark:text-white">
+                  <ReceiptText className="h-4.5 w-4.5 text-[#6A63FF]" />
+                  <span>Reason & Documents</span>
+                </div>
+
+                <div className="p-4 bg-slate-50 dark:bg-white/5 rounded-[5px] border border-gray-100 dark:border-white/5 text-[12px] font-medium leading-relaxed italic text-gray-500 dark:text-gray-400">
+                  &quot;{request.reason}&quot;
+                </div>
+
+                <div className="flex items-center justify-between gap-4 rounded-[5px] border border-gray-200 dark:border-white/10 bg-white dark:bg-[#1E293B] px-4 py-3">
+                  <div className="flex items-center gap-3">
+                    <div className="rounded-[5px] bg-rose-50 dark:bg-rose-950/20 p-2 shrink-0">
+                      <Paperclip className="h-4.5 w-4.5 text-rose-500" />
+                    </div>
+                    <div>
+                      <p className="text-[13px] font-bold text-gray-800 dark:text-white truncate max-w-[160px] sm:max-w-[280px]">
+                        {request.documentName}
+                      </p>
+                      <p className="text-[11px] text-gray-400 font-semibold">{request.documentMeta}</p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    className="rounded-[5px] border border-gray-200 dark:border-white/10 p-2.5 text-gray-500 hover:text-primary transition-all bg-white dark:bg-transparent"
+                    aria-label={`Download ${request.documentName}`}
+                  >
+                    <Download className="h-4.5 w-4.5" />
+                  </button>
+                </div>
+              </section>
+            </div>
+
+            {/* Footer */}
+            <div className="px-4 sm:px-8 py-5 sm:py-6 border-t border-gray-100 dark:border-white/5 bg-white dark:bg-[#0F172A] flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 sm:gap-4 shrink-0">
+              <button
+                type="button"
+                onClick={() => {
+                  toast.info("Request Info clicked");
+                  onOpenChange(false);
+                }}
+                className="px-6 h-[48px] rounded-[5px] border border-gray-200 dark:border-white/10 text-gray-500 hover:text-primary font-bold text-[13px] transition-all flex items-center justify-center gap-2 w-full sm:w-auto"
+              >
+                <MessageSquareText className="h-4 w-4" />
+                Request Info
+              </button>
+
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
+                <button
+                  type="button"
+                  disabled={!isPending}
+                  onClick={() => {
+                    toast.error("Discount request rejected");
+                    onOpenChange(false);
+                  }}
+                  className={`px-8 h-[48px] rounded-[5px] font-bold text-[13px] flex items-center justify-center gap-2 transition-all w-full sm:w-auto ${
+                    isPending
+                      ? "border border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-500"
+                      : "bg-gray-100 text-gray-400 border border-gray-200 dark:bg-white/5 dark:border-white/5 cursor-not-allowed"
+                  }`}
+                >
+                  <XCircle className="h-4 w-4" />
+                  Reject
+                </button>
+                <button
+                  type="button"
+                  disabled={!isPending}
+                  onClick={() => {
+                    toast.success("Discount request approved");
+                    onOpenChange(false);
+                  }}
+                  className={`px-8 h-[48px] rounded-[5px] font-bold text-[13px] flex items-center justify-center gap-2 transition-all w-full sm:w-auto ${
+                    isPending
+                      ? "bg-primary text-white hover:opacity-90"
+                      : "bg-gray-100 text-gray-400 border border-gray-200 dark:bg-white/5 dark:border-white/5 cursor-not-allowed"
+                  }`}
+                >
+                  <CheckCircle2 className="h-4 w-4" />
+                  Approve
+                </button>
+              </div>
+            </div>
+          </motion.div>
         </div>
-      </DialogContent>
-    </Dialog>
+      )}
+    </AnimatePresence>
   );
 }
 
@@ -665,72 +717,84 @@ function ApplyDiscountForm({
   onFieldChange,
 }) {
   return (
-    <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_10px_30px_rgba(15,23,42,0.04)] dark:border-white/10 dark:bg-[#101935]">
-      <div className="space-y-8 px-8 py-10">
-        <div className="space-y-1">
-            <h1 className="text-[2.2rem] font-bold tracking-tight text-slate-900 dark:text-white">
-            Apply Discount
-          </h1>
-          <p className="text-lg text-slate-500 dark:text-slate-400">
-            Provide valid identification documents.
-          </p>
-        </div>
+    <section className="overflow-hidden rounded-[5px] border border-gray-200 dark:border-white/10 bg-white dark:bg-[#0F172A] shadow-sm">
+      {/* Header */}
+      <div className="px-4 sm:px-8 py-5 sm:py-6 border-b border-gray-100 dark:border-white/5">
+        <h2 className="text-[20px] font-bold text-[#1e293b] dark:text-white leading-none">
+          Apply Discount
+        </h2>
+        <p className="text-[12px] text-gray-400 font-semibold mt-1">
+          Provide valid identification documents and details.
+        </p>
+      </div>
 
-        <div className="space-y-4">
-          <label className="block text-[1.05rem] font-medium text-slate-900">
+      <div className="px-4 sm:px-8 py-5 sm:py-6 space-y-6 max-h-[75vh] overflow-y-auto custom-scrollbar">
+        {/* Search Patient section */}
+        <div className="space-y-2">
+          <label className="text-[13px] font-bold text-gray-600 dark:text-gray-300 ml-1">
             Search Bill or Patient
           </label>
           <div className="relative">
-            <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
-            <Input
+            <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
               value="INV-44920 - Michael Chang"
               readOnly
-            className="h-12 rounded-2xl border-slate-200 pl-12 pr-12 text-lg text-slate-700 shadow-none dark:border-white/10 dark:bg-[#0B1121] dark:text-slate-300"
+              className="w-full h-[48px] pl-12 pr-12 rounded-[5px] border border-gray-200 dark:border-white/10 dark:bg-[#1E293B] bg-white text-[14px] text-gray-700 dark:text-white placeholder:text-gray-400 outline-none focus:border-primary transition-all shadow-sm font-semibold"
             />
-            <CircleX className="absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-500" />
+            <CircleX className="absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer" />
           </div>
 
-          <div className="grid gap-0 overflow-hidden rounded-[2rem] border border-slate-200 bg-slate-50/40 dark:border-white/10 dark:bg-white/5 lg:grid-cols-3">
-            <div className="space-y-1 px-6 py-5">
-              <p className="text-sm uppercase tracking-[0.12em] text-slate-400">
+          {/* Selected Patient Grid Card - premium styling */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 border border-gray-200 dark:border-white/10 rounded-[5px] bg-slate-50/50 dark:bg-[#0B1121]/20 overflow-hidden shadow-sm mt-3">
+            <div className="space-y-1 px-6 py-4">
+              <span className="text-[10px] text-gray-400 dark:text-gray-500 font-bold block uppercase tracking-wide">
                 Patient Name
-              </p>
-              <p className="text-[1.05rem] font-semibold text-slate-900 dark:text-white">
+              </span>
+              <p className="font-bold text-gray-800 dark:text-white text-[13px]">
                 {selectedBill.patientName}
               </p>
-              <p className="text-lg text-slate-500">UHID: {selectedBill.uhid}</p>
-            </div>
-            <div className="space-y-1 border-t border-slate-200 px-6 py-5 lg:border-l lg:border-t-0">
-              <p className="text-sm uppercase tracking-[0.12em] text-slate-400">
-                Bill Number
+              <p className="text-[11px] text-gray-500 dark:text-gray-400 font-semibold mt-0.5">
+                UHID: {selectedBill.uhid}
               </p>
-              <p className="text-[1.05rem] font-semibold text-slate-900">
+            </div>
+            <div className="space-y-1 border-t sm:border-t-0 sm:border-l border-gray-200 dark:border-white/10 px-6 py-4">
+              <span className="text-[10px] text-gray-400 dark:text-gray-500 font-bold block uppercase tracking-wide">
+                Bill Number
+              </span>
+              <p className="font-bold text-gray-800 dark:text-white text-[13px]">
                 {selectedBill.billNumber}
               </p>
-              <p className="text-lg text-slate-500">{selectedBill.billDate}</p>
-            </div>
-            <div className="space-y-1 border-t border-slate-200 px-6 py-5 lg:border-l lg:border-t-0">
-              <p className="text-sm uppercase tracking-[0.12em] text-slate-400">
-                Bill Total
+              <p className="text-[11px] text-gray-500 dark:text-gray-400 font-semibold mt-0.5">
+                Date: {selectedBill.billDate}
               </p>
-              <p className="text-[1.7rem] font-bold text-slate-900">
+            </div>
+            <div className="space-y-1 border-t sm:border-t-0 sm:border-l border-gray-200 dark:border-white/10 px-6 py-4">
+              <span className="text-[10px] text-gray-400 dark:text-gray-500 font-bold block uppercase tracking-wide">
+                Bill Total
+              </span>
+              <p className="font-extrabold text-primary text-[16px]">
                 {selectedBill.billTotal}
               </p>
-              <p className="text-lg text-slate-500">
+              <p className="text-[11px] text-rose-500 font-bold mt-0.5">
                 Balance: {selectedBill.balance}
               </p>
             </div>
           </div>
         </div>
 
-        <div className="space-y-7">
-          <h2 className="text-[2rem] font-bold tracking-tight text-slate-900 dark:text-white">
-            Discount Details
-          </h2>
+        {/* Discount details */}
+        <div className="space-y-6 pt-4 border-t border-gray-100 dark:border-white/5">
+          <div className="flex items-center gap-2">
+            <BadgePercent className="h-5 w-5 text-primary" />
+            <h3 className="text-[15px] font-bold text-slate-800 dark:text-white leading-none">
+              Discount Details
+            </h3>
+          </div>
 
-          <div className="grid gap-6 lg:grid-cols-2">
-            <div className="space-y-3">
-              <label className="block text-[1.05rem] font-medium text-slate-900">
+          <div className="grid gap-6 md:grid-cols-2">
+            <div className="space-y-2">
+              <label className="text-[13px] font-bold text-gray-600 dark:text-gray-300 ml-1">
                 Discount Type
               </label>
               <div className="relative">
@@ -739,7 +803,7 @@ function ApplyDiscountForm({
                   onChange={(event) =>
                     onFieldChange("discountType", event.target.value)
                   }
-                  className="h-12 w-full appearance-none rounded-2xl border border-slate-200 bg-white px-4 pr-10 text-lg text-slate-800 outline-none dark:border-white/10 dark:bg-[#0B1121] dark:text-slate-300"
+                  className="w-full h-[48px] pl-4 pr-10 rounded-[5px] border border-gray-200 dark:border-white/10 dark:bg-[#1E293B] bg-white text-[14px] text-gray-700 dark:text-white outline-none focus:border-primary transition-all font-semibold appearance-none"
                 >
                   {discountTypeOptions.map((option) => (
                     <option key={option} value={option}>
@@ -747,19 +811,19 @@ function ApplyDiscountForm({
                     </option>
                   ))}
                 </select>
-                <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+                <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
               </div>
             </div>
 
-            <div className="space-y-3">
-              <label className="block text-[1.05rem] font-medium text-slate-900">
+            <div className="space-y-2">
+              <label className="text-[13px] font-bold text-gray-600 dark:text-gray-300 ml-1">
                 Request Approval From
               </label>
               <div className="relative">
                 <select
                   value={form.approver}
                   onChange={(event) => onFieldChange("approver", event.target.value)}
-                  className="h-12 w-full appearance-none rounded-2xl border border-slate-200 bg-white px-4 pr-10 text-lg text-slate-800 outline-none dark:border-white/10 dark:bg-[#0B1121] dark:text-slate-300"
+                  className="w-full h-[48px] pl-4 pr-10 rounded-[5px] border border-gray-200 dark:border-white/10 dark:bg-[#1E293B] bg-white text-[14px] text-gray-700 dark:text-white outline-none focus:border-primary transition-all font-semibold appearance-none"
                 >
                   {approverOptions.map((option) => (
                     <option key={option} value={option}>
@@ -767,62 +831,64 @@ function ApplyDiscountForm({
                     </option>
                   ))}
                 </select>
-                <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+                <ChevronDown className="pointer-events-none absolute right-4 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
               </div>
             </div>
 
-            <div className="space-y-3">
-              <label className="block text-[1.05rem] font-medium text-slate-900">
+            <div className="space-y-2">
+              <label className="text-[13px] font-bold text-gray-600 dark:text-gray-300 ml-1">
                 Discount Value
               </label>
-              <div className="flex overflow-hidden rounded-2xl border border-slate-200 dark:border-white/10">
-                <div className="flex min-w-[145px] items-center border-r border-slate-200 bg-slate-50 px-4 text-lg text-slate-500 dark:border-white/10 dark:bg-white/5 dark:text-slate-400">
+              <div className="flex rounded-[5px] border border-gray-200 dark:border-white/10 overflow-hidden bg-white dark:bg-[#1E293B]">
+                <div className="flex min-w-[130px] items-center justify-center border-r border-gray-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 text-[12px] font-bold text-gray-500 uppercase tracking-wide shrink-0">
                   Percentage (%)
                 </div>
                 <input
                   type="number"
                   value={form.percentage}
                   onChange={(event) => onFieldChange("percentage", event.target.value)}
-                  className="h-12 w-full bg-transparent px-4 text-lg text-slate-900 outline-none dark:text-white"
+                  className="w-full h-[48px] px-4 bg-transparent text-[14px] text-gray-700 dark:text-white outline-none font-semibold"
                 />
               </div>
             </div>
 
-            <div className="space-y-3">
-              <label className="block text-[1.05rem] font-medium text-slate-900">
+            <div className="space-y-2">
+              <label className="text-[13px] font-bold text-gray-600 dark:text-gray-300 ml-1">
                 Calculated Amount
               </label>
-              <Input
+              <input
+                type="text"
                 value={calculatedAmount}
                 readOnly
-                className="h-12 rounded-2xl border-slate-200 bg-slate-50 px-4 text-lg text-slate-500 shadow-none dark:border-white/10 dark:bg-white/5 dark:text-slate-400"
+                className="w-full h-[48px] px-4 rounded-[5px] border border-gray-200 dark:border-white/10 bg-slate-50 dark:bg-white/5 text-[14px] text-gray-500 dark:text-gray-400 font-bold outline-none cursor-not-allowed"
               />
             </div>
           </div>
 
-          <div className="space-y-3">
-            <label className="block text-[1.05rem] font-medium text-slate-900">
+          <div className="space-y-2">
+            <label className="text-[13px] font-bold text-gray-600 dark:text-gray-300 ml-1">
               Reason / Remarks
             </label>
             <textarea
               value={form.reason}
               onChange={(event) => onFieldChange("reason", event.target.value)}
-              className="min-h-[130px] w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-lg text-slate-800 outline-none dark:border-white/10 dark:bg-[#0B1121] dark:text-slate-300"
+              placeholder="Provide context or comments for the request..."
+              className="w-full min-h-[120px] p-4 rounded-[5px] border border-gray-200 dark:border-white/10 dark:bg-[#1E293B] bg-white text-[14px] text-gray-700 dark:text-white placeholder:text-gray-400 outline-none focus:border-primary transition-all font-medium"
             />
           </div>
 
-          <div className="space-y-3">
-            <label className="block text-[1.05rem] font-medium text-slate-900">
+          <div className="space-y-2">
+            <label className="text-[13px] font-bold text-gray-600 dark:text-gray-300 ml-1">
               Supporting Documents (Optional)
             </label>
-            <div className="flex min-h-[210px] flex-col items-center justify-center rounded-[2rem] border border-dashed border-slate-300 bg-slate-50/30 px-6 text-center dark:border-white/10 dark:bg-white/5">
-              <div className="mb-4 rounded-full bg-indigo-100 p-4">
+            <div className="flex min-h-[180px] flex-col items-center justify-center rounded-[5px] border border-dashed border-gray-300 dark:border-white/10 bg-slate-50/30 dark:bg-white/5 px-6 text-center hover:bg-slate-50/60 dark:hover:bg-white/10 transition-colors cursor-pointer">
+              <div className="mb-3 rounded-full bg-indigo-50 dark:bg-indigo-950/20 p-3 shrink-0">
                 <UploadCloud className="h-6 w-6 text-[#2E37A4]" />
               </div>
-              <p className="text-xl font-medium text-[#2E37A4]">
+              <p className="text-[14px] font-bold text-[#2E37A4]">
                 Click to upload or drag and drop
               </p>
-              <p className="mt-2 text-base text-slate-400">
+              <p className="mt-1 text-[11px] text-gray-400 font-semibold">
                 PDF, JPG, PNG up to 10MB
               </p>
             </div>
@@ -830,21 +896,26 @@ function ApplyDiscountForm({
         </div>
       </div>
 
-      <div className="flex items-center justify-end gap-4 border-t border-slate-200 bg-slate-50 px-8 py-5 dark:border-white/10 dark:bg-white/5">
+      {/* Footer */}
+      <div className="px-4 sm:px-8 py-5 sm:py-6 border-t border-gray-100 dark:border-white/5 bg-white dark:bg-[#0F172A] flex flex-col-reverse sm:flex-row justify-end items-stretch sm:items-center gap-3 sm:gap-4">
         <button
           type="button"
           onClick={onCancel}
-          className="px-4 py-2 text-lg font-medium text-slate-500 transition hover:text-slate-700"
+          className="px-8 h-[48px] rounded-[5px] text-gray-500 font-bold text-[13px] hover:text-primary transition-all w-full sm:w-auto flex items-center justify-center"
         >
           Cancel
         </button>
-        <Button
-          onClick={onBackToList}
-          className="h-12 rounded-2xl bg-[#2E37A4] px-6 text-lg font-medium text-white hover:bg-[#232b82]"
+        <button
+          type="button"
+          onClick={() => {
+            toast.success("Discount request submitted successfully");
+            onBackToList();
+          }}
+          className="bg-primary text-white px-10 h-[48px] rounded-[5px] font-bold text-[13px] hover:opacity-90 transition-all shadow-none flex items-center justify-center gap-2 w-full sm:w-auto"
         >
           Submit Request
-          <ArrowRight className="ml-2 h-5 w-5" />
-        </Button>
+          <ArrowRight className="h-4.5 w-4.5" />
+        </button>
       </div>
     </section>
   );
@@ -863,16 +934,17 @@ function DiscountRequestListView({
     <>
       <FinanceHeader
         title="Discount Request List"
+        className="flex-row items-center justify-between gap-3"
         actions={
           <>
           <Button
             onClick={onBackToDiscounts}
             variant="outline"
-            className="h-[48px] rounded-[5px] border-primary px-5 text-[13px] font-bold text-primary hover:bg-primary/5 hover:text-primary"
+            className="h-[32px] rounded-[5px] border-primary px-3 text-[11px] font-bold text-primary hover:bg-primary/5 hover:text-primary whitespace-nowrap flex items-center justify-center"
           >
             Back
           </Button>
-          <Button className="h-[48px] rounded-[5px] bg-primary px-5 text-[13px] font-bold text-white hover:opacity-90">
+          <Button className="h-[32px] rounded-[5px] bg-primary px-4 text-[11px] font-bold text-white hover:opacity-90 whitespace-nowrap flex items-center justify-center">
             Bulk Approve
           </Button>
           </>
@@ -898,25 +970,25 @@ function DiscountRequestListView({
 
         <FinanceTableCard>
         <div className="overflow-x-auto">
-          <table className="min-w-full">
+          <table className="min-w-full text-sm text-left">
             <thead className="bg-muted/30">
-              <tr className="border-b border-border text-left text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
-                <th className="px-5 py-4">Request ID</th>
-                <th className="px-5 py-4">Patient Name</th>
-                <th className="px-5 py-4">Bill Number</th>
-                <th className="px-5 py-4">Discount Type</th>
-                <th className="px-5 py-4">Amount</th>
-                <th className="px-5 py-4">Requested by</th>
-                <th className="px-5 py-4">Status</th>
-                <th className="px-5 py-4 text-center">Action</th>
+              <tr className="border-b border-border">
+                <th className="whitespace-nowrap px-8 py-4 text-left text-[11px] font-bold uppercase tracking-widest text-muted-foreground">REQUEST ID</th>
+                <th className="whitespace-nowrap px-8 py-4 text-left text-[11px] font-bold uppercase tracking-widest text-muted-foreground">PATIENT NAME</th>
+                <th className="whitespace-nowrap px-8 py-4 text-left text-[11px] font-bold uppercase tracking-widest text-muted-foreground">BILL NUMBER</th>
+                <th className="whitespace-nowrap px-8 py-4 text-left text-[11px] font-bold uppercase tracking-widest text-muted-foreground">DISCOUNT TYPE</th>
+                <th className="whitespace-nowrap px-8 py-4 text-left text-[11px] font-bold uppercase tracking-widest text-muted-foreground">AMOUNT</th>
+                <th className="whitespace-nowrap px-8 py-4 text-left text-[11px] font-bold uppercase tracking-widest text-muted-foreground">REQUESTED BY</th>
+                <th className="whitespace-nowrap px-8 py-4 text-left text-[11px] font-bold uppercase tracking-widest text-muted-foreground">STATUS</th>
+                <th className="whitespace-nowrap px-8 py-4 text-center text-[11px] font-bold uppercase tracking-widest text-muted-foreground">ACTIONS</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-border">
               {rows.length === 0 ? (
                 <tr>
                   <td
                     colSpan={8}
-                    className="px-5 py-16 text-center text-sm font-medium text-slate-400"
+                    className="px-8 py-16 text-center text-[13px] font-bold text-slate-400 dark:text-slate-500"
                   >
                     No discount requests match your current search.
                   </td>
@@ -925,29 +997,31 @@ function DiscountRequestListView({
                 rows.map((request, index) => (
                   <tr
                     key={`${request.id}-${index}`}
-                    className="border-b border-border text-sm text-slate-900 transition-colors hover:bg-muted/20"
+                    className="group transition-all hover:bg-muted/20 dark:hover:bg-muted/20"
                   >
-                    <td className="whitespace-nowrap px-5 py-5 font-medium">
+                    <td className="whitespace-nowrap px-8 py-4 text-[14px] font-bold leading-tight text-[#1e293b] dark:text-white">
                       {request.id}
                     </td>
-                    <td className="whitespace-nowrap px-5 py-5">
+                    <td className="whitespace-nowrap px-8 py-4 text-[14px] font-bold leading-tight text-[#1e293b] dark:text-white">
                       {request.patientName}
                     </td>
-                    <td className="whitespace-nowrap px-5 py-5">
+                    <td className="whitespace-nowrap px-8 py-4 text-[13px] font-semibold text-gray-500 dark:text-slate-400">
                       {request.billNumber}
                     </td>
-                    <td className="whitespace-nowrap px-5 py-5">
+                    <td className="whitespace-nowrap px-8 py-4 text-[13px] font-medium text-gray-500 dark:text-slate-400">
                       <DiscountTypePill value={request.discountType} />
                     </td>
-                    <td className="whitespace-nowrap px-5 py-5 font-medium">
+                    <td className="whitespace-nowrap px-8 py-4 text-[13px] font-bold text-primary">
                       {request.amount}
                     </td>
-                    <td className="px-5 py-5">{request.requestedBy}</td>
-                    <td className="whitespace-nowrap px-5 py-5">
+                    <td className="px-8 py-4 text-[13px] font-semibold text-gray-600 dark:text-slate-300">
+                      {request.requestedBy}
+                    </td>
+                    <td className="whitespace-nowrap px-8 py-4">
                       <StatusPill status={request.status} />
                     </td>
-                    <td className="px-5 py-5">
-                      <div className="flex items-center justify-center gap-3">
+                    <td className="px-8 py-4">
+                      <div className="flex items-center justify-center">
                         <button
                           type="button"
                           onClick={() => onOpenRequestDialog(request)}
@@ -956,9 +1030,6 @@ function DiscountRequestListView({
                         >
                           <Eye className="h-5 w-5" strokeWidth={1.8} />
                         </button>
-                        <Button className="h-9 rounded-xl bg-[#2E37A4] px-4 text-xs font-medium text-white hover:bg-[#232b82]">
-                          {request.actionLabel}
-                        </Button>
                       </div>
                     </td>
                   </tr>
@@ -1068,8 +1139,8 @@ export default function DiscountsPage() {
   };
 
   return (
-    <FinancePageShell className="px-6 py-7">
-      <div className="mx-auto max-w-[1700px] space-y-6">
+    <FinancePageShell>
+      <div className="space-y-6">
         <RequestDetailsDialog
           request={selectedRequest}
           open={isRequestDialogOpen}
@@ -1100,28 +1171,29 @@ export default function DiscountsPage() {
           <>
             <FinanceHeader
               title="Discounts"
+              className="flex-row items-center justify-between gap-3"
               actions={
                 <>
                 <Button
                   variant="outline"
                   onClick={() => setShowRequestList(true)}
-                  className="h-[48px] rounded-[5px] border-primary px-5 text-[13px] font-bold text-primary hover:bg-primary/5 hover:text-primary"
+                  className="h-[32px] rounded-[5px] border-primary px-3 text-[11px] font-bold text-primary hover:bg-primary/5 hover:text-primary whitespace-nowrap flex items-center gap-1.5"
                 >
-                  <ShieldCheck className="mr-2 h-4 w-4" />
+                  <ShieldCheck className="w-3.5 h-3.5" />
                   Request List
                 </Button>
                 <Button
                   onClick={() => setShowApplyForm(true)}
-                  className="h-[48px] rounded-[5px] bg-primary px-5 text-[13px] font-bold text-white hover:opacity-90"
+                  className="h-[32px] rounded-[5px] bg-primary px-4 text-[11px] font-bold text-white hover:opacity-90 whitespace-nowrap flex items-center gap-1.5"
                 >
-                  <Plus className="mr-2 h-4 w-4" />
+                  <Plus className="w-3.5 h-3.5" />
                   Apply Discount
                 </Button>
                 </>
               }
             />
 
-            <section className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <section className="grid grid-cols-2 gap-3 lg:grid-cols-4">
               {summaryCards.map((card) => (
                 <StatCard key={card.title} card={card} />
               ))}
@@ -1146,25 +1218,25 @@ export default function DiscountsPage() {
 
               <FinanceTableCard>
               <div className="overflow-x-auto">
-                <table className="min-w-full">
+                <table className="min-w-full text-sm text-left">
                   <thead className="bg-muted/30 dark:bg-muted/30">
-                    <tr className="border-b border-border text-left text-[11px] font-bold uppercase tracking-widest text-muted-foreground dark:border-border dark:text-muted-foreground">
-                      <th className="px-5 py-4">Request ID</th>
-                      <th className="px-5 py-4">Patient Name</th>
-                      <th className="px-5 py-4">Bill Number</th>
-                      <th className="px-5 py-4">Discount Type</th>
-                      <th className="px-5 py-4">Amount</th>
-                      <th className="px-5 py-4">Requested by</th>
-                      <th className="px-5 py-4">Status</th>
-                      <th className="px-5 py-4 text-center">Action</th>
+                    <tr className="border-b border-border">
+                      <th className="whitespace-nowrap px-8 py-4 text-left text-[11px] font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">REQUEST ID</th>
+                      <th className="whitespace-nowrap px-8 py-4 text-left text-[11px] font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">PATIENT NAME</th>
+                      <th className="whitespace-nowrap px-8 py-4 text-left text-[11px] font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">BILL NUMBER</th>
+                      <th className="whitespace-nowrap px-8 py-4 text-left text-[11px] font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">DISCOUNT TYPE</th>
+                      <th className="whitespace-nowrap px-8 py-4 text-left text-[11px] font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">AMOUNT</th>
+                      <th className="whitespace-nowrap px-8 py-4 text-left text-[11px] font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">REQUESTED BY</th>
+                      <th className="whitespace-nowrap px-8 py-4 text-left text-[11px] font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">STATUS</th>
+                      <th className="whitespace-nowrap px-8 py-4 text-center text-[11px] font-bold uppercase tracking-widest text-muted-foreground dark:text-muted-foreground">ACTIONS</th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody className="divide-y divide-border">
                     {filteredRequests.length === 0 ? (
                       <tr>
                         <td
                           colSpan={8}
-                          className="px-5 py-16 text-center text-sm font-medium text-slate-400 dark:text-slate-500"
+                          className="px-8 py-16 text-center text-[13px] font-bold text-slate-400 dark:text-slate-500"
                         >
                           No discount requests match your current search.
                         </td>
@@ -1173,28 +1245,30 @@ export default function DiscountsPage() {
                       filteredRequests.map((request) => (
                         <tr
                           key={request.id}
-                          className="border-b border-border text-sm text-slate-900 transition-colors hover:bg-muted/20 dark:border-border dark:text-white dark:hover:bg-muted/20"
+                          className="group transition-all hover:bg-muted/20 dark:hover:bg-muted/20"
                         >
-                          <td className="whitespace-nowrap px-5 py-5 font-medium">
+                          <td className="whitespace-nowrap px-8 py-4 text-[14px] font-bold leading-tight text-[#1e293b] dark:text-white">
                             {request.id}
                           </td>
-                          <td className="whitespace-nowrap px-5 py-5">
+                          <td className="whitespace-nowrap px-8 py-4 text-[14px] font-bold leading-tight text-[#1e293b] dark:text-white font-bold">
                             {request.patientName}
                           </td>
-                          <td className="whitespace-nowrap px-5 py-5">
+                          <td className="whitespace-nowrap px-8 py-4 text-[13px] font-semibold text-gray-500 dark:text-slate-400">
                             {request.billNumber}
                           </td>
-                          <td className="whitespace-nowrap px-5 py-5">
+                          <td className="whitespace-nowrap px-8 py-4">
                             <DiscountTypePill value={request.discountType} />
                           </td>
-                          <td className="whitespace-nowrap px-5 py-5 font-medium">
+                          <td className="whitespace-nowrap px-8 py-4 text-[13px] font-bold text-primary">
                             {request.amount}
                           </td>
-                          <td className="px-5 py-5">{request.requestedBy}</td>
-                          <td className="whitespace-nowrap px-5 py-5">
+                          <td className="px-8 py-4 text-[13px] font-semibold text-gray-600 dark:text-slate-300">
+                            {request.requestedBy}
+                          </td>
+                          <td className="whitespace-nowrap px-8 py-4">
                             <StatusPill status={request.status} />
                           </td>
-                          <td className="px-5 py-5 text-center">
+                          <td className="px-8 py-4 text-center">
                             <button
                               type="button"
                               onClick={() => handleOpenRequestDialog(request)}

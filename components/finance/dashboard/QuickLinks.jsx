@@ -24,7 +24,7 @@ export function QuickLinks() {
     { label: "Collect Payment", icon: CreditCard, href: "/finance/payment" },
     { label: "Insurance Claims", icon: Shield, href: "/finance/insurance" },
     { label: "Discount Approval", icon: Ticket, href: "/finance/discounts" },
-    { label: "Revenue Reports", icon: TrendingUp, href: "/finance/payment" },
+    { label: "Revenue Reports", icon: TrendingUp, href: "/finance/reports" },
   ];
 
   return (
