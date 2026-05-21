@@ -35,7 +35,9 @@ import {
   Wrench,
   LogIn,
   Bell,
-  Siren
+  Siren,
+  Percent,
+  CreditCard
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -150,10 +152,13 @@ const roleMenus = {
     { name: "Profile & Settings", icon: User, path: "/radiology/profile", section: "OPS" },
   ],
   "finance": [
-    { name: "Dashboard", icon: LayoutGrid, path: "/finance", section: "none" },
-    { name: "Invoices", icon: Wallet, path: "/finance/invoices", section: "ACCOUNTS" },
-    { name: "Payroll", icon: Users2, path: "/finance/payroll", section: "ACCOUNTS" },
-    { name: "Profile & Settings", icon: User, path: "/finance/profile", section: "ACCOUNTS" },
+    { name: "Dashboard", icon: LayoutGrid, path: "/finance", section: "MAIN" },
+    { name: "Payment", icon: CreditCard, path: "/finance/payment", section: "FINANCE & WORK" },
+    { name: "Insurance/TPA", icon: ShieldCheck, path: "/finance/insurance", section: "FINANCE & WORK" },
+    { name: "Discounts", icon: Percent, path: "/finance/discounts", section: "FINANCE & WORK" },
+    { name: "Alerts", icon: Bell, path: "/finance/alerts", section: "REPORTS" },
+    { name: "Reports", icon: BarChart3, path: "/finance/reports", section: "REPORTS" },
+    { name: "Profile & Settings", icon: User, path: "/finance/profile", section: "SETTINGS" },
   ],
   "reports": [
     { name: "Dashboard", icon: LayoutGrid, path: "/reports", section: "none" },
