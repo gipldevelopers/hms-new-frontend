@@ -207,6 +207,26 @@ export default function SuperAdminWards() {
   const handleDeptChange = (idx, field, value) => {
     const nd = [...departments];
     nd[idx][field] = value;
+    
+    if (field === 'name') {
+      const dept = nd[idx];
+      const deptPrefix = (value || "DE").substring(0, 2).toUpperCase().padEnd(2, 'X');
+      
+      if (dept.wards) {
+        dept.wards.forEach((ward, wIdx) => {
+          const wardNumStr = (wIdx + 1).toString().padStart(2, '0');
+          ward.code = `${deptPrefix}W${wardNumStr}`;
+          
+          if (ward.beds) {
+            ward.beds.forEach((bed, bIdx) => {
+              const bedNumStr = (bIdx + 1).toString().padStart(3, '0');
+              bed.equipmentId = `${ward.code}${bedNumStr}`;
+            });
+          }
+        });
+      }
+    }
+    
     setDepartments(nd);
   };
 
@@ -224,10 +244,16 @@ export default function SuperAdminWards() {
 
   const addWard = (deptIdx) => {
     const nd = [...departments];
+    const dept = nd[deptIdx];
+    const deptPrefix = (dept.name || "DE").substring(0, 2).toUpperCase().padEnd(2, 'X');
+    const nextWardNum = dept.wards.length + 1;
+    const wardNumStr = nextWardNum.toString().padStart(2, '0');
+    const generatedCode = `${deptPrefix}W${wardNumStr}`;
+
     nd[deptIdx].wards.push({ 
       id: `new-w-${Date.now()}`, 
-      name: "", 
-      code: "WD-"+Math.random().toString(36).substring(7).toUpperCase(), 
+      name: `Ward ${nextWardNum}`, 
+      code: generatedCode, 
       beds: [] 
     });
     setDepartments(nd);
@@ -235,10 +261,15 @@ export default function SuperAdminWards() {
 
   const addBed = (deptIdx, wardIdx) => {
     const nd = [...departments];
+    const ward = nd[deptIdx].wards[wardIdx];
+    const nextBedNum = ward.beds.length + 1;
+    const bedNumStr = nextBedNum.toString().padStart(3, '0');
+    const generatedEqId = `${ward.code}${bedNumStr}`;
+
     nd[deptIdx].wards[wardIdx].beds.push({ 
       id: `new-b-${Date.now()}`, 
-      label: "New bed", 
-      equipmentId: "",
+      label: `Bed ${nextBedNum}`, 
+      equipmentId: generatedEqId,
       status: "AVAILABLE" 
     });
     setDepartments(nd);

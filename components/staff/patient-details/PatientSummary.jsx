@@ -129,7 +129,6 @@ export default function PatientSummary() {
                         </div>
                      </div>
                   </div>
-                  <button className="text-[10px] font-bold text-muted-foreground bg-muted border border-border px-3 py-1.5 rounded-md hover:bg-muted/80 transition-all w-full sm:w-auto">Escalate</button>
                 </div>
               </div>
             ))}

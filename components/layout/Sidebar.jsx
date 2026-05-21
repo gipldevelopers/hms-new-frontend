@@ -113,7 +113,6 @@ const roleMenus = {
     { name: "Vitals", icon: Activity, path: "/staff/vitals", section: "WARD" },
     { name: "Tasks", icon: ClipboardList, path: "/staff/tasks", section: "WARD" },
     { name: "Schedule", icon: ArrowLeftRight, path: "/staff/schedule", section: "MEDICATION" },
-    { name: "MAR/ Administer", icon: PlusSquare, path: "/staff/medication/administer", section: "MEDICATION" },
     { name: "Service Requests", icon: Wrench, path: "/staff/services", section: "SERVICES" },
     { name: "Admission/Transfer", icon: ClipboardList, path: "/staff/admissions", section: "ADMISSION" },
     { name: "Profile & Settings", icon: User, path: "/staff/profile", section: "ADMISSION" },
@@ -140,9 +139,11 @@ const roleMenus = {
   ],
   "laboratory": [
     { name: "Dashboard", icon: LayoutGrid, path: "/laboratory", section: "none" },
-    { name: "Tests", icon: FlaskConical, path: "/laboratory/tests", section: "OPS" },
-    { name: "Reports", icon: Microscope, path: "/laboratory/reports", section: "OPS" },
-    { name: "Profile & Settings", icon: User, path: "/laboratory/profile", section: "OPS" },
+    { name: "Test Order Queue", icon: FileText, path: "/laboratory/test-orders", section: "ORDERS" },
+    { name: "Sample Collection", icon: FlaskConical, path: "/laboratory/sample-collection", section: "SAMPLES" },
+    { name: "Sample Tracking", icon: Activity, path: "/laboratory/sample-tracking", section: "SAMPLES" },
+    { name: "Result Entry", icon: ClipboardList, path: "/laboratory/result-entry", section: "RESULTS" },
+    { name: "Critical Values", icon: Siren, path: "/laboratory/critical-values", section: "SYSTEM", badge: "4" },
   ],
   "radiology": [
     { name: "Dashboard", icon: LayoutGrid, path: "/radiology", section: "none" },
@@ -185,8 +186,12 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) 
         const result = await res.json();
         
         if (res.ok && result.success) {
-          setUser(result.data);
-          localStorage.setItem("user", JSON.stringify(result.data));
+          const userData = result.data?.user || result.data || {};
+          const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+          // Merge API data with stored data to preserve name if API misses it
+          const finalUser = { ...storedUser, ...userData };
+          setUser(finalUser);
+          localStorage.setItem("user", JSON.stringify(finalUser));
         } else {
           // Fallback to localStorage if API fails
           const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
@@ -220,8 +225,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) 
   }, [pathname, menuItems]);
 
   const sections = [...new Set(menuItems.map(item => item.section))];
-  // Reorder sections so "Main" or "none" is first
-  const orderedSections = ["Main", "none", ...sections.filter(s => s !== "Main" && s !== "none")];
+  const orderedSections = ["none", "Main", ...sections.filter(s => s !== "Main" && s !== "none")];
 
   return (
     <TooltipProvider delayDuration={0}>
@@ -345,13 +349,12 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) 
                   <p className={cn(
                     "px-4 text-[10px] font-bold text-gray-400 mb-2 whitespace-nowrap transition-all duration-300",
                     isCollapsed && "lg:opacity-0 lg:invisible lg:h-0 lg:mb-0"
-                  )}> 
+                  )}>
                     {section}
                   </p>
                 )}
                 <div className="space-y-1">
-                  {sectionItems
-                    .map((item) => (
+                  {sectionItems.map((item) => (
                     <div key={item.name} className="w-full">
                       <NavItem
                         item={item}
@@ -408,7 +411,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) 
                   ))}
               </div>
             </div>
-          );
+            );
           })}
         </nav>
 
@@ -446,6 +449,11 @@ function NavItem({ item, isCollapsed, isActive, hasSubItems, isOpen, onClick, pa
           <span className="font-semibold text-[13px] whitespace-nowrap">
             {item.name}
           </span>
+          {item.badge && (
+            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-muted dark:bg-white/10 text-foreground dark:text-slate-200 shrink-0">
+              {item.badge}
+            </span>
+          )}
           {hasSubItems && (
             <ChevronDown className={cn("w-3.5 h-3.5 transition-transform duration-200", isOpen && "rotate-180")} />
           )}

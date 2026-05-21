@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Search, ChevronDown, Edit3, Eye, Activity, Wind, Check } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
@@ -10,83 +11,92 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export default function VitalsHistory() {
+export default function VitalsHistory({ patientId }) {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStaff, setFilterStaff] = useState("All");
+  const [staffOptions, setStaffOptions] = useState(["All"]);
+  const [history, setHistory] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const staffOptions = ["All", "Sarah Jenkins", "Mike Ross"];
+  React.useEffect(() => {
+    const fetchFilters = async () => {
+      try {
+        const token = localStorage.getItem("authtoken");
+        const res = await fetch("/api/vitals/filters", {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setStaffOptions(data.staff || ["All"]);
+        }
+      } catch (e) {
+        console.error("Error fetching staff filters:", e);
+      }
+    };
+    fetchFilters();
+  }, []);
 
-  const history = [
-    { 
-      date: "Today", 
-      time: "10:45 AM", 
-      bp: "185/115", 
-      bpAlert: true,
-      hr: "88", 
-      spo2: "86%", 
-      spo2Alert: true,
-      temp: "37.2 °C", 
-      resp: "22", 
-      pain: "4", 
-      recordedBy: "Sarah Jenkins, RN",
-      notes: "Notes attached"
-    },
-    { 
-      date: "Today", 
-      time: "06:00 AM", 
-      bp: "120/80", 
-      hr: "72", 
-      spo2: "98%", 
-      temp: "36.8 °C", 
-      resp: "16", 
-      pain: "2", 
-      recordedBy: "Sarah Jenkins, RN"
-    },
-    { 
-      date: "Yesterday", 
-      time: "10:00 PM", 
-      bp: "118/76", 
-      hr: "68", 
-      spo2: "99%", 
-      temp: "36.9 °C", 
-      resp: "14", 
-      pain: "0", 
-      recordedBy: "Mike Ross, RN"
-    },
-    { 
-      date: "Yesterday", 
-      time: "02:00 PM", 
-      bp: "135/88", 
-      hr: "75", 
-      spo2: "97%", 
-      temp: "37.1 °C", 
-      resp: "18", 
-      pain: "1", 
-      recordedBy: "Mike Ross, RN"
-    },
-    { 
-      date: "Yesterday", 
-      time: "06:00 AM", 
-      bp: "122/82", 
-      hr: "70", 
-      spo2: "98%", 
-      temp: "36.7 °C", 
-      resp: "16", 
-      pain: "0", 
-      recordedBy: "Sarah Jenkins, RN"
+  React.useEffect(() => {
+    if (!patientId) {
+      setLoading(false);
+      return;
     }
-  ];
+    const delayDebounce = setTimeout(() => {
+      const fetchVitals = async () => {
+        try {
+          setLoading(true);
+          const token = localStorage.getItem("authtoken");
+          const params = new URLSearchParams();
+          if (searchQuery) params.append("search", searchQuery);
+          if (filterStaff && filterStaff !== "All") params.append("recordedBy", filterStaff);
 
-  const filteredHistory = history.filter(row => {
-    const matchesSearch = row.recordedBy.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                         row.bp.includes(searchQuery) || 
-                         row.hr.includes(searchQuery);
-    const matchesStaff = filterStaff === "All" || row.recordedBy.includes(filterStaff);
-    return matchesSearch && matchesStaff;
-  });
+          const res = await fetch(`/api/vitals/patient/${patientId}?${params.toString()}`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          const data = await res.json();
+          
+          if (Array.isArray(data)) {
+            const mapped = data.map(v => ({
+              id: v.id,
+              date: new Date(v.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
+              time: new Date(v.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+              bp: `${v.systolic || 0}/${v.diastolic || 0}`,
+              bpAlert: v.systolic > 140 || v.diastolic > 90 || v.systolic < 90 || v.diastolic < 60,
+              hr: v.heartRate || "--",
+              spo2: v.spo2 ? `${v.spo2}%` : "--",
+              spo2Alert: v.spo2 < 95,
+              temp: v.temperature ? `${v.temperature} °C` : "--",
+              resp: v.respiratoryRate || "--",
+              pain: v.painLevel || "0",
+              recordedBy: v.recordedBy || "Staff",
+              notes: v.notes
+            }));
+            setHistory(mapped);
+          } else {
+            setHistory([]);
+          }
+        } catch (err) {
+          console.error("Failed to fetch vitals:", err);
+          setHistory([]);
+        } finally {
+          setLoading(false);
+        }
+      };
+      fetchVitals();
+    }, 300);
+
+    return () => clearTimeout(delayDebounce);
+  }, [patientId, searchQuery, filterStaff]);
+
+  const filteredHistory = history;
 
   const handleAction = (type, row) => {
-    alert(`${type} vitals recorded at ${row.time} by ${row.recordedBy}`);
+    if (type === "Edit") {
+      router.push(`/staff/vitals/${patientId}/entry?mode=edit&entryId=${row.id}&from=patient`);
+    } else if (type === "View") {
+      router.push(`/staff/vitals/${patientId}/entry?mode=view&entryId=${row.id}&from=patient`);
+    }
   };
 
   return (
@@ -133,8 +143,23 @@ export default function VitalsHistory() {
 
       {/* Card View (Mobile) / Table View (Desktop) */}
       <div className="bg-transparent md:bg-card md:rounded-lg md:border md:border-border shadow-none overflow-hidden">
+        
+        {loading && (
+          <div className="p-10 flex justify-center text-muted-foreground">
+            <div className="animate-spin w-6 h-6 border-2 border-primary border-t-transparent rounded-full mr-3"></div> Loading...
+          </div>
+        )}
+        
+        {!loading && filteredHistory.length === 0 && (
+          <div className="p-10 flex justify-center items-center flex-col text-muted-foreground">
+             <Activity className="w-10 h-10 mb-2 opacity-50" />
+             <p className="font-medium text-sm">No vitals recorded yet</p>
+          </div>
+        )}
+
         {/* Mobile Card View */}
-        <div className="grid grid-cols-1 gap-4 md:hidden pb-10">
+        {!loading && filteredHistory.length > 0 && (
+          <div className="grid grid-cols-1 gap-4 md:hidden pb-10">
           {filteredHistory.map((row, i) => (
             <div key={i} className="bg-card p-5 rounded-lg border border-border active:scale-[0.98] transition-all">
               <div className="flex justify-between items-start mb-4 pb-4 border-b border-border">
@@ -192,10 +217,12 @@ export default function VitalsHistory() {
               </div>
             </div>
           ))}
-        </div>
+          </div>
+        )}
 
         {/* Desktop Table View */}
-        <div className="hidden md:block overflow-x-auto no-scrollbar">
+        {!loading && filteredHistory.length > 0 && (
+          <div className="hidden md:block overflow-x-auto no-scrollbar">
           <table className="w-full border-collapse">
             <thead>
               <tr className="bg-muted/30">
@@ -274,6 +301,7 @@ export default function VitalsHistory() {
             </tbody>
           </table>
         </div>
+        )}
       </div>
     </div>
   );
