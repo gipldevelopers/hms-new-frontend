@@ -59,7 +59,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 
 const Database = ({ className }) => {
-    return <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M3 5V19A9 3 0 0 0 21 19V5"></path><path d="M3 12A9 3 0 0 0 21 12"></path></svg>
+  return <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M3 5V19A9 3 0 0 0 21 19V5"></path><path d="M3 12A9 3 0 0 0 21 12"></path></svg>
 }
 
 const Target = ({ className }) => <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
@@ -75,7 +75,8 @@ const roleMenus = {
     { name: "Bed & Ward Management", icon: Hotel, path: "/super-admin/wards", section: "MANAGEMENT" },
     { name: "Bed Map Overview", icon: LayoutGrid, path: "/super-admin/bed-map", section: "MANAGEMENT" },
     { name: "Admissions & Discharges", icon: ClipboardList, path: "/super-admin/admissions", section: "MANAGEMENT" },
-    { name: "Configurations", icon: Settings, path: "/super-admin/configurations", section: "CONFIGURATION",
+    {
+      name: "Configurations", icon: Settings, path: "/super-admin/configurations", section: "CONFIGURATION",
       subItems: [
         { name: "Master Data", path: "/super-admin/configurations/master-data" },
         { name: "Templates", path: "/super-admin/configurations/templates" },
@@ -184,7 +185,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) 
           headers: { "Authorization": `Bearer ${token}` }
         });
         const result = await res.json();
-        
+
         if (res.ok && result.success) {
           const userData = result.data?.user || result.data || {};
           const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
@@ -243,15 +244,15 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) 
           )}
         >
           <div className={cn("flex items-center", isCollapsed ? "gap-0" : "gap-3")}>
-             <div className="w-9 h-9 relative flex items-center justify-center shrink-0">
-                <Image 
-                  src="/favicon.ico" 
-                  width={32} 
-                  height={32} 
-                  alt="Logo" 
-                  className="object-contain"
-                />
-             </div>
+            <div className="w-9 h-9 relative flex items-center justify-center shrink-0">
+              <Image
+                src="/favicon.ico"
+                width={32}
+                height={32}
+                alt="Logo"
+                className="object-contain"
+              />
+            </div>
             {!isCollapsed && (
               <div className="flex flex-col">
                 <span className="text-xl font-bold text-primary tracking-tight whitespace-nowrap">
@@ -261,7 +262,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) 
             )}
           </div>
           {!isCollapsed && (
-            <button 
+            <button
               onClick={() => setIsMobileOpen(false)}
               className="lg:hidden w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 dark:hover:bg-white/5 text-gray-500 ml-auto"
             >
@@ -277,40 +278,40 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) 
         )}>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
+              <div className={cn(
+                "flex items-center transition-all bg-white dark:bg-[#101935] cursor-pointer hover:bg-gray-50 dark:hover:bg-white/5",
+                isCollapsed
+                  ? "lg:w-10 lg:h-10 lg:mx-auto rounded-full flex items-center justify-center p-0 border-none shadow-none"
+                  : "gap-3 p-3 rounded-[5px] border border-[#E7E8EB] dark:border-white/10"
+              )}>
+                {/* Avatar */}
                 <div className={cn(
-                  "flex items-center transition-all bg-white dark:bg-[#101935] cursor-pointer hover:bg-gray-50 dark:hover:bg-white/5", 
-                  isCollapsed 
-                    ? "lg:w-10 lg:h-10 lg:mx-auto rounded-full flex items-center justify-center p-0 border-none shadow-none" 
-                    : "gap-3 p-3 rounded-[5px] border border-[#E7E8EB] dark:border-white/10"
+                  "bg-primary rounded-full shrink-0 flex items-center justify-center transition-all",
+                  isCollapsed ? "w-8 h-8" : "w-10 h-10"
                 )}>
-                  {/* Avatar */}
-                  <div className={cn(
-                    "bg-primary rounded-full shrink-0 flex items-center justify-center transition-all",
-                    isCollapsed ? "w-8 h-8" : "w-10 h-10"
-                  )}>
-                    <span className={cn("text-white font-bold", isCollapsed ? "text-[10px]" : "text-[12px]")}>
-                      {user?.name ? user.name.split(' ').map(n => n[0]).join('').substring(0, 2) : 'U'}
-                    </span>
-                  </div>
-                  
-                  {!isCollapsed && (
-                    <div className="flex-1 min-w-0 transition-all duration-300">
-                      <p className="text-[13px] font-bold text-[#1A1C23] dark:text-white truncate">
-                        {user?.name || "Guest User"}
-                      </p>
-                      <p className="text-[11px] text-gray-400 dark:text-slate-500 font-bold truncate capitalize tracking-tight opacity-80">
-                        {(user?.role || currentRole).toLowerCase().replace(/[-_]/g, ' ')}
-                      </p>
-                    </div>
-                  )}
-                  
-                  {!isCollapsed && (
-                    <ChevronRight className="w-3.5 h-3.5 text-gray-300 dark:text-slate-600" />
-                  )}
+                  <span className={cn("text-white font-bold", isCollapsed ? "text-[10px]" : "text-[12px]")}>
+                    {user?.name ? user.name.split(' ').map(n => n[0]).join('').substring(0, 2) : 'U'}
+                  </span>
                 </div>
+
+                {!isCollapsed && (
+                  <div className="flex-1 min-w-0 transition-all duration-300">
+                    <p className="text-[13px] font-bold text-[#1A1C23] dark:text-white truncate">
+                      {user?.name || "Guest User"}
+                    </p>
+                    <p className="text-[11px] text-gray-400 dark:text-slate-500 font-bold truncate capitalize tracking-tight opacity-80">
+                      {(user?.role || currentRole).toLowerCase().replace(/[-_]/g, ' ')}
+                    </p>
+                  </div>
+                )}
+
+                {!isCollapsed && (
+                  <ChevronRight className="w-3.5 h-3.5 text-gray-300 dark:text-slate-600" />
+                )}
+              </div>
             </DropdownMenuTrigger>
-            <DropdownMenuContent 
-              side={isCollapsed ? "right" : "bottom"} 
+            <DropdownMenuContent
+              side={isCollapsed ? "right" : "bottom"}
               align={isCollapsed ? "start" : "center"}
               className="w-56 mt-2 dark:bg-[#101935] dark:border-white/10 z-[300]"
             >
@@ -324,7 +325,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) 
                 <SettingsIcon className="w-4 h-4" /> Settings
               </DropdownMenuItem>
               <DropdownMenuSeparator className="bg-gray-100 dark:bg-white/5" />
-              <DropdownMenuItem 
+              <DropdownMenuItem
                 onClick={handleLogout}
                 className="gap-3 h-11 cursor-pointer font-semibold text-[13px] px-3 text-red-500 focus:bg-red-50 focus:text-red-600 dark:focus:bg-red-500/10"
               >
@@ -360,12 +361,12 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) 
                         item={item}
                         isCollapsed={isCollapsed}
                         isActive={
-                          pathname === item.path || 
+                          pathname === item.path ||
                           (
-                            item.path !== "/" && 
-                            !["/super-admin", "/branch-admin", "/doctor", "/staff", "/reception", "/pharmacy", "/laboratory", "/radiology", "/finance", "/reports"].includes(item.path) && 
+                            item.path !== "/" &&
+                            !["/super-admin", "/branch-admin", "/doctor", "/staff", "/reception", "/pharmacy", "/laboratory", "/radiology", "/finance", "/reports"].includes(item.path) &&
                             pathname.startsWith(item.path + "/")
-                          ) || 
+                          ) ||
                           item.subItems?.some(s => pathname === s.path)
                         }
                         hasSubItems={!!item.subItems}
@@ -380,7 +381,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) 
                       {item.subItems && (
                         <AnimatePresence>
                           {openSubMenu === item.name && (isCollapsed ? !isCollapsed : true) && (
-                            <motion.div 
+                            <motion.div
                               initial={{ height: 0, opacity: 0 }}
                               animate={{ height: "auto", opacity: 1 }}
                               exit={{ height: 0, opacity: 0 }}
@@ -394,8 +395,8 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) 
                                     href={sub.path}
                                     className={cn(
                                       "flex items-center h-8 px-3 rounded-[5px] text-[12px] font-semibold transition-all",
-                                      pathname === sub.path 
-                                        ? "text-primary bg-primary/5 dark:bg-primary/10" 
+                                      pathname === sub.path
+                                        ? "text-primary bg-primary/5 dark:bg-primary/10"
                                         : "text-[#5E6C84] dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-[#1e293b]"
                                     )}
                                   >
@@ -409,8 +410,8 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) 
                       )}
                     </div>
                   ))}
+                </div>
               </div>
-            </div>
             );
           })}
         </nav>
@@ -466,44 +467,44 @@ function NavItem({ item, isCollapsed, isActive, hasSubItems, isOpen, onClick, pa
     <Tooltip>
       <TooltipTrigger asChild>
         <div className="relative group/collapsed-parent">
-           {hasSubItems ? (
-             <div className="w-full">{content}</div>
-           ) : (
-             <Link href={item.path} className="w-full block">
-               {content}
-             </Link>
-           )}
-           
-           {isCollapsed && hasSubItems && (
-             <div className="absolute left-full top-0 pl-3 hidden lg:group-hover/collapsed-parent:block z-[250]">
-                <div className="bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] p-2 min-w-[220px] shadow-none animate-in fade-in slide-in-from-left-2 duration-200">
-                     <div className="px-3 py-2.5 mb-1 bg-primary/5 dark:bg-primary/10 rounded-[5px]">
-                        <p className="text-[11px] font-bold text-primary">{item.name}</p>
-                     </div>
-                    <div className="space-y-0.5">
-                      {item.subItems.map((sub) => (
-                        <Link
-                          key={sub.name}
-                          href={sub.path}
-                          className={cn(
-                            "flex items-center h-10 px-3 rounded-[5px] text-[13px] font-semibold transition-all mb-0.5",
-                            pathname === sub.path 
-                              ? "text-primary bg-primary/5 dark:bg-primary/10" 
-                              : "text-[#5E6C84] dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-[#1e293b] hover:translate-x-1"
-                          )}
-                        >
-                          {sub.name}
-                        </Link>
-                      ))}
-                    </div>
-               </div>
-             </div>
-           )}
+          {hasSubItems ? (
+            <div className="w-full">{content}</div>
+          ) : (
+            <Link href={item.path} className="w-full block">
+              {content}
+            </Link>
+          )}
+
+          {isCollapsed && hasSubItems && (
+            <div className="absolute left-full top-0 pl-3 hidden lg:group-hover/collapsed-parent:block z-[250]">
+              <div className="bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 rounded-[5px] p-2 min-w-[220px] shadow-none animate-in fade-in slide-in-from-left-2 duration-200">
+                <div className="px-3 py-2.5 mb-1 bg-primary/5 dark:bg-primary/10 rounded-[5px]">
+                  <p className="text-[11px] font-bold text-primary">{item.name}</p>
+                </div>
+                <div className="space-y-0.5">
+                  {item.subItems.map((sub) => (
+                    <Link
+                      key={sub.name}
+                      href={sub.path}
+                      className={cn(
+                        "flex items-center h-10 px-3 rounded-[5px] text-[13px] font-semibold transition-all mb-0.5",
+                        pathname === sub.path
+                          ? "text-primary bg-primary/5 dark:bg-primary/10"
+                          : "text-[#5E6C84] dark:text-slate-400 hover:bg-gray-50 dark:hover:bg-[#1e293b] hover:translate-x-1"
+                      )}
+                    >
+                      {sub.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </TooltipTrigger>
       {isCollapsed && !hasSubItems && (
-        <TooltipContent 
-          side="right" 
+        <TooltipContent
+          side="right"
           sideOffset={20}
           className="bg-[#1e293b] text-white border-none text-[12px] font-bold shadow-none animate-in fade-in zoom-in-95 duration-150"
         >

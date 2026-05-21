@@ -313,35 +313,38 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground transition-colors duration-300;
     letter-spacing: var(--tracking-normal);
   }
+
   html {
     @apply font-sans;
   }
 
-/* Utility to hide scrollbars while maintaining scroll functionality */
-.no-scrollbar::-webkit-scrollbar {
-  display: none !important;
-}
-.no-scrollbar {
-  -ms-overflow-style: none !important;
-  scrollbar-width: none !important;
-}
+  /* Utility to hide scrollbars while maintaining scroll functionality */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none !important;
+  }
 
-/* Utility to hide native browser calendar/clock icons */
-.hide-native-icon::-webkit-calendar-picker-indicator,
-.hide-native-icon::-webkit-inner-spin-button,
-.hide-native-icon::-webkit-clear-button {
-  display: none !important;
-  -webkit-appearance: none !important;
-}
+  .no-scrollbar {
+    -ms-overflow-style: none !important;
+    scrollbar-width: none !important;
+  }
 
-/* Ensure the input itself allows clicking through to trigger the actual picker */
-input[type='date'].hide-native-icon,
-input[type='time'].hide-native-icon {
-  position: relative;
-  cursor: pointer;
-}
+  /* Utility to hide native browser calendar/clock icons */
+  .hide-native-icon::-webkit-calendar-picker-indicator,
+  .hide-native-icon::-webkit-inner-spin-button,
+  .hide-native-icon::-webkit-clear-button {
+    display: none !important;
+    -webkit-appearance: none !important;
+  }
+
+  /* Ensure the input itself allows clicking through to trigger the actual picker */
+  input[type='date'].hide-native-icon,
+  input[type='time'].hide-native-icon {
+    position: relative;
+    cursor: pointer;
+  }
 }
