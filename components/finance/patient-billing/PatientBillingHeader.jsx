@@ -1,23 +1,22 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
 import { Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export function PatientBillingHeader({ activeTab, setActiveTab }) {
+export function PatientBillingHeader({ activeTab, setActiveTab, onGenerateBill }) {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <h1 className="text-[20px] font-bold text-[#1e293b] dark:text-white tracking-tight font-inter">Patient Billing</h1>
 
-        <Link
-          href="/finance/patient-billing/create"
-          className="h-9 px-4 py-5 flex items-center justify-center gap-1.5 bg-[#2E37A4] dark:bg-primary rounded-[5px] text-[13px] font-medium text-white hover:bg-[#2E37A4]/90 transition-all shadow-sm font-inter"
+        <button
+          onClick={onGenerateBill}
+          className="h-9 px-4 py-5 flex items-center justify-center gap-1.5 bg-[#2E37A4] dark:bg-primary rounded-[5px] text-[13px] font-medium text-white hover:bg-[#2E37A4]/90 transition-all font-inter"
         >
           <Plus className="w-4 h-4" />
-          Generate Billing
-        </Link>
+          Generate Bills
+        </button>
       </div>
 
       {/* Tabs */}

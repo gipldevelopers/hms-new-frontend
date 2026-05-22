@@ -1,17 +1,19 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { CustomCalendar } from "./custom-calendar";
 
-export function FormDatePicker({ label, required, value, onChange, placeholder, className, variant = "default", error, align = "bottom", mode = "date" }) {
+export function FormDatePicker({ label, required, value, onChange, placeholder, className, variant = "default", error, align = "auto", mode = "date" }) {
   const [inputValue, setInputValue] = useState(
     value ? format(new Date(value), mode === "month-year" ? "MM/yyyy" : "dd/MM/yyyy") : ""
   );
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
+  const inputWrapperRef = useRef(null);
+  const [calendarPos, setCalendarPos] = useState({ top: 0, left: 0 });
 
   useEffect(() => {
     if (value) {
@@ -21,12 +23,42 @@ export function FormDatePicker({ label, required, value, onChange, placeholder, 
     }
   }, [value, mode]);
 
+  const updateCalendarPosition = useCallback(() => {
+    if (!inputWrapperRef.current) return;
+    const rect = inputWrapperRef.current.getBoundingClientRect();
+    const calendarHeight = 370;
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const spaceAbove = rect.top;
+    const shouldOpenUp = align === "top" || (align === "auto" && spaceBelow < calendarHeight && spaceAbove > spaceBelow);
+
+    setCalendarPos({
+      top: shouldOpenUp ? Math.max(8, rect.top - calendarHeight - 5) : rect.bottom + 5,
+      left: rect.left,
+    });
+  }, [align]);
+
+  useEffect(() => {
+    if (isOpen) {
+      updateCalendarPosition();
+      window.addEventListener("scroll", updateCalendarPosition, true);
+      window.addEventListener("resize", updateCalendarPosition);
+      return () => {
+        window.removeEventListener("scroll", updateCalendarPosition, true);
+        window.removeEventListener("resize", updateCalendarPosition);
+      };
+    }
+  }, [isOpen, updateCalendarPosition]);
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (containerRef.current && containerRef.current.contains(event.target)) {
         return;
       }
-      // Don't close if clicking inside a dropdown list (radix portal)
+      // Don't close if clicking inside the fixed calendar portal
+      const calendarPortal = document.getElementById("fdp-calendar-portal");
+      if (calendarPortal && calendarPortal.contains(event.target)) {
+        return;
+      }
       if (event.target.closest && (
         event.target.closest('[role="menu"]') || 
         event.target.closest('[data-radix-popper-content-wrapper]')
@@ -40,7 +72,7 @@ export function FormDatePicker({ label, required, value, onChange, placeholder, 
   }, []);
 
   const handleInputChange = (e) => {
-    let val = e.target.value.replace(/\D/g, ""); // Remove non-digits
+    let val = e.target.value.replace(/\D/g, "");
     
     if (mode === "month-year") {
       if (val.length > 6) val = val.slice(0, 6);
@@ -99,7 +131,7 @@ export function FormDatePicker({ label, required, value, onChange, placeholder, 
           {error && <span className="text-[11px] text-red-500 font-medium animate-in fade-in slide-in-from-top-1">{error}</span>}
         </label>
       )}
-      <div className="relative">
+      <div className="relative" ref={inputWrapperRef}>
         <input
           type="text"
           value={inputValue}
@@ -139,11 +171,12 @@ export function FormDatePicker({ label, required, value, onChange, placeholder, 
             </div>
           </div>
 
-          {/* Desktop: Dropdown Style */}
-          <div className={cn(
-            "hidden md:block absolute z-[100] animate-in fade-in zoom-in-95 duration-200",
-            align === "top" ? "bottom-[calc(100%+5px)] left-0" : "top-[calc(100%+5px)] left-0"
-          )}>
+          {/* Desktop: Fixed position to escape overflow parents */}
+          <div
+            id="fdp-calendar-portal"
+            className="hidden md:block fixed z-[1000] animate-in fade-in zoom-in-95 duration-200"
+            style={{ top: calendarPos.top, left: calendarPos.left }}
+          >
             <CustomCalendar
               selectedDate={value ? new Date(value) : null}
               mode={mode}

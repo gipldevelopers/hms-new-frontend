@@ -86,21 +86,6 @@ export default function Header({
     <header className="w-full bg-white dark:bg-[#101935] px-4 md:px-6 h-[72px] flex items-center justify-between border-b border-[#E7E8EB] dark:border-white/10 z-[30] flex-shrink-0 transition-all">
       {/* Left side: Toggle & Search */}
       <div className="flex items-center gap-3">
-        {/* Desktop Collapse Toggle */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            setIsCollapsed(!isCollapsed);
-          }}
-          className="hidden lg:flex w-8 h-8 items-center justify-center rounded-full bg-white dark:bg-[#101935] border border-[#E7E8EB] dark:border-white/10 text-gray-500 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-[#1e293b] transition-all"
-        >
-          {isCollapsed ? (
-            <ArrowRight className="w-4 h-4" />
-          ) : (
-            <ArrowLeft className="w-4 h-4" />
-          )}
-        </button>
-
         {/* Mobile Hamburger Menu */}
         <button
           onClick={(e) => {
