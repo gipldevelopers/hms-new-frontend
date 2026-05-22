@@ -15,15 +15,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const INITIAL_PATIENTS = [
-  { id: 1, name: "James Wilson",    doctor: "Dr. Aris Thorne",   dose: "Acute Myocardial Infarction", status: "1 Overdue"   },
-  { id: 2, name: "Maria Lopez",     doctor: "Dr. Sarah Jenkins", dose: "Chronic Heart Failure",       status: "3 Meds Due"  },
-  { id: 3, name: "John Smith",      doctor: "Dr. Aris Thorne",   dose: "Pneumonia",                   status: "All Clear"   },
-  { id: 4, name: "Anita Bhatt",     doctor: "Dr. Michael Vane",  dose: "Severe Asthma Attack",        status: "1 Due Soon"  },
-  { id: 5, name: "Carlos Vega",     doctor: "Dr. Sarah Jenkins", dose: "Acute Stroke",                status: "2 Overdue"   },
-  { id: 6, name: "Helen Parker",    doctor: "Dr. Aris Thorne",   dose: "Diabetes Complications",      status: "1 Overdue"   },
-  { id: 7, name: "William Johnson", doctor: "Dr. Sarah Jenkins", dose: "Sepsis",                      status: "3 Meds Due"  },
-  { id: 8, name: "Nina Patel",      doctor: "Dr. Aris Thorne",   dose: "Appendicitis",                status: "All Clear"   },
-  { id: 9, name: "George Brown",    doctor: "Dr. Michael Vane",  dose: "COPD Exacerbation",           status: "1 Due Soon"  },
+  { id: 1, name: "James Wilson", doctor: "Dr. Aris Thorne", dose: "Acute Myocardial Infarction", status: "1 Overdue" },
+  { id: 2, name: "Maria Lopez", doctor: "Dr. Sarah Jenkins", dose: "Chronic Heart Failure", status: "3 Meds Due" },
+  { id: 3, name: "John Smith", doctor: "Dr. Aris Thorne", dose: "Pneumonia", status: "All Clear" },
+  { id: 4, name: "Anita Bhatt", doctor: "Dr. Michael Vane", dose: "Severe Asthma Attack", status: "1 Due Soon" },
+  { id: 5, name: "Carlos Vega", doctor: "Dr. Sarah Jenkins", dose: "Acute Stroke", status: "2 Overdue" },
+  { id: 6, name: "Helen Parker", doctor: "Dr. Aris Thorne", dose: "Diabetes Complications", status: "1 Overdue" },
+  { id: 7, name: "William Johnson", doctor: "Dr. Sarah Jenkins", dose: "Sepsis", status: "3 Meds Due" },
+  { id: 8, name: "Nina Patel", doctor: "Dr. Aris Thorne", dose: "Appendicitis", status: "All Clear" },
+  { id: 9, name: "George Brown", doctor: "Dr. Michael Vane", dose: "COPD Exacerbation", status: "1 Due Soon" },
 ];
 
 // ─── helpers ──────────────────────────────────────────────────────────────────
@@ -72,7 +72,7 @@ export default function ScheduleDetailPage() {
 
   return (
     <div className="p-5 bg-background text-foreground min-h-screen flex flex-col space-y-5 transition-colors duration-300 font-sans pb-20 shadow-none">
-      
+
       {/* ── Header Toolbar ── */}
       <div className="flex items-center gap-2">
         <button
@@ -150,10 +150,10 @@ export default function ScheduleDetailPage() {
 
       {/* ── Main Two Column Grid Content ── */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
-        
+
         {/* Left Column: Admission Prescriptions */}
         <div className="xl:col-span-2 flex flex-col space-y-4">
-          
+
           <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
             <h3 className="text-[16px] font-bold text-foreground tracking-tight leading-none">
               Admission Prescriptions
@@ -168,7 +168,7 @@ export default function ScheduleDetailPage() {
 
           {/* Cards Stack */}
           <div className="flex flex-col space-y-4">
-            
+
             {/* 1. Paracetamol */}
             <div className="bg-card text-card-foreground border border-border p-4 rounded-[var(--radius)] flex flex-col sm:flex-row justify-between sm:items-center gap-4 shadow-none">
               <div className="flex items-center gap-3">
@@ -274,7 +274,7 @@ export default function ScheduleDetailPage() {
 
         {/* Right Column: Alarm Settings & Today's Timeline */}
         <div className="flex flex-col space-y-5">
-          
+
           {/* Alarm Settings Card */}
           <div className="bg-card text-card-foreground border border-border p-5 rounded-[var(--radius)] flex flex-col space-y-4 shadow-none">
             <h3 className="text-[15px] font-bold text-foreground tracking-tight leading-none">

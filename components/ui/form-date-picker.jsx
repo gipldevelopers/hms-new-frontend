@@ -6,6 +6,8 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { CustomCalendar } from "./custom-calendar";
 
+const useIsomorphicLayoutEffect = typeof window !== "undefined" ? React.useLayoutEffect : React.useEffect;
+
 export function FormDatePicker({ label, required, value, onChange, placeholder, className, variant = "default", error, align = "auto", mode = "date" }) {
   const [inputValue, setInputValue] = useState(
     value ? format(new Date(value), mode === "month-year" ? "MM/yyyy" : "dd/MM/yyyy") : ""
@@ -13,7 +15,7 @@ export function FormDatePicker({ label, required, value, onChange, placeholder, 
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
   const inputWrapperRef = useRef(null);
-  const [calendarPos, setCalendarPos] = useState({ top: 0, left: 0 });
+  const [calendarPos, setCalendarPos] = useState(null);
 
   useEffect(() => {
     if (value) {
@@ -37,7 +39,7 @@ export function FormDatePicker({ label, required, value, onChange, placeholder, 
     });
   }, [align]);
 
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     if (isOpen) {
       updateCalendarPosition();
       window.addEventListener("scroll", updateCalendarPosition, true);
@@ -46,11 +48,25 @@ export function FormDatePicker({ label, required, value, onChange, placeholder, 
         window.removeEventListener("scroll", updateCalendarPosition, true);
         window.removeEventListener("resize", updateCalendarPosition);
       };
+    } else {
+      setCalendarPos(null);
     }
   }, [isOpen, updateCalendarPosition]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
+      console.log("FDP: handleClickOutside triggered", {
+        targetTagName: event.target?.tagName,
+        targetClassName: event.target?.className,
+        inBody: document.body.contains(event.target),
+        inContainer: containerRef.current?.contains(event.target)
+      });
+      // If the clicked element is no longer in the document (detached),
+      // it was likely unmounted during click handling (e.g. selecting month/year).
+      // Do not close the calendar in this case.
+      if (!document.body.contains(event.target)) {
+        return;
+      }
       if (containerRef.current && containerRef.current.contains(event.target)) {
         return;
       }
@@ -137,6 +153,7 @@ export function FormDatePicker({ label, required, value, onChange, placeholder, 
           value={inputValue}
           onChange={handleInputChange}
           onFocus={() => setIsOpen(true)}
+          onClick={() => setIsOpen(true)}
           placeholder={placeholder || (mode === "month-year" ? "MM/YYYY" : "DD/MM/YYYY")}
           className={cn(
             "w-full h-12 pl-11 pr-4 border rounded-[5px] text-[13px] font-bold text-foreground outline-none transition-all shadow-none placeholder:text-muted-foreground/60",
@@ -172,22 +189,24 @@ export function FormDatePicker({ label, required, value, onChange, placeholder, 
           </div>
 
           {/* Desktop: Fixed position to escape overflow parents */}
-          <div
-            id="fdp-calendar-portal"
-            className="hidden md:block fixed z-[1000] animate-in fade-in zoom-in-95 duration-200"
-            style={{ top: calendarPos.top, left: calendarPos.left }}
-          >
-            <CustomCalendar
-              selectedDate={value ? new Date(value) : null}
-              mode={mode}
-              onSelect={(date) => {
-                onChange(date);
-                if (date) setInputValue(format(date, mode === "month-year" ? "MM/yyyy" : "dd/MM/yyyy"));
-                setIsOpen(false);
-              }}
-              onClose={() => setIsOpen(false)}
-            />
-          </div>
+          {calendarPos && (
+            <div
+              id="fdp-calendar-portal"
+              className="hidden md:block fixed z-[1000] animate-in fade-in zoom-in-95 duration-200"
+              style={{ top: calendarPos.top, left: calendarPos.left }}
+            >
+              <CustomCalendar
+                selectedDate={value ? new Date(value) : null}
+                mode={mode}
+                onSelect={(date) => {
+                  onChange(date);
+                  if (date) setInputValue(format(date, mode === "month-year" ? "MM/yyyy" : "dd/MM/yyyy"));
+                  setIsOpen(false);
+                }}
+                onClose={() => setIsOpen(false)}
+              />
+            </div>
+          )}
         </>
       )}
     </div>

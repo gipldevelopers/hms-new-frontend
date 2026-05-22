@@ -15,15 +15,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const INITIAL_PATIENTS = [
-  { id: 1, name: "James Wilson",    doctor: "Dr. Aris Thorne",   dose: "Acute Myocardial Infarction", status: "1 Overdue"   },
-  { id: 2, name: "Maria Lopez",     doctor: "Dr. Sarah Jenkins", dose: "Chronic Heart Failure",       status: "3 Meds Due"  },
-  { id: 3, name: "John Smith",      doctor: "Dr. Aris Thorne",   dose: "Pneumonia",                   status: "All Clear"   },
-  { id: 4, name: "Anita Bhatt",     doctor: "Dr. Michael Vane",  dose: "Severe Asthma Attack",        status: "1 Due Soon"  },
-  { id: 5, name: "Carlos Vega",     doctor: "Dr. Sarah Jenkins", dose: "Acute Stroke",                status: "2 Overdue"   },
-  { id: 6, name: "Helen Parker",    doctor: "Dr. Aris Thorne",   dose: "Diabetes Complications",      status: "1 Overdue"   },
-  { id: 7, name: "William Johnson", doctor: "Dr. Sarah Jenkins", dose: "Sepsis",                      status: "3 Meds Due"  },
-  { id: 8, name: "Nina Patel",      doctor: "Dr. Aris Thorne",   dose: "Appendicitis",                status: "All Clear"   },
-  { id: 9, name: "George Brown",    doctor: "Dr. Michael Vane",  dose: "COPD Exacerbation",           status: "1 Due Soon"  },
+  { id: 1, name: "James Wilson", doctor: "Dr. Aris Thorne", dose: "Acute Myocardial Infarction", status: "1 Overdue" },
+  { id: 2, name: "Maria Lopez", doctor: "Dr. Sarah Jenkins", dose: "Chronic Heart Failure", status: "3 Meds Due" },
+  { id: 3, name: "John Smith", doctor: "Dr. Aris Thorne", dose: "Pneumonia", status: "All Clear" },
+  { id: 4, name: "Anita Bhatt", doctor: "Dr. Michael Vane", dose: "Severe Asthma Attack", status: "1 Due Soon" },
+  { id: 5, name: "Carlos Vega", doctor: "Dr. Sarah Jenkins", dose: "Acute Stroke", status: "2 Overdue" },
+  { id: 6, name: "Helen Parker", doctor: "Dr. Aris Thorne", dose: "Diabetes Complications", status: "1 Overdue" },
+  { id: 7, name: "William Johnson", doctor: "Dr. Sarah Jenkins", dose: "Sepsis", status: "3 Meds Due" },
+  { id: 8, name: "Nina Patel", doctor: "Dr. Aris Thorne", dose: "Appendicitis", status: "All Clear" },
+  { id: 9, name: "George Brown", doctor: "Dr. Michael Vane", dose: "COPD Exacerbation", status: "1 Due Soon" },
 ];
 
 const TIME_SLOTS = [
@@ -83,7 +83,7 @@ export default function FullSchedulePage() {
     const rect = containerRef.current.getBoundingClientRect();
     const scrollLeft = containerRef.current.scrollLeft;
     const relativeX = e.clientX - rect.left + scrollLeft;
-    
+
     // Limits: medication column (220px) to the very end of 17 hourly columns (220 + 17*55)
     const minX = 220;
     const maxX = 220 + 17 * 55;
@@ -97,7 +97,7 @@ export default function FullSchedulePage() {
 
   return (
     <div className="p-5 bg-background text-foreground min-h-screen flex flex-col space-y-5 transition-colors duration-300 font-sans pb-20 shadow-none">
-      
+
       {/* ── Header Toolbar ── */}
       <div className="flex items-center gap-2">
         <button
@@ -209,7 +209,7 @@ export default function FullSchedulePage() {
           className="overflow-x-auto no-scrollbar relative w-full  "
         >
           <table className="w-full border-collapse min-w-[1250px] relative">
-            
+
             {/* Header Column Slots */}
             <thead>
               <tr className="bg-muted/40 border-b border-border">
@@ -226,7 +226,7 @@ export default function FullSchedulePage() {
 
             {/* Matrix Body Rows */}
             <tbody className="divide-y divide-border relative">
-              
+
               {/* Row 1: Pan-D Capsule */}
               <tr className="hover:bg-muted/10 transition-colors">
                 <td className="p-4 border-r border-border">

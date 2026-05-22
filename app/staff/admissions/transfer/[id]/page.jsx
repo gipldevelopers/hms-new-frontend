@@ -94,7 +94,7 @@ export default function PatientTransferPage() {
 
   return (
     <div className="p-[20px] bg-background min-h-screen flex flex-col space-y-[20px] transition-colors duration-300 font-sans pb-20 ">
-      
+
       {/* ── Header Area ── */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 ">
         <div>

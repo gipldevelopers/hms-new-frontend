@@ -10,15 +10,15 @@ import { toast } from "sonner";
 
 // ─── mock data ────────────────────────────────────────────────────────────────
 const MOCK_TASKS = [
-  { id: 1,  patient: "Robert Chen",    bed: "A-12", title: "Discharge Preparation",    priority: "Medium", dueTime: "10:00 AM", assignedTo: "Sarah Jenkins", status: "In Progress" },
-  { id: 2,  patient: "Maria Garcia",   bed: "A-14", title: "Administer Pain Medication", priority: "Low",    dueTime: "10:15 AM", assignedTo: "Unassigned", status: "Pending"     },
-  { id: 3,  patient: "James Wilson",   bed: "A-15", title: "Check Vitals",             priority: "High",   dueTime: "09:00 AM", assignedTo: "David Miller",  status: "Completed"   },
-  { id: 4,  patient: "Emma Thompson",  bed: "A-18", title: "Change Wound Dressing",    priority: "Medium", dueTime: "11:30 AM", assignedTo: "Sarah Jenkins", status: "Pending"     },
-  { id: 5,  patient: "William Davis",  bed: "A-21", title: "Check Vitals",             priority: "Low",    dueTime: "08:00 AM", assignedTo: "David Miller",  status: "Completed"   },
-  { id: 6,  patient: "Sophia Martinez",bed: "B-15", title: "Administer Medication",    priority: "Medium", dueTime: "09:15 AM", assignedTo: "Lisa Roberts",  status: "In Progress" },
-  { id: 7,  patient: "James Wilson",   bed: "C-34", title: "Schedule Test",            priority: "High",   dueTime: "10:30 AM", assignedTo: "Tom Green",     status: "Pending"     },
-  { id: 8,  patient: "Emily Johnson",  bed: "D-42", title: "Review Chart",             priority: "Low",    dueTime: "11:00 AM", assignedTo: "Sara Thomas",   status: "Completed"   },
-  { id: 9,  patient: "Michael Brown",  bed: "E-50", title: "Update Records",           priority: "High",   dueTime: "01:30 PM", assignedTo: "Rachel Kim",    status: "In Progress" },
+  { id: 1, patient: "Robert Chen", bed: "A-12", title: "Discharge Preparation", priority: "Medium", dueTime: "10:00 AM", assignedTo: "Sarah Jenkins", status: "In Progress" },
+  { id: 2, patient: "Maria Garcia", bed: "A-14", title: "Administer Pain Medication", priority: "Low", dueTime: "10:15 AM", assignedTo: "Unassigned", status: "Pending" },
+  { id: 3, patient: "James Wilson", bed: "A-15", title: "Check Vitals", priority: "High", dueTime: "09:00 AM", assignedTo: "David Miller", status: "Completed" },
+  { id: 4, patient: "Emma Thompson", bed: "A-18", title: "Change Wound Dressing", priority: "Medium", dueTime: "11:30 AM", assignedTo: "Sarah Jenkins", status: "Pending" },
+  { id: 5, patient: "William Davis", bed: "A-21", title: "Check Vitals", priority: "Low", dueTime: "08:00 AM", assignedTo: "David Miller", status: "Completed" },
+  { id: 6, patient: "Sophia Martinez", bed: "B-15", title: "Administer Medication", priority: "Medium", dueTime: "09:15 AM", assignedTo: "Lisa Roberts", status: "In Progress" },
+  { id: 7, patient: "James Wilson", bed: "C-34", title: "Schedule Test", priority: "High", dueTime: "10:30 AM", assignedTo: "Tom Green", status: "Pending" },
+  { id: 8, patient: "Emily Johnson", bed: "D-42", title: "Review Chart", priority: "Low", dueTime: "11:00 AM", assignedTo: "Sara Thomas", status: "Completed" },
+  { id: 9, patient: "Michael Brown", bed: "E-50", title: "Update Records", priority: "High", dueTime: "01:30 PM", assignedTo: "Rachel Kim", status: "In Progress" },
 ];
 
 const priorityClass = (p) => {
@@ -155,7 +155,7 @@ export default function TaskDetailPage() {
 
   return (
     <div className="p-5 bg-background text-foreground min-h-screen flex flex-col space-y-5 transition-colors duration-300 font-sans pb-20 shadow-none">
-      
+
       {/* ── Header Toolbar ── */}
       <div className="flex items-center gap-2">
         <button
@@ -222,7 +222,7 @@ export default function TaskDetailPage() {
 
       {/* ── Task Details Main Card ── */}
       <div className="bg-card text-card-foreground border border-border rounded-[var(--radius)] p-5 flex flex-col space-y-5 shadow-none">
-        
+
         {/* Top Badges */}
         <div className="flex justify-between items-center">
           <span className={priorityClass(task.priority)}>{task.priority}</span>
@@ -269,7 +269,7 @@ export default function TaskDetailPage() {
                 {new Date(task.createdAt || Date.now()).toLocaleDateString()} at {new Date(task.createdAt || Date.now()).toLocaleTimeString()}
               </p>
             </div>
-            
+
             {(status === "In Progress" || status === "Completed") && (
               <div className="relative">
                 <span className="absolute -left-[24px] top-1.5 w-2 h-2 rounded-full bg-blue-600 border border-background" />

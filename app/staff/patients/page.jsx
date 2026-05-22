@@ -8,7 +8,8 @@ import {
   Calendar, 
   LogOut, 
   Activity, 
-  Clock 
+  Clock,
+  Check
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
@@ -27,26 +28,27 @@ function CustomSelect({ value, onChange, options, placeholder, minWidth = "130px
       <DropdownMenuTrigger asChild>
         <button
           type="button"
-          className="h-11 px-5 bg-muted border border-border rounded-lg flex items-center justify-between gap-3 text-[13px] font-bold outline-none transition-all shadow-none text-foreground w-full sm:w-auto hover:bg-muted/80"
+          className="h-11 px-5 bg-background border border-border rounded-[5px] flex items-center justify-between gap-3 text-[13px] font-bold outline-none transition-all shadow-none text-foreground w-full sm:w-auto hover:bg-muted focus:border-primary"
           style={{ minWidth }}
         >
           <span className="truncate">{selected ? selected.label : placeholder}</span>
           <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-[130px] border border-border bg-card p-1 rounded-lg shadow-none z-[100]">
+      <DropdownMenuContent align="end" className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-[130px] border border-border bg-card p-1 rounded-[5px] shadow-xl z-[100]">
         {options.map((opt) => (
           <DropdownMenuItem
             key={opt.value}
             onClick={() => onChange(opt.value)}
             className={cn(
-              "rounded-lg text-[13px] font-medium px-3 py-2 cursor-pointer transition-colors outline-none ",
+              "rounded-[5px] text-[12px] font-medium px-3 py-2 cursor-pointer transition-colors outline-none flex items-center justify-between",
               value === opt.value
                 ? "bg-primary/5 text-primary font-bold dark:bg-primary/10"
-                : "text-foreground hover:bg-muted"
+                : "text-gray-600 hover:bg-muted"
             )}
           >
-            {opt.label}
+            <span>{opt.label}</span>
+            {value === opt.value && <Check className="w-3.5 h-3.5 ml-auto text-primary" />}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>
@@ -128,20 +130,20 @@ export default function PatientsPage() {
   ];
 
   return (
-    <div className="p-4 md:p-6 bg-background min-h-screen flex flex-col space-y-[15px] md:space-y-[20px] transition-colors duration-300 font-sans pb-20">
+    <div className="p-[20px] bg-background min-h-screen flex flex-col space-y-[20px] transition-colors duration-300 font-sans pb-20">
       
       {/* Header Section */}
       <div className="flex justify-between items-center">
-        <h1 className="text-[20px] md:text-[24px] font-bold text-foreground tracking-tight leading-none">Patients</h1>
+        <h1 className="text-[20px] font-bold text-foreground tracking-tight leading-none">Patients</h1>
       </div>
 
       {/* Stats Section */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {stats.map((stat, i) => (
-          <div key={i} className="bg-card p-5 rounded-lg border border-border flex items-center justify-between shadow-none">
+          <div key={i} className="bg-card p-5 rounded-[5px] border border-border flex items-center justify-between shadow-none">
             <div className="flex items-center gap-4">
               <div className={cn(
-                "w-12 h-12 rounded-lg flex items-center justify-center shrink-0",
+                "w-12 h-12 rounded-[5px] flex items-center justify-center shrink-0",
                 stat.color === "blue" && "bg-primary/10 text-primary",
                 stat.color === "red" && "bg-destructive/10 text-destructive",
                 stat.color === "emerald" && "bg-emerald-500/10 text-emerald-500",
@@ -150,8 +152,8 @@ export default function PatientsPage() {
                 <stat.icon className="w-6 h-6" />
               </div>
               <div>
-                <p className="text-[10px] md:text-[11px] font-bold text-muted-foreground leading-none mb-1.5 uppercase tracking-wider">{stat.label}</p>
-                <p className="text-[18px] md:text-[20px] font-bold text-foreground leading-none">{stat.value}</p>
+                <p className="text-[11px] font-bold text-muted-foreground leading-none mb-1.5 tracking-tight">{stat.label}</p>
+                <p className="text-[20px] font-bold text-foreground leading-none">{stat.value}</p>
               </div>
             </div>
           </div>
@@ -159,15 +161,15 @@ export default function PatientsPage() {
       </div>
 
       {/* Main Content Area (Filter + Table) */}
-      <div className="space-y-[15px] md:space-y-[20px] flex-1 flex flex-col">
+      <div className="space-y-[20px] flex-1 flex flex-col">
         {/* Filter Bar */}
-        <div className="flex flex-col xl:flex-row justify-between items-stretch xl:items-center gap-4 bg-card p-3 rounded-lg border border-border shadow-none">
+        <div className="flex flex-col xl:flex-row justify-between items-stretch xl:items-center gap-4 bg-card p-3 rounded-[5px] border border-border shadow-none">
           <div className="relative w-full xl:w-[380px]">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <input 
               type="text" 
               placeholder="Search patients..."
-              className="w-full h-11 pl-11 pr-4 bg-muted border border-border rounded-lg text-[13px] font-semibold focus:border-primary transition-all outline-none text-foreground placeholder:text-muted-foreground"
+              className="w-full h-11 pl-11 pr-4 bg-background border border-border rounded-[5px] text-[13px] font-medium focus:border-primary transition-all outline-none text-foreground placeholder:text-muted-foreground"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -200,7 +202,7 @@ export default function PatientsPage() {
         </div>
 
         {/* Table Area (Desktop) / Card Area (Mobile) */}
-        <div className="bg-transparent md:bg-card md:rounded-lg md:border md:border-border shadow-none overflow-hidden flex-1 flex flex-col">
+        <div className="bg-transparent md:bg-card md:rounded-[5px] md:border md:border-border shadow-none overflow-hidden flex-1 flex flex-col">
           {loading ? (
             <div className="flex-1 flex items-center justify-center p-20">
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -213,7 +215,7 @@ export default function PatientsPage() {
                   <div 
                     key={i} 
                     onClick={() => router.push(`/staff/patients/${patient.patientId}`)}
-                    className="bg-card p-5 rounded-lg border border-border active:scale-[0.98] transition-all cursor-pointer hover:border-primary/50"
+                    className="bg-card p-5 rounded-[5px] border border-border active:scale-[0.98] transition-all cursor-pointer hover:border-primary/50"
                   >
                     <div className="flex justify-between items-start mb-4">
                       <div>
@@ -221,18 +223,18 @@ export default function PatientsPage() {
                         <p className="text-[12px] font-medium text-muted-foreground">{patient.age} • Bed: <span className="text-foreground font-bold">{patient.bed}</span></p>
                       </div>
                       <span className={cn(
-                        "px-2.5 py-1 rounded-md text-[9px] font-black border uppercase tracking-wider",
-                        patient.rawStatus === "Pending" && "bg-amber-500/10 text-amber-500 border-amber-500/20",
-                        patient.rawStatus === "In Progress" && "bg-blue-500/10 text-blue-500 border-blue-500/20",
-                        patient.rawStatus === "Completed" && "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
-                        patient.rawStatus === "Pending Discharge" && "bg-orange-500/10 text-orange-500 border-orange-500/20",
+                        "px-3 py-1 rounded-[5px] text-[11px] font-bold border leading-none items-center justify-center inline-flex w-fit",
+                        patient.rawStatus === "Pending" && "bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-500/10 dark:text-amber-500 dark:border-amber-500/20",
+                        patient.rawStatus === "In Progress" && "bg-blue-50 text-blue-600 border-blue-100 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20",
+                        patient.rawStatus === "Completed" && "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20",
+                        patient.rawStatus === "Pending Discharge" && "bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-500/10 dark:text-amber-500 dark:border-amber-500/20",
                       )}>
-                        {patient.rawStatus}
+                        {patient.rawStatus === "In Progress" ? "Admitted" : patient.rawStatus}
                       </span>
                     </div>
                     <div className="pt-4 border-t border-border flex items-center justify-between">
                       <div className="flex-1">
-                        <p className="text-[9px] font-bold text-muted-foreground uppercase tracking-widest mb-1">Diagnosis</p>
+                        <p className="text-[10px] font-bold text-muted-foreground tracking-tight mb-1">Diagnosis</p>
                         <p className="text-[13px] text-muted-foreground font-medium line-clamp-1">{patient.diagnosis}</p>
                       </div>
                       <div className="w-10 h-10 rounded-full bg-primary/5 flex items-center justify-center">
@@ -242,7 +244,7 @@ export default function PatientsPage() {
                   </div>
                 ))}
                 {filteredPatients.length === 0 && (
-                  <div className="bg-card border border-border rounded-lg p-10 text-center text-muted-foreground font-medium italic text-[13px]">
+                  <div className="bg-card border border-border rounded-[5px] p-10 text-center text-muted-foreground font-medium italic text-[13px]">
                     No patients found matching criteria.
                   </div>
                 )}
@@ -253,42 +255,45 @@ export default function PatientsPage() {
                 <table className="w-full border-collapse">
                   <thead>
                     <tr className="bg-muted/30">
-                      <th className="px-8 py-4 text-left text-[11px] font-bold text-muted-foreground border-b border-border uppercase tracking-widest">PATIENT NAME</th>
-                      <th className="px-8 py-4 text-left text-[11px] font-bold text-muted-foreground border-b border-border uppercase tracking-widest">AGE/GENDER</th>
-                      <th className="px-8 py-4 text-left text-[11px] font-bold text-muted-foreground border-b border-border uppercase tracking-widest">BED NO</th>
-                      <th className="px-8 py-4 text-left text-[11px] font-bold text-muted-foreground border-b border-border uppercase tracking-widest">DIAGNOSIS</th>
-                      <th className="px-8 py-4 text-center text-[11px] font-bold text-muted-foreground border-b border-border uppercase tracking-widest">STATUS</th>
-                      <th className="px-8 py-4 text-right text-[11px] font-bold text-muted-foreground border-b border-border uppercase tracking-widest">ACTION</th>
+                      <th className="px-8 py-3 text-left text-[11px] font-bold text-muted-foreground border-b border-border tracking-tight">Patient Name</th>
+                      <th className="px-8 py-3 text-left text-[11px] font-bold text-muted-foreground border-b border-border tracking-tight">Age / Gender</th>
+                      <th className="px-8 py-3 text-left text-[11px] font-bold text-muted-foreground border-b border-border tracking-tight">Bed No</th>
+                      <th className="px-8 py-3 text-left text-[11px] font-bold text-muted-foreground border-b border-border tracking-tight">Diagnosis</th>
+                      <th className="px-8 py-3 text-center text-[11px] font-bold text-muted-foreground border-b border-border tracking-tight">Status</th>
+                      <th className="px-8 py-3 text-right text-[11px] font-bold text-muted-foreground border-b border-border tracking-tight">Action</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border">
                     {filteredPatients.map((patient, i) => (
-                      <tr key={i} className="hover:bg-muted/30 transition-all group cursor-pointer" onClick={() => router.push(`/staff/patients/${patient.patientId}`)}>
-                        <td className="px-8 py-5">
+                      <tr key={i} className="hover:bg-muted/10 transition-all group cursor-pointer" onClick={() => router.push(`/staff/patients/${patient.patientId}`)}>
+                        <td className="px-8 py-3">
                           <div className="text-[14px] font-bold text-foreground leading-tight">{patient.name}</div>
                         </td>
-                        <td className="px-8 py-5">
+                        <td className="px-8 py-3">
                           <div className="text-[14px] text-muted-foreground font-medium">{patient.age}</div>
                         </td>
-                        <td className="px-8 py-5">
+                        <td className="px-8 py-3">
                           <div className="text-[14px] font-bold text-foreground">{patient.bed}</div>
                         </td>
-                        <td className="px-8 py-5">
+                        <td className="px-8 py-3">
                           <div className="text-[14px] text-muted-foreground font-medium truncate max-w-[200px]">{patient.diagnosis}</div>
                         </td>
-                        <td className="px-8 py-5 text-center">
+                        <td className="px-8 py-3 text-center">
                           <span className={cn(
-                            "px-3 py-1 rounded-md text-[10px] font-black border uppercase tracking-wider inline-flex",
-                            patient.rawStatus === "Pending" && "bg-amber-500/10 text-amber-500 border-amber-500/20",
-                            patient.rawStatus === "In Progress" && "bg-blue-500/10 text-blue-500 border-blue-500/20",
-                            patient.rawStatus === "Completed" && "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
-                            patient.rawStatus === "Pending Discharge" && "bg-orange-500/10 text-orange-500 border-orange-500/20",
+                            "px-3 py-1 rounded-[5px] text-[11px] font-bold border leading-none items-center justify-center inline-flex w-fit",
+                            patient.rawStatus === "Pending" && "bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-500/10 dark:text-amber-500 dark:border-amber-500/20",
+                            patient.rawStatus === "In Progress" && "bg-blue-50 text-blue-600 border-blue-100 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20",
+                            patient.rawStatus === "Completed" && "bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20",
+                            patient.rawStatus === "Pending Discharge" && "bg-amber-50 text-amber-600 border-amber-100 dark:bg-amber-500/10 dark:text-amber-500 dark:border-amber-500/20",
                           )}>
-                            {patient.rawStatus}
+                            {patient.rawStatus === "In Progress" ? "Admitted" : patient.rawStatus}
                           </span>
                         </td>
-                        <td className="px-8 py-5 text-right">
-                          <button className="p-2 hover:bg-muted rounded-lg transition-colors">
+                        <td className="px-8 py-3 text-right" onClick={(e) => e.stopPropagation()}>
+                          <button 
+                            className="p-2 hover:bg-muted rounded-[5px] transition-colors"
+                            onClick={() => router.push(`/staff/patients/${patient.patientId}`)}
+                          >
                             <Eye className="w-5 h-5 text-primary" />
                           </button>
                         </td>

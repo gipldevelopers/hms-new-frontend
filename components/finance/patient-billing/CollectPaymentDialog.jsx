@@ -68,7 +68,7 @@ export function CollectPaymentDialog({ open, onOpenChange, patientData, onPaymen
     const numericAmount = parseFloat(amountToPay);
     if (!isNaN(numericAmount) && numericAmount > 0) {
       if (onPaymentConfirm) {
-        onPaymentConfirm(numericAmount);
+        onPaymentConfirm(numericAmount, paymentMethod, transactionRef);
       }
     }
     onOpenChange(false);
@@ -107,7 +107,7 @@ export function CollectPaymentDialog({ open, onOpenChange, patientData, onPaymen
 
             {/* SERVICES Section */}
             <div className="space-y-[12px] pt-[8px] flex-1 overflow-y-auto max-h-[160px]">
-              <h4 className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">SERVICES</h4>
+              <h4 className="text-[11px] font-semibold text-slate-500 dark:text-slate-400">Services</h4>
               <div className="space-y-[8px]">
                 {(patientData?.charges?.flatMap(sec => sec.items) || []).length > 0 ? (
                   patientData.charges.flatMap(sec => sec.items).map((item, idx) => (

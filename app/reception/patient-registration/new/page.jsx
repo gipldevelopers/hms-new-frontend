@@ -94,7 +94,7 @@ export function FormSelect({ label, required, value, onChange, options, placehol
 }
 
 
-export function SuccessModal({ isOpen, onClose, uhid }) {
+export function SuccessModal({ isOpen, onClose, uhid, onBookAppointment }) {
   React.useEffect(() => {
     const handleEsc = (e) => {
       if (e.key === "Escape") onClose();
@@ -153,7 +153,10 @@ export function SuccessModal({ isOpen, onClose, uhid }) {
               <MessageSquare className="w-4 h-4" />
               Send SMS
             </button>
-            <button className="flex items-center justify-center gap-2 h-11 bg-[#3B4CB8] text-white rounded-[5px] text-[13px] font-bold hover:opacity-90 transition-all shadow-none">
+            <button
+              onClick={onBookAppointment}
+              className="flex items-center justify-center gap-2 h-11 bg-[#3B4CB8] text-white rounded-[5px] text-[13px] font-bold hover:opacity-90 transition-all shadow-none"
+            >
               <Calendar className="w-4 h-4" />
               Book Appointment
             </button>
@@ -195,6 +198,7 @@ export default function NewRegistrationPage() {
   const [uploading, setUploading] = React.useState(false);
   const [uploadProgress, setUploadProgress] = React.useState(0);
   const [registeredUhid, setRegisteredUhid] = React.useState("");
+  const [registeredId, setRegisteredId] = React.useState("");
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [errors, setErrors] = React.useState({});
 
@@ -446,6 +450,7 @@ export default function NewRegistrationPage() {
       if (response.ok) {
         const data = await response.json();
         setRegisteredUhid(`#${data.id.substring(0, 5).toUpperCase()}`);
+        setRegisteredId(data.id);
         setShowSuccessModal(true);
         localStorage.removeItem("active_patient_draft_id");
         localStorage.removeItem("patient_registration_draft_data");
@@ -942,6 +947,10 @@ export default function NewRegistrationPage() {
           router.push("/reception/patient-registration");
         }}
         uhid={registeredUhid}
+        onBookAppointment={() => {
+          setShowSuccessModal(false);
+          router.push(`/reception/opd-appointments/book?patientId=${registeredId}`);
+        }}
       />
     </div>
   );

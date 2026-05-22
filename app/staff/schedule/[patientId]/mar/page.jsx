@@ -73,15 +73,15 @@ function CustomTimePicker({ value, onChange, disabled }) {
 }
 
 const INITIAL_PATIENTS = [
-  { id: 1, name: "James Wilson",    doctor: "Dr. Sarah Jenkins", dose: "Acute Myocardial Infarction", status: "1 Overdue"   },
-  { id: 2, name: "Maria Lopez",     doctor: "Dr. Sarah Jenkins", dose: "Chronic Heart Failure",       status: "3 Meds Due"  },
-  { id: 3, name: "John Smith",      doctor: "Dr. Aris Thorne",   dose: "Pneumonia",                   status: "All Clear"   },
-  { id: 4, name: "Anita Bhatt",     doctor: "Dr. Michael Vane",  dose: "Severe Asthma Attack",        status: "1 Due Soon"  },
-  { id: 5, name: "Carlos Vega",     doctor: "Dr. Sarah Jenkins", dose: "Acute Stroke",                status: "2 Overdue"   },
-  { id: 6, name: "Helen Parker",    doctor: "Dr. Aris Thorne",   dose: "Diabetes Complications",      status: "1 Overdue"   },
-  { id: 7, name: "William Johnson", doctor: "Dr. Sarah Jenkins", dose: "Sepsis",                      status: "3 Meds Due"  },
-  { id: 8, name: "Nina Patel",      doctor: "Dr. Aris Thorne",   dose: "Appendicitis",                status: "All Clear"   },
-  { id: 9, name: "George Brown",    doctor: "Dr. Michael Vane",  dose: "COPD Exacerbation",           status: "1 Due Soon"  },
+  { id: 1, name: "James Wilson", doctor: "Dr. Sarah Jenkins", dose: "Acute Myocardial Infarction", status: "1 Overdue" },
+  { id: 2, name: "Maria Lopez", doctor: "Dr. Sarah Jenkins", dose: "Chronic Heart Failure", status: "3 Meds Due" },
+  { id: 3, name: "John Smith", doctor: "Dr. Aris Thorne", dose: "Pneumonia", status: "All Clear" },
+  { id: 4, name: "Anita Bhatt", doctor: "Dr. Michael Vane", dose: "Severe Asthma Attack", status: "1 Due Soon" },
+  { id: 5, name: "Carlos Vega", doctor: "Dr. Sarah Jenkins", dose: "Acute Stroke", status: "2 Overdue" },
+  { id: 6, name: "Helen Parker", doctor: "Dr. Aris Thorne", dose: "Diabetes Complications", status: "1 Overdue" },
+  { id: 7, name: "William Johnson", doctor: "Dr. Sarah Jenkins", dose: "Sepsis", status: "3 Meds Due" },
+  { id: 8, name: "Nina Patel", doctor: "Dr. Aris Thorne", dose: "Appendicitis", status: "All Clear" },
+  { id: 9, name: "George Brown", doctor: "Dr. Michael Vane", dose: "COPD Exacerbation", status: "1 Due Soon" },
 ];
 
 export default function MARAdministerPage() {
@@ -114,7 +114,7 @@ export default function MARAdministerPage() {
 
   return (
     <div className="p-5 bg-background text-foreground min-h-screen flex flex-col space-y-5 transition-colors duration-300 font-sans pb-20 shadow-none selection:bg-primary/10">
-      
+
       {/* ── Header Toolbar ── */}
       <div className="flex items-center gap-2">
         <button
@@ -174,7 +174,7 @@ export default function MARAdministerPage() {
 
       {/* ── Main Administration Screen Details Grid ── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
+
         {/* ── Column 1: Scheduled Medication details ── */}
         <div className="flex flex-col space-y-5">
           <div className="bg-card text-card-foreground border border-border p-6 rounded-[var(--radius)] flex flex-col space-y-4 shadow-none">
