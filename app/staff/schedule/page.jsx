@@ -61,15 +61,15 @@ const statusBadgeClass = (status) => {
 
 // ─── mock data ────────────────────────────────────────────────────────────────
 const INITIAL_PATIENTS = [
-  { id: 1, name: "James Wilson",    doctor: "Dr. Aris Thorne",   dose: "Acute Myocardial Infarction", status: "1 Overdue"   },
-  { id: 2, name: "Maria Lopez",     doctor: "Dr. Sarah Jenkins", dose: "Chronic Heart Failure",       status: "3 Meds Due"  },
-  { id: 3, name: "John Smith",      doctor: "Dr. Aris Thorne",   dose: "Pneumonia",                   status: "All Clear"   },
-  { id: 4, name: "Anita Bhatt",     doctor: "Dr. Michael Vane",  dose: "Severe Asthma Attack",        status: "1 Due Soon"  },
-  { id: 5, name: "Carlos Vega",     doctor: "Dr. Sarah Jenkins", dose: "Acute Stroke",                status: "2 Overdue"   },
-  { id: 6, name: "Helen Parker",    doctor: "Dr. Aris Thorne",   dose: "Diabetes Complications",      status: "1 Overdue"   },
-  { id: 7, name: "William Johnson", doctor: "Dr. Sarah Jenkins", dose: "Sepsis",                      status: "3 Meds Due"  },
-  { id: 8, name: "Nina Patel",      doctor: "Dr. Aris Thorne",   dose: "Appendicitis",                status: "All Clear"   },
-  { id: 9, name: "George Brown",    doctor: "Dr. Michael Vane",  dose: "COPD Exacerbation",           status: "1 Due Soon"  },
+  { id: 1, name: "James Wilson", doctor: "Dr. Aris Thorne", dose: "Acute Myocardial Infarction", status: "1 Overdue" },
+  { id: 2, name: "Maria Lopez", doctor: "Dr. Sarah Jenkins", dose: "Chronic Heart Failure", status: "3 Meds Due" },
+  { id: 3, name: "John Smith", doctor: "Dr. Aris Thorne", dose: "Pneumonia", status: "All Clear" },
+  { id: 4, name: "Anita Bhatt", doctor: "Dr. Michael Vane", dose: "Severe Asthma Attack", status: "1 Due Soon" },
+  { id: 5, name: "Carlos Vega", doctor: "Dr. Sarah Jenkins", dose: "Acute Stroke", status: "2 Overdue" },
+  { id: 6, name: "Helen Parker", doctor: "Dr. Aris Thorne", dose: "Diabetes Complications", status: "1 Overdue" },
+  { id: 7, name: "William Johnson", doctor: "Dr. Sarah Jenkins", dose: "Sepsis", status: "3 Meds Due" },
+  { id: 8, name: "Nina Patel", doctor: "Dr. Aris Thorne", dose: "Appendicitis", status: "All Clear" },
+  { id: 9, name: "George Brown", doctor: "Dr. Michael Vane", dose: "COPD Exacerbation", status: "1 Due Soon" },
 ];
 
 export default function SchedulePage() {
@@ -101,7 +101,7 @@ export default function SchedulePage() {
 
   return (
     <div className="p-5 bg-background text-foreground min-h-screen flex flex-col space-y-5 transition-colors duration-300 font-sans pb-20 shadow-none">
-      
+
       {/* ── Header ── */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-5">
         <h1 className="text-[20px] md:text-[24px] font-bold text-foreground tracking-tight leading-none">
@@ -162,7 +162,7 @@ export default function SchedulePage() {
 
       {/* ── Main Overview Card Box ── */}
       <div className="bg-card text-card-foreground border border-border p-5 rounded-[var(--radius)] flex flex-col space-y-5 shadow-none">
-        
+
         {/* Card Header */}
         <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-5">
           <h2 className="text-[18px] font-bold text-foreground tracking-tight leading-none">
@@ -190,7 +190,7 @@ export default function SchedulePage() {
           </div>
           <div className="flex flex-wrap items-center gap-3 sm:gap-4 w-full sm:w-auto">
             <CustomSelect value={attendingFilter} onChange={setAttendingFilter} options={attendingDoctors} placeholder="Attending Doctor" minWidth="150px" />
-            <CustomSelect value={statusFilter}    onChange={setStatusFilter}    options={statusOptions}    placeholder="Status"           minWidth="120px" />
+            <CustomSelect value={statusFilter} onChange={setStatusFilter} options={statusOptions} placeholder="Status" minWidth="120px" />
           </div>
         </div>
 

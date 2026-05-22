@@ -178,7 +178,7 @@ export default function PatientDetailsPage({ params }) {
             <div className="flex flex-col sm:flex-row items-center justify-start gap-3 md:gap-4 text-center sm:text-left">
               <h2 className="text-[18px] md:text-[22px] font-bold text-foreground leading-none tracking-tight">{patient.name}</h2>
               <span className="text-[12px] md:text-[13px] font-medium text-muted-foreground leading-none">{patient.age ? `${patient.age} yrs` : 'Unknown Age'} • {patient.gender || 'Unknown Gender'}</span>
-              <span className={cn("px-3 py-1 rounded-full border text-[9px] font-black uppercase tracking-widest inline-flex items-center", patientStatus === "In Progress" ? "bg-blue-500/10 text-blue-500 border-blue-500/20" : "bg-emerald-500/10 text-emerald-500 border-emerald-500/20")}>{patientStatus}</span>
+              <span className={cn("px-3 py-1 rounded-md border text-[9px] font-black uppercase tracking-widest inline-flex items-center", patientStatus === "In Progress" ? "bg-blue-500/10 text-blue-500 border-blue-500/20" : "bg-emerald-500/10 text-emerald-500 border-emerald-500/20")}>{patientStatus}</span>
             </div>
 
             {/* Bottom Section: Metadata Grid */}

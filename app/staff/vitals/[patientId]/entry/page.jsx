@@ -34,8 +34,8 @@ function Input({ value, onChange, readOnly, placeholder, type = "text", suffix, 
             readOnly
               ? "bg-muted border-border text-foreground cursor-default"
               : isCritical
-              ? "bg-destructive/5 border-destructive/40 text-destructive focus:border-destructive"
-              : "bg-muted border-border text-foreground focus:border-primary"
+                ? "bg-destructive/5 border-destructive/40 text-destructive focus:border-destructive"
+                : "bg-muted border-border text-foreground focus:border-primary"
           )}
         />
         {suffix && (
@@ -53,16 +53,16 @@ function Input({ value, onChange, readOnly, placeholder, type = "text", suffix, 
 
 // ─── Main Content ─────────────────────────────────────────────────────────────
 function VitalsEntryContent() {
-  const router       = useRouter();
-  const params       = useParams();
+  const router = useRouter();
+  const params = useParams();
   const searchParams = useSearchParams();
 
   const patientId = params?.patientId || "";
-  const mode      = searchParams?.get("mode") || "add";   // "add" | "edit" | "view"
-  const entryId   = searchParams?.get("entryId") || null;
-  const from      = searchParams?.get("from") || "vitals";
+  const mode = searchParams?.get("mode") || "add";   // "add" | "edit" | "view"
+  const entryId = searchParams?.get("entryId") || null;
+  const from = searchParams?.get("from") || "vitals";
 
-  const destPath  = from === "patient" 
+  const destPath = from === "patient"
     ? `/staff/patients/${patientId}?tab=Vitals`
     : `/staff/vitals/${patientId}`;
 
@@ -73,23 +73,23 @@ function VitalsEntryContent() {
   const [isSaving, setIsSaving] = useState(false);
   const [currentUser, setCurrentUser] = useState("Staff");
 
-  const [bpSystolic,  setBpSystolic]  = useState("");
+  const [bpSystolic, setBpSystolic] = useState("");
   const [bpDiastolic, setBpDiastolic] = useState("");
-  const [hr,          setHr]          = useState("");
-  const [spo2,        setSpo2]        = useState("");
-  const [respRate,    setRespRate]    = useState("");
-  const [temp,        setTemp]        = useState("");
-  const [painScore,   setPainScore]   = useState("");
-  const [notes,       setNotes]       = useState("");
+  const [hr, setHr] = useState("");
+  const [spo2, setSpo2] = useState("");
+  const [respRate, setRespRate] = useState("");
+  const [temp, setTemp] = useState("");
+  const [painScore, setPainScore] = useState("");
+  const [notes, setNotes] = useState("");
 
-  const recordedAt  = new Date().toLocaleString();
-  const recordedBy  = currentUser;
+  const recordedAt = new Date().toLocaleString();
+  const recordedBy = currentUser;
 
   useEffect(() => {
     try {
       const user = JSON.parse(localStorage.getItem("user") || "{}");
       if (user.name) setCurrentUser(user.name);
-    } catch (e) {}
+    } catch (e) { }
   }, []);
 
   useEffect(() => {
@@ -98,7 +98,7 @@ function VitalsEntryContent() {
       try {
         const token = localStorage.getItem("authtoken");
         const headers = { Authorization: `Bearer ${token}` };
-        
+
         const patRes = await fetch(`/api/patients/${patientId}`, { headers });
         const patData = await patRes.json();
         setPatient(patData);
@@ -106,21 +106,21 @@ function VitalsEntryContent() {
         const vitRes = await fetch(`/api/vitals/patient/${patientId}`, { headers });
         const vitData = await vitRes.json();
         if (Array.isArray(vitData)) {
-           setRecentHistory(vitData.slice(0, 10));
-           
-           if (entryId && mode !== "add") {
-             const prefill = vitData.find(v => v.id === entryId);
-             if (prefill) {
-               setBpSystolic(prefill.systolic || "");
-               setBpDiastolic(prefill.diastolic || "");
-               setHr(prefill.heartRate || "");
-               setSpo2(prefill.spo2 || "");
-               setRespRate(prefill.respiratoryRate || "");
-               setTemp(prefill.temperature || "");
-               setPainScore(prefill.painLevel || "");
-               setNotes(prefill.notes || "");
-             }
-           }
+          setRecentHistory(vitData.slice(0, 10));
+
+          if (entryId && mode !== "add") {
+            const prefill = vitData.find(v => v.id === entryId);
+            if (prefill) {
+              setBpSystolic(prefill.systolic || "");
+              setBpDiastolic(prefill.diastolic || "");
+              setHr(prefill.heartRate || "");
+              setSpo2(prefill.spo2 || "");
+              setRespRate(prefill.respiratoryRate || "");
+              setTemp(prefill.temperature || "");
+              setPainScore(prefill.painLevel || "");
+              setNotes(prefill.notes || "");
+            }
+          }
         }
       } catch (e) {
         console.error(e);
@@ -158,7 +158,7 @@ function VitalsEntryContent() {
         },
         body: JSON.stringify(payload)
       });
-      
+
       if (res.ok) {
         toast.success("Vitals saved successfully");
         router.push(destPath);
@@ -174,7 +174,7 @@ function VitalsEntryContent() {
     }
   };
 
-  const bpCritical  = !isView && (parseInt(bpSystolic) > 180 || parseInt(bpDiastolic) > 110);
+  const bpCritical = !isView && (parseInt(bpSystolic) > 180 || parseInt(bpDiastolic) > 110);
   const spo2Critical = !isView && parseInt(spo2) < 90;
 
   const uhid = patient?.id ? `UHID-${patient.id.toString().substring(0, 6).toUpperCase()}` : "Loading...";
@@ -215,17 +215,18 @@ function VitalsEntryContent() {
         </p>
         <div className="space-y-3">
           {recentHistory.length === 0 ? (
-             <div className="text-[12px] font-medium text-muted-foreground">No recent vitals</div>
+            <div className="text-[12px] font-medium text-muted-foreground">No recent vitals</div>
           ) : recentHistory.map((h, i) => {
             const hTime = new Date(h.createdAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
             return (
-            <div key={i} className="flex items-center justify-between">
-              <span className="text-[12px] font-bold text-muted-foreground">{hTime}</span>
-              <span className="text-[12px] font-medium text-foreground">
-                BP {h.systolic || 0}/{h.diastolic || 0}, HR {h.heartRate || "--"}
-              </span>
-            </div>
-          )})}
+              <div key={i} className="flex items-center justify-between">
+                <span className="text-[12px] font-bold text-muted-foreground">{hTime}</span>
+                <span className="text-[12px] font-medium text-foreground">
+                  BP {h.systolic || 0}/{h.diastolic || 0}, HR {h.heartRate || "--"}
+                </span>
+              </div>
+            )
+          })}
         </div>
         <button
           onClick={() => router.push(`/staff/vitals/${patientId}`)}
@@ -278,7 +279,7 @@ function VitalsEntryContent() {
                   >
                     Cancel
                   </button>
-                  <button 
+                  <button
                     onClick={handleSave}
                     disabled={isSaving}
                     className="flex-1 sm:flex-none h-10 px-5 bg-primary text-primary-foreground rounded-lg text-[13px] font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all outline-none whitespace-nowrap disabled:opacity-50"
@@ -309,8 +310,8 @@ function VitalsEntryContent() {
                         isView
                           ? "bg-muted border-border text-foreground cursor-default"
                           : bpCritical
-                          ? "bg-destructive/5 border-destructive/40 text-destructive focus:border-destructive"
-                          : "bg-muted border-border text-foreground focus:border-primary"
+                            ? "bg-destructive/5 border-destructive/40 text-destructive focus:border-destructive"
+                            : "bg-muted border-border text-foreground focus:border-primary"
                       )}
                     />
                     {bpCritical && (
@@ -330,8 +331,8 @@ function VitalsEntryContent() {
                         isView
                           ? "bg-muted border-border text-foreground cursor-default"
                           : bpCritical
-                          ? "bg-destructive/5 border-destructive/40 text-destructive focus:border-destructive"
-                          : "bg-muted border-border text-foreground focus:border-primary"
+                            ? "bg-destructive/5 border-destructive/40 text-destructive focus:border-destructive"
+                            : "bg-muted border-border text-foreground focus:border-primary"
                       )}
                     />
                   </div>

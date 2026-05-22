@@ -251,18 +251,19 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen, se
           )}
         >
           <div className={cn("flex items-center", isCollapsed ? "gap-0" : "gap-3")}>
-            <div className="text-[#2E37A4] shrink-0">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-                <rect x="2" y="2" width="8" height="8" rx="2" />
-                <rect x="14" y="2" width="8" height="8" rx="2" />
-                <rect x="2" y="14" width="8" height="8" rx="2" />
-                <rect x="14" y="14" width="8" height="8" rx="2" />
-              </svg>
+            <div className="w-9 h-9 relative flex items-center justify-center shrink-0">
+              <Image
+                src="/favicon.ico"
+                width={32}
+                height={32}
+                alt="Logo"
+                className="object-contain"
+              />
             </div>
             {!isCollapsed && (
               <div className="flex flex-col">
-                <span className="text-xl font-bold text-[#1E293B] dark:text-white tracking-tight whitespace-nowrap">
-                  HMS
+                <span className="text-xl font-bold text-primary tracking-tight whitespace-nowrap">
+                  GVoice HMS
                 </span>
               </div>
             )}

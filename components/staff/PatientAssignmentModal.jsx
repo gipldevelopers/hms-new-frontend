@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { 
-  X, 
-  Search, 
-  Check, 
-  UserPlus, 
+import {
+  X,
+  Search,
+  Check,
+  UserPlus,
   AlertCircle,
   Users
 } from "lucide-react";
@@ -63,7 +63,7 @@ export function PatientAssignmentModal({ isOpen, onClose, staff, branchId }) {
   };
 
   const togglePatient = (id) => {
-    setSelectedIds(prev => 
+    setSelectedIds(prev =>
       prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
     );
   };
@@ -74,13 +74,13 @@ export function PatientAssignmentModal({ isOpen, onClose, staff, branchId }) {
       const token = localStorage.getItem("authtoken");
       const res = await fetch(`/api/staff/${staff.id}/patients?branchId=${branchId}`, {
         method: "POST",
-        headers: { 
+        headers: {
           "Authorization": `Bearer ${token}`,
           "Content-Type": "application/json"
         },
         body: JSON.stringify({ patientIds: selectedIds })
       });
-      
+
       const result = await res.json();
       if (res.ok) {
         toast.success(`Assigned ${selectedIds.length} patients to ${staff.name}`);
@@ -95,7 +95,7 @@ export function PatientAssignmentModal({ isOpen, onClose, staff, branchId }) {
     }
   };
 
-  const filteredPatients = patients.filter(p => 
+  const filteredPatients = patients.filter(p =>
     p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     (p.email && p.email.toLowerCase().includes(searchQuery.toLowerCase()))
   );
@@ -104,14 +104,14 @@ export function PatientAssignmentModal({ isOpen, onClose, staff, branchId }) {
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
-          <motion.div 
-            initial={{ opacity: 0 }} 
-            animate={{ opacity: 1 }} 
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="absolute inset-0 bg-slate-900/40 backdrop-blur-[4px]" 
+            className="absolute inset-0 bg-slate-900/40 backdrop-blur-[4px]"
           />
-          <motion.div 
+          <motion.div
             initial={{ scale: 0.95, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.95, opacity: 0, y: 20 }}
@@ -128,7 +128,7 @@ export function PatientAssignmentModal({ isOpen, onClose, staff, branchId }) {
                   <p className="text-[11px] text-gray-500 dark:text-gray-400 mt-1 font-medium">To {staff?.name}</p>
                 </div>
               </div>
-              <button 
+              <button
                 onClick={onClose}
                 className="p-2 hover:bg-gray-100 dark:hover:bg-white/5 rounded-full transition-colors"
               >
@@ -140,8 +140,8 @@ export function PatientAssignmentModal({ isOpen, onClose, staff, branchId }) {
             <div className="p-4 border-b border-gray-100 dark:border-white/5">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <input 
-                  type="text" 
+                <input
+                  type="text"
                   placeholder="Search patients by name..."
                   className="w-full h-10 pl-10 pr-4 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-[5px] text-[13px] outline-none focus:border-primary transition-all"
                   value={searchQuery}
@@ -175,8 +175,8 @@ export function PatientAssignmentModal({ isOpen, onClose, staff, branchId }) {
                         onClick={() => togglePatient(patient.id)}
                         className={cn(
                           "w-full flex items-center justify-between p-3 rounded-[5px] transition-all text-left group",
-                          isSelected 
-                            ? "bg-primary/5 border border-primary/20" 
+                          isSelected
+                            ? "bg-primary/5 border border-primary/20"
                             : "hover:bg-gray-50 dark:hover:bg-white/5 border border-transparent"
                         )}
                       >
@@ -201,8 +201,8 @@ export function PatientAssignmentModal({ isOpen, onClose, staff, branchId }) {
                         </div>
                         <div className={cn(
                           "w-5 h-5 rounded-full border flex items-center justify-center transition-all",
-                          isSelected 
-                            ? "bg-primary border-primary text-white" 
+                          isSelected
+                            ? "bg-primary border-primary text-white"
                             : "border-gray-300 dark:border-white/10 text-transparent"
                         )}>
                           <Check className="w-3 h-3" strokeWidth={3} />
@@ -220,13 +220,13 @@ export function PatientAssignmentModal({ isOpen, onClose, staff, branchId }) {
                 {selectedIds.length} patients selected
               </p>
               <div className="flex items-center gap-2">
-                <button 
+                <button
                   onClick={onClose}
                   className="px-4 h-9 rounded-[5px] text-[12px] font-bold text-gray-500 hover:bg-gray-100 dark:hover:bg-white/5 transition-all"
                 >
                   Cancel
                 </button>
-                <button 
+                <button
                   onClick={handleSave}
                   disabled={saving || loading}
                   className="px-6 h-9 rounded-[5px] bg-primary text-white text-[12px] font-bold hover:opacity-90 transition-all disabled:opacity-50 flex items-center gap-2"
