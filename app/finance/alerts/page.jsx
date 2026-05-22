@@ -186,7 +186,6 @@ export default function FinanceAlertsPage() {
     <FinancePageShell>
         <FinanceHeader
           title="Billing Alerts & Notifications"
-          description="Monitor critical invoices, discrepancies, and recent billing activity."
         />
 
         <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_430px]">
