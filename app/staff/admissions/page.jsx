@@ -28,33 +28,37 @@ import {
 import { useEffect } from "react";
 import { toast } from "sonner";
 
-function CustomSelect({ value, onChange, options, placeholder, minWidth = "130px" }) {
+function CustomSelect({ value, onChange, options, placeholder, className, minWidth = "130px" }) {
   const selected = options.find((o) => o.value === value);
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <button
           type="button"
-          className="h-11 px-4 bg-card border border-border rounded-lg flex items-center justify-between gap-2 text-[13px] font-medium outline-none transition-all shadow-none text-foreground w-full sm:w-auto hover:bg-muted"
+          className={cn(
+            "h-11 px-5 bg-background border border-border rounded-[5px] flex items-center justify-between gap-3 text-[13px] font-bold outline-none transition-all shadow-none text-foreground w-full sm:w-auto hover:bg-muted focus:border-primary",
+            className
+          )}
           style={{ minWidth }}
         >
           <span className="truncate">{selected ? selected.label : placeholder}</span>
           <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-[130px] border border-border bg-card p-1 rounded-lg shadow-none z-50">
+      <DropdownMenuContent align="end" className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-[130px] border border-border bg-card p-1 rounded-[5px] shadow-xl z-50">
         {options.map((opt) => (
           <DropdownMenuItem
             key={opt.value}
             onClick={() => onChange(opt.value)}
             className={cn(
-              "rounded-lg text-[13px] font-medium px-3 py-2 cursor-pointer transition-colors outline-none ",
+              "rounded-[5px] text-[12px] font-medium px-3 py-2 cursor-pointer transition-colors outline-none flex items-center justify-between",
               value === opt.value
                 ? "bg-primary/5 text-primary font-bold dark:bg-primary/10"
-                : "text-foreground hover:bg-muted"
+                : "text-gray-600 hover:bg-muted"
             )}
           >
-            {opt.label}
+            <span>{opt.label}</span>
+            {value === opt.value && <Check className="w-3.5 h-3.5 ml-auto text-primary" />}
           </DropdownMenuItem>
         ))}
       </DropdownMenuContent>
@@ -93,7 +97,7 @@ export default function WardPatientsPage() {
       // Fetch Admissions
       const admRes = await fetch("/api/admissions/overview?status=In Progress", { headers });
       const admData = await admRes.json();
-      
+
       const mapped = (Array.isArray(admData) ? admData : []).map(adm => ({
         id: adm.id,
         name: adm.patient?.name || "Unknown Patient",
@@ -137,7 +141,7 @@ export default function WardPatientsPage() {
       const token = localStorage.getItem("authtoken");
       const res = await fetch(`/api/admissions/${id}`, {
         method: "PATCH",
-        headers: { 
+        headers: {
           "Authorization": `Bearer ${token}`,
           "Content-Type": "application/json"
         },
@@ -163,11 +167,11 @@ export default function WardPatientsPage() {
       const token = localStorage.getItem("authtoken");
       const res = await fetch(`/api/admissions/${id}`, {
         method: "PATCH",
-        headers: { 
+        headers: {
           "Authorization": `Bearer ${token}`,
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           wardId: targetWard,
           bedId: targetBed
         })
@@ -202,13 +206,13 @@ export default function WardPatientsPage() {
   const statusBadge = (status) => {
     switch (status) {
       case "Pending Discharge":
-        return "bg-amber-500/10 text-amber-600 border border-amber-500/20 px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold  leading-tight";
+        return "bg-amber-50 text-amber-600 border border-amber-100 dark:bg-amber-500/10 dark:text-amber-500 dark:border-amber-500/20 px-3 py-1 rounded-[5px] text-[11px] font-bold leading-none items-center justify-center inline-flex w-fit";
       case "Admitted":
-        return "bg-blue-500/10 text-blue-600 border border-blue-500/20 px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold  leading-tight";
+        return "bg-blue-50 text-blue-600 border border-blue-100 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20 px-3 py-1 rounded-[5px] text-[11px] font-bold leading-none items-center justify-center inline-flex w-fit";
       case "Discharged":
-        return "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold  leading-tight";
+        return "bg-emerald-50 text-emerald-600 border border-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20 px-3 py-1 rounded-[5px] text-[11px] font-bold leading-none items-center justify-center inline-flex w-fit";
       default:
-        return "bg-gray-100 text-gray-600 border border-border px-2.5 py-0.5 rounded-[5px] text-[11px] font-bold  leading-tight";
+        return "bg-gray-50 text-gray-600 border border-border dark:bg-gray-500/10 dark:text-gray-400 dark:border-gray-500/20 px-3 py-1 rounded-[5px] text-[11px] font-bold leading-none items-center justify-center inline-flex w-fit";
     }
   };
 
@@ -223,22 +227,22 @@ export default function WardPatientsPage() {
         </div>
         <button
           onClick={() => router.push("/staff/admissions/add")}
-          className="bg-primary hover:bg-primary/90 text-primary-foreground h-11 px-6 rounded-lg text-[13px] font-bold flex items-center justify-center gap-2 transition-all shadow-none w-full sm:w-auto outline-none "
+          className="bg-primary hover:bg-primary/90 text-primary-foreground h-11 px-6 rounded-[5px] text-[13px] font-bold flex items-center justify-center gap-2 transition-all shadow-none w-full sm:w-auto outline-none "
         >
           <Plus className="w-4 h-4" /> New Admission
         </button>
       </div>
 
       {/* ── Filter Toolbar ── */}
-      <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 bg-card border border-border p-3.5 rounded-lg shadow-none ">
+      <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 bg-card border border-border p-3 rounded-[5px] shadow-none ">
         <div className="relative flex-1">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground  pointer-events-none" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground  pointer-events-none" />
           <input
             type="text"
             placeholder="Search patients..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full h-11 pl-10 pr-4 bg-muted border border-border rounded-lg text-[13px] font-medium outline-none transition-all shadow-none text-foreground focus:border-primary placeholder:text-muted-foreground"
+            className="w-full h-11 pl-11 pr-4 bg-background border border-border rounded-[5px] text-[13px] font-medium outline-none transition-all shadow-none text-foreground focus:border-primary placeholder:text-muted-foreground"
           />
         </div>
 
@@ -281,7 +285,7 @@ export default function WardPatientsPage() {
               {filtered.map((item) => (
                 <div
                   key={item.id}
-                  className="bg-card p-5 rounded-lg border border-border shadow-none "
+                  className="bg-card p-5 rounded-[5px] border border-border shadow-none "
                 >
                   <div className="flex justify-between items-start mb-3">
                     <div>
@@ -304,7 +308,7 @@ export default function WardPatientsPage() {
                     {item.status === "Pending Discharge" && (
                       <button
                         onClick={() => setDischargeItem(item)}
-                        className="p-2.5 hover:bg-muted bg-card border border-border rounded-lg flex items-center justify-center gap-1.5 transition-all text-[12px] font-bold text-foreground shadow-none outline-none"
+                        className="p-2.5 hover:bg-muted bg-card border border-border rounded-[5px] flex items-center justify-center gap-1.5 transition-all text-[12px] font-bold text-foreground shadow-none outline-none"
                       >
                         <LogOut className="w-4 h-4 text-emerald-600 shrink-0 " />
                         <span>Discharge</span>
@@ -313,7 +317,7 @@ export default function WardPatientsPage() {
                     {item.status === "Admitted" && (
                       <button
                         onClick={() => setTransferItem(item)}
-                        className="p-2.5 hover:bg-muted bg-card border border-border rounded-lg flex items-center justify-center gap-1.5 transition-all text-[12px] font-bold text-foreground shadow-none outline-none"
+                        className="p-2.5 hover:bg-muted bg-card border border-border rounded-[5px] flex items-center justify-center gap-1.5 transition-all text-[12px] font-bold text-foreground shadow-none outline-none"
                       >
                         <Send className="w-4 h-4 text-blue-600 shrink-0  rotate-45" />
                         <span>Transfer</span>
@@ -323,62 +327,62 @@ export default function WardPatientsPage() {
                 </div>
               ))}
               {filtered.length === 0 && (
-                <div className="bg-card border border-border rounded-lg p-10 text-center text-muted-foreground font-medium italic text-[13px] ">
+                <div className="bg-card border border-border rounded-[5px] p-10 text-center text-muted-foreground font-medium italic text-[13px] ">
                   No patients found matching current criteria.
                 </div>
               )}
             </div>
 
             {/* High Density Desktop Table Layout */}
-            <div className="hidden md:block bg-card border border-border rounded-lg overflow-hidden flex-1 shadow-none ">
+            <div className="hidden md:block bg-card border border-border rounded-[5px] overflow-hidden flex-1 shadow-none ">
               <div className="overflow-x-auto no-scrollbar ">
                 <table className="w-full text-left border-collapse ">
                   <thead>
                     <tr className="bg-muted/30 ">
-                      <th className="px-6 py-4 text-[11px] font-bold text-muted-foreground tracking-wider  uppercase">
+                      <th className="px-8 py-3 text-left text-[11px] font-bold text-muted-foreground border-b border-border tracking-tight">
                         Patient Name
                       </th>
-                      <th className="px-6 py-4 text-[11px] font-bold text-muted-foreground tracking-wider  uppercase">
+                      <th className="px-8 py-3 text-left text-[11px] font-bold text-muted-foreground border-b border-border tracking-tight">
                         Age/Gender
                       </th>
-                      <th className="px-6 py-4 text-[11px] font-bold text-muted-foreground tracking-wider  uppercase">
+                      <th className="px-8 py-3 text-left text-[11px] font-bold text-muted-foreground border-b border-border tracking-tight">
                         Bed No
                       </th>
-                      <th className="px-6 py-4 text-[11px] font-bold text-muted-foreground tracking-wider  uppercase">
+                      <th className="px-8 py-3 text-left text-[11px] font-bold text-muted-foreground border-b border-border tracking-tight">
                         Diagnosis
                       </th>
-                      <th className="px-6 py-4 text-[11px] font-bold text-muted-foreground tracking-wider  uppercase">
+                      <th className="px-8 py-3 text-left text-[11px] font-bold text-muted-foreground border-b border-border tracking-tight">
                         Status
                       </th>
-                      <th className="px-6 py-4 text-[11px] font-bold text-muted-foreground tracking-wider  uppercase text-right">
+                      <th className="px-8 py-3 text-right text-[11px] font-bold text-muted-foreground border-b border-border tracking-tight">
                         Action
                       </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-border ">
                     {filtered.map((item) => (
-                      <tr key={item.id} className="hover:bg-muted/30 transition-all group ">
-                        <td className="px-6 py-4 text-[14px] font-bold text-foreground ">
+                      <tr key={item.id} className="hover:bg-muted/10 transition-all group ">
+                        <td className="px-8 py-3 text-[14px] font-bold text-foreground ">
                           {item.name}
                         </td>
-                        <td className="px-6 py-4 text-[13px] font-medium text-muted-foreground ">
+                        <td className="px-8 py-3 text-[13px] font-medium text-muted-foreground ">
                           {item.ageGender}
                         </td>
-                        <td className="px-6 py-4 text-[13px] font-bold text-blue-600 dark:text-blue-400 ">
+                        <td className="px-8 py-3 text-[13px] font-bold text-blue-600 dark:text-blue-400 ">
                           {item.bed}
                         </td>
-                        <td className="px-6 py-4 text-[13px] font-medium text-foreground  max-w-[220px] truncate leading-snug">
+                        <td className="px-8 py-3 text-[13px] font-medium text-foreground  max-w-[220px] truncate leading-snug">
                           {item.diagnosis}
                         </td>
-                        <td className="px-6 py-4 ">
+                        <td className="px-8 py-3 ">
                           <span className={statusBadge(item.status)}>{item.status}</span>
                         </td>
-                        <td className="px-6 py-4 text-right ">
+                        <td className="px-8 py-3 text-right ">
                           <div className="flex items-center justify-end gap-2 ">
                             {item.status === "Pending Discharge" && (
                               <button
                                 onClick={() => setDischargeItem(item)}
-                                className="px-3.5 h-9 hover:bg-muted bg-card border border-border rounded-lg flex items-center justify-center gap-1.5 transition-all text-[12px] font-bold text-foreground shadow-none outline-none "
+                                className="px-3.5 h-9 hover:bg-muted bg-card border border-border rounded-[5px] flex items-center justify-center gap-1.5 transition-all text-[12px] font-bold text-foreground shadow-none outline-none "
                                 title="Discharge Patient"
                               >
                                 <LogOut className="w-3.5 h-3.5 text-emerald-600 shrink-0 " />
@@ -388,7 +392,7 @@ export default function WardPatientsPage() {
                             {item.status === "Admitted" && (
                               <button
                                 onClick={() => setTransferItem(item)}
-                                className="px-3.5 h-9 hover:bg-muted bg-card border border-border rounded-lg flex items-center justify-center gap-1.5 transition-all text-[12px] font-bold text-foreground shadow-none outline-none "
+                                className="px-3.5 h-9 hover:bg-muted bg-card border border-border rounded-[5px] flex items-center justify-center gap-1.5 transition-all text-[12px] font-bold text-foreground shadow-none outline-none "
                                 title="Transfer Patient"
                               >
                                 <Send className="w-3.5 h-3.5 text-blue-600 shrink-0  rotate-45" />
@@ -403,7 +407,7 @@ export default function WardPatientsPage() {
                       <tr>
                         <td
                           colSpan={6}
-                          className="px-6 py-16 text-center text-[13px] font-medium text-muted-foreground italic "
+                          className="px-8 py-16 text-center text-[13px] font-medium text-muted-foreground italic "
                         >
                           No patients found.
                         </td>
@@ -426,13 +430,13 @@ export default function WardPatientsPage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setDischargeItem(null)}
-              className="absolute inset-0 bg-slate-900/40 backdrop-blur-[4px] "
+              className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] "
             />
             <motion.div
               initial={{ scale: 0.95, opacity: 0, y: 16 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 16 }}
-              className="relative bg-card w-full max-w-[520px] rounded-lg overflow-hidden shadow-none border border-border flex flex-col "
+              className="relative bg-card w-full max-w-[520px] rounded-[5px] overflow-hidden shadow-none border border-border flex flex-col "
             >
               {/* Header */}
               <div className="p-5 flex justify-between items-start border-b border-border ">
@@ -446,7 +450,7 @@ export default function WardPatientsPage() {
                 </div>
                 <button
                   onClick={() => setDischargeItem(null)}
-                  className="p-1 hover:bg-muted rounded-lg text-muted-foreground transition-all outline-none "
+                  className="p-1 hover:bg-muted rounded-[5px] text-muted-foreground transition-all outline-none "
                 >
                   <X className="w-4 h-4 " />
                 </button>
@@ -454,7 +458,7 @@ export default function WardPatientsPage() {
 
               {/* Patient Card Subheader */}
               <div className="p-5 ">
-                <div className="p-4 bg-muted/50 border border-border rounded-lg flex items-center justify-between gap-4 ">
+                <div className="p-4 bg-muted/50 border border-border rounded-[5px] flex items-center justify-between gap-4 ">
                   <div className="flex items-center gap-3">
                     <div className="w-11 h-11 bg-blue-500/10 dark:bg-blue-500/5 text-blue-600 border border-blue-500/10 rounded-full flex items-center justify-center  shrink-0 overflow-hidden">
                       <div className="w-full h-full flex items-center justify-center bg-primary/10 text-primary font-bold text-[18px]">
@@ -486,7 +490,7 @@ export default function WardPatientsPage() {
                   {/* Checklist item 1 */}
                   <div
                     onClick={() => setDischargeSummaryChecked(!dischargeSummaryChecked)}
-                    className="p-3.5 border border-border rounded-lg bg-card flex items-center justify-between cursor-pointer  hover:bg-muted/50 transition-all"
+                    className="p-3.5 border border-border rounded-[5px] bg-card flex items-center justify-between cursor-pointer  hover:bg-muted/50 transition-all"
                   >
                     <div className="flex items-center gap-3">
                       <div className={cn(
@@ -511,7 +515,7 @@ export default function WardPatientsPage() {
                   {/* Checklist item 2 */}
                   <div
                     onClick={() => setMedReconciliationChecked(!medReconciliationChecked)}
-                    className="p-3.5 border border-border rounded-lg bg-card flex items-center justify-between cursor-pointer  hover:bg-muted/50 transition-all"
+                    className="p-3.5 border border-border rounded-[5px] bg-card flex items-center justify-between cursor-pointer  hover:bg-muted/50 transition-all"
                   >
                     <div className="flex items-center gap-3">
                       <div className={cn(
@@ -536,7 +540,7 @@ export default function WardPatientsPage() {
                   {/* Checklist item 3 */}
                   <div
                     onClick={() => setPatientEducationChecked(!patientEducationChecked)}
-                    className="p-3.5 border border-border rounded-lg bg-card flex items-center justify-between cursor-pointer  hover:bg-muted/50 transition-all"
+                    className="p-3.5 border border-border rounded-[5px] bg-card flex items-center justify-between cursor-pointer  hover:bg-muted/50 transition-all"
                   >
                     <div className="flex items-center gap-3">
                       <div className={cn(
@@ -569,7 +573,7 @@ export default function WardPatientsPage() {
                   placeholder="Add final nursing notes..."
                   value={dischargeNotes}
                   onChange={(e) => setDischargeNotes(e.target.value)}
-                  className="w-full min-h-[80px] p-4 bg-muted border border-border rounded-lg text-[13px] font-medium text-foreground outline-none transition-all shadow-none resize-none  focus:border-primary"
+                  className="w-full min-h-[80px] p-4 bg-background border border-border rounded-[5px] text-[13px] font-medium text-foreground outline-none transition-all shadow-none resize-none  focus:border-primary"
                 />
               </div>
 
@@ -577,13 +581,13 @@ export default function WardPatientsPage() {
               <div className="flex items-center justify-end gap-3 px-6 py-4 bg-muted/30 border-t border-border ">
                 <button
                   onClick={() => setDischargeItem(null)}
-                  className="h-10 px-5 border border-border bg-card hover:bg-muted text-foreground font-semibold rounded-lg text-[13px] transition-all  shadow-none outline-none"
+                  className="h-10 px-5 border border-border bg-card hover:bg-muted text-foreground font-semibold rounded-[5px] text-[13px] transition-all  shadow-none outline-none"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={() => handleDischarge(dischargeItem.id)}
-                  className="h-10 px-5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-[13px] transition-all flex items-center justify-center gap-1.5  shadow-none outline-none disabled:opacity-50"
+                  className="h-10 px-5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-[5px] text-[13px] transition-all flex items-center justify-center gap-1.5  shadow-none outline-none disabled:opacity-50"
                 >
                   <LogOut className="w-3.5 h-3.5  rotate-180" />
                   <span>Confirm Discharge</span>
@@ -603,13 +607,13 @@ export default function WardPatientsPage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setTransferItem(null)}
-              className="absolute inset-0 bg-slate-900/40 backdrop-blur-[4px] "
+              className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px] "
             />
             <motion.div
               initial={{ scale: 0.95, opacity: 0, y: 16 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 16 }}
-              className="relative bg-card w-full max-w-[420px] rounded-lg overflow-hidden shadow-none border border-border flex flex-col "
+              className="relative bg-card w-full max-w-[420px] rounded-[5px] overflow-hidden shadow-none border border-border flex flex-col "
             >
               <div className="p-6 flex flex-col items-center text-center ">
                 <div className="w-12 h-12 bg-blue-500/10 dark:bg-blue-500/5 text-blue-600 border border-blue-500/10 rounded-full flex items-center justify-center mb-4  shrink-0">
@@ -653,14 +657,14 @@ export default function WardPatientsPage() {
               <div className="flex items-center gap-3 px-6 py-4 mt-5 bg-muted/30 border-t border-border ">
                 <button
                   onClick={() => setTransferItem(null)}
-                  className="flex-1 h-10 border border-border bg-card hover:bg-muted text-foreground font-semibold rounded-lg text-[13px] transition-all  shadow-none outline-none"
+                  className="flex-1 h-10 border border-border bg-card hover:bg-muted text-foreground font-semibold rounded-[5px] text-[13px] transition-all  shadow-none outline-none"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={() => handleTransfer(transferItem.id)}
                   disabled={!targetWard || !targetBed}
-                  className="flex-1 h-10 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-lg text-[13px] transition-all  shadow-none outline-none disabled:opacity-50"
+                  className="flex-1 h-10 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-[5px] text-[13px] transition-all  shadow-none outline-none disabled:opacity-50"
                 >
                   Transfer
                 </button>

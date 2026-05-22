@@ -663,8 +663,9 @@ export default function IPDPatientBillingDetails() {
             totalItems
           }
         }}
-        onPaymentConfirm={(amount) => {
+        onPaymentConfirm={(amount, method, ref) => {
           setAdvancePaid(prev => prev + amount);
+          router.push(`/finance/patient-billing/invoice/${uhid || 'T-01'}?amount=${amount}&method=${method}&ref=${ref || ''}`);
         }}
       />
 

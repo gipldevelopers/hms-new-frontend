@@ -1,12 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { Suspense } from "react";
 import {
   Search, ArrowRight, HeartPulse, Stethoscope, Bone, Ear, Smile, Brain,
   Eye, Baby, Loader2, UserPlus, CheckCircle2, X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const DEPT_ICONS = {
   Cardiology: HeartPulse, Dental: Smile, ENT: Ear, Orthopedic: Bone,
@@ -14,8 +14,10 @@ const DEPT_ICONS = {
 };
 const DEFAULT_ICON = Stethoscope;
 
-export default function BookAppointmentStep1() {
+function BookAppointmentStep1Content() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const patientIdParam = searchParams.get("patientId");
   const API = process.env.NEXT_PUBLIC_API_URL;
   const headers = () => ({ Authorization: `Bearer ${localStorage.getItem("authtoken")}` });
 
@@ -44,6 +46,28 @@ export default function BookAppointmentStep1() {
       finally { setDeptLoading(false); }
     })();
   }, []);
+
+  // Preselect patient if patientId is in query params
+  React.useEffect(() => {
+    if (!patientIdParam) return;
+    (async () => {
+      try {
+        const res = await fetch(`${API}/patients/${patientIdParam}`, { headers: headers() });
+        if (res.ok) {
+          const result = await res.json();
+          setSelectedPatient({
+            id: result.id,
+            name: `${result.firstName || ""} ${result.lastName || ""}`.trim(),
+            age: result.age,
+            gender: result.gender,
+            contact: result.contact || result.mobile
+          });
+        }
+      } catch (e) {
+        console.error("Error fetching preselected patient:", e);
+      }
+    })();
+  }, [patientIdParam]);
 
   // Debounce search input
   React.useEffect(() => {
@@ -249,5 +273,19 @@ export default function BookAppointmentStep1() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function BookAppointmentStep1() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex flex-col min-h-screen bg-background p-5 justify-center items-center">
+          <Loader2 className="w-8 h-8 text-primary animate-spin" />
+        </div>
+      }
+    >
+      <BookAppointmentStep1Content />
+    </Suspense>
   );
 }

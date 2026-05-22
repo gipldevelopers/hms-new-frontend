@@ -93,7 +93,7 @@ export function FormSelect({ label, required, value, onChange, options, placehol
 }
 
 
-function SuccessModal({ isOpen, onClose, uhid }) {
+function SuccessModal({ isOpen, onClose, uhid, onBookAppointment }) {
   React.useEffect(() => {
     const handleEsc = (e) => {
       if (e.key === "Escape") onClose();
@@ -152,7 +152,10 @@ function SuccessModal({ isOpen, onClose, uhid }) {
               <MessageSquare className="w-4 h-4" />
               Send SMS
             </button>
-            <button className="flex items-center justify-center gap-2 h-11 bg-[#3B4CB8] text-white rounded-[5px] text-[13px] font-bold hover:opacity-90 transition-all shadow-none">
+            <button
+              onClick={onBookAppointment}
+              className="flex items-center justify-center gap-2 h-11 bg-[#3B4CB8] text-white rounded-[5px] text-[13px] font-bold hover:opacity-90 transition-all shadow-none"
+            >
               <Calendar className="w-4 h-4" />
               Book Appointment
             </button>
@@ -959,6 +962,10 @@ export default function ContinueRegistrationPage() {
           router.push("/reception/patient-registration");
         }}
         uhid={id || "UHID-2023-089"}
+        onBookAppointment={() => {
+          setShowSuccessModal(false);
+          router.push(`/reception/opd-appointments/book?patientId=${id}`);
+        }}
       />
     </div>
   );

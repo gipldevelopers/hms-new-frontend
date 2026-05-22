@@ -1,13 +1,13 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { 
-  Clock, 
-  MapPin, 
-  CheckCircle2, 
-  AlertCircle, 
-  Loader2, 
-  ArrowRight, 
+import {
+  Clock,
+  MapPin,
+  CheckCircle2,
+  AlertCircle,
+  Loader2,
+  ArrowRight,
   Calendar,
   Fingerprint,
   Timer
@@ -93,7 +93,7 @@ export default function StaffAttendancePage() {
     setSubmitting(true);
     try {
       const token = localStorage.getItem("authtoken");
-      
+
       let location = { lat: null, lng: null };
       try {
         const pos = await new Promise((res, rej) => {
@@ -106,7 +106,7 @@ export default function StaffAttendancePage() {
 
       const res = await fetch(`/api/attendance/${branchId}/check-in`, {
         method: "POST",
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`
         },
@@ -173,7 +173,7 @@ export default function StaffAttendancePage() {
 
   return (
     <div className="p-6 bg-background min-h-screen space-y-[25px] flex flex-col transition-colors duration-300 font-sans">
-      
+
       {/* Header Section */}
       <div className="flex justify-between items-center mb-[25px]">
         <div>
@@ -190,7 +190,7 @@ export default function StaffAttendancePage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
+
         {/* Check-In Card */}
         <div className="lg:col-span-2 space-y-6">
           <div className="bg-card border border-border rounded-lg p-10 flex flex-col items-center text-center shadow-none relative overflow-hidden">
@@ -205,7 +205,7 @@ export default function StaffAttendancePage() {
               {isCheckedIn ? "Shift Started" : isCheckedOut ? "Shift Finished" : "Ready to Start"}
             </h2>
             <p className="text-[13px] text-muted-foreground mb-8 max-w-sm font-medium">
-              {rosterToday 
+              {rosterToday
                 ? `Active Shift: ${rosterToday.startTime} - ${rosterToday.endTime} (${rosterToday.department})`
                 : "No active shift scheduled for today."}
             </p>
@@ -310,7 +310,7 @@ export default function StaffAttendancePage() {
                         </span>
                       </div>
                       <p className="text-[11px] text-muted-foreground font-bold mt-1 tabular-nums">
-                        {new Date(log.checkIn).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} 
+                        {new Date(log.checkIn).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         {log.checkOut && ` - ${new Date(log.checkOut).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`}
                       </p>
                     </div>

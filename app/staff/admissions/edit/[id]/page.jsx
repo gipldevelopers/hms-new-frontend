@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { 
-  ArrowLeft, Check, User, ClipboardList, 
+import {
+  ArrowLeft, Check, User, ClipboardList,
   ChevronLeft, ChevronDown, Calendar, Clock,
   CheckCircle2, X
 } from "lucide-react";
@@ -26,11 +26,11 @@ import { Trash2 } from "lucide-react";
 // --- CUSTOM SELECT COMPONENT ---
 function CustomSelect({ value, onChange, options, placeholder, required, className }) {
   const selectedOption = options.find(opt => opt.value === value);
-  
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button 
+        <button
           type="button"
           className={cn(
             "w-full h-[48px] px-4 bg-muted/50 border border-border rounded-lg text-[14px] font-bold text-left flex items-center justify-between outline-none focus:border-primary transition-all",
@@ -45,8 +45,8 @@ function CustomSelect({ value, onChange, options, placeholder, required, classNa
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-[var(--radix-dropdown-menu-trigger-width)] border-border shadow-none rounded-lg p-1 z-[500]">
         {options.map((opt) => (
-          <DropdownMenuItem 
-            key={opt.value} 
+          <DropdownMenuItem
+            key={opt.value}
             onClick={() => onChange(opt.value)}
             className={cn(
               "rounded-lg text-[13px] font-medium px-3 py-2 cursor-pointer transition-colors",
@@ -67,7 +67,7 @@ function CustomSelect({ value, onChange, options, placeholder, required, classNa
 // --- CUSTOM TIME PICKER COMPONENT ---
 function CustomTimePicker({ value, onChange, disabled }) {
   const [isOpen, setIsOpen] = useState(false);
-  
+
   const initialHour = value ? parseInt(value.split(':')[0]) : 8;
   const initialMinute = value ? parseInt(value.split(':')[1]) : 0;
   const initialPeriod = value?.includes('PM') ? 'PM' : 'AM';
@@ -89,7 +89,7 @@ function CustomTimePicker({ value, onChange, disabled }) {
   return (
     <DropdownMenu open={isOpen && !disabled} onOpenChange={setIsOpen}>
       <DropdownMenuTrigger asChild>
-        <button 
+        <button
           type="button"
           disabled={disabled}
           className="w-full h-[48px] px-4 bg-muted/50 border border-border rounded-lg text-[14px] font-bold text-left flex items-center gap-3 outline-none focus:border-primary transition-all disabled:opacity-50"
@@ -134,7 +134,7 @@ export default function EditAdmissionPage() {
   const router = useRouter();
   const params = useParams();
   const admissionId = params.id;
-  
+
   const [loading, setLoading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -166,7 +166,7 @@ export default function EditAdmissionPage() {
     try {
       const token = localStorage.getItem("authtoken");
       const headers = { Authorization: `Bearer ${token}` };
-      
+
       const infraRes = await fetch("/api/wards/overview", { headers });
       const infraData = await infraRes.json();
       setDepartments(Array.isArray(infraData) ? infraData : []);
@@ -178,7 +178,7 @@ export default function EditAdmissionPage() {
       const res = await fetch(`/api/admissions/overview?id=${admissionId}`, { headers });
       const data = await res.json();
       const record = Array.isArray(data) ? data.find(r => r.id === admissionId) : data;
-      
+
       if (record) {
         const dateObj = new Date(record.admissionDate);
         setFormData({
@@ -288,11 +288,11 @@ export default function EditAdmissionPage() {
 
   return (
     <div className="p-6 bg-background min-h-screen flex flex-col font-sans gap-5">
-      
+
       {/* Page Header */}
       <div className="flex items-center justify-between mb-2">
         <h1 className="text-[20px] font-bold text-foreground tracking-tight leading-none">Edit Clinical Admission</h1>
-        <button 
+        <button
           onClick={() => router.back()}
           className="h-[44px] px-6 border border-border bg-card rounded-lg text-[13px] font-bold text-muted-foreground flex items-center gap-3 hover:bg-muted transition-all shadow-none"
         >
@@ -304,24 +304,24 @@ export default function EditAdmissionPage() {
       <form onSubmit={handleSubmit} className="flex flex-col gap-5">
         <div className="bg-card rounded-lg border border-border overflow-hidden shadow-none">
           <div className="p-5 space-y-12">
-            
+
             {/* Patient Information Section */}
             <div className="space-y-6">
               <h2 className="text-[16px] font-bold text-foreground tracking-wider">Patient Information</h2>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-x-8 gap-y-5">
                 <div className="md:col-span-2 space-y-2">
                   <label className="text-[12px] font-bold text-muted-foreground ml-1">Patient Full Name</label>
-                  <input required placeholder="Enter patient's full name" className="w-full h-[48px] px-4 bg-muted/50 border border-border rounded-lg text-[14px] font-bold text-foreground outline-none focus:border-primary transition-all shadow-none placeholder:text-muted-foreground" value={formData.patientName} onChange={(e) => setFormData({...formData, patientName: e.target.value})} />
+                  <input required placeholder="Enter patient's full name" className="w-full h-[48px] px-4 bg-muted/50 border border-border rounded-lg text-[14px] font-bold text-foreground outline-none focus:border-primary transition-all shadow-none placeholder:text-muted-foreground" value={formData.patientName} onChange={(e) => setFormData({ ...formData, patientName: e.target.value })} />
                 </div>
                 <div className="space-y-2">
                   <label className="text-[12px] font-bold text-muted-foreground ml-1">Age</label>
-                  <input required type="number" placeholder="e.g. 45" className="w-full h-[48px] px-4 bg-muted/50 border border-border rounded-lg text-[14px] font-bold text-foreground outline-none focus:border-primary transition-all shadow-none placeholder:text-muted-foreground" value={formData.patientAge} onChange={(e) => setFormData({...formData, patientAge: e.target.value})} />
+                  <input required type="number" placeholder="e.g. 45" className="w-full h-[48px] px-4 bg-muted/50 border border-border rounded-lg text-[14px] font-bold text-foreground outline-none focus:border-primary transition-all shadow-none placeholder:text-muted-foreground" value={formData.patientAge} onChange={(e) => setFormData({ ...formData, patientAge: e.target.value })} />
                 </div>
                 <div className="space-y-2">
                   <label className="text-[12px] font-bold text-muted-foreground ml-1">Gender</label>
-                  <CustomSelect 
+                  <CustomSelect
                     value={formData.patientGender}
-                    onChange={(val) => setFormData({...formData, patientGender: val})}
+                    onChange={(val) => setFormData({ ...formData, patientGender: val })}
                     placeholder="Select Gender"
                     options={[
                       { label: "Male", value: "Male" },
@@ -330,23 +330,23 @@ export default function EditAdmissionPage() {
                     ]}
                   />
                 </div>
-                
+
                 <div className="md:col-span-2 space-y-2">
                   <label className="text-[12px] font-bold text-muted-foreground ml-1">Contact Number</label>
-                  <input required placeholder="+1 (000) 000-0000" className="w-full h-[48px] px-4 bg-muted/50 border border-border rounded-lg text-[14px] font-bold text-foreground outline-none focus:border-primary transition-all shadow-none placeholder:text-muted-foreground" value={formData.patientContact} onChange={(e) => setFormData({...formData, patientContact: e.target.value})} />
+                  <input required placeholder="+1 (000) 000-0000" className="w-full h-[48px] px-4 bg-muted/50 border border-border rounded-lg text-[14px] font-bold text-foreground outline-none focus:border-primary transition-all shadow-none placeholder:text-muted-foreground" value={formData.patientContact} onChange={(e) => setFormData({ ...formData, patientContact: e.target.value })} />
                 </div>
                 <div className="md:col-span-2 space-y-2">
                   <label className="text-[12px] font-bold text-muted-foreground ml-1">Email Address (Optional)</label>
-                  <input type="email" placeholder="patient@email.com" className="w-full h-[48px] px-4 bg-muted/50 border border-border rounded-lg text-[14px] font-bold text-foreground outline-none focus:border-primary transition-all shadow-none placeholder:text-muted-foreground" value={formData.patientEmail} onChange={(e) => setFormData({...formData, patientEmail: e.target.value})} />
+                  <input type="email" placeholder="patient@email.com" className="w-full h-[48px] px-4 bg-muted/50 border border-border rounded-lg text-[14px] font-bold text-foreground outline-none focus:border-primary transition-all shadow-none placeholder:text-muted-foreground" value={formData.patientEmail} onChange={(e) => setFormData({ ...formData, patientEmail: e.target.value })} />
                 </div>
 
                 <div className="md:col-span-2 space-y-2">
                   <label className="text-[12px] font-bold text-muted-foreground ml-1">Emergency Contact Name</label>
-                  <input placeholder="Name of relative" className="w-full h-[48px] px-4 bg-muted/50 border border-border rounded-lg text-[14px] font-bold text-foreground outline-none focus:border-primary transition-all shadow-none placeholder:text-muted-foreground" value={formData.emergencyContactName} onChange={(e) => setFormData({...formData, emergencyContactName: e.target.value})} />
+                  <input placeholder="Name of relative" className="w-full h-[48px] px-4 bg-muted/50 border border-border rounded-lg text-[14px] font-bold text-foreground outline-none focus:border-primary transition-all shadow-none placeholder:text-muted-foreground" value={formData.emergencyContactName} onChange={(e) => setFormData({ ...formData, emergencyContactName: e.target.value })} />
                 </div>
                 <div className="md:col-span-2 space-y-2">
                   <label className="text-[12px] font-bold text-muted-foreground ml-1">Emergency Contact Phone</label>
-                  <input placeholder="+1 (000) 000-0000" className="w-full h-[48px] px-4 bg-muted/50 border border-border rounded-lg text-[14px] font-bold text-foreground outline-none focus:border-primary transition-all shadow-none placeholder:text-muted-foreground" value={formData.emergencyContactPhone} onChange={(e) => setFormData({...formData, emergencyContactPhone: e.target.value})} />
+                  <input placeholder="+1 (000) 000-0000" className="w-full h-[48px] px-4 bg-muted/50 border border-border rounded-lg text-[14px] font-bold text-foreground outline-none focus:border-primary transition-all shadow-none placeholder:text-muted-foreground" value={formData.emergencyContactPhone} onChange={(e) => setFormData({ ...formData, emergencyContactPhone: e.target.value })} />
                 </div>
               </div>
             </div>
@@ -357,7 +357,7 @@ export default function EditAdmissionPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-5">
                 <div className="space-y-2">
                   <label className="text-[12px] font-bold text-muted-foreground ml-1">Department</label>
-                  <CustomSelect 
+                  <CustomSelect
                     value={formData.departmentId}
                     onChange={handleDeptChange}
                     placeholder="e.g. ICU, General Ward, Cardiology"
@@ -366,37 +366,37 @@ export default function EditAdmissionPage() {
                 </div>
                 <div className="space-y-2">
                   <label className="text-[12px] font-bold text-muted-foreground ml-1">Assigned Doctor</label>
-                  <CustomSelect 
+                  <CustomSelect
                     value={formData.doctorId}
-                    onChange={(val) => setFormData({...formData, doctorId: val})}
+                    onChange={(val) => setFormData({ ...formData, doctorId: val })}
                     placeholder="Select Doctor"
                     options={doctors.map(doc => ({ label: doc.name, value: doc.id }))}
                   />
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-5">
-                   <div className="space-y-2">
+                  <div className="space-y-2">
                     <label className="text-[12px] font-bold text-muted-foreground ml-1">Admission Date & Time</label>
-                    <FormDatePicker 
+                    <FormDatePicker
                       value={formData.admissionDate}
-                      onChange={(date) => setFormData({...formData, admissionDate: date})}
+                      onChange={(date) => setFormData({ ...formData, admissionDate: date })}
                       placeholder="Select Date"
                       variant="muted"
                     />
                   </div>
                   <div className="space-y-2 flex flex-col justify-end">
-                    <CustomTimePicker 
+                    <CustomTimePicker
                       value={formData.admissionTime}
-                      onChange={(time) => setFormData({...formData, admissionTime: time})}
+                      onChange={(time) => setFormData({ ...formData, admissionTime: time })}
                     />
                   </div>
                 </div>
 
                 <div className="space-y-2">
                   <label className="text-[12px] font-bold text-muted-foreground ml-1">Admission Status</label>
-                  <CustomSelect 
+                  <CustomSelect
                     value={formData.status}
-                    onChange={(val) => setFormData({...formData, status: val})}
+                    onChange={(val) => setFormData({ ...formData, status: val })}
                     placeholder="Select Status"
                     options={[
                       { label: "Pending", value: "Pending" },
@@ -409,7 +409,7 @@ export default function EditAdmissionPage() {
                 {/* Ward and Bed - kept for functionality */}
                 <div className="space-y-2">
                   <label className="text-[12px] font-bold text-muted-foreground ml-1">Select Ward</label>
-                  <CustomSelect 
+                  <CustomSelect
                     value={formData.wardId}
                     onChange={handleWardChange}
                     placeholder="Select Ward"
@@ -418,9 +418,9 @@ export default function EditAdmissionPage() {
                 </div>
                 <div className="space-y-2">
                   <label className="text-[12px] font-bold text-muted-foreground ml-1">Available Bed</label>
-                  <CustomSelect 
+                  <CustomSelect
                     value={formData.bedId}
-                    onChange={(val) => setFormData({...formData, bedId: val})}
+                    onChange={(val) => setFormData({ ...formData, bedId: val })}
                     placeholder="Select Bed"
                     options={beds.map(b => ({ label: b.label, value: b.id }))}
                   />
@@ -428,7 +428,7 @@ export default function EditAdmissionPage() {
 
                 <div className="col-span-1 md:col-span-2 space-y-2">
                   <label className="text-[12px] font-bold text-muted-foreground ml-1">Reason for Admission & Notes</label>
-                  <textarea placeholder="Enter diagnosis, symptoms, or special instructions here..." className="w-full min-h-[120px] p-4 bg-muted/50 border border-border rounded-lg text-[14px] font-bold text-foreground outline-none focus:border-primary transition-all shadow-none resize-none placeholder:text-muted-foreground" value={formData.reason} onChange={(e) => setFormData({...formData, reason: e.target.value})} />
+                  <textarea placeholder="Enter diagnosis, symptoms, or special instructions here..." className="w-full min-h-[120px] p-4 bg-muted/50 border border-border rounded-lg text-[14px] font-bold text-foreground outline-none focus:border-primary transition-all shadow-none resize-none placeholder:text-muted-foreground" value={formData.reason} onChange={(e) => setFormData({ ...formData, reason: e.target.value })} />
                 </div>
               </div>
             </div>
@@ -436,8 +436,8 @@ export default function EditAdmissionPage() {
 
           {/* Action Footer */}
           <div className="p-6 bg-muted/30 border-t border-border flex justify-between items-center">
-            <button 
-              type="button" 
+            <button
+              type="button"
               onClick={() => setShowDeleteModal(true)}
               className="flex items-center gap-2 text-[12px] font-bold text-destructive hover:text-destructive/90 transition-colors tracking-wider"
             >
@@ -456,12 +456,12 @@ export default function EditAdmissionPage() {
       <AnimatePresence>
         {showDeleteModal && (
           <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
               onClick={() => setShowDeleteModal(false)}
-              className="absolute inset-0 bg-slate-900/40 backdrop-blur-[4px]" 
+              className="absolute inset-0 bg-slate-900/40 backdrop-blur-[4px]"
             />
-            <motion.div 
+            <motion.div
               initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -478,13 +478,13 @@ export default function EditAdmissionPage() {
               </div>
 
               <div className="flex border-t border-border">
-                <button 
+                <button
                   onClick={() => setShowDeleteModal(false)}
                   className="flex-1 py-4 text-[13px] font-bold text-muted-foreground hover:bg-muted transition-colors border-r border-border"
                 >
                   Cancel
                 </button>
-                <button 
+                <button
                   onClick={handleDelete}
                   disabled={isDeleting}
                   className="flex-1 py-4 text-[13px] font-bold text-destructive hover:bg-destructive/5 transition-colors disabled:opacity-50"

@@ -3,7 +3,7 @@
 import React from "react";
 import {
   Search, Plus, Calendar, ChevronDown, CalendarDays,
-  UserCheck, Clock, XCircle, UserX, X, Check, Loader2, RefreshCw,
+  UserCheck, Clock, XCircle, UserX, X, Check, Loader2,
   Ticket, Printer, Eye,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -397,9 +397,6 @@ export default function OPDAppointments() {
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
-            <button onClick={fetchAll} className="h-10 px-3 border border-border rounded-[5px] text-muted-foreground hover:bg-muted transition-all">
-              <RefreshCw className="w-4 h-4" />
-            </button>
           </div>
         </div>
 
