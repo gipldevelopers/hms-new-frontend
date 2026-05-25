@@ -40,7 +40,11 @@ import {
   Percent,
   Bed,
   HeartPulse,
-  ArrowLeft
+  ArrowLeft,
+  Package,
+  ShoppingCart,
+  Layers,
+  ClipboardCheck
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -183,6 +187,17 @@ const roleMenus = {
     { name: "Clinical KPI Dashboard", icon: ShieldCheck, path: "/reports/clinical-kpi", section: "HOSPITAL ANALYTICS" },
     { name: "OT Utilization", icon: HeartPulse, path: "/reports/ot-utilization", section: "HOSPITAL ANALYTICS" },
     { name: "Financial Insights", icon: BarChart3, path: "/reports/financial-insights", section: "FINANCE" },
+  ],
+  "hospital-inventory": [
+    { name: "Dashboard", icon: LayoutGrid, path: "/hospital-inventory", section: "none" },
+    { name: "Stock Management", icon: Package, path: "/hospital-inventory/stock", section: "HOSPITAL MANAGEMENT" },
+    { name: "Purchase Management", icon: ShoppingCart, path: "/hospital-inventory/purchase", section: "HOSPITAL MANAGEMENT" },
+    { name: "Supplier Management", icon: Users2, path: "/hospital-inventory/supplier", section: "HOSPITAL MANAGEMENT" },
+    { name: "Department Inventory", icon: Building2, path: "/hospital-inventory/department", section: "HOSPITAL MANAGEMENT" },
+    { name: "Store Operation", icon: Layers, path: "/hospital-inventory/store", section: "HOSPITAL MANAGEMENT" },
+    { name: "OT & Clinical Supplies", icon: HeartPulse, path: "/hospital-inventory/ot-supplies", section: "HOSPITAL MANAGEMENT" },
+    { name: "Approval Center", icon: ClipboardCheck, path: "/hospital-inventory/approvals", section: "REPORT AND ANALYTICS" },
+    { name: "Report & Analytics", icon: BarChart3, path: "/hospital-inventory/reports", section: "REPORT AND ANALYTICS" }
   ]
 };
 

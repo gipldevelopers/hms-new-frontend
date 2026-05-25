@@ -11,7 +11,8 @@ import {
   Activity, 
   FileText, 
   UserCircle,
-  GripVertical
+  GripVertical,
+  Package
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -24,6 +25,7 @@ const ROLE_CONFIG = {
   RADIOLOGY: { icon: Monitor, path: "/radiology", label: "Radiology" },
   FINANCE: { icon: FileText, path: "/finance", label: "Finance" },
   REPORTS: { icon: FileText, path: "/reports", label: "Reports" },
+  HOSPITAL_INVENTORY: { icon: Package, path: "/hospital-inventory", label: "Inventory" },
 };
 
 export function ConsoleSwitcher() {
