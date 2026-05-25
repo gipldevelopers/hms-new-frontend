@@ -9,7 +9,8 @@ import {
   LogOut,
   Activity,
   Clock,
-  Check
+  Check,
+  Building2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useRouter } from "next/navigation";
@@ -66,22 +67,38 @@ export default function PatientsPage() {
   const [wardsList, setWardsList] = useState([]);
   const [statsData, setStatsData] = useState({ todayAdmissions: 0, todayDischarges: 0, inProgress: 0, pending: 0 });
   const [loading, setLoading] = useState(true);
+  
+  const [branches, setBranches] = useState([]);
+  const [selectedBranch, setSelectedBranch] = useState(null);
 
-  const fetchData = async () => {
+  const fetchBranches = async () => {
     try {
-      setLoading(true);
-
-      if (typeof window !== "undefined") {
-        const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
-        if (storedUser?.name?.toLowerCase() === "staff") {
-          setPatients([]);
-          setStatsData({ todayAdmissions: 0, todayDischarges: 0, inProgress: 0, pending: 0 });
-          setWardsList([]);
-          setLoading(false);
-          return;
+      const token = localStorage.getItem("authtoken");
+      const res = await fetch("/api/branches", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const json = await res.json();
+        if (json.success) {
+          setBranches(json.data);
+          if (json.data.length > 0) {
+            setSelectedBranch(json.data[0]);
+          }
         }
       }
+    } catch (e) {
+      console.error("Error fetching branches:", e);
+    }
+  };
 
+  useEffect(() => {
+    fetchBranches();
+  }, []);
+
+  const fetchData = async () => {
+    if (branches.length > 0 && !selectedBranch) return;
+    try {
+      setLoading(true);
       const token = localStorage.getItem("authtoken");
       const headers = { Authorization: `Bearer ${token}` };
 
@@ -90,6 +107,7 @@ export default function PatientsPage() {
       if (searchQuery) params.append("search", searchQuery);
       if (wardFilter !== "All") params.append("wardId", wardFilter);
       if (statusFilter !== "All") params.append("status", statusFilter);
+      if (selectedBranch) params.append("branchId", selectedBranch.id);
 
       // Fetch Admissions
       const admRes = await fetch(`/api/admissions/overview?${params.toString()}`, { headers });
@@ -98,6 +116,7 @@ export default function PatientsPage() {
       const mapped = (Array.isArray(admData) ? admData : []).map(adm => ({
         id: adm.id,
         patientId: adm.patientId,
+        branchId: adm.branchId,
         name: adm.patient?.name || "Unknown Patient",
         age: `${adm.patient?.age || '??'} / ${adm.patient?.gender || '??'}`,
         bed: adm.bed?.label || "No Bed",
@@ -108,14 +127,14 @@ export default function PatientsPage() {
       setPatients(mapped);
 
       // Fetch Stats
-      const statsRes = await fetch("/api/admissions/stats", { headers });
+      const statsRes = await fetch(`/api/admissions/stats${selectedBranch ? `?branchId=${selectedBranch.id}` : ""}`, { headers });
       const statsJson = await statsRes.json();
       if (statsJson.success || statsJson.todayAdmissions !== undefined) {
         setStatsData(statsJson.data || statsJson);
       }
 
       // Fetch Wards
-      const infraRes = await fetch("/api/wards/overview", { headers });
+      const infraRes = await fetch(`/api/wards/overview${selectedBranch ? `?branchId=${selectedBranch.id}` : ""}`, { headers });
       const infraData = await infraRes.json();
       setWardsList(Array.isArray(infraData) ? infraData : []);
     } catch (e) {
@@ -130,7 +149,7 @@ export default function PatientsPage() {
       fetchData();
     }, 300);
     return () => clearTimeout(timer);
-  }, [searchQuery, wardFilter, statusFilter]);
+  }, [searchQuery, wardFilter, statusFilter, selectedBranch]);
 
   const filteredPatients = patients;
 
@@ -145,8 +164,34 @@ export default function PatientsPage() {
     <div className="p-[20px] bg-background min-h-screen flex flex-col space-y-[20px] transition-colors duration-300 font-sans pb-20">
 
       {/* Header Section */}
-      <div className="flex justify-between items-center">
-        <h1 className="text-[20px] font-bold text-foreground tracking-tight leading-none">Patients</h1>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-[20px] font-bold text-foreground tracking-tight leading-none">Patients</h1>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="h-11 px-4 bg-white dark:bg-[#111827] border border-border rounded-[5px] text-[13px] font-bold text-foreground flex items-center gap-3 hover:bg-muted transition-all outline-none">
+                <Building2 className="w-4 h-4 text-primary" />
+                {selectedBranch ? selectedBranch.name : "Select Branch"}
+                <ChevronDown className="w-4 h-4 text-muted-foreground" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-[200px] border-border bg-card shadow-xl rounded-[5px] p-1 z-[110]">
+              {branches.map((branch) => (
+                <DropdownMenuItem 
+                  key={branch.id} 
+                  onClick={() => setSelectedBranch(branch)}
+                  className="rounded-[5px] px-3 py-2 text-[13px] font-medium cursor-pointer hover:bg-muted transition-colors flex items-center justify-between"
+                >
+                  {branch.name}
+                  {selectedBranch?.id === branch.id && <Check className="w-3.5 h-3.5 text-primary" />}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
 
       {/* Stats Section */}
@@ -226,7 +271,7 @@ export default function PatientsPage() {
                 {filteredPatients.map((patient, i) => (
                   <div
                     key={i}
-                    onClick={() => router.push(`/staff/patients/${patient.patientId}`)}
+                    onClick={() => router.push(`/super-admin/patient-detail/patients/${patient.patientId}?branchId=${patient.branchId || ""}`)}
                     className="bg-card p-5 rounded-[5px] border border-border active:scale-[0.98] transition-all cursor-pointer hover:border-primary/50"
                   >
                     <div className="flex justify-between items-start mb-4">
@@ -277,7 +322,7 @@ export default function PatientsPage() {
                   </thead>
                   <tbody className="divide-y divide-border">
                     {filteredPatients.map((patient, i) => (
-                      <tr key={i} className="hover:bg-muted/10 transition-all group cursor-pointer" onClick={() => router.push(`/staff/patients/${patient.patientId}`)}>
+                      <tr key={i} className="hover:bg-muted/10 transition-all group cursor-pointer" onClick={() => router.push(`/super-admin/patient-detail/patients/${patient.patientId}?branchId=${patient.branchId || ""}`)}>
                         <td className="px-8 py-3">
                           <div className="text-[14px] font-bold text-foreground leading-tight">{patient.name}</div>
                         </td>
@@ -304,7 +349,7 @@ export default function PatientsPage() {
                         <td className="px-8 py-3 text-right" onClick={(e) => e.stopPropagation()}>
                           <button
                             className="p-2 hover:bg-muted rounded-[5px] transition-colors"
-                            onClick={() => router.push(`/staff/patients/${patient.patientId}`)}
+                            onClick={() => router.push(`/super-admin/patient-detail/patients/${patient.patientId}?branchId=${patient.branchId || ""}`)}
                           >
                             <Eye className="w-5 h-5 text-primary" />
                           </button>
