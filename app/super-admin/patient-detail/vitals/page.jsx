@@ -95,21 +95,6 @@ function StatCard({ label, value, icon: Icon, color }) {
   );
 }
 
-// ─── Data ─────────────────────────────────────────────────────────────────────
-const vitalsData = [
-  { id: 1, name: "Rajesh Kumar", bp: "185/115", bpStatus: "critical", hr: 88, spo2: "86%", spo2Status: "critical", temp: "37.2 °C", resp: 22, pain: 4, recordedBy: "Sarah Jenkins, RN", notes: true },
-  { id: 2, name: "Mrs. Joseph Thiel", bp: "120/80", bpStatus: "normal", hr: 72, spo2: "98%", spo2Status: "normal", temp: "36.8 °C", resp: 16, pain: 2, recordedBy: "Sarah Jenkins, RN", notes: false },
-  { id: 3, name: "Ada Rempel", bp: "118/76", bpStatus: "normal", hr: 68, spo2: "99%", spo2Status: "normal", temp: "36.9 °C", resp: 14, pain: 0, recordedBy: "Mike Ross, RN", notes: false },
-  { id: 4, name: "Alfonso Stiedemann", bp: "135/88", bpStatus: "normal", hr: 75, spo2: "97%", spo2Status: "normal", temp: "37.1 °C", resp: 18, pain: 1, recordedBy: "Mike Ross, RN", notes: false },
-  { id: 5, name: "Dianna Sanford", bp: "122/82", bpStatus: "normal", hr: 70, spo2: "98%", spo2Status: "normal", temp: "36.7 °C", resp: 16, pain: 0, recordedBy: "Sarah Jenkins, RN", notes: false },
-  { id: 6, name: "Marcus Reed", bp: "130/85", bpStatus: "normal", hr: 75, spo2: "95%", spo2Status: "normal", temp: "37.1 °C", resp: 22, pain: 0, recordedBy: "Jessica Lee, NP", notes: false },
-  { id: 7, name: "Amelia Zhao", bp: "118/76", bpStatus: "normal", hr: 68, spo2: "97%", spo2Status: "normal", temp: "36.5 °C", resp: 18, pain: 1, recordedBy: "David Kim, PA", notes: false },
-  { id: 8, name: "Jason Patel", bp: "140/90", bpStatus: "abnormal", hr: 80, spo2: "92%", spo2Status: "abnormal", temp: "38.0 °C", resp: 25, pain: 0, recordedBy: "Emily Tran, RN", notes: false },
-  { id: 9, name: "Sofia Martinez", bp: "128/84", bpStatus: "normal", hr: 72, spo2: "96%", spo2Status: "normal", temp: "37.3 °C", resp: 20, pain: 0, recordedBy: "Michael Chen, MD", notes: false },
-  { id: 10, name: "Liam Johnson", bp: "135/88", bpStatus: "normal", hr: 74, spo2: "94%", spo2Status: "normal", temp: "36.8 °C", resp: 19, pain: 2, recordedBy: "Rachel Green, NP", notes: false },
-  { id: 11, name: "Ella Thompson", bp: "125/80", bpStatus: "normal", hr: 71, spo2: "93%", spo2Status: "normal", temp: "36.8 °C", resp: 21, pain: 1, recordedBy: "Tommy Brooks, RN", notes: false },
-];
-
 const statusOptions = [
   { label: "Critical", value: "critical" },
   { label: "Abnormal", value: "abnormal" },
@@ -130,13 +115,6 @@ export default function VitalsPage() {
   useEffect(() => {
     const fetchFilters = async () => {
       try {
-        if (typeof window !== "undefined") {
-          const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
-          if (storedUser?.name?.toLowerCase() === "staff") {
-            setWardOptions([]);
-            return;
-          }
-        }
         const token = localStorage.getItem("authtoken");
         const res = await fetch("/api/vitals/filters", {
           headers: { Authorization: `Bearer ${token}` }
@@ -157,17 +135,6 @@ export default function VitalsPage() {
       const fetchData = async () => {
         try {
           setLoading(true);
-
-          if (typeof window !== "undefined") {
-            const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
-            if (storedUser?.name?.toLowerCase() === "staff") {
-              setHistory([]);
-              setStats({ totalPatients: 0, critical: 0, abnormal: 0, overdue: 0 });
-              setLoading(false);
-              return;
-            }
-          }
-
           const token = localStorage.getItem("authtoken");
           const headers = { Authorization: `Bearer ${token}` };
 
@@ -277,7 +244,7 @@ export default function VitalsPage() {
                   <div className="flex justify-between items-start mb-4">
                     <h3 className="text-[16px] font-bold text-foreground leading-tight">{v.name}</h3>
                     <button
-                      onClick={() => router.push(`/staff/vitals/${v.id}`)}
+                      onClick={() => router.push(`/super-admin/patient-detail/vitals/${v.id}`)}
                       className="w-9 h-9 rounded-[5px] bg-primary/10 flex items-center justify-center shrink-0 ml-2 shadow-none"
                     >
                       <Eye className="w-4 h-4 text-primary" />
@@ -406,7 +373,7 @@ export default function VitalsPage() {
                         {/* Actions */}
                         <td className="px-8 py-3 text-center" onClick={(e) => e.stopPropagation()}>
                           <button
-                            onClick={() => router.push(`/staff/vitals/${v.id}`)}
+                            onClick={() => router.push(`/super-admin/patient-detail/vitals/${v.id}`)}
                             className="p-2 hover:bg-muted rounded-[5px] transition-colors inline-flex shadow-none"
                             title="View vitals history"
                           >

@@ -79,6 +79,17 @@ const roleMenus = {
     { name: "Bed Map Overview", icon: LayoutGrid, path: "/super-admin/bed-map", section: "MANAGEMENT" },
     { name: "Admissions & Discharges", icon: ClipboardList, path: "/super-admin/admissions", section: "MANAGEMENT" },
     {
+      name: "Patient Detail",
+      icon: Users2,
+      path: "/super-admin/patient-detail",
+      section: "MANAGEMENT",
+      subItems: [
+        { name: "Patients", path: "/super-admin/patient-detail/patients" },
+        { name: "Vitals", path: "/super-admin/patient-detail/vitals" },
+        { name: "Tasks", path: "/super-admin/patient-detail/tasks" },
+      ]
+    },
+    {
       name: "Configurations", icon: Settings, path: "/super-admin/configurations", section: "CONFIGURATION",
       subItems: [
         { name: "Master Data", path: "/super-admin/configurations/master-data" },
@@ -268,7 +279,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen, se
               </div>
             )}
           </div>
-          
+
           {/* Collapse/Expand Toggle Button matching screenshot */}
           {!isCollapsed ? (
             <button

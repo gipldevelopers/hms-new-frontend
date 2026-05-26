@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { Search, ChevronDown, Clock, Check, Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -11,8 +11,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export default function NursingTasks({ patientId }) {
+export default function NursingTasks({ patientId, branchId }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [searchQuery, setSearchQuery] = useState("");
   const [filterPriority, setFilterPriority] = useState("All");
   const [tasks, setTasks] = useState([]);
@@ -28,6 +29,7 @@ export default function NursingTasks({ patientId }) {
       if (patientId) params.append("patientId", patientId);
       if (search) params.append("search", search);
       if (priority !== "All") params.append("priority", priority);
+      if (branchId) params.append("branchId", branchId);
 
       const res = await fetch(`/api/tasks?${params.toString()}`, {
         headers: { Authorization: `Bearer ${token}` }
@@ -49,13 +51,13 @@ export default function NursingTasks({ patientId }) {
     }, 300);
 
     return () => clearTimeout(delayDebounce);
-  }, [patientId, searchQuery, filterPriority]);
+  }, [patientId, searchQuery, filterPriority, branchId]);
 
   const toggleTask = async (task) => {
     try {
       const newStatus = task.status === "Completed" ? "Pending" : "Completed";
       const token = localStorage.getItem("authtoken");
-      const res = await fetch(`/api/tasks/${task.id}`, {
+      const res = await fetch(`/api/tasks/${task.id}${branchId ? `?branchId=${branchId}` : ""}`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -71,8 +73,10 @@ export default function NursingTasks({ patientId }) {
     }
   };
 
+  const prefix = pathname.startsWith("/super-admin") ? "/super-admin/patient-detail" : "/staff";
+
   const handleAction = (task) => {
-    router.push(`/staff/tasks/${task.id}`);
+    router.push(`${prefix}/tasks/${task.id}${branchId ? `?branchId=${branchId}` : ""}`);
   };
 
   const filteredTasks = tasks;
