@@ -39,7 +39,8 @@ import {
   CreditCard,
   Percent,
   Bed,
-  HeartPulse
+  HeartPulse,
+  ArrowLeft
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -156,6 +157,7 @@ const roleMenus = {
   ],
   "finance": [
     { name: "Dashboard", icon: LayoutGrid, path: "/finance", section: "MAIN" },
+    { name: "Patient Billing", icon: FileText, path: "/finance/patient-billing", section: "FINANCE & WORK" },
     { name: "Payment", icon: CreditCard, path: "/finance/payment", section: "FINANCE & WORK" },
     { name: "Insurance/TPA", icon: ShieldCheck, path: "/finance/insurance", section: "FINANCE & WORK" },
     { name: "Discounts", icon: Percent, path: "/finance/discounts", section: "FINANCE & WORK" },
@@ -173,7 +175,7 @@ const roleMenus = {
   ]
 };
 
-export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) {
+export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen, setIsCollapsed }) {
   const pathname = usePathname();
   const router = useRouter();
   const [openSubMenu, setOpenSubMenu] = React.useState(null);
@@ -244,7 +246,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) 
         {/* Logo */}
         <div
           className={cn(
-            "flex items-center h-[72px] border-b border-[#E7E8EB] dark:border-white/10 shrink-0 transition-all duration-300 overflow-hidden",
+            "flex items-center h-[72px] border-b border-[#E7E8EB] dark:border-white/10 shrink-0 transition-all duration-300 overflow-hidden relative",
             isCollapsed ? "lg:justify-center lg:px-0" : "px-6",
           )}
         >
@@ -266,6 +268,24 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) 
               </div>
             )}
           </div>
+          
+          {/* Collapse/Expand Toggle Button matching screenshot */}
+          {!isCollapsed ? (
+            <button
+              onClick={() => setIsCollapsed && setIsCollapsed(true)}
+              className="hidden lg:flex w-6 h-6 items-center justify-center rounded-full bg-slate-50 dark:bg-slate-900 border border-[#E7E8EB] dark:border-white/10 text-gray-400 hover:text-gray-600 dark:hover:text-slate-300 ml-auto transition-all cursor-pointer"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+            </button>
+          ) : (
+            <button
+              onClick={() => setIsCollapsed && setIsCollapsed(false)}
+              className="hidden lg:flex absolute right-1.5 top-6 w-5 h-5 items-center justify-center rounded-full bg-slate-50 dark:bg-slate-900 border border-[#E7E8EB] dark:border-white/10 text-gray-400 hover:text-gray-600 dark:hover:text-slate-300 transition-all cursor-pointer z-50 animate-in fade-in duration-300"
+            >
+              <ChevronRight className="w-3 h-3" />
+            </button>
+          )}
+
           {!isCollapsed && (
             <button
               onClick={() => setIsMobileOpen(false)}
@@ -295,17 +315,17 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) 
                   isCollapsed ? "w-8 h-8" : "w-10 h-10"
                 )}>
                   <span className={cn("text-white font-bold", isCollapsed ? "text-[10px]" : "text-[12px]")}>
-                    {user?.name ? user.name.split(' ').map(n => n[0]).join('').substring(0, 2) : 'U'}
+                    {user?.name ? user.name.split(' ').map(n => n[0]).join('').substring(0, 2) : 'AS'}
                   </span>
                 </div>
 
                 {!isCollapsed && (
                   <div className="flex-1 min-w-0 transition-all duration-300">
                     <p className="text-[13px] font-bold text-[#1A1C23] dark:text-white truncate">
-                      {user?.name || "Guest User"}
+                      {user?.name || "Ayush Solanki"}
                     </p>
                     <p className="text-[11px] text-gray-400 dark:text-slate-500 font-bold truncate capitalize tracking-tight opacity-80">
-                      {(user?.role || currentRole).toLowerCase().replace(/[-_]/g, ' ')}
+                      {user?.role ? user.role.toLowerCase().replace(/[-_]/g, ' ') : "Billing"}
                     </p>
                   </div>
                 )}
@@ -356,7 +376,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen }) 
                     "px-4 text-[10px] font-bold text-gray-400 mb-2 whitespace-nowrap transition-all duration-300",
                     isCollapsed && "lg:opacity-0 lg:invisible lg:h-0 lg:mb-0"
                   )}>
-                    {section}
+                    {section.toLowerCase().replace(/\b[a-z]/g, (char) => char.toUpperCase())}
                   </p>
                 )}
                 <div className="space-y-1">

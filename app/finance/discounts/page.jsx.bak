@@ -1,12 +1,8 @@
-"use client";
+﻿"use client";
 
 import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import {
-  FinanceSearchField,
-  FinanceSelect,
-} from "@/components/finance/FinancePageChrome";
+import { FinancePageShell } from "@/components/finance/FinancePageChrome";
 import {
   BadgePercent,
   Calculator,
@@ -34,10 +30,11 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 
-const rupee = "\u20B9"; // Indian Rupee symbol
+const rupee = "\u20B9";
 
-// Static Data
+// â”€â”€â”€ Static Data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const summaryCards = [
   {
@@ -87,81 +84,81 @@ const discountRequests = [
     id: "REQ-2023-891", patientName: "Robert Fox", billNumber: "INV-44200",
     discountType: "Hardship", amount: `${rupee}4500.00`, requestedBy: "Dr. Smith",
     status: "Approved", requestedAt: "Oct 15, 2023, 10:30 AM", percentage: "10%",
-    patientInitials: "RF", patientMeta: "UHID: 882910 • Male • 45 Yrs",
+    patientInitials: "RF", patientMeta: "UHID: 882910 â€¢ Male â€¢ 45 Yrs",
     grossTotal: `${rupee}45,000.00`, proposedDiscount: `-${rupee}4,500.00`,
     revisedNetPayable: `${rupee}40,500.00`,
     reason: "Patient requested financial assistance due to sudden unemployment. Reviewed financial hardship form and supporting documents attached.",
-    documentName: "Unemployment_Proof.pdf", documentMeta: "Oct 15, 2023 • 1.2 MB",
+    documentName: "Unemployment_Proof.pdf", documentMeta: "Oct 15, 2023 â€¢ 1.2 MB",
   },
   {
     id: "REQ-2023-892", patientName: "Alice Johnson", billNumber: "INV-44201",
     discountType: "Staff Family", amount: `${rupee}7500.00`, requestedBy: "Dr. Brown",
     status: "Pending", requestedAt: "Oct 16, 2023, 12:15 PM", percentage: "15%",
-    patientInitials: "AJ", patientMeta: "UHID: 882911 • Female • 38 Yrs",
+    patientInitials: "AJ", patientMeta: "UHID: 882911 â€¢ Female â€¢ 38 Yrs",
     grossTotal: `${rupee}50,000.00`, proposedDiscount: `-${rupee}7,500.00`,
     revisedNetPayable: `${rupee}42,500.00`,
     reason: "Staff family concession requested with employment proof and dependent verification attached for approval.",
-    documentName: "Staff_Family_Request.pdf", documentMeta: "Oct 16, 2023 • 860 KB",
+    documentName: "Staff_Family_Request.pdf", documentMeta: "Oct 16, 2023 â€¢ 860 KB",
   },
   {
     id: "REQ-2023-893", patientName: "Michael Lee", billNumber: "INV-44202",
     discountType: "Self Pay", amount: `${rupee}3200.00`, requestedBy: "Dr. Taylor",
     status: "Rejected", requestedAt: "Oct 17, 2023, 09:10 AM", percentage: "8%",
-    patientInitials: "ML", patientMeta: "UHID: 882912 • Male • 29 Yrs",
+    patientInitials: "ML", patientMeta: "UHID: 882912 â€¢ Male â€¢ 29 Yrs",
     grossTotal: `${rupee}40,000.00`, proposedDiscount: `-${rupee}3,200.00`,
     revisedNetPayable: `${rupee}36,800.00`,
     reason: "Self-pay discount requested after follow-up consultation. Submitted remarks were found incomplete during review.",
-    documentName: "SelfPay_Statement.pdf", documentMeta: "Oct 17, 2023 • 740 KB",
+    documentName: "SelfPay_Statement.pdf", documentMeta: "Oct 17, 2023 â€¢ 740 KB",
   },
   {
     id: "REQ-2023-894", patientName: "Emma Wilson", billNumber: "INV-44203",
     discountType: "Corporate", amount: `${rupee}6000.00`, requestedBy: "Dr. Davis",
     status: "Approved", requestedAt: "Oct 18, 2023, 04:45 PM", percentage: "12%",
-    patientInitials: "EW", patientMeta: "UHID: 882913 • Female • 51 Yrs",
+    patientInitials: "EW", patientMeta: "UHID: 882913 â€¢ Female â€¢ 51 Yrs",
     grossTotal: `${rupee}50,000.00`, proposedDiscount: `-${rupee}6,000.00`,
     revisedNetPayable: `${rupee}44,000.00`,
     reason: "Corporate billing adjustment raised after employer benefit slab confirmation from the finance team.",
-    documentName: "Corporate_Approval.pdf", documentMeta: "Oct 18, 2023 • 1.0 MB",
+    documentName: "Corporate_Approval.pdf", documentMeta: "Oct 18, 2023 â€¢ 1.0 MB",
   },
   {
     id: "REQ-2023-895", patientName: "James Smith", billNumber: "INV-44204",
     discountType: "Hardship", amount: `${rupee}5000.00`, requestedBy: "Dr. Garcia",
     status: "Pending", requestedAt: "Oct 19, 2023, 11:00 AM", percentage: "10%",
-    patientInitials: "JS", patientMeta: "UHID: 882914 • Male • 61 Yrs",
+    patientInitials: "JS", patientMeta: "UHID: 882914 â€¢ Male â€¢ 61 Yrs",
     grossTotal: `${rupee}50,000.00`, proposedDiscount: `-${rupee}5,000.00`,
     revisedNetPayable: `${rupee}45,000.00`,
     reason: "Hardship request initiated after emergency admission and family income declaration review.",
-    documentName: "Income_Declaration.pdf", documentMeta: "Oct 19, 2023 • 1.4 MB",
+    documentName: "Income_Declaration.pdf", documentMeta: "Oct 19, 2023 â€¢ 1.4 MB",
   },
   {
     id: "REQ-2023-896", patientName: "Olivia Martinez", billNumber: "INV-44205",
     discountType: "Staff Family", amount: `${rupee}4200.00`, requestedBy: "Dr. Hernandez",
     status: "Approved", requestedAt: "Oct 20, 2023, 03:25 PM", percentage: "7%",
-    patientInitials: "OM", patientMeta: "UHID: 882915 • Female • 33 Yrs",
+    patientInitials: "OM", patientMeta: "UHID: 882915 â€¢ Female â€¢ 33 Yrs",
     grossTotal: `${rupee}60,000.00`, proposedDiscount: `-${rupee}4,200.00`,
     revisedNetPayable: `${rupee}55,800.00`,
     reason: "Dependent staff-family benefit applied after HR verification and coverage confirmation.",
-    documentName: "HR_Verification.pdf", documentMeta: "Oct 20, 2023 • 930 KB",
+    documentName: "HR_Verification.pdf", documentMeta: "Oct 20, 2023 â€¢ 930 KB",
   },
   {
     id: "REQ-2023-897", patientName: "William Johnson", billNumber: "INV-44206",
     discountType: "Staff Family", amount: `${rupee}5500.00`, requestedBy: "Dr. Wilson",
     status: "Rejected", requestedAt: "Oct 21, 2023, 01:05 PM", percentage: "11%",
-    patientInitials: "WJ", patientMeta: "UHID: 882916 • Male • 42 Yrs",
+    patientInitials: "WJ", patientMeta: "UHID: 882916 â€¢ Male â€¢ 42 Yrs",
     grossTotal: `${rupee}50,000.00`, proposedDiscount: `-${rupee}5,500.00`,
     revisedNetPayable: `${rupee}44,500.00`,
     reason: "Requested family-discount slab exceeded policy limit and was sent back for revision.",
-    documentName: "Family_Discount_Request.pdf", documentMeta: "Oct 21, 2023 • 1.1 MB",
+    documentName: "Family_Discount_Request.pdf", documentMeta: "Oct 21, 2023 â€¢ 1.1 MB",
   },
   {
     id: "REQ-2023-898", patientName: "Sophia Brown", billNumber: "INV-44207",
     discountType: "Hardship", amount: `${rupee}3000.00`, requestedBy: "Dr. Lee",
     status: "Approved", requestedAt: "Oct 22, 2023, 08:40 AM", percentage: "6%",
-    patientInitials: "SB", patientMeta: "UHID: 882917 • Female • 27 Yrs",
+    patientInitials: "SB", patientMeta: "UHID: 882917 â€¢ Female â€¢ 27 Yrs",
     grossTotal: `${rupee}50,000.00`, proposedDiscount: `-${rupee}3,000.00`,
     revisedNetPayable: `${rupee}47,000.00`,
     reason: "Financial-aid request reviewed with submitted hardship note and outpatient billing summary.",
-    documentName: "Hardship_Note.pdf", documentMeta: "Oct 22, 2023 • 680 KB",
+    documentName: "Hardship_Note.pdf", documentMeta: "Oct 22, 2023 â€¢ 680 KB",
   },
 ];
 
@@ -178,7 +175,7 @@ const selectedBill = {
   billTotal: `${rupee}4,500.00`, balance: `${rupee}4,000.00`,
 };
 
-// Small Components
+// â”€â”€â”€ Small Components â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function StatCard({ card }) {
   const Icon = card.icon;
@@ -264,7 +261,7 @@ function SimpleDropdown({ value, onChange, options }) {
   );
 }
 
-// Request Details Dialog
+// â”€â”€â”€ Request Details Dialog â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function RequestDetailsDialog({ request, open, onOpenChange }) {
   if (!request) return null;
@@ -278,13 +275,12 @@ function RequestDetailsDialog({ request, open, onOpenChange }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[calc(100vh-48px)] w-[calc(100vw-32px)] max-w-[680px] grid-rows-[auto_minmax(0,1fr)_auto] gap-0 rounded-[5px] border border-[#E7E8EB] bg-white p-0 shadow-none dark:border-white/10 dark:bg-[#101935]">
-        <DialogTitle className="sr-only">Request Details</DialogTitle>
         {/* Header */}
         <div className="flex items-center justify-between border-b border-[#E7E8EB] px-[20px] py-[16px] dark:border-white/10">
           <div className="flex items-center gap-[10px]">
-            <h2 className="text-[16px] font-bold text-slate-800 dark:text-white">
+            <DialogTitle className="text-[16px] font-bold text-slate-800 dark:text-white">
               Request {request.id}
-            </h2>
+            </DialogTitle>
             <span className={cn("inline-flex items-center justify-center rounded-full px-[10px] py-[3px] text-[12px] font-semibold min-w-[76px]", statusStyles[request.status])}>
               {request.status}
             </span>
@@ -433,379 +429,126 @@ function RequestDetailsDialog({ request, open, onOpenChange }) {
   );
 }
 
-// Submit Preview Dialog (shown after clicking Submit Request)
+// â”€â”€â”€ Apply Discount Form â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
-function SubmitPreviewDialog({ open, onOpenChange, form, calculatedAmount, onConfirm }) {
-  const previewRequest = {
-    id: "REQ-8021",
-    status: "Pending",
-    requestedBy: form.approver.replace(/\s*\(.*\)/, "").trim(),
-    requestedAt: "Oct 15, 2023, 10:33 AM",
-    discountType: form.discountType.replace(" / Financial Aid", "").replace("Hardship / Financial Aid", "Hardship"),
-    amount: calculatedAmount,
-    percentage: `${form.percentage}%`,
-    patientName: selectedBill.patientName,
-    patientInitials: selectedBill.patientName.split(" ").map((p) => p[0]).join("").slice(0, 2).toUpperCase(),
-    patientMeta: `UHID: ${selectedBill.uhid} • Male • 45 Yrs`,
-    billNumber: selectedBill.billNumber,
-    grossTotal: selectedBill.billTotal,
-    proposedDiscount: `-${calculatedAmount}`,
-    revisedNetPayable: `${rupee}4,050.00`,
-    reason: form.reason,
-    documentName: "Unemployment_Proof.pdf",
-    documentMeta: "Oct 15, 2023 • 1.2 MB",
-  };
-
-  const approverInitials = form.approver
-    .replace(/\s*\(.*\)/, "")
-    .trim()
-    .split(" ")
-    .map((p) => p[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-
+function ApplyDiscountForm({ form, calculatedAmount, onCancel, onBackToList, onFieldChange }) {
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="flex flex-col w-[calc(100vw-32px)] max-w-[720px] max-h-[calc(100vh-64px)] gap-0 rounded-[5px] border border-[#E7E8EB] bg-white p-0 shadow-none dark:border-white/10 dark:bg-[#101935]">
-        <DialogTitle className="sr-only">Request Details</DialogTitle>
-
-        {/* Header */}
-        <div className="shrink-0 flex items-center justify-between border-b border-[#E7E8EB] px-[20px] py-[16px] dark:border-white/10">
-          <div className="flex items-center gap-[10px]">
-            <h2 className="text-[16px] font-bold text-slate-800 dark:text-white">
-              Request {previewRequest.id}
-            </h2>
-            <span className="inline-flex items-center justify-center rounded-full px-[10px] py-[3px] text-[12px] font-semibold bg-[#FEF7E0] text-[#B06000] border border-[#FEEFC3]">
-              Pending
-            </span>
-          </div>
-          <button
-            type="button"
-            onClick={() => onOpenChange(false)}
-            className="rounded-[5px] p-1.5 text-slate-400 hover:bg-[#F8F9FC] hover:text-slate-700 dark:hover:bg-white/10 transition cursor-pointer"
-            aria-label="Close"
-          >
-            <X className="h-4 w-4" />
-          </button>
+    <section className="rounded-[5px] border border-[#E7E8EB] bg-white dark:border-white/10 dark:bg-[#101935]">
+      <div className="p-[20px] flex flex-col gap-[20px]">
+        <div>
+          <h1 className="text-[18px] font-bold text-slate-800 dark:text-white">Apply Discount</h1>
+          <p className="mt-1 text-[13px] text-slate-500 dark:text-slate-400">Provide valid identification documents.</p>
         </div>
 
-        {/* Body */}
-        <div className="overflow-y-auto no-scrollbar flex-1 p-[20px] flex flex-col gap-[16px]">
-
-          {/* Request Summary */}
-          <div className="rounded-[5px] border border-[#E7E8EB] bg-white p-[16px] dark:border-white/10 dark:bg-[#0B1121] flex flex-col gap-[14px]">
-            <div className="flex items-center gap-2 text-[13px] font-bold text-slate-800 dark:text-white">
-              <FileText className="h-4 w-4 text-[#2E37A4]" />
-              <span>Request Summary</span>
+        {/* Bill search */}
+        <div className="flex flex-col gap-[14px]">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Search Bill or Patient</label>
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <Input value="INV-44920 - Michael Chang" readOnly
+                className="h-[38px] rounded-[5px] border-[#E7E8EB] pl-9 pr-9 text-[13px] text-slate-700 bg-[#F8F9FC] shadow-none outline-none w-full" />
+              <CircleX className="absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 cursor-pointer" />
             </div>
-            <div className="grid grid-cols-2 gap-[14px] sm:grid-cols-4">
-              {/* Requested By */}
-              <div className="flex flex-col gap-[6px]">
-                <span className="text-[11px] font-semibold text-slate-400 tracking-wide">REQUESTED BY</span>
-                <div className="flex items-center gap-[6px]">
-                  <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#EEF2FF] text-[10px] font-bold text-[#2E37A4]">
-                    {approverInitials}
-                  </div>
-                  <span className="text-[13px] font-medium text-slate-700 dark:text-slate-300 truncate">
-                    {previewRequest.requestedBy}
-                  </span>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 rounded-[5px] border border-[#E7E8EB] bg-[#F8F9FC] divide-y sm:divide-y-0 sm:divide-x divide-[#E7E8EB]">
+            <div className="p-[14px] flex flex-col gap-1">
+              <span className="text-[11px] font-semibold text-slate-500">Patient Name</span>
+              <span className="text-[13px] font-bold text-slate-800 dark:text-white">{selectedBill.patientName}</span>
+              <span className="text-[11px] text-slate-500">UHID: {selectedBill.uhid}</span>
+            </div>
+            <div className="p-[14px] flex flex-col gap-1">
+              <span className="text-[11px] font-semibold text-slate-500">Bill Number</span>
+              <span className="text-[13px] font-bold text-slate-800 dark:text-white">{selectedBill.billNumber}</span>
+              <span className="text-[11px] text-slate-500">{selectedBill.billDate}</span>
+            </div>
+            <div className="p-[14px] flex flex-col gap-1">
+              <span className="text-[11px] font-semibold text-slate-500">Bill Total</span>
+              <span className="text-[15px] font-bold text-[#2E37A4]">{selectedBill.billTotal}</span>
+              <span className="text-[11px] text-slate-500">Balance: {selectedBill.balance}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Discount details */}
+        <div className="flex flex-col gap-[16px]">
+          <h2 className="text-[14px] font-bold text-slate-800 dark:text-white border-b border-[#E7E8EB] pb-[10px]">Discount Details</h2>
+          <div className="grid gap-[16px] sm:grid-cols-2">
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Discount Type</label>
+              <div className="relative">
+                <select value={form.discountType} onChange={(e) => onFieldChange("discountType", e.target.value)}
+                  className="h-[38px] w-full appearance-none rounded-[5px] border border-[#E7E8EB] bg-white px-3 pr-8 text-[13px] text-slate-800 outline-none hover:border-[#2E37A4]/50 focus:border-[#2E37A4] transition cursor-pointer">
+                  {discountTypeOptions.map((o) => <option key={o} value={o}>{o}</option>)}
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              </div>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Request Approval From</label>
+              <div className="relative">
+                <select value={form.approver} onChange={(e) => onFieldChange("approver", e.target.value)}
+                  className="h-[38px] w-full appearance-none rounded-[5px] border border-[#E7E8EB] bg-white px-3 pr-8 text-[13px] text-slate-800 outline-none hover:border-[#2E37A4]/50 focus:border-[#2E37A4] transition cursor-pointer">
+                  {approverOptions.map((o) => <option key={o} value={o}>{o}</option>)}
+                </select>
+                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              </div>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Discount Value</label>
+              <div className="flex overflow-hidden rounded-[5px] border border-[#E7E8EB]">
+                <div className="flex items-center border-r border-[#E7E8EB] bg-[#F8F9FC] px-3 text-[13px] text-slate-500 font-medium shrink-0">
+                  Percentage (%)
                 </div>
+                <input type="number" value={form.percentage} onChange={(e) => onFieldChange("percentage", e.target.value)}
+                  className="h-[38px] w-full bg-transparent px-3 text-[13px] text-slate-800 outline-none" />
               </div>
-              {/* Date & Time */}
-              <div className="flex flex-col gap-[6px]">
-                <span className="text-[11px] font-semibold text-slate-400 tracking-wide">DATE & TIME</span>
-                <div className="flex items-center gap-[5px] text-[12px] font-medium text-slate-700 dark:text-slate-300">
-                  <CalendarDays className="h-3.5 w-3.5 text-slate-400 shrink-0" />
-                  <span>{previewRequest.requestedAt}</span>
-                </div>
-              </div>
-              {/* Discount Type */}
-              <div className="flex flex-col gap-[6px]">
-                <span className="text-[11px] font-semibold text-slate-400 tracking-wide">DISCOUNT TYPE</span>
-                <DiscountTypePill value={previewRequest.discountType} />
-              </div>
-              {/* Requested Amount */}
-              <div className="flex flex-col gap-[6px]">
-                <span className="text-[11px] font-semibold text-slate-400 tracking-wide">REQUESTED AMOUNT</span>
-                <div className="flex items-center gap-[4px]">
-                  <span className="text-[13px] font-bold text-[#2E37A4]">{previewRequest.amount}</span>
-                  <span className="text-[11px] font-medium text-slate-400">({previewRequest.percentage})</span>
-                </div>
-              </div>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <label className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Calculated Amount</label>
+              <Input value={calculatedAmount} readOnly
+                className="h-[38px] rounded-[5px] border-[#E7E8EB] bg-[#F8F9FC] px-3 text-[13px] text-slate-500 shadow-none outline-none" />
             </div>
           </div>
 
-          {/* Patient & Bill Details */}
-          <div className="rounded-[5px] border border-[#E7E8EB] bg-white p-[16px] dark:border-white/10 dark:bg-[#0B1121] flex flex-col gap-[14px]">
-            <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-2 text-[13px] font-bold text-slate-800 dark:text-white">
-                <UserRound className="h-4 w-4 text-[#2E37A4]" />
-                <span>Patient & Bill Details</span>
-              </div>
-              <button type="button" className="inline-flex items-center gap-1 text-[12px] font-semibold text-[#2E37A4] hover:underline cursor-pointer">
-                <span>View Full Bill</span>
-                <ExternalLink className="h-3.5 w-3.5" />
-              </button>
-            </div>
-
-            {/* Patient card */}
-            <div className="rounded-[5px] border border-[#E7E8EB] bg-[#F8F9FC] px-[14px] py-[12px] flex items-center gap-[10px] dark:border-white/10 dark:bg-white/5">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#DBEAFE] text-[12px] font-bold text-[#1D4ED8]">
-                {previewRequest.patientInitials}
-              </div>
-              <div>
-                <p className="text-[13px] font-bold text-slate-800 dark:text-white">{previewRequest.patientName}</p>
-                <p className="text-[11px] font-medium text-slate-500">{previewRequest.patientMeta}</p>
-              </div>
-            </div>
-
-            {/* Bill rows */}
-            <div className="flex flex-col gap-[10px] text-[13px]">
-              <div className="flex items-center justify-between">
-                <span className="font-medium text-slate-500">Bill Number</span>
-                <span className="font-bold text-slate-800 dark:text-white">{previewRequest.billNumber}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="font-medium text-slate-500">Gross Total</span>
-                <span className="font-bold text-slate-800 dark:text-white">{previewRequest.grossTotal}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="font-medium text-slate-500">Proposed Discount</span>
-                <span className="rounded-[4px] bg-[#EEF2FF] px-[8px] py-[2px] font-bold text-[#2E37A4]">
-                  {previewRequest.proposedDiscount}
-                </span>
-              </div>
-              <div className="border-t border-[#E7E8EB] pt-[10px] flex items-center justify-between dark:border-white/10">
-                <span className="text-[13px] font-bold text-slate-800 dark:text-white">Revised Net Payable</span>
-                <span className="text-[16px] font-bold text-slate-800 dark:text-white">{previewRequest.revisedNetPayable}</span>
-              </div>
-            </div>
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Reason / Remarks</label>
+            <textarea value={form.reason} onChange={(e) => onFieldChange("reason", e.target.value)}
+              className="min-h-[90px] w-full rounded-[5px] border border-[#E7E8EB] bg-white px-3 py-2 text-[13px] text-slate-800 outline-none hover:border-[#2E37A4]/50 focus:border-[#2E37A4] transition resize-none" />
           </div>
 
-          {/* Reason & Documents */}
-          <div className="rounded-[5px] border border-[#E7E8EB] bg-white p-[16px] dark:border-white/10 dark:bg-[#0B1121] flex flex-col gap-[14px]">
-            <div className="flex items-center gap-2 text-[13px] font-bold text-slate-800 dark:text-white">
-              <ReceiptText className="h-4 w-4 text-[#2E37A4]" />
-              <span>Reason & Documents</span>
-            </div>
-
-            {/* Quote box */}
-            <div className="rounded-[5px] border border-[#E7E8EB] bg-[#F8F9FC] px-[14px] py-[12px] text-[13px] font-medium italic leading-relaxed text-slate-500 dark:border-white/10 dark:bg-white/5">
-              &quot;{previewRequest.reason}&quot;
-            </div>
-
-            {/* File attachment */}
-            <div className="flex items-center justify-between gap-4 rounded-[5px] border border-[#E7E8EB] bg-white px-[14px] py-[12px] dark:border-white/10 dark:bg-[#101935]">
-              <div className="flex items-center gap-[10px]">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[5px] bg-rose-50">
-                  <FileText className="h-4 w-4 text-rose-500" />
-                </div>
-                <div>
-                  <p className="text-[13px] font-bold text-slate-800 dark:text-white">{previewRequest.documentName}</p>
-                  <p className="text-[11px] font-medium text-slate-400">{previewRequest.documentMeta}</p>
-                </div>
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Supporting Documents (Optional)</label>
+            <div className="flex flex-col items-center justify-center py-[28px] px-6 rounded-[5px] border border-dashed border-[#E7E8EB] bg-[#F8F9FC] text-center dark:border-white/10 dark:bg-white/5">
+              <div className="mb-2 rounded-full bg-violet-100 p-2.5">
+                <UploadCloud className="h-5 w-5 text-[#2E37A4]" />
               </div>
-              <button
-                type="button"
-                className="rounded-[5px] border border-[#E7E8EB] p-[7px] text-slate-400 hover:text-[#2E37A4] transition cursor-pointer dark:border-white/10"
-                aria-label="Download"
-              >
-                <Download className="h-4 w-4" />
-              </button>
+              <p className="text-[13px] font-bold text-[#2E37A4] cursor-pointer hover:underline">Click to upload or drag and drop</p>
+              <p className="mt-1 text-[11px] text-slate-400">PDF, JPG, PNG up to 10MB</p>
             </div>
-          </div>
-        </div>
-
-        {/* Footer */}
-        <div className="shrink-0 flex items-center justify-between border-t border-[#E7E8EB] bg-[#F8F9FC] px-[20px] py-[14px] dark:border-white/10 dark:bg-white/5">
-          <Button
-            variant="outline"
-            className="h-[36px] rounded-[5px] border-[#E7E8EB] bg-white px-[14px] text-[13px] font-semibold text-slate-700 hover:bg-[#F8F9FC] shadow-none cursor-pointer dark:border-white/10 dark:bg-[#101935] dark:text-white"
-          >
-            <MessageSquareText className="mr-2 h-4 w-4 text-slate-400" />
-            Request Info
-          </Button>
-          <div className="flex items-center gap-[10px]">
-            <Button
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              className="h-[36px] rounded-[5px] border-rose-200 bg-white px-[14px] text-[13px] font-semibold text-rose-500 hover:bg-rose-50 shadow-none cursor-pointer"
-            >
-              <XCircle className="mr-2 h-4 w-4" />
-              Reject
-            </Button>
-            <Button
-              onClick={() => { onConfirm(); onOpenChange(false); }}
-              className="h-[36px] rounded-[5px] bg-[#2E37A4] px-[14px] text-[13px] font-semibold text-white hover:bg-[#2E37A4]/90 shadow-none cursor-pointer"
-            >
-              <CheckCircle2 className="mr-2 h-4 w-4" />
-              Approve
-            </Button>
-          </div>
-        </div>
-
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-function ApplyDiscountForm({ form, calculatedAmount, onCancel, onSubmit, onFieldChange }) {
-  return (
-    <div className="flex flex-col gap-[20px]">
-
-      {/* Page title */}
-      <div>
-        <h1 className="text-[20px] font-bold text-slate-800 dark:text-white leading-none">Apply Discount</h1>
-      </div>
-
-      {/* Search Bill or Patient */}
-      <div className="flex flex-col gap-[8px]">
-        <label className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Search Bill or Patient</label>
-        <div className="relative">
-          <FinanceSearchField
-            value="INV-44920 - Michael Chang"
-            onChange={() => {}}
-            placeholder="Search bill or patient..."
-            className="w-full sm:w-full"
-          />
-          <CircleX className="absolute right-[14px] top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400 cursor-pointer" />
-        </div>
-      </div>
-
-      {/* Bill info card */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 rounded-[5px] border border-[#E7E8EB] bg-[#F8F9FC] divide-y sm:divide-y-0 sm:divide-x divide-[#E7E8EB] dark:border-white/10 dark:bg-white/5 dark:divide-white/10">
-        <div className="px-[20px] py-[16px] flex flex-col gap-[4px]">
-          <span className="text-[11px] font-semibold text-slate-400 tracking-wide">PATIENT NAME</span>
-          <span className="text-[15px] font-bold text-slate-800 dark:text-white">{selectedBill.patientName}</span>
-          <span className="text-[12px] text-slate-500">UHID: {selectedBill.uhid}</span>
-        </div>
-        <div className="px-[20px] py-[16px] flex flex-col gap-[4px]">
-          <span className="text-[11px] font-semibold text-slate-400 tracking-wide">BILL NUMBER</span>
-          <span className="text-[15px] font-bold text-slate-800 dark:text-white">{selectedBill.billNumber}</span>
-          <span className="text-[12px] text-slate-500">{selectedBill.billDate}</span>
-        </div>
-        <div className="px-[20px] py-[16px] flex flex-col gap-[4px]">
-          <span className="text-[11px] font-semibold text-slate-400 tracking-wide">BILL TOTAL</span>
-          <span className="text-[15px] font-bold text-slate-800 dark:text-white">{selectedBill.billTotal}</span>
-          <span className="text-[12px] text-slate-500">Balance: {selectedBill.balance}</span>
-        </div>
-      </div>
-
-      {/* Discount Details section */}
-      <div className="flex flex-col gap-[20px]">
-        <h2 className="text-[15px] font-bold text-slate-800 dark:text-white">Discount Details</h2>
-
-        {/* Row 1: Discount Type + Request Approval From */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-[20px]">
-          <div className="flex flex-col gap-[8px]">
-            <label className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Discount Type</label>
-            <FinanceSelect
-              value={form.discountType}
-              onChange={(val) => onFieldChange("discountType", val)}
-              placeholder="Select discount type"
-              options={discountTypeOptions.map((o) => ({ label: o, value: o }))}
-              className="w-full sm:w-full h-[44px]"
-            />
-          </div>
-
-          <div className="flex flex-col gap-[8px]">
-            <label className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Request Approval From</label>
-            <FinanceSelect
-              value={form.approver}
-              onChange={(val) => onFieldChange("approver", val)}
-              placeholder="Select approver"
-              options={approverOptions.map((o) => ({ label: o, value: o }))}
-              className="w-full sm:w-full h-[44px]"
-            />
-          </div>
-        </div>
-
-        {/* Row 2: Discount Value + Calculated Amount */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-[20px]">
-          <div className="flex flex-col gap-[8px]">
-            <label className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Discount Value</label>
-            <div className="flex h-[44px] overflow-hidden rounded-[5px] border border-[#E7E8EB] dark:border-white/10">
-              <div className="flex items-center border-r border-[#E7E8EB] bg-[#F8F9FC] px-[14px] text-[13px] text-slate-500 font-medium shrink-0 dark:border-white/10 dark:bg-white/5 dark:text-slate-400">
-                Percentage (%)
-              </div>
-              <input
-                type="number"
-                value={form.percentage}
-                onChange={(e) => onFieldChange("percentage", e.target.value)}
-                className="h-full w-full bg-white px-[14px] text-[13px] text-slate-800 outline-none dark:bg-[#101935] dark:text-white"
-              />
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-[8px]">
-            <label className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Calculated Amount</label>
-            <input
-              type="text"
-              value={calculatedAmount}
-              readOnly
-              className="h-[44px] w-full rounded-[5px] border border-[#E7E8EB] bg-[#F8F9FC] px-[14px] text-[13px] font-medium text-slate-500 outline-none dark:border-white/10 dark:bg-white/5 dark:text-slate-400"
-            />
-          </div>
-        </div>
-
-        {/* Reason / Remarks */}
-        <div className="flex flex-col gap-[8px]">
-          <label className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Reason / Remarks</label>
-          <textarea
-            value={form.reason}
-            onChange={(e) => onFieldChange("reason", e.target.value)}
-            rows={4}
-            className="w-full rounded-[5px] border border-[#E7E8EB] bg-white px-[14px] py-[12px] text-[13px] text-slate-800 outline-none focus:border-[#2E37A4] transition resize-none dark:border-white/10 dark:bg-[#101935] dark:text-white"
-          />
-        </div>
-
-        {/* Supporting Documents */}
-        <div className="flex flex-col gap-[8px]">
-          <label className="text-[13px] font-semibold text-slate-700 dark:text-slate-300">Supporting Documents (Optional)</label>
-          <div className="flex flex-col items-center justify-center py-[40px] rounded-[5px] border border-dashed border-[#E7E8EB] bg-white text-center cursor-pointer dark:border-white/10 dark:bg-[#101935]">
-            <div className="mb-[10px] flex h-10 w-10 items-center justify-center rounded-full border border-[#E7E8EB] bg-white dark:border-white/10 dark:bg-[#101935]">
-              <UploadCloud className="h-5 w-5 text-[#2E37A4]" />
-            </div>
-            <p className="text-[13px] text-slate-600 dark:text-slate-300">
-              <span className="font-semibold text-[#2E37A4] hover:underline cursor-pointer">Click to upload</span>
-              {" "}or drag and drop
-            </p>
-            <p className="mt-[4px] text-[12px] text-slate-400">PDF, JPG, PNG up to 10MB</p>
           </div>
         </div>
       </div>
 
-      {/* Footer actions */}
-      <div className="flex items-center justify-end gap-[12px] pt-[4px] pb-[8px]">
-        <button
-          type="button"
-          onClick={onCancel}
-          className="h-[38px] px-[20px] rounded-[5px] border border-[#E7E8EB] bg-white text-[13px] font-semibold text-slate-700 hover:bg-[#F8F9FC] transition cursor-pointer dark:border-white/10 dark:bg-[#101935] dark:text-white"
-        >
+      <div className="flex items-center justify-end gap-3 border-t border-[#E7E8EB] bg-[#F8F9FC] px-[20px] py-[14px] dark:border-white/10 dark:bg-white/5">
+        <button type="button" onClick={onCancel}
+          className="h-[36px] px-4 rounded-[5px] border border-[#E7E8EB] bg-white text-[13px] font-semibold text-slate-700 hover:bg-[#F8F9FC] transition cursor-pointer">
           Cancel
         </button>
-        <Button
-          onClick={onSubmit}
-          className="h-[38px] rounded-[5px] bg-[#2E37A4] px-[20px] text-[13px] font-semibold text-white hover:bg-[#2E37A4]/90 shadow-none cursor-pointer"
-        >
+        <Button onClick={onBackToList}
+          className="h-[36px] rounded-[5px] bg-[#2E37A4] px-5 text-[13px] font-semibold text-white hover:bg-[#2E37A4]/90 shadow-none cursor-pointer">
           Submit Request
           <ArrowRight className="ml-2 h-4 w-4" />
         </Button>
       </div>
-    </div>
+    </section>
   );
 }
 
-// Discount Table
+// â”€â”€â”€ Discount Table â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function DiscountTable({ rows, onView }) {
-  const router = useRouter();
-  
-  const handleReview = (req) => {
-    router.push(`/finance/discounts/review/${req.id}`);
-  };
-  
   return (
     <div className="overflow-x-auto">
       <table className="min-w-full">
@@ -839,14 +582,14 @@ function DiscountTable({ rows, onView }) {
                 <td className="whitespace-nowrap px-[20px] py-[14px] text-[13px] font-medium text-slate-700 dark:text-slate-300">{req.requestedBy}</td>
                 <td className="whitespace-nowrap px-[20px] py-[14px]"><StatusPill status={req.status} /></td>
                 <td className="px-[20px] py-[14px]">
-                  <div className="flex items-center justify-center gap-2">
+                  <div className="flex items-center justify-center">
                     <button
                       type="button"
-                      onClick={() => handleReview(req)}
-                      className="h-[32px] px-[14px] rounded-[5px] bg-[#2E37A4] text-white text-[12px] font-semibold hover:bg-[#2E37A4]/90 transition cursor-pointer flex items-center gap-1"
+                      onClick={() => onView(req)}
+                      aria-label={`View ${req.id}`}
+                      className="h-8 w-8 rounded-[5px] border border-[#E7E8EB] bg-white flex items-center justify-center text-slate-500 hover:text-[#2E37A4] hover:border-[#2E37A4]/30 transition cursor-pointer dark:border-white/10 dark:bg-[#101935]"
                     >
-                      <Eye className="h-3.5 w-3.5" />
-                      Review
+                      <Eye className="h-4 w-4" strokeWidth={2} />
                     </button>
                   </div>
                 </td>
@@ -859,7 +602,7 @@ function DiscountTable({ rows, onView }) {
   );
 }
 
-// Request List View
+// â”€â”€â”€ Request List View â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 function RequestListView({ searchTerm, statusFilter, rows, onSearchChange, onStatusChange, onView, onBack }) {
   return (
@@ -895,17 +638,15 @@ function RequestListView({ searchTerm, statusFilter, rows, onSearchChange, onSta
   );
 }
 
-// Main Page
+// â”€â”€â”€ Main Page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export default function DiscountsPage() {
-  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [showApplyForm, setShowApplyForm] = useState(false);
   const [showRequestList, setShowRequestList] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [submitPreviewOpen, setSubmitPreviewOpen] = useState(false);
   const [applyForm, setApplyForm] = useState({
     discountType: "Hardship / Financial Aid",
     approver: "Dr. Sarah Smith (Director)",
@@ -937,24 +678,17 @@ export default function DiscountsPage() {
   const handleFieldChange = (field, value) => setApplyForm((prev) => ({ ...prev, [field]: value }));
 
   return (
-    <div className="min-h-screen bg-[#F8F9FC] dark:bg-[#0A0F1D] text-[#1e293b] dark:text-white">
+    <FinancePageShell className="bg-[#F8F9FC] dark:bg-[#0A0F1D]">
       <div className="mx-auto w-full max-w-[1700px] flex flex-col gap-[20px] p-[20px]">
 
         <RequestDetailsDialog request={selectedRequest} open={dialogOpen} onOpenChange={setDialogOpen} />
-        <SubmitPreviewDialog
-          open={submitPreviewOpen}
-          onOpenChange={setSubmitPreviewOpen}
-          form={applyForm}
-          calculatedAmount={calculatedAmount}
-          onConfirm={() => { setSubmitPreviewOpen(false); setShowApplyForm(false); setShowRequestList(true); }}
-        />
 
         {showApplyForm ? (
           <ApplyDiscountForm
             form={applyForm}
             calculatedAmount={calculatedAmount}
             onCancel={() => setShowApplyForm(false)}
-            onSubmit={() => setSubmitPreviewOpen(true)}
+            onBackToList={() => { setShowApplyForm(false); setShowRequestList(true); }}
             onFieldChange={handleFieldChange}
           />
         ) : showRequestList ? (
@@ -973,12 +707,12 @@ export default function DiscountsPage() {
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <h1 className="text-[20px] font-bold text-slate-800 dark:text-white leading-none">Discounts</h1>
               <div className="flex items-center gap-3">
-                <Button variant="outline" onClick={() => router.push('/finance/discounts/requests')}
+                <Button variant="outline" onClick={() => setShowRequestList(true)}
                   className="h-[36px] rounded-[5px] border-[#2E37A4] px-[14px] text-[13px] font-semibold text-[#2E37A4] hover:bg-[#2E37A4]/5 shadow-none cursor-pointer">
                   <ShieldCheck className="mr-1.5 h-4 w-4" />
                   Request List
                 </Button>
-                <Button onClick={() => router.push('/finance/discounts/apply')}
+                <Button onClick={() => setShowApplyForm(true)}
                   className="h-[36px] rounded-[5px] bg-[#2E37A4] px-[14px] text-[13px] font-semibold text-white hover:bg-[#2E37A4]/90 shadow-none cursor-pointer">
                   <Plus className="mr-1.5 h-4 w-4" />
                   Apply Discount
@@ -1015,6 +749,6 @@ export default function DiscountsPage() {
           </>
         )}
       </div>
-    </div>
+    </FinancePageShell>
   );
 }

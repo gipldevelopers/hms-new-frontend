@@ -1,12 +1,12 @@
 "use client";
 
 import React from "react";
-import { 
-  Bell, 
-  Lock, 
-  RefreshCw, 
-  Activity, 
-  ClipboardList, 
+import {
+  Bell,
+  Lock,
+  RefreshCw,
+  Activity,
+  ClipboardList,
   AlertCircle,
   Calendar,
   User,
@@ -25,10 +25,10 @@ export default function BedCard({ bed, refresh, deptId, wardId, branchId }) {
   const [isModalOpen, setIsModalOpen] = React.useState(false);
   const [assigning, setAssigning] = React.useState(false);
 
-  const { 
+  const {
     id,
-    label, 
-    status, 
+    label,
+    status,
     admissions = [],
   } = bed;
 
@@ -48,7 +48,7 @@ export default function BedCard({ bed, refresh, deptId, wardId, branchId }) {
       if (wardId) params.append("wardId", wardId);
       if (deptId) params.append("departmentId", deptId);
       if (branchId) params.append("branchId", branchId);
-      
+
       const baseUrl = branchId ? "/super-admin/admissions/add" : "/staff/admissions/add";
       router.push(`${baseUrl}?${params.toString()}`);
       return;
@@ -61,7 +61,7 @@ export default function BedCard({ bed, refresh, deptId, wardId, branchId }) {
     try {
       setAssigning(true);
       const token = localStorage.getItem("authtoken");
-      
+
       const baseEndpoint = isTransfer ? `/api/admissions/${activeAdmission.id}` : "/api/admissions";
       const endpoint = branchId ? `${baseEndpoint}?branchId=${branchId}` : baseEndpoint;
       const method = isTransfer ? "PATCH" : "POST";
@@ -86,7 +86,7 @@ export default function BedCard({ bed, refresh, deptId, wardId, branchId }) {
 
       const res = await fetch(endpoint, {
         method,
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`
         },
@@ -95,7 +95,7 @@ export default function BedCard({ bed, refresh, deptId, wardId, branchId }) {
 
       const result = await res.json();
       if (res.ok) {
-        toast.success(isTransfer 
+        toast.success(isTransfer
           ? `Patient ${selectedPatient.name} transferred to Bed ${label}`
           : `Patient ${selectedPatient.name} assigned to Bed ${label}`
         );
@@ -135,9 +135,9 @@ export default function BedCard({ bed, refresh, deptId, wardId, branchId }) {
             </div>
             <div className="space-y-1">
               <p className="text-[14px] font-bold text-foreground">Vacant</p>
-              <p className="text-[11px] text-muted-foreground font-medium leading-tight">Bed is clean and ready for a<br/>new patient.</p>
+              <p className="text-[11px] text-muted-foreground font-medium leading-tight">Bed is clean and ready for a<br />new patient.</p>
             </div>
-            <button 
+            <button
               onClick={handleAssignClick}
               disabled={assigning}
               className="mt-2 px-4 py-2 rounded-lg border border-border text-[11px] font-bold text-foreground hover:bg-muted transition-all disabled:opacity-50"
@@ -149,7 +149,7 @@ export default function BedCard({ bed, refresh, deptId, wardId, branchId }) {
 
         <AnimatePresence>
           {isModalOpen && (
-            <PatientSelectionModal 
+            <PatientSelectionModal
               onClose={() => setIsModalOpen(false)}
               onSelect={handleSelectPatient}
               bedLabel={label}
@@ -215,9 +215,9 @@ export default function BedCard({ bed, refresh, deptId, wardId, branchId }) {
           <span className="text-[13px] font-bold text-foreground">{label}</span>
         </div>
         <div className="flex items-center gap-2">
-           <button className="w-7 h-7 rounded-lg bg-destructive/10 flex items-center justify-center text-destructive border border-destructive/20 transition-all hover:bg-destructive/20">
-             <Bell className="w-3.5 h-3.5" />
-           </button>
+          <button className="w-7 h-7 rounded-lg bg-destructive/10 flex items-center justify-center text-destructive border border-destructive/20 transition-all hover:bg-destructive/20">
+            <Bell className="w-3.5 h-3.5" />
+          </button>
         </div>
       </div>
 
@@ -238,16 +238,16 @@ export default function BedCard({ bed, refresh, deptId, wardId, branchId }) {
 
           <div className="space-y-2.5 pt-1">
             <div className="flex items-center gap-2.5">
-               <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
-               <p className="text-[11px] text-muted-foreground font-medium">
-                 <span className="font-bold text-foreground">Admitted:</span> {currentAdmission?.admissionDate ? format(new Date(currentAdmission.admissionDate), "dd MMM, hh:mm a") : "N/A"}
-               </p>
+              <Calendar className="w-3.5 h-3.5 text-muted-foreground" />
+              <p className="text-[11px] text-muted-foreground font-medium">
+                <span className="font-bold text-foreground">Admitted:</span> {currentAdmission?.admissionDate ? format(new Date(currentAdmission.admissionDate), "dd MMM, hh:mm a") : "N/A"}
+              </p>
             </div>
             <div className="flex items-center gap-2.5">
-               <User className="w-3.5 h-3.5 text-muted-foreground" />
-               <p className="text-[11px] text-muted-foreground font-medium">
-                 <span className="font-bold text-foreground">Doctor:</span> {doctor?.name || "Unassigned"}
-               </p>
+              <User className="w-3.5 h-3.5 text-muted-foreground" />
+              <p className="text-[11px] text-muted-foreground font-medium">
+                <span className="font-bold text-foreground">Doctor:</span> {doctor?.name || "Unassigned"}
+              </p>
             </div>
           </div>
         </div>

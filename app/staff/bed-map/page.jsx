@@ -25,24 +25,24 @@ export default function BedMapPage() {
         cache: 'no-store'
       });
       const hierarchy = await res.json();
-      
+
       if (res.ok && Array.isArray(hierarchy)) {
         setData(hierarchy);
 
         // Only set initial selection if nothing is selected yet
         if (hierarchy.length > 0) {
-        setSelectedDeptId(prev => {
-          if (prev) return prev;
-          return hierarchy[0].id;
-        });
-        
-        setSelectedWardId(prev => {
-          if (prev) return prev;
-          const firstDept = hierarchy[0];
-          return (firstDept.wards && firstDept.wards.length > 0) ? firstDept.wards[0].id : null;
-        });
-      }
-    } else {
+          setSelectedDeptId(prev => {
+            if (prev) return prev;
+            return hierarchy[0].id;
+          });
+
+          setSelectedWardId(prev => {
+            if (prev) return prev;
+            const firstDept = hierarchy[0];
+            return (firstDept.wards && firstDept.wards.length > 0) ? firstDept.wards[0].id : null;
+          });
+        }
+      } else {
         toast.error(hierarchy.error || "Failed to fetch bed map hierarchy");
       }
     } catch (error) {
@@ -106,7 +106,7 @@ export default function BedMapPage() {
 
   return (
     <div className="p-4 sm:p-5 bg-background min-h-screen flex flex-col space-y-5 transition-colors duration-300 font-sans pb-20">
-      
+
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-[22px] font-bold text-foreground tracking-tight leading-none">
@@ -118,7 +118,7 @@ export default function BedMapPage() {
       <BedStats stats={stats} />
 
       {/* Ward Information & Assignment */}
-      <BedHeader 
+      <BedHeader
         departments={data}
         selectedDept={selectedDept}
         selectedWard={selectedWard}
@@ -135,22 +135,22 @@ export default function BedMapPage() {
       />
 
       {/* Filters & Search */}
-      <BedFilters 
-        searchQuery={searchQuery} 
-        setSearchQuery={setSearchQuery} 
+      <BedFilters
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
         activeFilter={activeFilter}
         setActiveFilter={setActiveFilter}
         stats={stats}
       />
 
       {/* Main Bed Grid */}
-      <BedGrid 
-        beds={filteredBeds} 
-        refresh={fetchData} 
+      <BedGrid
+        beds={filteredBeds}
+        refresh={fetchData}
         deptId={selectedDeptId}
         wardId={selectedWardId}
       />
-      
+
     </div>
   );
 }
