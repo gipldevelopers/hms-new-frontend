@@ -24,29 +24,69 @@ const StatCard = ({ title, value, iconBgColor, iconColor }) => (
   </div>
 );
 
-export function StatCards() {
+export function StatCards({ items = [] }) {
+  const totalSkus = items.length;
+  const lowStock = items.filter(item => item.status === "LOW" || item.status === "Out of Stock").length;
+
+  // Calculate stock value dynamically
+  const stockValue = items.reduce((acc, item) => {
+    const numericQty = parseInt(item.qty) || 0;
+    return acc + (numericQty * 350);
+  }, 0);
+
+  const formattedValue = new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 0
+  }).format(stockValue);
+
+  // Dynamically calculate items expiring in the current month
+  const expiringThisMonth = items.filter(item => {
+    if (!item.expiry) return false;
+    const cleaned = String(item.expiry).trim();
+    let expDate = null;
+    
+    const ddmmyyyyRegex = /^(\d{2})-(\d{2})-(\d{4})/;
+    const yyyymmddRegex = /^(\d{4})-(\d{2})-(\d{2})/;
+    
+    if (ddmmyyyyRegex.test(cleaned)) {
+      const [_, day, month, year] = cleaned.match(ddmmyyyyRegex);
+      expDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    } else if (yyyymmddRegex.test(cleaned)) {
+      const [_, year, month, day] = cleaned.match(yyyymmddRegex);
+      expDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    } else {
+      expDate = new Date(cleaned);
+    }
+    
+    if (isNaN(expDate.getTime())) return false;
+    
+    const now = new Date();
+    return expDate.getMonth() === now.getMonth() && expDate.getFullYear() === now.getFullYear();
+  }).length;
+
   const stats = [
     {
       title: "Total Skus",
-      value: "4081",
+      value: totalSkus || "0",
       iconBgColor: "bg-indigo-50 dark:bg-indigo-950/20",
       iconColor: "text-indigo-500"
     },
     {
       title: "Total Stock Value",
-      value: "₹12,45,000",
+      value: formattedValue,
       iconBgColor: "bg-emerald-50 dark:bg-emerald-950/20",
       iconColor: "text-emerald-500"
     },
     {
       title: "Low Stock Items",
-      value: "124",
+      value: lowStock || "0",
       iconBgColor: "bg-blue-50 dark:bg-blue-950/20",
       iconColor: "text-blue-500"
     },
     {
       title: "Expiring this month",
-      value: "38",
+      value: expiringThisMonth || "0",
       iconBgColor: "bg-rose-50 dark:bg-rose-950/20",
       iconColor: "text-rose-500"
     }

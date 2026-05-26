@@ -8,18 +8,62 @@ import { Dialog, DialogPortal, DialogOverlay } from "@/components/ui/dialog";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 
 const MOCK_ITEMS = [
-  { id: 1, name: "Reagent A (Hematology)", sku: "HEM-001", category: "Reagents", qty: "45 Bottles", expiry: "2024-12-01", status: "LOW", supplier: "MedTech Supplies", minThreshold: "15", notes: "Store in a cool, dry place. Ensure caps are tightly sealed after usage." },
-  { id: 2, name: "Reagent A (Hematology)", sku: "HEM-001", category: "Consumables", qty: "12 Boxes", expiry: "2024-12-01", status: "LOW", supplier: "LifeScience Corp", minThreshold: "10", notes: "Low stock alert triggered." },
-  { id: 3, name: "Reagent A (Hematology)", sku: "HEM-001", category: "Consumables", qty: "12 Boxes", expiry: "2024-12-01", status: "Out of Stock", supplier: "MedTech Labs", minThreshold: "8", notes: "Needs emergency requisition." },
-  { id: 4, name: "Reagent A (Hematology)", sku: "HEM-001", category: "Reagents", qty: "12 Boxes", expiry: "2024-12-01", status: "In Stock", supplier: "Global Pharma", minThreshold: "5", notes: "" },
-  { id: 5, name: "Reagent A (Hematology)", sku: "HEM-001", category: "Consumables", qty: "12 Boxes", expiry: "2024-12-01", status: "LOW", supplier: "Global Pharma", minThreshold: "5", notes: "" },
-  { id: 6, name: "Reagent A (Hematology)", sku: "HEM-001", category: "Consumables", qty: "12 Boxes", expiry: "2024-12-01", status: "Out of Stock", supplier: "Global Pharma", minThreshold: "5", notes: "" },
-  { id: 7, name: "Reagent A (Hematology)", sku: "HEM-001", category: "Consumables", qty: "12 Boxes", expiry: "2024-12-01", status: "LOW", supplier: "Global Pharma", minThreshold: "5", notes: "" },
-  { id: 8, name: "Reagent A (Hematology)", sku: "HEM-001", category: "Consumables", qty: "12 Boxes", expiry: "2024-12-01", status: "LOW", supplier: "Global Pharma", minThreshold: "5", notes: "" },
-  { id: 9, name: "Reagent A (Hematology)", sku: "HEM-001", category: "Consumables", qty: "12 Boxes", expiry: "2024-12-01", status: "LOW", supplier: "Global Pharma", minThreshold: "5", notes: "" },
-  { id: 10, name: "Reagent A (Hematology)", sku: "HEM-001", category: "Reagents", qty: "12 Boxes", expiry: "2024-12-01", status: "In Stock", supplier: "Global Pharma", minThreshold: "5", notes: "" },
-  { id: 11, name: "Reagent A (Hematology)", sku: "HEM-001", category: "Reagents", qty: "12 Boxes", expiry: "2024-12-01", status: "Out of Stock", supplier: "Global Pharma", minThreshold: "5", notes: "" },
+  { id: 1, name: "Reagent A (Hematology)", sku: "HEM-001", category: "Reagents", qty: "45 Bottles", expiry: "01-12-2024", status: "LOW", supplier: "MedTech Supplies", minThreshold: "15", notes: "Store in a cool, dry place. Ensure caps are tightly sealed after usage." },
+  { id: 2, name: "Reagent A (Hematology)", sku: "HEM-001", category: "Consumables", qty: "12 Boxes", expiry: "01-12-2024", status: "LOW", supplier: "LifeScience Corp", minThreshold: "10", notes: "Low stock alert triggered." },
+  { id: 3, name: "Reagent A (Hematology)", sku: "HEM-001", category: "Consumables", qty: "12 Boxes", expiry: "01-12-2024", status: "Out of Stock", supplier: "MedTech Labs", minThreshold: "8", notes: "Needs emergency requisition." },
+  { id: 4, name: "Reagent A (Hematology)", sku: "HEM-001", category: "Reagents", qty: "12 Boxes", expiry: "01-12-2024", status: "In Stock", supplier: "Global Pharma", minThreshold: "5", notes: "" },
+  { id: 5, name: "Reagent A (Hematology)", sku: "HEM-001", category: "Consumables", qty: "12 Boxes", expiry: "01-12-2024", status: "LOW", supplier: "Global Pharma", minThreshold: "5", notes: "" },
+  { id: 6, name: "Reagent A (Hematology)", sku: "HEM-001", category: "Consumables", qty: "12 Boxes", expiry: "01-12-2024", status: "Out of Stock", supplier: "Global Pharma", minThreshold: "5", notes: "" },
+  { id: 7, name: "Reagent A (Hematology)", sku: "HEM-001", category: "Consumables", qty: "12 Boxes", expiry: "01-12-2024", status: "LOW", supplier: "Global Pharma", minThreshold: "5", notes: "" },
+  { id: 8, name: "Reagent A (Hematology)", sku: "HEM-001", category: "Consumables", qty: "12 Boxes", expiry: "01-12-2024", status: "LOW", supplier: "Global Pharma", minThreshold: "5", notes: "" },
+  { id: 9, name: "Reagent A (Hematology)", sku: "HEM-001", category: "Consumables", qty: "12 Boxes", expiry: "01-12-2024", status: "LOW", supplier: "Global Pharma", minThreshold: "5", notes: "" },
+  { id: 10, name: "Reagent A (Hematology)", sku: "HEM-001", category: "Reagents", qty: "12 Boxes", expiry: "01-12-2024", status: "In Stock", supplier: "Global Pharma", minThreshold: "5", notes: "" },
+  { id: 11, name: "Reagent A (Hematology)", sku: "HEM-001", category: "Reagents", qty: "12 Boxes", expiry: "01-12-2024", status: "Out of Stock", supplier: "Global Pharma", minThreshold: "5", notes: "" },
 ];
+
+const formatDateToDDMMYYYY = (dateStr) => {
+  if (!dateStr) return "";
+  const cleaned = String(dateStr).trim();
+  // Match YYYY-MM-DD (e.g. 2024-12-01 or 222222-12-01)
+  const yyyymmddRegex = /^(\d{4,})-(\d{2})-(\d{2})/;
+  const match = cleaned.match(yyyymmddRegex);
+  if (match) {
+    const [_, year, month, day] = match;
+    const year4 = year.substring(0, 4);
+    return `${day}-${month}-${year4}`;
+  }
+  // Match DD-MM-YYYY (e.g. 01-12-2024 or 01-12-222222)
+  const ddmmyyyyRegex = /^(\d{2})-(\d{2})-(\d{4,})/;
+  const match2 = cleaned.match(ddmmyyyyRegex);
+  if (match2) {
+    const [_, day, month, year] = match2;
+    const year4 = year.substring(0, 4);
+    return `${day}-${month}-${year4}`;
+  }
+  return cleaned;
+};
+
+const formatDateToYYYYMMDD = (dateStr) => {
+  if (!dateStr) return "";
+  const cleaned = String(dateStr).trim();
+  // Match DD-MM-YYYY
+  const ddmmyyyyRegex = /^(\d{2})-(\d{2})-(\d{4,})/;
+  const match = cleaned.match(ddmmyyyyRegex);
+  if (match) {
+    const [_, day, month, year] = match;
+    const year4 = year.substring(0, 4);
+    return `${year4}-${month}-${day}`;
+  }
+  // Match YYYY-MM-DD
+  const yyyymmddRegex = /^(\d{4,})-(\d{2})-(\d{2})/;
+  const match2 = cleaned.match(yyyymmddRegex);
+  if (match2) {
+    const [_, year, month, day] = match2;
+    const year4 = year.substring(0, 4);
+    return `${year4}-${month}-${day}`;
+  }
+  return cleaned;
+};
 
 // Local custom DialogContent with reduced backdrop blur (matching subtle patient billing layouts)
 const CustomDialogContent = React.forwardRef(({ className, children, ...props }, ref) => (
@@ -41,8 +85,7 @@ const CustomDialogContent = React.forwardRef(({ className, children, ...props },
 ));
 CustomDialogContent.displayName = "CustomDialogContent";
 
-export function InventoryTable({ onViewItem, triggerAddModal, clearAddTrigger, hideTableContent }) {
-  const [items, setItems] = useState(MOCK_ITEMS);
+export function InventoryTable({ items, setItems, onViewItem, triggerAddModal, clearAddTrigger, hideTableContent, onRefresh }) {
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedStatus, setSelectedStatus] = useState("All");
@@ -62,7 +105,26 @@ export function InventoryTable({ onViewItem, triggerAddModal, clearAddTrigger, h
 
   const categories = ["All", "Reagents", "Consumables"];
   const statuses = ["All", "In Stock", "LOW", "Out of Stock"];
-  const expiries = ["All", "Next 30 Days", "Next 90 Days"];
+  const expiries = ["All", "Expired", "Next 30 Days", "Next 90 Days", "Next 180 Days"];
+
+  const parseExpiryDate = (dateStr) => {
+    if (!dateStr) return null;
+    const cleaned = String(dateStr).trim();
+    const ddmmyyyyRegex = /^(\d{2})-(\d{2})-(\d{4})/;
+    const yyyymmddRegex = /^(\d{4})-(\d{2})-(\d{2})/;
+
+    let expDate = null;
+    if (ddmmyyyyRegex.test(cleaned)) {
+      const [_, day, month, year] = cleaned.match(ddmmyyyyRegex);
+      expDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    } else if (yyyymmddRegex.test(cleaned)) {
+      const [_, year, month, day] = cleaned.match(yyyymmddRegex);
+      expDate = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+    } else {
+      expDate = new Date(cleaned);
+    }
+    return isNaN(expDate.getTime()) ? null : expDate;
+  };
 
   const handleClearFilters = () => {
     setSearch("");
@@ -76,7 +138,32 @@ export function InventoryTable({ onViewItem, triggerAddModal, clearAddTrigger, h
       item.sku.toLowerCase().includes(search.toLowerCase());
     const matchesCategory = selectedCategory === "All" || item.category === selectedCategory;
     const matchesStatus = selectedStatus === "All" || item.status === selectedStatus;
-    return matchesSearch && matchesCategory && matchesStatus;
+
+    let matchesExpiry = true;
+    if (selectedExpiry !== "All") {
+      const expDate = parseExpiryDate(item.expiry);
+      if (!expDate) {
+        matchesExpiry = false;
+      } else {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const diffTime = expDate.getTime() - today.getTime();
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        if (selectedExpiry === "Expired") {
+          matchesExpiry = diffDays < 0;
+        } else if (selectedExpiry === "Next 30 Days") {
+          matchesExpiry = diffDays >= 0 && diffDays <= 30;
+        } else if (selectedExpiry === "Next 90 Days") {
+          matchesExpiry = diffDays >= 0 && diffDays <= 90;
+        } else if (selectedExpiry === "Next 180 Days") {
+          matchesExpiry = diffDays >= 0 && diffDays <= 180;
+        }
+      }
+    }
+
+    return matchesSearch && matchesCategory && matchesStatus && matchesExpiry;
   });
 
   const toggleDropdown = (dropdown) => {
@@ -88,52 +175,106 @@ export function InventoryTable({ onViewItem, triggerAddModal, clearAddTrigger, h
   };
 
   // Actions
-  const handleFormSubmit = (e) => {
+  const handleFormSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     const name = formData.get("name");
     const sku = formData.get("sku");
     const category = formData.get("category");
-    const qtyVal = formData.get("qtyVal");
+    const qtyVal = parseFloat(formData.get("qtyVal")) || 0;
     const qtyUnit = formData.get("qtyUnit");
     const qty = `${qtyVal} ${qtyUnit}`;
-    const expiry = formData.get("expiry");
-    const status = formData.get("status");
+    const expiry = formatDateToDDMMYYYY(formData.get("expiry"));
+    
+    let status = "In Stock";
+    if (qtyVal === 0) {
+      status = "Out of Stock";
+    } else if (qtyVal < 500) {
+      status = "LOW";
+    } else {
+      status = "In Stock";
+    }
+
     const supplier = formData.get("supplier");
     const minThreshold = formData.get("minThreshold");
     const notes = formData.get("notes");
+    const payload = {
+      name,
+      sku,
+      category,
+      qty,
+      expiry,
+      status,
+      supplier,
+      minThreshold,
+      notes,
+      unitPrice: 0.0
+    };
 
-    if (modalType === "edit") {
-      setItems(prev => prev.map(item => item.id === selectedItem.id ? {
-        ...item, name, sku, category, qty, expiry, status, supplier, minThreshold, notes
-      } : item));
-      toast.success("Inventory item updated successfully!");
-    } else {
-      const newItem = {
-        id: Date.now(),
-        name,
-        sku,
-        category,
-        qty,
-        expiry,
-        status,
-        supplier,
-        minThreshold,
-        notes
-      };
-      setItems(prev => [newItem, ...prev]);
-      toast.success("Inventory item added successfully!");
+    try {
+      const token = localStorage.getItem("authtoken");
+      if (modalType === "edit") {
+        const res = await fetch(`/api/hospital-inventory/${selectedItem.id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify(payload)
+        });
+        const json = await res.json();
+        if (json.success) {
+          toast.success("Inventory item updated successfully!");
+          if (onRefresh) onRefresh();
+        } else {
+          toast.error(json.error || "Failed to update item");
+        }
+      } else {
+        const res = await fetch("/api/hospital-inventory", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify(payload)
+        });
+        const json = await res.json();
+        if (json.success) {
+          toast.success("Inventory item added successfully!");
+          if (onRefresh) onRefresh();
+        } else {
+          toast.error(json.error || "Failed to add item");
+        }
+      }
+    } catch (err) {
+      console.error("Error saving inventory item:", err);
+      toast.error("Network error saving inventory item");
     }
 
     setModalType(null);
     setSelectedItem(null);
   };
 
-  const handleDeleteItem = (item) => {
+  const handleDeleteItem = async (item) => {
     const confirmed = window.confirm(`Are you sure you want to delete ${item.name}?`);
     if (confirmed) {
-      setItems(prev => prev.filter(i => i.id !== item.id));
-      toast.success(`${item.name} deleted successfully`);
+      try {
+        const token = localStorage.getItem("authtoken");
+        const res = await fetch(`/api/hospital-inventory/${item.id}`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const json = await res.json();
+        if (json.success) {
+          toast.success(`${item.name} deleted successfully`);
+          if (onRefresh) onRefresh();
+        } else {
+          toast.error(json.error || "Failed to delete item");
+        }
+      } catch (err) {
+        console.error("Error deleting item:", err);
+        toast.error("Network error deleting item");
+      }
     }
   };
 
@@ -183,10 +324,15 @@ export function InventoryTable({ onViewItem, triggerAddModal, clearAddTrigger, h
               <div className="relative">
                 <button
                   onClick={() => toggleDropdown("category")}
-                  className="h-10 px-4 bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-[8px] text-[13px] font-medium text-foreground flex items-center gap-2 hover:bg-muted transition-all outline-none"
+                  className={cn(
+                    "h-10 px-4 rounded-[8px] text-[13px] font-semibold flex items-center gap-2 hover:bg-muted transition-all outline-none border cursor-pointer",
+                    selectedCategory !== "All"
+                      ? "bg-[#2E37A4]/5 border-[#2E37A4] text-[#2E37A4]"
+                      : "bg-white dark:bg-[#1e293b] border-[#e2e8f0] dark:border-[#334155] text-foreground"
+                  )}
                 >
-                  Category
-                  <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
+                  {selectedCategory === "All" ? "Category" : `Category: ${selectedCategory}`}
+                  <ChevronDown className={cn("w-3.5 h-3.5", selectedCategory !== "All" ? "text-[#2E37A4]" : "text-muted-foreground")} />
                 </button>
                 {activeDropdown === "category" && (
                   <div className="absolute right-0 mt-1.5 w-[180px] bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] shadow-xl z-50 p-1">
@@ -200,7 +346,7 @@ export function InventoryTable({ onViewItem, triggerAddModal, clearAddTrigger, h
                         className={cn(
                           "w-full text-left rounded-[5px] px-3 py-2 text-[13px] font-medium cursor-pointer transition-colors block",
                           selectedCategory === cat
-                            ? "bg-primary/5 text-primary font-bold"
+                            ? "bg-[#2E37A4]/5 text-[#2E37A4] font-bold"
                             : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5"
                         )}
                       >
@@ -215,10 +361,15 @@ export function InventoryTable({ onViewItem, triggerAddModal, clearAddTrigger, h
               <div className="relative">
                 <button
                   onClick={() => toggleDropdown("status")}
-                  className="h-10 px-4 bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-[8px] text-[13px] font-medium text-foreground flex items-center gap-2 hover:bg-muted transition-all outline-none"
+                  className={cn(
+                    "h-10 px-4 rounded-[8px] text-[13px] font-semibold flex items-center gap-2 hover:bg-muted transition-all outline-none border cursor-pointer",
+                    selectedStatus !== "All"
+                      ? "bg-[#2E37A4]/5 border-[#2E37A4] text-[#2E37A4]"
+                      : "bg-white dark:bg-[#1e293b] border-[#e2e8f0] dark:border-[#334155] text-foreground"
+                  )}
                 >
-                  Stock Status
-                  <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
+                  {selectedStatus === "All" ? "Stock Status" : `Status: ${selectedStatus}`}
+                  <ChevronDown className={cn("w-3.5 h-3.5", selectedStatus !== "All" ? "text-[#2E37A4]" : "text-muted-foreground")} />
                 </button>
                 {activeDropdown === "status" && (
                   <div className="absolute right-0 mt-1.5 w-[180px] bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] shadow-xl z-50 p-1">
@@ -232,7 +383,7 @@ export function InventoryTable({ onViewItem, triggerAddModal, clearAddTrigger, h
                         className={cn(
                           "w-full text-left rounded-[5px] px-3 py-2 text-[13px] font-medium cursor-pointer transition-colors block",
                           selectedStatus === stat
-                            ? "bg-primary/5 text-primary font-bold"
+                            ? "bg-[#2E37A4]/5 text-[#2E37A4] font-bold"
                             : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5"
                         )}
                       >
@@ -247,10 +398,15 @@ export function InventoryTable({ onViewItem, triggerAddModal, clearAddTrigger, h
               <div className="relative">
                 <button
                   onClick={() => toggleDropdown("expiry")}
-                  className="h-10 px-4 bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-[8px] text-[13px] font-medium text-foreground flex items-center gap-2 hover:bg-muted transition-all outline-none"
+                  className={cn(
+                    "h-10 px-4 rounded-[8px] text-[13px] font-semibold flex items-center gap-2 hover:bg-muted transition-all outline-none border cursor-pointer",
+                    selectedExpiry !== "All"
+                      ? "bg-[#2E37A4]/5 border-[#2E37A4] text-[#2E37A4]"
+                      : "bg-white dark:bg-[#1e293b] border-[#e2e8f0] dark:border-[#334155] text-foreground"
+                  )}
                 >
-                  Expiry Range
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground ml-1"><rect width="18" height="18" x="3" y="4" rx="2" ry="2" /><line x1="16" x2="16" y1="2" y2="6" /><line x1="8" x2="8" y1="2" y2="6" /><line x1="3" x2="21" y1="10" y2="10" /><path d="M8 14h.01" /><path d="M12 14h.01" /><path d="M16 14h.01" /><path d="M8 18h.01" /><path d="M12 18h.01" /><path d="M16 18h.01" /></svg>
+                  {selectedExpiry === "All" ? "Expiry Range" : `Expiry: ${selectedExpiry}`}
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={cn("ml-1", selectedExpiry !== "All" ? "text-[#2E37A4]" : "text-muted-foreground")}><rect width="18" height="18" x="3" y="4" rx="2" ry="2" /><line x1="16" x2="16" y1="2" y2="6" /><line x1="8" x2="8" y1="2" y2="6" /><line x1="3" x2="21" y1="10" y2="10" /><path d="M8 14h.01" /><path d="M12 14h.01" /><path d="M16 14h.01" /><path d="M8 18h.01" /><path d="M12 18h.01" /><path d="M16 18h.01" /></svg>
                 </button>
                 {activeDropdown === "expiry" && (
                   <div className="absolute right-0 mt-1.5 w-[180px] bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] shadow-xl z-50 p-1">
@@ -264,7 +420,7 @@ export function InventoryTable({ onViewItem, triggerAddModal, clearAddTrigger, h
                         className={cn(
                           "w-full text-left rounded-[5px] px-3 py-2 text-[13px] font-medium cursor-pointer transition-colors block",
                           selectedExpiry === exp
-                            ? "bg-primary/5 text-primary font-bold"
+                            ? "bg-[#2E37A4]/5 text-[#2E37A4] font-bold"
                             : "text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/5"
                         )}
                       >
@@ -352,7 +508,7 @@ export function InventoryTable({ onViewItem, triggerAddModal, clearAddTrigger, h
                         </td>
                         <td className="px-8 py-4">
                           <div className="text-[13px] text-[#64748b] dark:text-[#94a3b8] font-bold">
-                            {item.expiry}
+                            {formatDateToDDMMYYYY(item.expiry)}
                           </div>
                         </td>
                         <td className="px-8 py-4">
@@ -501,7 +657,7 @@ export function InventoryTable({ onViewItem, triggerAddModal, clearAddTrigger, h
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 gap-3">
                       <div className="space-y-1.5">
                         <label className="text-[13px] font-medium text-slate-700 dark:text-slate-300">Minimum Threshold</label>
                         <input
@@ -511,18 +667,6 @@ export function InventoryTable({ onViewItem, triggerAddModal, clearAddTrigger, h
                           defaultValue={modalType === "edit" ? selectedItem?.minThreshold || "" : ""}
                           name="minThreshold"
                         />
-                      </div>
-                      <div className="space-y-1.5">
-                        <label className="text-[13px] font-medium text-slate-700 dark:text-slate-300">Status</label>
-                        <select
-                          className="w-full h-9 px-3 bg-white dark:bg-[#0A0F1D] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-medium outline-none focus:border-[#2E37A4] text-foreground"
-                          defaultValue={modalType === "edit" ? selectedItem?.status : "In Stock"}
-                          name="status"
-                        >
-                          <option value="In Stock">In Stock</option>
-                          <option value="LOW">LOW</option>
-                          <option value="Out of Stock">Out of Stock</option>
-                        </select>
                       </div>
                     </div>
                   </div>
@@ -547,12 +691,10 @@ export function InventoryTable({ onViewItem, triggerAddModal, clearAddTrigger, h
                     <div className="space-y-1.5">
                       <label className="text-[13px] font-medium text-slate-700 dark:text-slate-300">Expiry Date</label>
                       <input
-                        type="text"
-                        placeholder="YYYY-MM-DD"
-                        onFocus={(e) => e.target.type = 'date'}
-                        onBlur={(e) => { if (!e.target.value) e.target.type = 'text' }}
+                        type="date"
+                        max="9999-12-31"
                         className="w-full h-9 px-3 bg-white dark:bg-[#0A0F1D] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-medium outline-none focus:border-[#2E37A4] text-foreground"
-                        defaultValue={modalType === "edit" ? selectedItem?.expiry : ""}
+                        defaultValue={modalType === "edit" ? formatDateToYYYYMMDD(selectedItem?.expiry) : ""}
                         name="expiry"
                       />
                     </div>

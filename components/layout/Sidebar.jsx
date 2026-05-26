@@ -415,7 +415,7 @@ export default function Sidebar({ isCollapsed, isMobileOpen, setIsMobileOpen, se
                           pathname === item.path ||
                           (
                             item.path !== "/" &&
-                            !["/super-admin", "/branch-admin", "/doctor", "/staff", "/reception", "/pharmacy", "/laboratory", "/radiology", "/finance", "/reports"].includes(item.path) &&
+                            !["/super-admin", "/branch-admin", "/doctor", "/staff", "/reception", "/pharmacy", "/laboratory", "/radiology", "/finance", "/reports", "/hospital-inventory"].includes(item.path) &&
                             pathname.startsWith(item.path + "/")
                           ) ||
                           item.subItems?.some(s => pathname === s.path)
