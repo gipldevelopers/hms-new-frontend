@@ -15,6 +15,7 @@ export function OrderInformationCard({ info }) {
   const statusColors = {
     "Pending": "bg-[#f1f5f9] text-[#475569] dark:bg-[#334155] dark:text-[#cbd5e1]",
     "Collecting": "bg-[#fef3c7] text-[#b45309] dark:bg-[#78350f]/30 dark:text-[#fcd34d]",
+    "Processing": "bg-[#dbeafe] text-[#1e40af] dark:bg-[#1e3a8a]/30 dark:text-[#93c5fd]",
     "Completed": "bg-[#d1fae5] text-[#065f46] dark:bg-[#064e3b]/30 dark:text-[#6ee7b7]"
   };
 

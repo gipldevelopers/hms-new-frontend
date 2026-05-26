@@ -26,6 +26,27 @@ export default function SuperAdminBedMapPage() {
   const [selectedBranch, setSelectedBranch] = useState(null);
   const [branchSearch, setBranchSearch] = useState("");
 
+  // Persist selections to localStorage
+  useEffect(() => {
+    if (selectedBranch) {
+      localStorage.setItem("sa_bedmap_selectedBranchId", selectedBranch.id);
+    } else {
+      localStorage.removeItem("sa_bedmap_selectedBranchId");
+    }
+  }, [selectedBranch]);
+
+  useEffect(() => {
+    if (selectedDeptId) {
+      localStorage.setItem("sa_bedmap_selectedDeptId", selectedDeptId);
+    }
+  }, [selectedDeptId]);
+
+  useEffect(() => {
+    if (selectedWardId) {
+      localStorage.setItem("sa_bedmap_selectedWardId", selectedWardId);
+    }
+  }, [selectedWardId]);
+
   useEffect(() => {
     fetchBranches();
   }, []);
@@ -39,13 +60,23 @@ export default function SuperAdminBedMapPage() {
       const result = await res.json();
       if (res.ok && result.success) {
         setBranches(result.data);
+        
+        // Auto-select saved branch if exists
+        const savedBranchId = localStorage.getItem("sa_bedmap_selectedBranchId");
+        if (savedBranchId) {
+          const found = result.data.find(b => b.id === savedBranchId);
+          if (found) {
+            setSelectedBranch(found);
+            fetchData(found.id, true);
+          }
+        }
       }
     } catch (error) {
       console.error("Failed to fetch branches:", error);
     }
   };
 
-  const fetchData = async (branchId) => {
+  const fetchData = async (branchId, useSaved = false) => {
     if (!branchId) return;
     try {
       setLoading(true);
@@ -59,15 +90,31 @@ export default function SuperAdminBedMapPage() {
       if (res.ok && Array.isArray(hierarchy)) {
         setData(hierarchy);
 
-        // Reset selection when branch changes
         if (hierarchy.length > 0) {
-        setSelectedDeptId(hierarchy[0].id);
-        if (hierarchy[0].wards && hierarchy[0].wards.length > 0) {
-          setSelectedWardId(hierarchy[0].wards[0].id);
+          let activeDeptId = hierarchy[0].id;
+          let activeWardId = hierarchy[0].wards && hierarchy[0].wards.length > 0 ? hierarchy[0].wards[0].id : null;
+
+          if (useSaved) {
+            const savedDeptId = localStorage.getItem("sa_bedmap_selectedDeptId");
+            const savedWardId = localStorage.getItem("sa_bedmap_selectedWardId");
+
+            const deptExists = hierarchy.find(d => d.id === savedDeptId);
+            if (deptExists) {
+              activeDeptId = savedDeptId;
+              const wardExists = deptExists.wards && deptExists.wards.find(w => w.id === savedWardId);
+              if (wardExists) {
+                activeWardId = savedWardId;
+              } else if (deptExists.wards && deptExists.wards.length > 0) {
+                activeWardId = deptExists.wards[0].id;
+              } else {
+                activeWardId = null;
+              }
+            }
+          }
+
+          setSelectedDeptId(activeDeptId);
+          setSelectedWardId(activeWardId);
         } else {
-          setSelectedWardId(null);
-        }
-      } else {
           setSelectedDeptId(null);
           setSelectedWardId(null);
         }
@@ -83,7 +130,7 @@ export default function SuperAdminBedMapPage() {
 
   const handleBranchSelect = (branch) => {
     setSelectedBranch(branch);
-    fetchData(branch.id);
+    fetchData(branch.id, false);
   };
 
   const selectedDept = data.find(d => d.id === selectedDeptId);
