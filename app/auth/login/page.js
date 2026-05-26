@@ -269,7 +269,8 @@ export default function LoginPage() {
                  { name: "Laboratory", slug: "laboratory", role: "LABORATORY" },
                  { name: "Radiology", slug: "radiology", role: "RADIOLOGY" },
                  { name: "Finance", slug: "finance", role: "FINANCE" },
-                 { name: "Reports", slug: "reports", role: "REPORTS" }
+                 { name: "Reports", slug: "reports", role: "REPORTS" },
+                 { name: "Hospital Inventory", slug: "hospital-inventory", role: "HOSPITAL_INVENTORY" }
                ].map((demo) => (
                  <button
                    key={demo.role}
