@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Search, ChevronDown, Edit3, Eye, Activity, Wind, Check } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
@@ -11,8 +11,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export default function VitalsHistory({ patientId }) {
+export default function VitalsHistory({ patientId, branchId }) {
   const router = useRouter();
+  const pathname = usePathname();
   const [searchQuery, setSearchQuery] = useState("");
   const [filterStaff, setFilterStaff] = useState("All");
   const [staffOptions, setStaffOptions] = useState(["All"]);
@@ -23,7 +24,8 @@ export default function VitalsHistory({ patientId }) {
     const fetchFilters = async () => {
       try {
         const token = localStorage.getItem("authtoken");
-        const res = await fetch("/api/vitals/filters", {
+        const url = `/api/vitals/filters${branchId ? `?branchId=${branchId}` : ""}`;
+        const res = await fetch(url, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.ok) {
@@ -35,7 +37,7 @@ export default function VitalsHistory({ patientId }) {
       }
     };
     fetchFilters();
-  }, []);
+  }, [branchId]);
 
   React.useEffect(() => {
     if (!patientId) {
@@ -50,6 +52,7 @@ export default function VitalsHistory({ patientId }) {
           const params = new URLSearchParams();
           if (searchQuery) params.append("search", searchQuery);
           if (filterStaff && filterStaff !== "All") params.append("recordedBy", filterStaff);
+          if (branchId) params.append("branchId", branchId);
 
           const res = await fetch(`/api/vitals/patient/${patientId}?${params.toString()}`, {
             headers: { Authorization: `Bearer ${token}` }
@@ -87,15 +90,17 @@ export default function VitalsHistory({ patientId }) {
     }, 300);
 
     return () => clearTimeout(delayDebounce);
-  }, [patientId, searchQuery, filterStaff]);
+  }, [patientId, searchQuery, filterStaff, branchId]);
 
   const filteredHistory = history;
 
+  const prefix = pathname.startsWith("/super-admin") ? "/super-admin/patient-detail" : "/staff";
+
   const handleAction = (type, row) => {
     if (type === "Edit") {
-      router.push(`/staff/vitals/${patientId}/entry?mode=edit&entryId=${row.id}&from=patient`);
+      router.push(`${prefix}/vitals/${patientId}/entry?mode=edit&entryId=${row.id}&from=patient${branchId ? `&branchId=${branchId}` : ""}`);
     } else if (type === "View") {
-      router.push(`/staff/vitals/${patientId}/entry?mode=view&entryId=${row.id}&from=patient`);
+      router.push(`${prefix}/vitals/${patientId}/entry?mode=view&entryId=${row.id}&from=patient${branchId ? `&branchId=${branchId}` : ""}`);
     }
   };
 
