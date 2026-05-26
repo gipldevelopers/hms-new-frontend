@@ -57,7 +57,7 @@ export function ReportsPerformanceMetrics() {
 
   return (
     <div className="w-full bg-card rounded-lg border border-border flex flex-col font-sans transition-all overflow-hidden shadow-none hover:border-gray-300 dark:hover:border-white/20 p-5 md:h-[350px] h-auto justify-between">
-      <div className="border-b border-border pb-3 mb-3">
+      <div className="border-b border-border pb-3 mb-4 -mx-5 px-5">
         <h3 className="text-[16px] font-bold text-[#1e293b] dark:text-white leading-none">
           Performance Metrics
         </h3>
