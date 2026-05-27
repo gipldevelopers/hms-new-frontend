@@ -343,9 +343,9 @@ function AddTaskModal({ onClose, onSave }) {
                     ) : filteredPatients.length === 0 ? (
                       <p className="p-3 text-[12px] text-muted-foreground italic">No admitted patients found</p>
                     ) : (
-                      filteredPatients.map((p) => (
+                      filteredPatients.map((p, i) => (
                         <button
-                          key={p.id}
+                          key={`${p.id}-${i}`}
                           onClick={() => { setSelectedPatient(p); setBedLabel(p.bed); setPatientOpen(false); }}
                           className="w-full px-4 py-2.5 text-left text-[13px] font-medium hover:bg-muted flex items-center justify-between"
                         >

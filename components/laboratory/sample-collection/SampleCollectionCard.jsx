@@ -24,6 +24,16 @@ export function SampleCollectionCard({ order, onMarkCollected }) {
     };
   }, [menuOpen]);
 
+  const handleGenerateResult = () => {
+    const hasReport = typeof window !== "undefined" && localStorage.getItem(`report-generated-${order.id}`) === "true";
+    if (hasReport) {
+      router.push(`/laboratory/sample-collection/report?id=${order.id}`);
+    } else {
+      router.push(`/laboratory/sample-collection/report/edit?id=${order.id}`);
+    }
+    setMenuOpen(false);
+  };
+
   const handleGenerateReport = () => {
     router.push(`/laboratory/sample-collection/report?id=${order.id}`);
     setMenuOpen(false);
@@ -148,14 +158,20 @@ export function SampleCollectionCard({ order, onMarkCollected }) {
                 className="absolute right-0 mt-1 w-[160px] bg-card border border-border rounded-[5px] p-0 shadow-none z-50 flex flex-col overflow-hidden"
               >
                 <button
-                  onClick={handleGenerateReport}
+                  onClick={handleGenerateResult}
                   className="w-full text-left px-4 py-2 bg-card text-foreground hover:bg-primary hover:text-primary-foreground text-[13px] font-semibold transition-colors cursor-pointer rounded-t-[4px]"
+                >
+                  Generate Result
+                </button>
+                <button
+                  onClick={handleGenerateReport}
+                  className="w-full text-left px-4 py-2 bg-card text-foreground hover:bg-primary hover:text-primary-foreground text-[13px] font-semibold transition-colors cursor-pointer border-t border-border"
                 >
                   Generate Report
                 </button>
                 <button
                   onClick={handlePrintLabels}
-                  className="w-full text-left px-4 py-2 bg-card text-foreground hover:bg-primary hover:text-primary-foreground text-[13px] font-semibold transition-colors cursor-pointer rounded-b-[4px] border-t border-border"
+                  className="w-full text-left px-4 py-2 bg-card text-foreground hover:bg-primary hover:text-primary-foreground text-[13px] font-semibold transition-colors cursor-pointer border-t border-border rounded-b-[4px]"
                 >
                   Print Labels
                 </button>

@@ -125,7 +125,7 @@ export default function PatientDetailsPage({ params }) {
           </div>
         );
       case "Notes":
-        return <NursingNotes />;
+        return <NursingNotes patientId={resolvedParams.id} />;
       default:
         return (
           <div className="bg-card p-12 rounded-lg border border-border flex flex-col items-center justify-center text-center">

@@ -1,14 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  async redirects() {
-    return [
-      {
-        source: '/',
-        destination: '/auth/login',
-        permanent: true,
-      },
-    ];
-  },
   async rewrites() {
     let apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5050/api';
     // If the API URL points to the frontend itself (e.g. during local development),

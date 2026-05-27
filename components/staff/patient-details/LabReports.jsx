@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-export default function LabReports() {
+export default function LabReports({ onViewReport }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [filterCategory, setFilterCategory] = useState("All");
 
@@ -75,7 +75,9 @@ export default function LabReports() {
   });
 
   const handleView = (report) => {
-    alert(`Viewing Lab Report: ${report.name}\nStatus: ${report.status}`);
+    if (onViewReport) {
+      onViewReport(report);
+    }
   };
 
   return (
