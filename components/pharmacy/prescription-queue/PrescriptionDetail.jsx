@@ -142,17 +142,26 @@ export function PrescriptionDetail() {
           >
             <Printer size={16} /> Print
           </button>
-          <button
-            onClick={handleStartProcessing}
-            disabled={starting}
-            className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 h-11 bg-[#2e37a4] text-white rounded-[5px] text-[13px] font-bold hover:opacity-90 transition-all disabled:opacity-60"
-          >
-            {starting ? (
-              <><Loader2 size={14} className="animate-spin" /> Starting...</>
-            ) : (
-              <><Play size={14} fill="white" /> Start Processing</>
-            )}
-          </button>
+          {pharmacyStatus?.toUpperCase() === "DISPENSED" ? (
+            <button
+              disabled
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 h-11 bg-emerald-600 text-white rounded-[5px] text-[13px] font-bold opacity-100 cursor-not-allowed"
+            >
+              <Check size={14} strokeWidth={3} /> Already Dispensed
+            </button>
+          ) : (
+            <button
+              onClick={handleStartProcessing}
+              disabled={starting}
+              className="flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 h-11 bg-[#2e37a4] text-white rounded-[5px] text-[13px] font-bold hover:opacity-90 transition-all disabled:opacity-60"
+            >
+              {starting ? (
+                <><Loader2 size={14} className="animate-spin" /> Starting...</>
+              ) : (
+                <><Play size={14} fill="white" /> Start Processing</>
+              )}
+            </button>
+          )}
         </div>
       </div>
 

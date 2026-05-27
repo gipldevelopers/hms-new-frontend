@@ -30,7 +30,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { FormInput, FormSelect, FormDatePicker, SuccessModal } from "@/app/reception/patient-registration/new/page";
+import { FormInput, FormSelect, SuccessModal } from "@/components/ui/patient-registration-components";
+import { FormDatePicker } from "@/components/ui/form-date-picker";
 
 export default function SuperAdminNewRegistration() {
   const router = useRouter();

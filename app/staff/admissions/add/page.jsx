@@ -138,6 +138,14 @@ export default function AddAdmissionPage() {
   const [beds, setBeds] = useState([]);
   const [doctors, setDoctors] = useState([]);
 
+  // Live Patient Search States
+  const [patients, setPatients] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [selectedPatient, setSelectedPatient] = useState(null);
+  const [searchFocused, setSearchFocused] = useState(false);
+  const searchContainerRef = useRef(null);
+
   const [formData, setFormData] = useState({
     patientName: "",
     patientAge: "",
@@ -169,12 +177,82 @@ export default function AddAdmissionPage() {
       const userRes = await fetch("/api/users?role=DOCTOR", { headers });
       const userData = await userRes.json();
       if (userData.success) setDoctors(userData.data);
+
+      // Fetch registered patients for live search in receptions
+      const patientsRes = await fetch("/api/patients", { headers });
+      const patientsData = await patientsRes.json();
+      if (Array.isArray(patientsData)) {
+        setPatients(patientsData);
+      }
     } catch (e) {
       toast.error("Failed to load infrastructure data");
     }
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { 
+    fetchData(); 
+  }, []);
+
+  // Handle click outside to close dropdown search results
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target)) {
+        setSearchFocused(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Filter patients based on query matching name, contact, email or ID (UHID)
+  useEffect(() => {
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      return;
+    }
+    const query = searchQuery.toLowerCase();
+    const filtered = patients.filter(patient => {
+      const name = (patient.name || `${patient.firstName || ""} ${patient.lastName || ""}`).toLowerCase();
+      const contact = (patient.contact || "").toLowerCase();
+      const email = (patient.email || "").toLowerCase();
+      const uhid = (patient.id || "").toLowerCase();
+      return name.includes(query) || contact.includes(query) || email.includes(query) || uhid.includes(query);
+    });
+    setSearchResults(filtered);
+  }, [searchQuery, patients]);
+
+  const handleSelectPatient = (patient) => {
+    setSelectedPatient(patient);
+    setFormData(prev => ({
+      ...prev,
+      patientName: patient.name || `${patient.firstName || ""} ${patient.lastName || ""}`.trim(),
+      patientAge: patient.age ? patient.age.toString() : "",
+      patientGender: patient.gender || "",
+      patientContact: patient.contact || "",
+      patientEmail: patient.email || "",
+      emergencyContactName: patient.emergencyContactName || "",
+      emergencyContactPhone: patient.emergencyContactPhone || ""
+    }));
+    setSearchQuery("");
+    setSearchFocused(false);
+    toast.success(`Selected patient: ${patient.name || `${patient.firstName || ""} ${patient.lastName || ""}`.trim()}`);
+  };
+
+  const handleClearPatient = () => {
+    setSelectedPatient(null);
+    setFormData(prev => ({
+      ...prev,
+      patientName: "",
+      patientAge: "",
+      patientGender: "",
+      patientContact: "",
+      patientEmail: "",
+      emergencyContactName: "",
+      emergencyContactPhone: ""
+    }));
+    toast.info("Patient selection cleared");
+  };
+
 
   // Handle URL pre-selection
   useEffect(() => {
@@ -278,7 +356,100 @@ export default function AddAdmissionPage() {
             
             {/* Patient Information Section */}
             <div className="space-y-6">
-              <h2 className="text-[16px] font-bold text-foreground tracking-wider">Patient Information</h2>
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-border pb-4">
+                <h2 className="text-[16px] font-bold text-foreground tracking-wider leading-none">Patient Information</h2>
+                
+                {/* Live Search Component */}
+                <div ref={searchContainerRef} className="relative w-full md:max-w-[400px]">
+                  {selectedPatient ? (
+                    <div className="flex items-center justify-between bg-primary/10 border border-primary/20 rounded-lg h-[44px] px-4">
+                      <div className="flex items-center gap-2 overflow-hidden">
+                        <User className="w-4 h-4 text-primary shrink-0" />
+                        <span className="text-[12px] font-black text-primary truncate max-w-[200px]">
+                          {selectedPatient.name || `${selectedPatient.firstName} ${selectedPatient.lastName}`}
+                        </span>
+                        {selectedPatient.admissions?.length > 0 && (
+                          <span className="bg-amber-500 text-white text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded shrink-0">
+                            Active Admission
+                          </span>
+                        )}
+                      </div>
+                      <button 
+                        type="button" 
+                        onClick={handleClearPatient} 
+                        className="text-primary hover:text-primary/70 transition-colors p-1"
+                        title="Clear selection"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="relative">
+                      <input
+                        type="text"
+                        placeholder="Search registered patients..."
+                        value={searchQuery}
+                        onChange={(e) => {
+                          setSearchQuery(e.target.value);
+                          setSearchFocused(true);
+                        }}
+                        onFocus={() => setSearchFocused(true)}
+                        className="w-full h-[44px] pl-10 pr-4 bg-muted/50 border border-border rounded-lg text-[13px] font-bold text-foreground outline-none focus:border-primary transition-all shadow-none placeholder:text-muted-foreground"
+                      />
+                      <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                      {searchQuery && (
+                        <button
+                          type="button"
+                          onClick={() => setSearchQuery("")}
+                          className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Dropdown Results */}
+                  {searchFocused && searchQuery && (
+                    <div className="absolute top-[50px] left-0 right-0 bg-card border border-border rounded-lg shadow-2xl z-[500] max-h-[300px] overflow-y-auto custom-scrollbar p-1">
+                      {searchResults.length > 0 ? (
+                        searchResults.map(patient => {
+                          const hasActiveAdmission = patient.admissions?.length > 0;
+                          return (
+                            <button
+                              key={patient.id}
+                              type="button"
+                              onClick={() => handleSelectPatient(patient)}
+                              className="w-full flex flex-col gap-1 p-3 rounded-lg hover:bg-muted text-left transition-colors border-b border-border/50 last:border-0"
+                            >
+                              <div className="flex items-center justify-between gap-2">
+                                <span className="text-[13px] font-bold text-foreground truncate">
+                                  {patient.name || `${patient.firstName || ""} ${patient.lastName || ""}`}
+                                </span>
+                                {hasActiveAdmission && (
+                                  <span className="bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-[9px] font-black px-1.5 py-0.5 rounded shrink-0">
+                                    Active Admission
+                                  </span>
+                                )}
+                              </div>
+                              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground font-semibold">
+                                <span>ID: {patient.id.slice(0, 8)}...</span>
+                                {patient.age && <span>Age: {patient.age}</span>}
+                                {patient.gender && <span>Gender: {patient.gender}</span>}
+                                {patient.contact && <span>Contact: {patient.contact}</span>}
+                              </div>
+                            </button>
+                          );
+                        })
+                      ) : (
+                        <div className="p-4 text-center text-[12px] font-bold text-muted-foreground">
+                          No patients found matching "{searchQuery}"
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-4 gap-x-8 gap-y-5">
                 <div className="md:col-span-2 space-y-2">
                   <label className="text-[12px] font-bold text-muted-foreground ml-1">Patient Full Name</label>

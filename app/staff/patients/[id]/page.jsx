@@ -21,8 +21,8 @@ import VitalsHistory from "@/components/staff/patient-details/VitalsHistory";
 import NursingTasks from "@/components/staff/patient-details/NursingTasks";
 import LabReports from "@/components/staff/patient-details/LabReports";
 import MedicationMAR from "@/components/staff/patient-details/MedicationMAR";
-import DoctorOrders from "@/components/staff/patient-details/DoctorOrders";
 import NursingNotes from "@/components/staff/patient-details/NursingNotes";
+import DetailedLabReport from "@/components/staff/patient-details/DetailedLabReport";
 import { useSearchParams } from "next/navigation";
 import { useEffect, use } from "react";
 
@@ -35,6 +35,7 @@ export default function PatientDetailsPage({ params }) {
   const [activeTab, setActiveTab] = useState(currentTab);
   const [patient, setPatient] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [selectedLabReport, setSelectedLabReport] = useState(null);
 
   useEffect(() => {
     const fetchPatient = async () => {
@@ -55,7 +56,7 @@ export default function PatientDetailsPage({ params }) {
     if (resolvedParams.id) fetchPatient();
   }, [resolvedParams.id]);
 
-  const tabs = ["Summary", "Vitals", "Medication", "Tasks", "Lab Results", "Doctor Orders", "Notes"];
+  const tabs = ["Summary", "Vitals", "Medication", "Tasks", "Lab Results", "Notes"];
 
   const handleTabChange = (tab) => {
     setActiveTab(tab);
@@ -65,7 +66,7 @@ export default function PatientDetailsPage({ params }) {
   const renderTabContent = () => {
     switch (activeTab) {
       case "Summary":
-        return <PatientSummary />;
+        return <PatientSummary patientId={resolvedParams.id} />;
       case "Vitals":
         return (
           <div className="space-y-5">
@@ -83,7 +84,7 @@ export default function PatientDetailsPage({ params }) {
           </div>
         );
       case "Medication":
-        return <MedicationMAR />;
+        return <MedicationMAR patientId={resolvedParams.id} />;
       case "Tasks":
         return (
           <div className="space-y-5">
@@ -106,24 +107,12 @@ export default function PatientDetailsPage({ params }) {
             <div className="flex justify-between items-center">
               <h2 className="text-[18px] font-bold text-foreground leading-none">Laboratory Reports</h2>
             </div>
-            <LabReports />
+            <LabReports patient={patient} onViewReport={(report) => setSelectedLabReport(report)} />
           </div>
         );
-      case "Doctor Orders":
-        return (
-          <div className="space-y-5">
-            <div className="flex justify-between items-center">
-              <h2 className="text-[18px] font-bold text-foreground leading-none">Doctor Orders</h2>
-              <button className="bg-primary text-primary-foreground px-6 h-[40px] rounded-lg text-[12px] font-bold flex items-center justify-center gap-2 hover:bg-primary/90 transition-all shadow-none">
-                <Plus className="w-4 h-4" />
-                Raise Request
-              </button>
-            </div>
-            <DoctorOrders />
-          </div>
-        );
+
       case "Notes":
-        return <NursingNotes />;
+        return <NursingNotes patientId={resolvedParams.id} />;
       default:
         return (
           <div className="bg-card p-12 rounded-lg border border-border flex flex-col items-center justify-center text-center">
@@ -152,6 +141,18 @@ export default function PatientDetailsPage({ params }) {
   const admissionDate = latestAdmission.createdAt ? new Date(latestAdmission.createdAt).toLocaleDateString("en-GB", { day: 'numeric', month: 'short', year: 'numeric' }) : "N/A";
   const patientStatus = latestAdmission.status || "Completed";
   const uhid = `UHID-${patient.id.toString().substring(0, 6).toUpperCase()}`;
+
+  if (selectedLabReport) {
+    return (
+      <div className="p-4 md:p-6 bg-background min-h-screen flex flex-col space-y-[15px] md:space-y-[20px] transition-colors duration-300 font-sans pb-20">
+        <DetailedLabReport 
+          patient={patient} 
+          report={selectedLabReport} 
+          onBack={() => setSelectedLabReport(null)} 
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 md:p-6 bg-background min-h-screen flex flex-col space-y-[15px] md:space-y-[20px] transition-colors duration-300 font-sans pb-20">

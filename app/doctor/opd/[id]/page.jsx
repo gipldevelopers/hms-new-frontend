@@ -13,6 +13,7 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { FormDatePicker } from "@/components/ui/form-date-picker";
+import { toast } from "sonner";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
 
@@ -222,7 +223,7 @@ function AddMedicineModal({ onClose, onAdd, prescriptionId }) {
             )}
             {medicineSearch && medicines.length === 0 && !searchLoading && (
               <div className="border border-border rounded-lg bg-card p-4 text-center text-[13px] text-muted-foreground">
-                No medicines found matching "{medicineSearch}"
+                No medicines found matching &quot;{medicineSearch}&quot;
               </div>
             )}
             {selectedMedicine && (
@@ -306,7 +307,7 @@ function AddMedicineModal({ onClose, onAdd, prescriptionId }) {
 
 // --- PATIENT HISTORY DRAWER ---
 function PatientHistoryDrawer({ onClose, history }) {
-  const [mounted, setMounted] = useState(false);
+  const [mounted] = useState(() => typeof document !== "undefined");
   const [closing, setClosing] = useState(false);
 
   const handleClose = useCallback(() => {
@@ -315,7 +316,6 @@ function PatientHistoryDrawer({ onClose, history }) {
   }, [onClose]);
 
   useEffect(() => {
-    setMounted(true);
     const sw = window.innerWidth - document.documentElement.clientWidth;
     const orig = window.getComputedStyle(document.body).overflow;
     const origPad = window.getComputedStyle(document.body).paddingRight;
@@ -395,11 +395,11 @@ function PatientHistoryDrawer({ onClose, history }) {
 
 // --- CALL NEXT MODAL ---
 function CallNextModal({ onClose, patientName, token, onConfirm }) {
-  const [mounted, setMounted] = useState(false);
+  const [mounted] = useState(() => typeof document !== "undefined");
   const [closing, setClosing] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handleClose = () => { setClosing(true); setTimeout(onClose, 300); };
+  const handleClose = useCallback(() => { setClosing(true); setTimeout(onClose, 300); }, [onClose]);
 
   const handleConfirm = async () => {
     setLoading(true);
@@ -409,7 +409,6 @@ function CallNextModal({ onClose, patientName, token, onConfirm }) {
   };
 
   useEffect(() => {
-    setMounted(true);
     const handleEsc = (e) => { if (e.key === "Escape") handleClose(); };
     window.addEventListener("keydown", handleEsc);
     const sw = window.innerWidth - document.documentElement.clientWidth;
@@ -422,7 +421,7 @@ function CallNextModal({ onClose, patientName, token, onConfirm }) {
       document.body.style.overflow = orig;
       document.body.style.paddingRight = origPad;
     };
-  }, []);
+  }, [handleClose]);
 
   if (!mounted) return null;
 
@@ -482,6 +481,7 @@ export default function ConsultationPage() {
   const [diagnosisInput, setDiagnosisInput] = useState("");
   const [labTests, setLabTests] = useState([]);
   const [labInput, setLabInput] = useState("");
+  const [labPriority, setLabPriority] = useState("Normal");
   const [instructions, setInstructions] = useState("");
   const [followUp, setFollowUp] = useState(null);   // Date | null
   const [referral, setReferral] = useState("");
@@ -518,7 +518,10 @@ export default function ConsultationPage() {
         setChiefComplaints(c.chiefComplaints || "");
         setClinicalHistory(c.clinicalHistory || "");
         setDiagnoses(c.finalDiagnosis ? c.finalDiagnosis.split(",").map(s => s.trim()).filter(Boolean) : []);
-        setLabTests(Array.isArray(c.labTests) ? c.labTests : []);
+        setLabTests(Array.isArray(c.labTests)
+          ? c.labTests.map((test) => typeof test === "string" ? { name: test } : test).filter((test) => test?.name)
+          : []);
+        setLabPriority(c.labTestOrder?.priority || "Normal");
         setInstructions(c.followUpNotes || "");
         setFollowUp(c.followUpDate ? new Date(c.followUpDate) : null);
         setReferral(c.referralDoctor || c.referralDepartment || "");
@@ -554,6 +557,7 @@ export default function ConsultationPage() {
           clinicalHistory,
           finalDiagnosis: diagnoses.join(", "),
           labTests,
+          labPriority,
           followUpNotes: instructions,
           followUpDate: followUp ? followUp.toISOString() : null,
           referralDoctor: referral || null,
@@ -578,7 +582,7 @@ export default function ConsultationPage() {
       }
     } catch (err) { console.error("Save error:", err); }
     finally { setSaving(false); }
-  }, [appointmentId, chiefComplaints, clinicalHistory, diagnoses, labTests, instructions, followUp, referral, prescriptionId]);
+  }, [appointmentId, chiefComplaints, clinicalHistory, diagnoses, labTests, labPriority, instructions, followUp, referral, prescriptionId]);
 
   // Trigger auto-save on form changes
   useEffect(() => {
@@ -586,7 +590,7 @@ export default function ConsultationPage() {
     clearTimeout(saveTimer.current);
     saveTimer.current = setTimeout(() => saveConsultation("IN_PROGRESS"), 1500);
     return () => clearTimeout(saveTimer.current);
-  }, [chiefComplaints, clinicalHistory, diagnoses, labTests, instructions, followUp, referral]);
+  }, [pageData, saveConsultation, chiefComplaints, clinicalHistory, diagnoses, labTests, labPriority, instructions, followUp, referral]);
 
   const handleComplete = async () => {
     await saveConsultation("COMPLETED");
@@ -634,6 +638,7 @@ export default function ConsultationPage() {
           clinicalHistory,
           finalDiagnosis: diagnoses.join(", "),
           labTests,
+          labPriority,
           followUpNotes: instructions,
           followUpDate: followUp ? followUp.toISOString() : null,
           referralDoctor: referral || null,
@@ -662,7 +667,7 @@ export default function ConsultationPage() {
       setSaving(false);
       setShowAddMedicine(true); // Open modal regardless — modal handles null prescriptionId
     }
-  }, [prescriptionId, appointmentId, chiefComplaints, clinicalHistory, diagnoses, labTests, instructions, followUp, referral]);
+  }, [prescriptionId, appointmentId, chiefComplaints, clinicalHistory, diagnoses, labTests, labPriority, instructions, followUp, referral]);
 
   const addDiagnosis = () => {
     const val = diagnosisInput.trim();
@@ -672,7 +677,9 @@ export default function ConsultationPage() {
 
   const addLabTest = () => {
     const val = labInput.trim();
-    if (val && !labTests.includes(val)) setLabTests(prev => [...prev, val]);
+    if (val && !labTests.some((test) => test.name?.toLowerCase() === val.toLowerCase())) {
+      setLabTests(prev => [...prev, { name: val }]);
+    }
     setLabInput("");
   };
 
@@ -922,6 +929,19 @@ export default function ConsultationPage() {
               <h3 className="text-[15px] font-bold text-foreground">Lab Investigations</h3>
             </div>
             <div className="p-5 space-y-4">
+              <div className="space-y-2">
+                <label className="text-[12px] font-bold text-muted-foreground">Priority</label>
+                <CustomSelect
+                  value={labPriority}
+                  onChange={setLabPriority}
+                  minWidth="100%"
+                  options={[
+                    { label: "Normal", value: "Normal" },
+                    { label: "High", value: "High" },
+                    { label: "Urgent", value: "Urgent" },
+                  ]}
+                />
+              </div>
               <div className="flex gap-2">
                 <div className="relative flex-1">
                   <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -943,7 +963,7 @@ export default function ConsultationPage() {
                 <div className="flex flex-wrap gap-2">
                   {labTests.map((t, idx) => (
                     <div key={idx} className="flex items-center gap-1.5 px-3 py-1 bg-muted border border-border text-foreground text-[11px] font-bold rounded-lg">
-                      {t}
+                      {t.name}
                       <button onClick={() => setLabTests(prev => prev.filter((_, i) => i !== idx))}>
                         <X className="w-3 h-3" />
                       </button>
@@ -977,7 +997,7 @@ export default function ConsultationPage() {
                     {medicines.length === 0 ? (
                       <tr>
                         <td colSpan={5} className="px-4 py-8 text-center text-[13px] text-muted-foreground">
-                          No medicines added yet. Click "Add Medicine" below.
+                          No medicines added yet. Click &quot;Add Medicine&quot; below.
                         </td>
                       </tr>
                     ) : (

@@ -1,7 +1,7 @@
 "use client";
-import React, { Suspense, useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { ArrowLeft, Printer, Download, Check, Loader2 } from "lucide-react";
+import { ArrowLeft, Trash2, Plus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 // Mock database matching all active and historical patients in Sample Collection list
@@ -163,67 +163,25 @@ const DEFAULT_REPORT = {
   subLocation: "Bed W1-102"
 };
 
-// Standard complete test results rows
-const TEST_ROWS = [
+// Initial test rows - only one single blank row by default for manual typing
+const INITIAL_TEST_ROWS = [
   {
-    description: "Hemoglobin (Hb)",
-    result: "11.2",
-    units: "g/dL",
-    referenceRange: "13.5 - 17.5",
-    flag: "Low",
-    isAbnormal: true
-  },
-  {
-    description: "White Blood Cells (WBC)",
-    result: "14.5",
-    units: "10^3/µL",
-    referenceRange: "4.5 - 11.0",
-    flag: "High",
-    isAbnormal: true
-  },
-  {
-    description: "Red Blood Cells (RBC)",
-    result: "4.1",
-    units: "10^6/µL",
-    referenceRange: "4.5 - 5.9",
-    flag: "Low",
-    isAbnormal: true
-  },
-  {
-    description: "Platelet Count",
-    result: "185",
-    units: "10^3/µL",
-    referenceRange: "150 - 450",
-    flag: "-",
-    isAbnormal: false
-  },
-  {
-    description: "Hematocrit (HCT)",
-    result: "34.5",
-    units: "%",
-    referenceRange: "41.0 - 50.0",
-    flag: "Low",
-    isAbnormal: true
-  },
-  {
-    description: "Mean Corpuscular Volume (MCV)",
-    result: "84",
-    units: "fL",
-    referenceRange: "80.0 - 98.0",
-    flag: "-",
-    isAbnormal: false
+    name: "",
+    result: "",
+    units: "",
+    minValue: "",
+    maxValue: ""
   }
 ];
 
-function ReportContent() {
+function ReportEditContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const id = searchParams.get("id");
 
   const [orderData, setOrderData] = useState(null);
   const [loadingOrder, setLoadingOrder] = useState(true);
-  const [results, setResults] = useState([]);
-  const [reportGenerated, setReportGenerated] = useState(false);
+  const [testRows, setTestRows] = useState([]);
 
   // Fetch authentic order details from backend
   useEffect(() => {
@@ -254,7 +212,7 @@ function ReportContent() {
     fetchOrder();
   }, [id]);
 
-  // Map demographics dynamically
+  // Map demographics
   const data = orderData ? {
     name: orderData.patient?.name || [orderData.patient?.firstName, orderData.patient?.lastName].filter(Boolean).join(" ") || "Patient",
     ageGender: `${orderData.patient?.age || "N/A"} yrs • ${orderData.patient?.gender || "N/A"}`,
@@ -273,119 +231,108 @@ function ReportContent() {
     subLocation: orderData.patient?.bedNo || "N/A"
   } : PATIENT_REPORTS[id] || DEFAULT_REPORT;
 
+  // Initialize test rows from localStorage or fallback to single blank manually-typed row
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const isGenerated = localStorage.getItem(`report-generated-${id || "james-wilson"}`) === "true";
-      setReportGenerated(isGenerated);
-
-      const savedResults = localStorage.getItem(`report-results-${id || "james-wilson"}`);
-      if (savedResults) {
+      const saved = localStorage.getItem(`report-results-${id}`);
+      if (saved) {
         try {
-          const parsed = JSON.parse(savedResults);
-          const standardized = parsed.map(r => {
-            const valNum = parseFloat(r.result);
-            const minVal = parseFloat(r.minValue);
-            const maxVal = parseFloat(r.maxValue);
-
-            let flag = "-";
-            let isAbnormal = false;
-
-            if (!isNaN(valNum)) {
-              if (!isNaN(minVal) && valNum < minVal) {
-                flag = "Low";
-                isAbnormal = true;
-              } else if (!isNaN(maxVal) && valNum > maxVal) {
-                flag = "High";
-                isAbnormal = true;
-              }
-            }
-
-            let referenceRange = "Normal Range";
-            if (!isNaN(minVal) && !isNaN(maxVal)) {
-              referenceRange = `${r.minValue} - ${r.maxValue}`;
-            } else if (!isNaN(minVal)) {
-              referenceRange = `>= ${r.minValue}`;
-            } else if (!isNaN(maxVal)) {
-              referenceRange = `<= ${r.maxValue}`;
-            } else if (r.referenceRange) {
-              referenceRange = r.referenceRange;
-            }
-
-            return {
-              description: r.name,
-              result: r.result,
-              units: r.units,
-              referenceRange,
-              flag,
-              isAbnormal
-            };
-          });
-          setResults(standardized);
+          setTestRows(JSON.parse(saved));
+          return;
         } catch (e) {
-          console.error("Error parsing results", e);
+          console.error("Error parsing saved results", e);
         }
       }
     }
+    setTestRows(INITIAL_TEST_ROWS);
   }, [id]);
 
-  const handlePrint = () => {
-    toast.success(`Sent Lab Result report for ${data.name} to printer.`);
+  const handleAddTest = () => {
+    setTestRows((prev) => [...prev, { name: "", result: "", units: "", minValue: "", maxValue: "" }]);
   };
 
-  const handleDownload = () => {
-    toast.success(`Downloading PDF report for ${data.name}...`);
+  const handleRemoveTest = (index) => {
+    setTestRows((prev) => prev.filter((_, idx) => idx !== index));
   };
 
-  const handleGoBack = () => {
+  const handleFieldChange = (index, field, value) => {
+    setTestRows((prev) =>
+      prev.map((row, idx) => (idx === index ? { ...row, [field]: value } : row))
+    );
+  };
+
+  const handleDiscard = () => {
     router.back();
   };
+
+  const handleSaveAndGenerate = () => {
+    // Dynamically calculate high/low abnormal flags
+    const processedRows = testRows.map(row => {
+      const valNum = parseFloat(row.result);
+      const minVal = parseFloat(row.minValue);
+      const maxVal = parseFloat(row.maxValue);
+
+      let flag = "-";
+      let isAbnormal = false;
+
+      if (!isNaN(valNum)) {
+        if (!isNaN(minVal) && valNum < minVal) {
+          flag = "Low";
+          isAbnormal = true;
+        } else if (!isNaN(maxVal) && valNum > maxVal) {
+          flag = "High";
+          isAbnormal = true;
+        }
+      }
+
+      return {
+        ...row,
+        flag,
+        isAbnormal
+      };
+    });
+
+    localStorage.setItem(`report-results-${id || "james-wilson"}`, JSON.stringify(processedRows));
+    localStorage.setItem(`report-generated-${id || "james-wilson"}`, "true");
+    localStorage.setItem(`report-edited-${id || "james-wilson"}`, "true");
+
+    toast.success(`Lab report saved and generated successfully for ${data.name}!`);
+    
+    // Redirect to the generated report
+    router.push(`/laboratory/sample-collection/report?id=${id || ""}`);
+  };
+
+  if (loadingOrder) {
+    return (
+      <div className="p-[20px] min-h-screen flex flex-col items-center justify-center bg-background text-foreground font-sans">
+        <Loader2 className="w-8 h-8 animate-spin text-primary mb-3" />
+        <span className="text-[14px] font-semibold text-muted-foreground">Loading test order details...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="p-[20px] bg-background text-foreground min-h-screen space-y-[20px] font-sans transition-colors duration-300">
       
-      {/* Header section with actions and breadcrumbs */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        {/* Navigation & breadcrumbs */}
-        <div className="flex items-center gap-3">
-          <button
-            onClick={handleGoBack}
-            className="p-2 border border-border bg-card rounded-[5px] text-muted-foreground hover:text-foreground hover:bg-muted/10 cursor-pointer transition-colors shadow-none"
-            aria-label="Go Back"
-          >
-            <ArrowLeft size={16} />
-          </button>
-          <div className="flex flex-col">
-            <span className="text-[12px] text-muted-foreground font-semibold">
-              {data.name} / Lab Results
-            </span>
-            <h1 className="text-[20px] font-bold text-foreground leading-tight">
-              Lab Result
-            </h1>
-          </div>
-        </div>
-
-        {/* Buttons matching design details - full width on mobile, auto-width on tablet/desktop */}
-        <div className="flex items-center gap-3 w-full sm:w-auto mt-2 sm:mt-0 justify-between sm:justify-start">
-          <button
-            onClick={handlePrint}
-            className="flex items-center justify-center gap-1.5 border border-primary text-primary bg-transparent font-bold text-[13px] px-4 py-2 rounded-[5px] hover:bg-primary/5 cursor-pointer transition-colors shadow-none flex-1 sm:flex-none"
-          >
-            <Printer size={15} />
-            <span>Print Report</span>
-          </button>
-          <button
-            onClick={handleDownload}
-            className="flex items-center justify-center gap-1.5 bg-primary text-primary-foreground border border-primary font-bold text-[13px] px-4 py-2 rounded-[5px] hover:bg-primary/90 cursor-pointer transition-colors shadow-none flex-1 sm:flex-none"
-          >
-            <Download size={15} />
-            <span>Download PDF</span>
-          </button>
+      {/* Header section with back button */}
+      <div className="flex items-center gap-3">
+        <button
+          onClick={handleDiscard}
+          className="p-2 border border-border bg-card rounded-[5px] text-muted-foreground hover:text-foreground hover:bg-muted/10 cursor-pointer transition-colors shadow-none outline-none"
+          aria-label="Go Back"
+        >
+          <ArrowLeft size={16} />
+        </button>
+        <div className="flex flex-col">
+          <h1 className="text-[20px] font-bold text-foreground leading-tight">
+            Lab Result
+          </h1>
         </div>
       </div>
 
-      {/* Patient Demographics Card - align avatar start on mobile */}
+      {/* Patient Demographics Card */}
       <div className="bg-card border border-border rounded-[5px] p-[20px] shadow-none flex flex-col md:flex-row items-start md:items-center gap-[20px] transition-colors">
-        {/* Simulated avatar matching the bearded patient portrait layout */}
+        {/* Profile Avatar */}
         <div className="w-[54px] h-[54px] rounded-full overflow-hidden bg-muted flex items-center justify-center shrink-0 border border-border">
           <svg
             className="w-12 h-12 text-muted-foreground"
@@ -408,7 +355,7 @@ function ReportContent() {
           </div>
 
           <div className="flex flex-col gap-0.5">
-            <span className="text-[11px] font-bold text-muted-foreground/80 tracking-wide">
+            <span className="text-[11px] font-bold text-muted-foreground/80 tracking-wide uppercase">
               UHID
             </span>
             <span className="font-bold text-foreground">
@@ -417,7 +364,7 @@ function ReportContent() {
           </div>
 
           <div className="flex flex-col gap-0.5">
-            <span className="text-[11px] font-bold text-muted-foreground/80 tracking-wide">
+            <span className="text-[11px] font-bold text-muted-foreground/80 tracking-wide uppercase">
               Bed No.
             </span>
             <span className="font-bold text-foreground">
@@ -426,7 +373,7 @@ function ReportContent() {
           </div>
 
           <div className="flex flex-col gap-0.5">
-            <span className="text-[11px] font-bold text-muted-foreground/80 tracking-wide">
+            <span className="text-[11px] font-bold text-muted-foreground/80 tracking-wide uppercase">
               Admission Date
             </span>
             <span className="font-bold text-foreground">
@@ -435,7 +382,7 @@ function ReportContent() {
           </div>
 
           <div className="flex flex-col gap-0.5">
-            <span className="text-[11px] font-bold text-muted-foreground/80 tracking-wide">
+            <span className="text-[11px] font-bold text-muted-foreground/80 tracking-wide uppercase">
               Attending Doctor
             </span>
             <span className="font-bold text-foreground">
@@ -444,7 +391,7 @@ function ReportContent() {
           </div>
 
           <div className="flex flex-col gap-0.5 col-span-2 sm:col-span-3 md:col-span-5 border-t border-border/50 pt-[10px] md:border-t-0 md:pt-0">
-            <span className="text-[11px] font-bold text-muted-foreground/80 tracking-wide">
+            <span className="text-[11px] font-bold text-muted-foreground/80 tracking-wide uppercase">
               Diagnosis
             </span>
             <span className="font-bold text-foreground">
@@ -463,11 +410,10 @@ function ReportContent() {
               Complete Blood Count (CBC)
             </h2>
             <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1 rounded-[5px] bg-[#E8F5E9] dark:bg-[#1B5E20]/20 px-2.5 py-1 text-[11px] font-bold text-[#2E7D32] dark:text-[#81C784] whitespace-nowrap">
-                <Check size={12} className="stroke-[3]" />
+              <span className="inline-flex items-center rounded-[5px] bg-[#E8F5E9] dark:bg-[#1B5E20]/20 px-2.5 py-1 text-[11px] font-bold text-[#2E7D32] dark:text-[#81C784]">
                 Final Report
               </span>
-              <span className="inline-flex items-center rounded-[5px] bg-destructive/10 px-2.5 py-1 text-[11px] font-bold text-destructive whitespace-nowrap">
+              <span className="inline-flex items-center rounded-[5px] bg-destructive/10 px-2.5 py-1 text-[11px] font-bold text-destructive">
                 Flag: Abnormal
               </span>
             </div>
@@ -482,7 +428,7 @@ function ReportContent() {
           </div>
         </div>
 
-        {/* Ordering, Location, Specimen Metadata */}
+        {/* Specimen and Location details */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-[20px] text-[13px]">
           <div className="flex flex-col gap-0.5">
             <span className="text-[11px] font-bold text-muted-foreground/80 tracking-wide">
@@ -491,7 +437,7 @@ function ReportContent() {
             <span className="font-bold text-foreground">
               {data.orderedBy}
             </span>
-            <span className="text-muted-foreground font-semibold">
+            <span className="text-muted-foreground font-semibold text-[11px]">
               {data.department}
             </span>
           </div>
@@ -503,7 +449,7 @@ function ReportContent() {
             <span className="font-bold text-foreground">
               {data.specimen}
             </span>
-            <span className="text-muted-foreground font-semibold">
+            <span className="text-muted-foreground font-semibold text-[11px]">
               Collected: {data.collectedTime}
             </span>
           </div>
@@ -515,111 +461,149 @@ function ReportContent() {
             <span className="font-bold text-foreground">
               {data.location}
             </span>
-            <span className="text-muted-foreground font-semibold">
+            <span className="text-muted-foreground font-semibold text-[11px]">
               {data.subLocation}
             </span>
           </div>
         </div>
       </div>
 
-      {/* Test Results Table Card */}
-      <div className="bg-card border border-border rounded-[5px] shadow-none overflow-hidden transition-colors">
-        
-        {/* Results Table Responsive Wrapper */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-muted/30 border-b border-border text-[12px] font-bold text-muted-foreground">
-                <th className="px-[20px] py-[12px] whitespace-nowrap">Test Description</th>
-                <th className="px-[20px] py-[12px] whitespace-nowrap">Result</th>
-                <th className="px-[20px] py-[12px] whitespace-nowrap">Units</th>
-                <th className="px-[20px] py-[12px] whitespace-nowrap">Reference Range</th>
-                <th className="px-[20px] py-[12px] whitespace-nowrap">Flag</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border/60 text-[13px]">
-              {results.length > 0 ? (
-                results.map((row, idx) => {
-                  const isLow = row.flag === "Low";
-                  const isHigh = row.flag === "High";
+      {/* Lab Test Results Entry Form */}
+      <div className="bg-card border border-border rounded-[5px] p-[20px] shadow-none space-y-[20px]">
+        <div className="flex items-center justify-between">
+          <h2 className="text-[16px] font-bold text-foreground">
+            Lab Test Results
+          </h2>
+          <button
+            onClick={handleAddTest}
+            className="flex items-center gap-1 text-[13px] font-bold text-primary hover:underline bg-transparent border-0 cursor-pointer outline-none"
+          >
+            <Plus size={14} className="stroke-[2.5]" />
+            <span>Add Test</span>
+          </button>
+        </div>
 
-                  return (
-                    <tr key={idx} className="hover:bg-muted/5 transition-colors">
-                      <td className="px-[20px] py-[12px] font-bold text-foreground whitespace-nowrap">
-                        {row.description}
-                      </td>
-                      <td
-                        className={`px-[20px] py-[12px] font-bold text-[14px] whitespace-nowrap ${
-                          row.isAbnormal ? "text-destructive" : "text-foreground"
-                        }`}
-                      >
-                        {row.result}
-                      </td>
-                      <td className="px-[20px] py-[12px] text-muted-foreground font-semibold whitespace-nowrap">
-                        {row.units}
-                      </td>
-                      <td className="px-[20px] py-[12px] text-muted-foreground font-semibold whitespace-nowrap">
-                        {row.referenceRange}
-                      </td>
-                      <td className="px-[20px] py-[12px] whitespace-nowrap">
-                        {isLow && (
-                          <span className="inline-flex items-center gap-1 bg-destructive/10 text-destructive font-bold text-[11px] px-2.5 py-0.5 rounded-[5px]">
-                            ↓ Low
-                          </span>
-                        )}
-                        {isHigh && (
-                          <span className="inline-flex items-center gap-1 bg-[#FFE8D6] dark:bg-[#F97316]/20 text-[#EA580C] dark:text-[#FB923C] font-bold text-[11px] px-2.5 py-0.5 rounded-[5px]">
-                            ↑ High
-                          </span>
-                        )}
-                        {!row.isAbnormal && <span className="text-muted-foreground">-</span>}
-                      </td>
-                    </tr>
-                  );
-                })
-              ) : (
-                <tr>
-                  <td colSpan="5" className="px-[20px] py-[40px] text-center text-muted-foreground font-bold text-[13px]">
-                    No results have been filled yet. Please generate results from the "Generate Result" menu option first.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
+        {/* Dynamic Rows */}
+        <div className="space-y-[15px]">
+          {testRows.map((row, idx) => (
+            <div key={idx} className="flex flex-col md:flex-row items-stretch md:items-end gap-[15px] pb-[15px] border-b border-border/30 last:border-0 last:pb-0">
+              
+              {/* Test Name Input */}
+              <div className="flex-1 flex flex-col gap-1.5">
+                <label className="text-[11px] font-bold text-muted-foreground/80 tracking-wide uppercase">
+                  Test Name
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Hemoglobin"
+                  value={row.name}
+                  onChange={(e) => handleFieldChange(idx, "name", e.target.value)}
+                  className="h-10 px-3 bg-background border border-border rounded-[5px] text-[13px] text-foreground focus:ring-1 focus:ring-primary/20 outline-none w-full shadow-none font-semibold transition-all"
+                />
+              </div>
+
+              {/* Result Input */}
+              <div className="w-full md:w-[120px] flex flex-col gap-1.5">
+                <label className="text-[11px] font-bold text-muted-foreground/80 tracking-wide uppercase">
+                  Result
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. 12.5"
+                  value={row.result}
+                  onChange={(e) => handleFieldChange(idx, "result", e.target.value)}
+                  className="h-10 px-3 bg-background border border-border rounded-[5px] text-[13px] text-foreground focus:ring-1 focus:ring-primary/20 outline-none w-full shadow-none font-semibold transition-all"
+                />
+              </div>
+
+              {/* Units Input */}
+              <div className="w-full md:w-[100px] flex flex-col gap-1.5">
+                <label className="text-[11px] font-bold text-muted-foreground/80 tracking-wide uppercase">
+                  Units
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. g/dL"
+                  value={row.units}
+                  onChange={(e) => handleFieldChange(idx, "units", e.target.value)}
+                  className="h-10 px-3 bg-background border border-border rounded-[5px] text-[13px] text-foreground focus:ring-1 focus:ring-primary/20 outline-none w-full shadow-none font-semibold transition-all"
+                />
+              </div>
+
+              {/* Min Value Input */}
+              <div className="w-full md:w-[110px] flex flex-col gap-1.5">
+                <label className="text-[11px] font-bold text-muted-foreground/80 tracking-wide uppercase">
+                  Min Value
+                </label>
+                <input
+                  type="text"
+                  placeholder="Min"
+                  value={row.minValue || ""}
+                  onChange={(e) => handleFieldChange(idx, "minValue", e.target.value)}
+                  className="h-10 px-3 bg-background border border-border rounded-[5px] text-[13px] text-foreground focus:ring-1 focus:ring-primary/20 outline-none w-full shadow-none font-semibold transition-all"
+                />
+              </div>
+
+              {/* Max Value Input */}
+              <div className="w-full md:w-[110px] flex flex-col gap-1.5">
+                <label className="text-[11px] font-bold text-muted-foreground/80 tracking-wide uppercase">
+                  Max Value
+                </label>
+                <input
+                  type="text"
+                  placeholder="Max"
+                  value={row.maxValue || ""}
+                  onChange={(e) => handleFieldChange(idx, "maxValue", e.target.value)}
+                  className="h-10 px-3 bg-background border border-border rounded-[5px] text-[13px] text-foreground focus:ring-1 focus:ring-primary/20 outline-none w-full shadow-none font-semibold transition-all"
+                />
+              </div>
+
+              {/* Trash/Delete Action */}
+              <div className="flex justify-end md:justify-start">
+                <button
+                  onClick={() => handleRemoveTest(idx)}
+                  className="h-10 w-10 flex items-center justify-center border border-border hover:border-destructive/30 hover:bg-destructive/5 text-muted-foreground hover:text-destructive rounded-[5px] transition-colors cursor-pointer outline-none shadow-none"
+                  title="Remove row"
+                >
+                  <Trash2 size={16} />
+                </button>
+              </div>
+
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Main Container Card enclosing the restored details */}
-      <div className="bg-card border border-border rounded-[5px] shadow-none overflow-hidden transition-colors flex flex-col">
-        {/* Interpretation / Notes - separated by border-t */}
-        <div className="p-[20px] border-t border-border flex flex-col gap-2 bg-card text-[13px] transition-colors">
-          <span className="font-bold text-foreground">
-            Interpretation / Notes:
-          </span>
-          <p className="text-muted-foreground leading-relaxed font-semibold">
-            Leukocytosis with neutrophilia noted, consistent with current clinical diagnosis of pneumonia. Mild anemia observed. Correlate clinically.
-          </p>
-        </div>
-
-        {/* Footer info - Pathologist and Hospital */}
-        <div className="p-[20px] border-t border-border/50 border-dashed flex flex-col sm:flex-row justify-between gap-3 text-[12px] text-muted-foreground font-semibold bg-muted/5 transition-colors">
-          <span>Verified by: Dr. Alan Turing, MD Pathologist</span>
-          <span>Laboratory Services • Central City Hospital</span>
-        </div>
+      {/* Action Footer */}
+      <div className="flex items-center justify-end gap-3 pt-2">
+        <button
+          onClick={handleDiscard}
+          className="h-10 px-5 bg-card border border-border text-foreground font-bold text-[13px] rounded-[5px] hover:bg-muted/10 transition-colors cursor-pointer shadow-none outline-none"
+        >
+          Discard
+        </button>
+        <button
+          onClick={handleSaveAndGenerate}
+          className="h-10 px-5 bg-primary text-primary-foreground border border-primary font-bold text-[13px] rounded-[5px] hover:bg-primary/90 transition-colors cursor-pointer shadow-none outline-none"
+        >
+          Save Changes & Generate Report
+        </button>
       </div>
 
     </div>
   );
 }
 
-export default function LabResultReportPage() {
+export default function ResultsEditPage() {
   return (
-    <Suspense fallback={
-      <div className="p-[20px] min-h-screen flex items-center justify-center bg-background text-foreground font-sans">
-        <span className="text-[14px] font-semibold text-muted-foreground">Loading report...</span>
-      </div>
-    }>
-      <ReportContent />
+    <Suspense
+      fallback={
+        <div className="p-[20px] min-h-screen flex items-center justify-center bg-background text-foreground font-sans">
+          <span className="text-[14px] font-semibold text-muted-foreground">Loading...</span>
+        </div>
+      }
+    >
+      <ReportEditContent />
     </Suspense>
   );
 }

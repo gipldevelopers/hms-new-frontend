@@ -20,13 +20,13 @@ import {
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useRouter, useSearchParams, useParams } from "next/navigation";
-
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import NursingNotes from "@/components/staff/patient-details/NursingNotes";
 
 const PATIENT_DATA = {
   name: "James Wilson",
@@ -573,53 +573,7 @@ export default function PatientChartPage() {
       )}
 
       {activeTab === "Notes" && (
-        <div className="space-y-5">
-          {CLINICAL_NOTES.map((note) => (
-            <div key={note.id} className="bg-card border border-border rounded-lg shadow-none overflow-hidden">
-              {/* Note Header */}
-              <div className="p-5 border-b border-border flex flex-col sm:flex-row justify-between sm:items-center gap-3">
-                <div className="flex items-center gap-3">
-                  <span className="px-2 py-0.5 bg-muted text-muted-foreground text-[10px] font-bold rounded-[3px] tracking-wider uppercase">
-                    {note.type}
-                  </span>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[14px] font-bold text-foreground">
-                      {note.author}
-                    </span>
-                    <span className="text-[12px] font-medium text-muted-foreground">
-                      {note.role}
-                    </span>
-                  </div>
-                </div>
-                <span className="text-[12px] font-medium text-muted-foreground">
-                  {note.date}
-                </span>
-              </div>
-              
-              {/* Note Content */}
-              <div className="p-5">
-                <p className="text-[13px] text-muted-foreground leading-relaxed font-medium">
-                  {note.content}
-                </p>
-              </div>
-
-              <div className="p-4 border-t border-border bg-muted/30 flex justify-end gap-3">
-                <Link 
-                  href={`/doctor/ipd/${patientId}/notes/${note.id}/edit`}
-                  className="h-9 px-5 bg-card border border-border text-foreground rounded-lg text-[12px] font-bold flex items-center justify-center hover:bg-muted transition-all shadow-none outline-none"
-                >
-                  Edit Note
-                </Link>
-                <Link 
-                  href={`/doctor/ipd/${patientId}/notes/${note.id}/history`}
-                  className="h-9 px-5 bg-primary text-primary-foreground rounded-lg text-[12px] font-bold flex items-center justify-center hover:opacity-90 transition-all shadow-none outline-none"
-                >
-                  View History
-                </Link>
-              </div>
-            </div>
-          ))}
-        </div>
+        <NursingNotes patientId={patientId} />
       )}
 
       {/* ── Placeholder for other tabs ── */}

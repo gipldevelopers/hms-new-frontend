@@ -16,6 +16,19 @@ export default function BedMapPage() {
   const [activeFilter, setActiveFilter] = useState("All");
   const [myPatientIds, setMyPatientIds] = useState([]);
 
+  // Persist selections to localStorage
+  useEffect(() => {
+    if (selectedDeptId) {
+      localStorage.setItem("staff_bedmap_selectedDeptId", selectedDeptId);
+    }
+  }, [selectedDeptId]);
+
+  useEffect(() => {
+    if (selectedWardId) {
+      localStorage.setItem("staff_bedmap_selectedWardId", selectedWardId);
+    }
+  }, [selectedWardId]);
+
   const fetchData = async () => {
     try {
       setLoading(true);
@@ -29,18 +42,20 @@ export default function BedMapPage() {
       if (res.ok && Array.isArray(hierarchy)) {
         setData(hierarchy);
 
-        // Only set initial selection if nothing is selected yet
         if (hierarchy.length > 0) {
-          setSelectedDeptId(prev => {
-            if (prev) return prev;
-            return hierarchy[0].id;
-          });
+          const savedDeptId = localStorage.getItem("staff_bedmap_selectedDeptId");
+          const savedWardId = localStorage.getItem("staff_bedmap_selectedWardId");
 
-          setSelectedWardId(prev => {
-            if (prev) return prev;
-            const firstDept = hierarchy[0];
-            return (firstDept.wards && firstDept.wards.length > 0) ? firstDept.wards[0].id : null;
-          });
+          const deptExists = hierarchy.find(d => d.id === savedDeptId);
+          const activeDeptId = deptExists ? savedDeptId : hierarchy[0].id;
+          setSelectedDeptId(activeDeptId);
+
+          const activeDept = hierarchy.find(d => d.id === activeDeptId);
+          const wardExists = activeDept?.wards?.find(w => w.id === savedWardId);
+          const activeWardId = wardExists 
+            ? savedWardId 
+            : (activeDept?.wards && activeDept.wards.length > 0 ? activeDept.wards[0].id : null);
+          setSelectedWardId(activeWardId);
         }
       } else {
         toast.error(hierarchy.error || "Failed to fetch bed map hierarchy");

@@ -1,15 +1,19 @@
 "use client";
 import React from "react";
 
-export function TestsRequestedCard({ tests = [] }) {
+const statusColors = {
+  Pending: "bg-[#f1f5f9] text-[#475569] dark:bg-[#334155] dark:text-[#cbd5e1]",
+  Collecting: "bg-[#fef3c7] text-[#b45309] dark:bg-[#78350f]/30 dark:text-[#fcd34d]",
+  Processing: "bg-[#dbeafe] text-[#1e40af] dark:bg-[#1e3a8a]/30 dark:text-[#93c5fd]",
+  Completed: "bg-[#d1fae5] text-[#065f46] dark:bg-[#064e3b]/30 dark:text-[#6ee7b7]",
+};
+
+export function TestsRequestedCard({ tests = [], onUpdate, updatingTestId }) {
   return (
     <div className="bg-card text-card-foreground rounded-lg border border-border overflow-hidden w-full shadow-none">
       {/* Header */}
       <div className="px-5 py-4 flex justify-between items-center border-b border-border">
         <h2 className="text-[15px] font-bold text-foreground">Tests Requested ({tests.length})</h2>
-        <button className="text-[13px] font-bold text-primary hover:opacity-80 transition-opacity cursor-pointer">
-          Add Test
-        </button>
       </div>
 
       {/* Table */}
@@ -32,13 +36,17 @@ export function TestsRequestedCard({ tests = [] }) {
                   </div>
                 </td>
                 <td className="px-5 py-3.5">
-                  <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-[4px] leading-none ${test.statusColor}`}>
-                    {test.status}
+                  <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-[4px] leading-none ${statusColors[test.status] || statusColors.Pending}`}>
+                    {test.status || "Pending"}
                   </span>
                 </td>
                 <td className="px-5 py-3.5 text-right">
-                  <button className="px-3 py-1 bg-muted hover:bg-muted/80 text-[11px] font-bold text-foreground rounded border border-border transition-colors cursor-pointer select-none">
-                    Update
+                  <button
+                    onClick={() => onUpdate?.(test.id)}
+                    disabled={test.status === "Completed" || updatingTestId === test.id}
+                    className="px-3 py-1 bg-muted hover:bg-muted/80 text-[11px] font-bold text-foreground rounded border border-border transition-colors cursor-pointer select-none disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {test.status === "Completed" ? "Completed" : updatingTestId === test.id ? "Updating..." : "Update"}
                   </button>
                 </td>
               </tr>

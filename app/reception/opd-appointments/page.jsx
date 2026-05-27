@@ -9,6 +9,7 @@ import {
 import { cn } from "@/lib/utils";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useRouter } from "next/navigation";
+import { FormDatePicker } from "@/components/ui/form-date-picker";
 
 const STATUS_STYLE = {
   CHECKED_IN: "bg-[#E6F9F1] text-[#00A389]",
@@ -235,7 +236,8 @@ export default function OPDAppointments() {
   const [isRescheduleOpen, setIsRescheduleOpen] = React.useState(false);
   const [isCancelOpen, setIsCancelOpen]         = React.useState(false);
   const [selectedAppt, setSelectedAppt]         = React.useState(null);
-  const [newDateTime, setNewDateTime]           = React.useState("");
+  const [newDate, setNewDate]                   = React.useState(null);
+  const [newTime, setNewTime]                   = React.useState("");
   const [cancelReason, setCancelReason]         = React.useState("Patient request");
   const [actionLoading, setActionLoading]       = React.useState(false);
   const [actionError, setActionError]           = React.useState("");
@@ -256,6 +258,22 @@ export default function OPDAppointments() {
     window.addEventListener("keydown", h);
     return () => window.removeEventListener("keydown", h);
   }, []);
+
+  // Pre-populate reschedule inputs with current values
+  React.useEffect(() => {
+    if (selectedAppt && isRescheduleOpen) {
+      const d = new Date(selectedAppt.dateTime);
+      if (!isNaN(d.getTime())) {
+        setNewDate(d);
+        const hh = String(d.getHours()).padStart(2, "0");
+        const mm = String(d.getMinutes()).padStart(2, "0");
+        setNewTime(`${hh}:${mm}`);
+      } else {
+        setNewDate(null);
+        setNewTime("");
+      }
+    }
+  }, [selectedAppt, isRescheduleOpen]);
 
   const fetchAll = React.useCallback(async () => {
     try {
@@ -297,13 +315,18 @@ export default function OPDAppointments() {
   };
 
   const handleReschedule = async () => {
-    if (!newDateTime) { setActionError("Please select a new date and time."); return; }
+    if (!newDate) { setActionError("Please select a new date."); return; }
+    if (!newTime) { setActionError("Please select a new time."); return; }
     setActionLoading(true); setActionError("");
     try {
+      const dateTime = new Date(newDate);
+      const [h, m] = newTime.split(":").map(Number);
+      dateTime.setHours(h, m, 0, 0);
+
       const res = await fetch(`${API}/appointments/${selectedAppt.id}/reschedule`, {
         method: "PATCH",
         headers: { ...headers(), "Content-Type": "application/json" },
-        body: JSON.stringify({ dateTime: newDateTime }),
+        body: JSON.stringify({ dateTime: dateTime.toISOString() }),
       });
       const json = await res.json();
       if (!res.ok) throw new Error(json.message);
@@ -455,7 +478,7 @@ export default function OPDAppointments() {
                       </button>
                       {a.status !== "CANCELLED" && a.status !== "COMPLETED" && (
                         <>
-                          <button onClick={() => { setSelectedAppt(a); setNewDateTime(""); setActionError(""); setIsRescheduleOpen(true); }}
+                          <button onClick={() => { setSelectedAppt(a); setActionError(""); setIsRescheduleOpen(true); }}
                             className="h-7 px-3 shrink-0 whitespace-nowrap border border-border bg-card text-foreground rounded-[3px] text-[11px] font-bold hover:bg-muted transition-all">
                             Reschedule
                           </button>
@@ -501,7 +524,7 @@ export default function OPDAppointments() {
               </div>
               {a.status !== "CANCELLED" && a.status !== "COMPLETED" && (
                 <div className="flex gap-2">
-                  <button onClick={() => { setSelectedAppt(a); setNewDateTime(""); setActionError(""); setIsRescheduleOpen(true); }} className="flex-1 h-9 bg-card border border-border rounded-[5px] text-[12px] font-bold text-foreground hover:bg-muted">Reschedule</button>
+                  <button onClick={() => { setSelectedAppt(a); setActionError(""); setIsRescheduleOpen(true); }} className="flex-1 h-9 bg-card border border-border rounded-[5px] text-[12px] font-bold text-foreground hover:bg-muted">Reschedule</button>
                   <button onClick={() => { setSelectedAppt(a); setCancelReason("Patient request"); setActionError(""); setIsCancelOpen(true); }} className="flex-1 h-9 bg-card border border-border rounded-[5px] text-[12px] font-bold text-foreground hover:bg-muted">Cancel</button>
                   <button onClick={() => setPrintAppt(a)} className="h-9 w-9 flex items-center justify-center bg-card border border-border rounded-[5px] text-muted-foreground hover:bg-primary hover:text-white hover:border-primary transition-all" title="Print Slip">
                     <Printer className="w-4 h-4" />
@@ -532,10 +555,25 @@ export default function OPDAppointments() {
                 <p className="text-[13px] font-bold text-foreground">{selectedAppt?.patient?.name} · {selectedAppt?.doctorName}</p>
                 <p className="text-[12px] font-bold text-amber-600">{formatTime(selectedAppt?.dateTime)}</p>
               </div>
-              <div className="space-y-2">
-                <label className="text-[12px] font-bold text-muted-foreground">New Date & Time <span className="text-red-500">*</span></label>
-                <input type="datetime-local" value={newDateTime} onChange={(e) => setNewDateTime(e.target.value)}
-                  className="w-full h-11 px-4 bg-background border border-border rounded-[5px] text-[13px] font-medium outline-none focus:border-primary transition-all" />
+              <div className="grid grid-cols-2 gap-4">
+                <FormDatePicker
+                  label="New Date"
+                  required
+                  value={newDate}
+                  onChange={(date) => setNewDate(date)}
+                  placeholder="DD/MM/YYYY"
+                />
+                <div className="space-y-2">
+                  <label className="text-[13px] font-bold text-foreground flex items-center justify-between">
+                    <span>New Time <span className="text-red-500">*</span></span>
+                  </label>
+                  <input
+                    type="time"
+                    value={newTime}
+                    onChange={(e) => setNewTime(e.target.value)}
+                    className="w-full h-12 px-4 bg-background border border-border rounded-[5px] text-[13px] font-bold text-foreground outline-none focus:border-primary transition-all"
+                  />
+                </div>
               </div>
               {actionError && <p className="text-[12px] text-red-500 font-medium">{actionError}</p>}
             </div>
