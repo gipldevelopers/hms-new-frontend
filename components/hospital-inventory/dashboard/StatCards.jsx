@@ -1,62 +1,133 @@
 "use client";
 
 import React from "react";
-import { CalendarHeart } from "lucide-react";
+import {
+  BadgeIndianRupee,
+  Box,
+  ShieldAlert,
+  Hourglass,
+  ShoppingCart,
+  TrendingUp,
+  Boxes
+} from "lucide-react";
 
-const StatCard = ({ title, value, iconBgColor, iconColor }) => (
-  <div className="bg-white dark:bg-[#1e293b] p-5 rounded-[5px] border border-[#e2e8f0] dark:border-[#334155] flex items-center justify-between min-h-[110px] shadow-none">
-    <div className="flex flex-col justify-between min-h-[75px] space-y-4">
-      {/* Round circle icon container */}
-      <div className={`w-9 h-9 rounded-full ${iconBgColor} flex items-center justify-center`}>
-        <CalendarHeart size={16} className={iconColor} />
-      </div>
-      {/* Title at the bottom left */}
-      <span className="text-[13px] text-[#64748b] dark:text-[#94a3b8] font-medium leading-none">
-        {title}
-      </span>
-    </div>
-    {/* Value centered vertically on the right */}
-    <div className="flex items-center">
-      <h3 className="text-[24px] font-bold text-[#1e293b] dark:text-white leading-none">
-        {value}
-      </h3>
-    </div>
-  </div>
+// Custom ClipboardPen icon to match mockup exactly
+const ClipboardPen = (props) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    {/* Top Clip */}
+    <rect x="9" y="3" width="6" height="3" rx="1" />
+    {/* Clipboard Board with Top-Right Gap */}
+    <path d="M9 4H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5" />
+    <path d="M15 4h2a2 2 0 0 1 2 2v1" />
+    {/* Pen/Pencil drawing inside the gap */}
+    <path d="M18.8 7.2a2 2 0 0 1 0 2.8l-5.6 5.6-3.2.8.8-3.2 5.6-5.6a2 2 0 0 1 2.8 0z" />
+    {/* Small dot/dash on the bottom-left */}
+    <line x1="8" y1="16" x2="9" y2="16" />
+  </svg>
 );
 
 export function StatCards() {
-  const stats = [
+  const cards = [
     {
-      title: "Total Skus",
-      value: "4081",
-      iconBgColor: "bg-indigo-50 dark:bg-indigo-950/20",
-      iconColor: "text-indigo-500"
+      title: "Total Inventory",
+      value: "₹1,28,000",
+      change: "+12% vs yesterday",
+      isPositive: true,
+      icon: BadgeIndianRupee
     },
     {
-      title: "Total Stock Value",
-      value: "₹12,45,000",
-      iconBgColor: "bg-emerald-50 dark:bg-emerald-950/20",
-      iconColor: "text-emerald-500"
+      title: "Total Available Stock",
+      value: "72%",
+      change: "+5% vs yesterday",
+      isPositive: true,
+      icon: Box
     },
     {
       title: "Low Stock Items",
-      value: "124",
-      iconBgColor: "bg-blue-50 dark:bg-blue-950/20",
-      iconColor: "text-blue-500"
+      value: "142",
+      change: "-2 vs avg",
+      isPositive: false,
+      icon: ShieldAlert
     },
     {
-      title: "Expiring this month",
-      value: "38",
-      iconBgColor: "bg-rose-50 dark:bg-rose-950/20",
-      iconColor: "text-rose-500"
+      title: "Near Expiry Items",
+      value: "₹45,000",
+      change: "+2% vs yesterday",
+      isPositive: true,
+      icon: Hourglass
+    },
+    {
+      title: "Pending Purchase",
+      value: "4.2d",
+      change: "+1.5d vs yesterday",
+      isPositive: true,
+      icon: ShoppingCart
+    },
+    {
+      title: "Today's Consumption",
+      value: "1.2%",
+      change: "+5% vs yesterday",
+      isPositive: true,
+      icon: TrendingUp
+    },
+    {
+      title: "Pending Requests",
+      value: "4.8%",
+      change: "-2% vs avg",
+      isPositive: false,
+      icon: ClipboardPen
+    },
+    {
+      title: "Pending GRNs",
+      value: "2",
+      change: "+2 vs yesterday",
+      isPositive: true,
+      icon: Boxes
     }
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[20px]">
-      {stats.map((stat, i) => (
-        <StatCard key={i} {...stat} />
-      ))}
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      {cards.map((card, index) => {
+        const Icon = card.icon;
+        return (
+          <div
+            key={index}
+            className="bg-white dark:bg-[#1E293B] rounded-[5px] border border-[#E7E8EB] dark:border-white/10 p-5 flex justify-between items-center shadow-none"
+          >
+            <div>
+              <p className="text-[12px] font-semibold text-slate-400 dark:text-slate-400">
+                {card.title}
+              </p>
+              <h3 className="text-[22px] font-extrabold text-slate-800 dark:text-white mt-1.5 leading-none">
+                {card.value}
+              </h3>
+              <p
+                className={`text-[11px] mt-2 font-bold ${
+                  card.isPositive ? "text-[#10B981]" : "text-[#EF4444]"
+                }`}
+              >
+                {card.change}
+              </p>
+            </div>
+            <div className="w-10 h-10 rounded-[6px] flex items-center justify-center bg-[#EEF2F6] dark:bg-slate-800/80 text-[#4F46E5] dark:text-[#818CF8] shrink-0">
+              <Icon className="w-5 h-5 stroke-[2]" />
+            </div>
+          </div>
+        );
+      })}
     </div>
   );
 }
+export default StatCards;
