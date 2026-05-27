@@ -14,6 +14,7 @@ import {
   Building2,
   AlertCircle,
   X,
+  Trash2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
@@ -23,6 +24,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useRouter } from "next/navigation";
+import { DeleteConfirmationModal } from "@/components/super-admin/branches/BranchComponents";
+import { toast } from "sonner";
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const PAGE_SIZE_OPTIONS = [10, 20, 50];
@@ -171,6 +174,38 @@ export default function EmergencyRegistration() {
   const [limit, setLimit]             = React.useState(10);
   const [total, setTotal]             = React.useState(0);
   const [totalPages, setTotalPages]   = React.useState(0);
+  const [refreshTrigger, setRefreshTrigger] = React.useState(0);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
+  const [itemToDelete, setItemToDelete] = React.useState(null);
+
+  const handleDelete = (id, name) => {
+    setItemToDelete({ id, name });
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!itemToDelete) return;
+    try {
+      const token = localStorage.getItem("authtoken");
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050/api"}/emergency/${itemToDelete.id}`,
+        {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      );
+      const json = await res.json();
+      if (res.ok && json.success) {
+        toast.success(json.message || "Emergency registration deleted.");
+        setIsDeleteModalOpen(false);
+        setRefreshTrigger(prev => prev + 1);
+      } else {
+        throw new Error(json.message || "Failed to delete");
+      }
+    } catch (err) {
+      toast.error(err.message);
+    }
+  };
 
   // ── Debounce search input (400 ms) ──────────────────────────────────────────
   React.useEffect(() => {
@@ -220,7 +255,7 @@ export default function EmergencyRegistration() {
 
     fetchList();
     return () => { cancelled = true; };
-  }, [search, priority, status, page, limit]);
+  }, [search, priority, status, page, limit, refreshTrigger]);
 
   // ── Helpers ─────────────────────────────────────────────────────────────────
   const formatDate = (iso) =>
@@ -404,13 +439,20 @@ export default function EmergencyRegistration() {
                   <td className="px-5 py-4 text-[13px] font-medium text-foreground">{formatDate(p.arrivalTime || p.createdAt)}</td>
                   <td className="px-5 py-4"><StatusPill status={p.status} /></td>
                   <td className="px-5 py-4">
-                    <div className="flex justify-center">
+                    <div className="flex justify-center items-center gap-2">
                       <button
                         onClick={() => router.push(`/reception/emergency-registration/${p.id}`)}
                         className="p-1.5 hover:bg-muted rounded-[5px] text-muted-foreground group-hover:text-foreground transition-all"
                         title="View details"
                       >
                         <Eye className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleDelete(p.id, p.name); }}
+                        className="p-1.5 hover:bg-rose-500/10 rounded-[5px] text-rose-500 hover:text-rose-600 transition-all cursor-pointer"
+                        title="Delete registration"
+                      >
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   </td>
@@ -455,8 +497,17 @@ export default function EmergencyRegistration() {
                   <PriorityBadge priority={p.triagePriority} />
                   <h3 className="text-[15px] font-bold text-foreground">{p.name || "Unknown"}</h3>
                 </div>
-                <div className="p-2 bg-muted/50 rounded-full shrink-0">
-                  <Eye className="w-4 h-4 text-muted-foreground" />
+                <div className="flex items-center gap-2">
+                  <div className="p-2 bg-muted/50 rounded-full shrink-0">
+                    <Eye className="w-4 h-4 text-muted-foreground" />
+                  </div>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); handleDelete(p.id, p.name); }}
+                    className="p-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 hover:text-rose-600 rounded-full shrink-0 cursor-pointer"
+                    title="Delete registration"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-y-4 gap-x-2">
@@ -496,6 +547,14 @@ export default function EmergencyRegistration() {
           />
         )}
       </div>
+
+      <DeleteConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={confirmDelete}
+        itemName={itemToDelete?.name}
+        title="Delete Emergency Registration?"
+      />
     </div>
   );
 }

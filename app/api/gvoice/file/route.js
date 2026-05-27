@@ -12,12 +12,23 @@ export async function POST(request) {
       return NextResponse.json({ status: false, message: 'Missing file' }, { status: 400 });
     }
 
+    const fileName = file.name || 'file';
+    const fileExt = fileName.substring(fileName.lastIndexOf('.')).toLowerCase();
+    const isImage = ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.svg', '.bmp'].includes(fileExt) || file.type?.startsWith('image/');
+
     const formData = new FormData();
-    formData.append('file', file);
     formData.append('api_key', API_KEY);
     formData.append('reduce_size', 'true');
 
-    const response = await fetch(`${BASE_URL}upload-file.php`, {
+    let endpoint = 'upload-file.php';
+    if (isImage) {
+      formData.append('image', file);
+      endpoint = 'upload-image.php';
+    } else {
+      formData.append('file', file);
+    }
+
+    const response = await fetch(`${BASE_URL}${endpoint}`, {
       method: 'POST',
       body: formData,
       cache: 'no-store',

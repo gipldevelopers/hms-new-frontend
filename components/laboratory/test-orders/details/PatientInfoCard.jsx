@@ -8,11 +8,17 @@ export function PatientInfoCard({ patient }) {
     <div className="bg-card text-card-foreground p-5 rounded-lg border border-border space-y-5 shadow-none">
       {/* Patient info top */}
       <div className="flex items-center gap-4">
-        <img
-          src={patient.avatar}
-          alt={patient.name}
-          className="w-14 h-14 rounded-full object-cover border border-border"
-        />
+        {patient.avatar ? (
+          <img
+            src={patient.avatar}
+            alt={patient.name}
+            className="w-14 h-14 rounded-full object-cover border border-border"
+          />
+        ) : (
+          <div className="w-14 h-14 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center">
+            <span className="text-[18px] font-bold text-primary">{patient.name?.charAt(0)?.toUpperCase() || "P"}</span>
+          </div>
+        )}
         <div>
           <h3 className="text-[16px] font-bold text-foreground">{patient.name}</h3>
           <p className="text-[12px] text-muted-foreground font-semibold mt-0.5">

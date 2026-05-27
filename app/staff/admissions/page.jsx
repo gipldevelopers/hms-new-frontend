@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Search,
   Plus,
@@ -25,44 +25,71 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { useEffect } from "react";
+// useEffect imported above
 import { toast } from "sonner";
 
-function CustomSelect({ value, onChange, options, placeholder, className, minWidth = "130px" }) {
+function CustomSelect({ value, onChange, options, placeholder, className, minWidth = "130px", fullWidth = false }) {
+  const [isOpen, setIsOpen] = useState(false);
   const selected = options.find((o) => o.value === value);
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleOutsideClick = (e) => {
+      if (containerRef.current && !containerRef.current.contains(e.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, [isOpen]);
+
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button
-          type="button"
-          className={cn(
-            "h-11 px-5 bg-background border border-border rounded-[5px] flex items-center justify-between gap-3 text-[13px] font-bold outline-none transition-all shadow-none text-foreground w-full sm:w-auto hover:bg-muted focus:border-primary",
-            className
-          )}
-          style={{ minWidth }}
-        >
-          <span className="truncate">{selected ? selected.label : placeholder}</span>
-          <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
-        </button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-[130px] border border-border bg-card p-1 rounded-[5px] shadow-xl z-50">
-        {options.map((opt) => (
-          <DropdownMenuItem
-            key={opt.value}
-            onClick={() => onChange(opt.value)}
-            className={cn(
-              "rounded-[5px] text-[12px] font-medium px-3 py-2 cursor-pointer transition-colors outline-none flex items-center justify-between",
-              value === opt.value
-                ? "bg-primary/5 text-primary font-bold dark:bg-primary/10"
-                : "text-gray-600 hover:bg-muted"
-            )}
-          >
-            <span>{opt.label}</span>
-            {value === opt.value && <Check className="w-3.5 h-3.5 ml-auto text-primary" />}
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <div 
+      className={cn(
+        "relative text-left", 
+        fullWidth ? "w-full block" : "w-auto inline-block"
+      )} 
+      ref={containerRef}
+    >
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className={cn(
+          "h-11 px-5 bg-background border border-border rounded-[5px] flex items-center justify-between gap-3 text-[13px] font-bold outline-none transition-all shadow-none text-foreground hover:bg-muted focus:border-primary",
+          fullWidth ? "w-full" : "w-auto",
+          className
+        )}
+        style={{ minWidth }}
+      >
+        <span className="truncate">{selected ? selected.label : placeholder}</span>
+        <ChevronDown className={cn("w-4 h-4 text-muted-foreground shrink-0 transition-transform duration-200", isOpen && "rotate-180")} />
+      </button>
+
+      {isOpen && (
+        <div className="absolute left-0 right-0 top-[48px] w-full border border-border bg-card p-1 rounded-[5px] shadow-xl z-[1001] max-h-[220px] overflow-y-auto no-scrollbar">
+          {options.map((opt) => (
+            <button
+              type="button"
+              key={opt.value}
+              onClick={() => {
+                onChange(opt.value);
+                setIsOpen(false);
+              }}
+              className={cn(
+                "w-full rounded-[5px] text-[12px] font-medium px-3 py-2 cursor-pointer transition-colors outline-none flex items-center justify-between text-left",
+                value === opt.value
+                  ? "bg-primary/5 text-primary font-bold dark:bg-primary/10"
+                  : "text-foreground hover:bg-muted"
+              )}
+            >
+              <span>{opt.label}</span>
+              {value === opt.value && <Check className="w-3.5 h-3.5 ml-auto text-primary" />}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -84,9 +111,11 @@ export default function WardPatientsPage() {
   const [dischargeNotes, setDischargeNotes] = useState("");
 
   // Transfer fields
+  const [targetDept, setTargetDept] = useState("");
   const [targetWard, setTargetWard] = useState("");
   const [targetBed, setTargetBed] = useState("");
   const [availableBeds, setAvailableBeds] = useState([]);
+  const [departmentsList, setDepartmentsList] = useState([]);
 
   const fetchData = async () => {
     try {
@@ -104,7 +133,8 @@ export default function WardPatientsPage() {
         ageGender: `${adm.patient?.age || '??'} / ${adm.patient?.gender || '??'}`,
         bed: adm.bed?.label || "No Bed",
         wardId: adm.wardId,
-        wardName: adm.ward?.name,
+        wardName: adm.ward?.name || "No Ward",
+        deptName: adm.department?.name || "No Department",
         diagnosis: adm.reason || "No diagnosis provided",
         status: adm.status === "In Progress" ? "Admitted" : adm.status,
         patientId: adm.patientId,
@@ -115,7 +145,17 @@ export default function WardPatientsPage() {
       // Fetch Infrastructure (Wards)
       const infraRes = await fetch("/api/wards/overview", { headers });
       const infraData = await infraRes.json();
-      setWardsList(Array.isArray(infraData) ? infraData : []);
+      if (Array.isArray(infraData)) {
+        setDepartmentsList(infraData);
+        const flatWards = infraData.flatMap(dept => (dept.wards || []).map(ward => ({
+          ...ward,
+          deptName: dept.name
+        })));
+        setWardsList(flatWards);
+      } else {
+        setDepartmentsList([]);
+        setWardsList([]);
+      }
     } catch (e) {
       toast.error("Failed to load data");
     } finally {
@@ -126,6 +166,15 @@ export default function WardPatientsPage() {
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    if (!transferItem) {
+      setTargetDept("");
+      setTargetWard("");
+      setTargetBed("");
+      setAvailableBeds([]);
+    }
+  }, [transferItem]);
 
   const filtered = patients.filter((p) => {
     const matchesSearch = p.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -163,6 +212,9 @@ export default function WardPatientsPage() {
 
   const handleTransfer = async (id) => {
     if (!targetWard || !targetBed) return;
+    const selectedWardObj = wardsList.find(w => w.id === targetWard);
+    const departmentId = selectedWardObj ? selectedWardObj.departmentId : undefined;
+
     try {
       const token = localStorage.getItem("authtoken");
       const res = await fetch(`/api/admissions/${id}`, {
@@ -172,6 +224,7 @@ export default function WardPatientsPage() {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
+          departmentId,
           wardId: targetWard,
           bedId: targetBed
         })
@@ -181,6 +234,7 @@ export default function WardPatientsPage() {
         toast.success("Patient transferred successfully");
         fetchData();
         setTransferItem(null);
+        setTargetDept("");
         setTargetWard("");
         setTargetBed("");
       } else {
@@ -190,6 +244,13 @@ export default function WardPatientsPage() {
     } catch (e) {
       toast.error("Network error");
     }
+  };
+
+  const handleDeptSelection = (deptId) => {
+    setTargetDept(deptId);
+    setTargetWard("");
+    setTargetBed("");
+    setAvailableBeds([]);
   };
 
   const handleWardSelection = (wardId) => {
@@ -208,7 +269,7 @@ export default function WardPatientsPage() {
       case "Pending Discharge":
         return "bg-amber-50 text-amber-600 border border-amber-100 dark:bg-amber-500/10 dark:text-amber-500 dark:border-amber-500/20 px-3 py-1 rounded-[5px] text-[11px] font-bold leading-none items-center justify-center inline-flex w-fit";
       case "Admitted":
-        return "bg-blue-50 text-blue-600 border border-blue-100 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20 px-3 py-1 rounded-[5px] text-[11px] font-bold leading-none items-center justify-center inline-flex w-fit";
+        return "bg-primary/5 text-primary border border-primary/10 dark:bg-primary/10 dark:text-primary-foreground/90 dark:border-primary/20 px-3 py-1 rounded-[5px] text-[11px] font-bold leading-none items-center justify-center inline-flex w-fit";
       case "Discharged":
         return "bg-emerald-50 text-emerald-600 border border-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20 px-3 py-1 rounded-[5px] text-[11px] font-bold leading-none items-center justify-center inline-flex w-fit";
       default:
@@ -254,7 +315,7 @@ export default function WardPatientsPage() {
             minWidth="140px"
             options={[
               { label: "All Wards", value: "All" },
-              ...wardsList.map(w => ({ label: w.name, value: w.name }))
+              ...Array.from(new Set(wardsList.map(w => w.name))).map(name => ({ label: name, value: name }))
             ]}
           />
           <CustomSelect
@@ -292,8 +353,8 @@ export default function WardPatientsPage() {
                       <h3 className="text-[15px] font-bold text-foreground leading-tight">
                         {item.name}
                       </h3>
-                      <p className="text-[11px] text-blue-600 dark:text-blue-400 font-bold mt-1">
-                        {item.bed}
+                      <p className="text-[11px] text-primary dark:text-primary-foreground/90 font-bold mt-1">
+                        {item.bed} ({item.deptName} • {item.wardName})
                       </p>
                     </div>
                     <span className={statusBadge(item.status)}>{item.status}</span>
@@ -319,7 +380,7 @@ export default function WardPatientsPage() {
                         onClick={() => setTransferItem(item)}
                         className="p-2.5 hover:bg-muted bg-card border border-border rounded-[5px] flex items-center justify-center gap-1.5 transition-all text-[12px] font-bold text-foreground shadow-none outline-none"
                       >
-                        <Send className="w-4 h-4 text-blue-600 shrink-0  rotate-45" />
+                        <Send className="w-4 h-4 text-primary shrink-0  rotate-45" />
                         <span>Transfer</span>
                       </button>
                     )}
@@ -346,7 +407,7 @@ export default function WardPatientsPage() {
                         Age/Gender
                       </th>
                       <th className="px-8 py-3 text-left text-[11px] font-bold text-muted-foreground border-b border-border tracking-tight">
-                        Bed No
+                        Location / Bed
                       </th>
                       <th className="px-8 py-3 text-left text-[11px] font-bold text-muted-foreground border-b border-border tracking-tight">
                         Diagnosis
@@ -368,8 +429,11 @@ export default function WardPatientsPage() {
                         <td className="px-8 py-3 text-[13px] font-medium text-muted-foreground ">
                           {item.ageGender}
                         </td>
-                        <td className="px-8 py-3 text-[13px] font-bold text-blue-600 dark:text-blue-400 ">
-                          {item.bed}
+                        <td className="px-8 py-3 text-[13px] font-bold text-primary ">
+                          <div className="font-bold text-primary">{item.bed}</div>
+                          <div className="text-[11px] font-medium text-muted-foreground mt-0.5 leading-none">
+                            {item.deptName} • {item.wardName}
+                          </div>
                         </td>
                         <td className="px-8 py-3 text-[13px] font-medium text-foreground  max-w-[220px] truncate leading-snug">
                           {item.diagnosis}
@@ -395,7 +459,7 @@ export default function WardPatientsPage() {
                                 className="px-3.5 h-9 hover:bg-muted bg-card border border-border rounded-[5px] flex items-center justify-center gap-1.5 transition-all text-[12px] font-bold text-foreground shadow-none outline-none "
                                 title="Transfer Patient"
                               >
-                                <Send className="w-3.5 h-3.5 text-blue-600 shrink-0  rotate-45" />
+                                <Send className="w-3.5 h-3.5 text-primary shrink-0  rotate-45" />
                                 <span>Transfer</span>
                               </button>
                             )}
@@ -460,7 +524,7 @@ export default function WardPatientsPage() {
               <div className="p-5 ">
                 <div className="p-4 bg-muted/50 border border-border rounded-[5px] flex items-center justify-between gap-4 ">
                   <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 bg-blue-500/10 dark:bg-blue-500/5 text-blue-600 border border-blue-500/10 rounded-full flex items-center justify-center  shrink-0 overflow-hidden">
+                    <div className="w-11 h-11 bg-primary/10 dark:bg-primary/5 text-primary border border-primary/10 rounded-full flex items-center justify-center  shrink-0 overflow-hidden">
                       <div className="w-full h-full flex items-center justify-center bg-primary/10 text-primary font-bold text-[18px]">
                         {dischargeItem.name.charAt(0)}
                       </div>
@@ -496,7 +560,7 @@ export default function WardPatientsPage() {
                       <div className={cn(
                         "w-4.5 h-4.5 rounded-[3px] border flex items-center justify-center shrink-0 transition-all ",
                         dischargeSummaryChecked
-                          ? "bg-blue-600 border-blue-600 text-white"
+                          ? "bg-primary border-primary text-primary-foreground"
                           : "border-gray-300 dark:border-white/20 bg-transparent"
                       )}>
                         {dischargeSummaryChecked && <Check className="w-3 h-3 " />}
@@ -521,7 +585,7 @@ export default function WardPatientsPage() {
                       <div className={cn(
                         "w-4.5 h-4.5 rounded-[3px] border flex items-center justify-center shrink-0 transition-all ",
                         medReconciliationChecked
-                          ? "bg-blue-600 border-blue-600 text-white"
+                          ? "bg-primary border-primary text-primary-foreground"
                           : "border-gray-300 dark:border-white/20 bg-transparent"
                       )}>
                         {medReconciliationChecked && <Check className="w-3 h-3 " />}
@@ -546,7 +610,7 @@ export default function WardPatientsPage() {
                       <div className={cn(
                         "w-4.5 h-4.5 rounded-[3px] border flex items-center justify-center shrink-0 transition-all ",
                         patientEducationChecked
-                          ? "bg-blue-600 border-blue-600 text-white"
+                          ? "bg-primary border-primary text-primary-foreground"
                           : "border-gray-300 dark:border-white/20 bg-transparent"
                       )}>
                         {patientEducationChecked && <Check className="w-3 h-3 " />}
@@ -587,7 +651,7 @@ export default function WardPatientsPage() {
                 </button>
                 <button
                   onClick={() => handleDischarge(dischargeItem.id)}
-                  className="h-10 px-5 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-[5px] text-[13px] transition-all flex items-center justify-center gap-1.5  shadow-none outline-none disabled:opacity-50"
+                  className="h-10 px-5 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-[5px] text-[13px] transition-all flex items-center justify-center gap-1.5  shadow-none outline-none disabled:opacity-50"
                 >
                   <LogOut className="w-3.5 h-3.5  rotate-180" />
                   <span>Confirm Discharge</span>
@@ -613,10 +677,10 @@ export default function WardPatientsPage() {
               initial={{ scale: 0.95, opacity: 0, y: 16 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 16 }}
-              className="relative bg-card w-full max-w-[420px] rounded-[5px] overflow-hidden shadow-none border border-border flex flex-col "
+              className="relative bg-card w-full max-w-[420px] rounded-[5px] shadow-none border border-border flex flex-col "
             >
               <div className="p-6 flex flex-col items-center text-center ">
-                <div className="w-12 h-12 bg-blue-500/10 dark:bg-blue-500/5 text-blue-600 border border-blue-500/10 rounded-full flex items-center justify-center mb-4  shrink-0">
+                <div className="w-12 h-12 bg-primary/10 dark:bg-primary/5 text-primary border border-primary/10 rounded-full flex items-center justify-center mb-4  shrink-0">
                   <Send className="w-6 h-6  rotate-45" />
                 </div>
                 <h3 className="text-[17px] font-bold text-foreground mb-1.5 leading-tight ">
@@ -630,6 +694,19 @@ export default function WardPatientsPage() {
               <div className="px-6 py-1 space-y-4 ">
                 <div>
                   <label className="block text-[11px] font-bold text-muted-foreground uppercase leading-none mb-1.5 ">
+                    Target Department
+                  </label>
+                  <CustomSelect
+                    value={targetDept}
+                    onChange={handleDeptSelection}
+                    placeholder="Select Department"
+                    minWidth="100%"
+                    fullWidth={true}
+                    options={departmentsList.map(d => ({ label: d.name, value: d.id }))}
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold text-muted-foreground uppercase leading-none mb-1.5 ">
                     Target Ward
                   </label>
                   <CustomSelect
@@ -637,7 +714,8 @@ export default function WardPatientsPage() {
                     onChange={handleWardSelection}
                     placeholder="Select Ward"
                     minWidth="100%"
-                    options={wardsList.map(w => ({ label: w.name, value: w.id }))}
+                    fullWidth={true}
+                    options={wardsList.filter(w => w.departmentId === targetDept).map(w => ({ label: w.name, value: w.id }))}
                   />
                 </div>
                 <div>
@@ -649,12 +727,13 @@ export default function WardPatientsPage() {
                     onChange={setTargetBed}
                     placeholder="Select Bed"
                     minWidth="100%"
+                    fullWidth={true}
                     options={availableBeds.map(b => ({ label: b.label, value: b.id }))}
                   />
                 </div>
               </div>
 
-              <div className="flex items-center gap-3 px-6 py-4 mt-5 bg-muted/30 border-t border-border ">
+              <div className="flex items-center gap-3 px-6 py-4 mt-5 bg-muted/30 border-t border-border rounded-b-[5px] ">
                 <button
                   onClick={() => setTransferItem(null)}
                   className="flex-1 h-10 border border-border bg-card hover:bg-muted text-foreground font-semibold rounded-[5px] text-[13px] transition-all  shadow-none outline-none"
@@ -663,8 +742,8 @@ export default function WardPatientsPage() {
                 </button>
                 <button
                   onClick={() => handleTransfer(transferItem.id)}
-                  disabled={!targetWard || !targetBed}
-                  className="flex-1 h-10 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-[5px] text-[13px] transition-all  shadow-none outline-none disabled:opacity-50"
+                  disabled={!targetDept || !targetWard || !targetBed}
+                  className="flex-1 h-10 bg-primary hover:bg-primary/90 text-primary-foreground font-bold rounded-[5px] text-[13px] transition-all  shadow-none outline-none disabled:opacity-50"
                 >
                   Transfer
                 </button>

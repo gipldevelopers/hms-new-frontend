@@ -5,16 +5,23 @@ import { ClinicalInformation } from "@/components/laboratory/test-orders/new/Cli
 import { TestSelection } from "@/components/laboratory/test-orders/new/TestSelection";
 import { OrderSummary } from "@/components/laboratory/test-orders/new/OrderSummary";
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000/api";
+
+function getAuthHeaders() {
+  const token = localStorage.getItem("authtoken");
+  return { "Content-Type": "application/json", Authorization: `Bearer ${token}` };
+}
+
 export default function NewTestOrderPage() {
-  const [priority, setPriority] = useState("Urgent");
+  const [priority, setPriority] = useState("Normal");
   const [selectedPatient, setSelectedPatient] = useState(null);
-  
-  // Default selected tests to match mockup totals on load once patient is chosen
-  const [selectedTests, setSelectedTests] = useState([
-    { id: "cbc", name: "Complete Blood Count (CBC)", code: "HEM-01", price: 45 },
-    { id: "lipid", name: "Lipid Profile", code: "BIO-12", price: 65 },
-    { id: "cmp", name: "Comprehensive Metabolic Panel", code: "BIO-15", price: 110 }
-  ]);
+  const [selectedTests, setSelectedTests] = useState([]);
+  const [clinicalInfo, setClinicalInfo] = useState({
+    doctorId: "",
+    doctorName: "",
+    departmentName: "",
+    clinicalNotes: "",
+  });
 
   const toggleTest = (test) => {
     setSelectedTests((prev) => {
@@ -38,14 +45,29 @@ export default function NewTestOrderPage() {
       <PatientSearch 
         selectedPatient={selectedPatient}
         onSelectPatient={setSelectedPatient}
-        onDeselectPatient={() => setSelectedPatient(null)}
+        onDeselectPatient={() => {
+          setSelectedPatient(null);
+          setSelectedTests([]);
+        }}
       />
 
       {selectedPatient && (
         <>
-          <ClinicalInformation priority={priority} setPriority={setPriority} />
+          <ClinicalInformation
+            priority={priority}
+            setPriority={setPriority}
+            value={clinicalInfo}
+            onChange={setClinicalInfo}
+          />
           <TestSelection selectedTests={selectedTests} toggleTest={toggleTest} />
-          <OrderSummary selectedTests={selectedTests} />
+          <OrderSummary
+            apiBase={API_BASE}
+            getAuthHeaders={getAuthHeaders}
+            selectedPatient={selectedPatient}
+            selectedTests={selectedTests}
+            priority={priority}
+            clinicalInfo={clinicalInfo}
+          />
         </>
       )}
     </div>
