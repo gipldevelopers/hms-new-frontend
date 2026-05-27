@@ -190,7 +190,7 @@ const roleMenus = {
   ],
   "hospital-inventory": [
     { name: "Dashboard", icon: LayoutGrid, path: "/hospital-inventory", section: "none" },
-    { name: "Stock Management", icon: Package, path: "/hospital-inventory/stock", section: "HOSPITAL MANAGEMENT" },
+    { name: "Stock Management", icon: Package, path: "/hospital-inventory/stock/stock-inventory", section: "HOSPITAL MANAGEMENT" },
     { name: "Purchase Management", icon: ShoppingCart, path: "/hospital-inventory/purchase", section: "HOSPITAL MANAGEMENT" },
     { name: "Supplier Management", icon: Users2, path: "/hospital-inventory/supplier", section: "HOSPITAL MANAGEMENT" },
     { name: "Department Inventory", icon: Building2, path: "/hospital-inventory/department", section: "HOSPITAL MANAGEMENT" },
