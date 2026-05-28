@@ -9,6 +9,33 @@ export function SampleCollectionCard({ order, onMarkCollected }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
+  const [reportGenerated, setReportGenerated] = useState(false);
+  const [reportEdited, setReportEdited] = useState(false);
+
+  // Load report status from localStorage dynamically and bind back-navigation listeners
+  useEffect(() => {
+    function updateStates() {
+      if (typeof window !== "undefined") {
+        setReportGenerated(localStorage.getItem(`report-generated-${order.id}`) === "true");
+        setReportEdited(localStorage.getItem(`report-edited-${order.id}`) === "true");
+      }
+    }
+
+    updateStates();
+
+    if (typeof window !== "undefined") {
+      window.addEventListener("focus", updateStates);
+      window.addEventListener("pageshow", updateStates);
+    }
+
+    return () => {
+      if (typeof window !== "undefined") {
+        window.removeEventListener("focus", updateStates);
+        window.removeEventListener("pageshow", updateStates);
+      }
+    };
+  }, [order.id]);
+
   // Close menu when clicking outside
   useEffect(() => {
     function handleClickOutside(event) {
@@ -25,12 +52,7 @@ export function SampleCollectionCard({ order, onMarkCollected }) {
   }, [menuOpen]);
 
   const handleGenerateResult = () => {
-    const hasReport = typeof window !== "undefined" && localStorage.getItem(`report-generated-${order.id}`) === "true";
-    if (hasReport) {
-      router.push(`/laboratory/sample-collection/report?id=${order.id}`);
-    } else {
-      router.push(`/laboratory/sample-collection/report/edit?id=${order.id}`);
-    }
+    router.push(`/laboratory/sample-collection/report/edit?id=${order.id}`);
     setMenuOpen(false);
   };
 
@@ -44,16 +66,22 @@ export function SampleCollectionCard({ order, onMarkCollected }) {
     setMenuOpen(false);
   };
 
+  // Disable logic:
+  // - Disabled if report has not been generated yet.
+  // - Disabled if status is already "Collected" AND there are no un-submitted report edits.
+  const isDisableMarkCollected = !reportGenerated || (order.status === "Collected" && !reportEdited);
+
   const handleMarkCollectedToggle = () => {
-    const isCollected = order.status === "Collected";
-    const nextStatus = isCollected ? "Pending" : "Collected";
-    onMarkCollected(order.id, nextStatus);
-    
-    if (nextStatus === "Collected") {
-      toast.success(`Sample collected successfully for ${order.patientName} (${order.orderId})`);
-    } else {
-      toast.info(`Sample status reset to Pending for ${order.patientName} (${order.orderId})`);
+    if (isDisableMarkCollected) return;
+
+    // Reset report-edited so it becomes disabled again
+    if (typeof window !== "undefined") {
+      localStorage.setItem(`report-edited-${order.id}`, "false");
+      setReportEdited(false);
     }
+
+    onMarkCollected(order.id, "Collected");
+    toast.success(`Sample collected successfully for ${order.patientName} (${order.orderId})`);
   };
 
   // Sample badge styles configuration
@@ -129,17 +157,6 @@ export function SampleCollectionCard({ order, onMarkCollected }) {
             <span className="text-[12px] font-semibold text-muted-foreground">
               Ordered: {order.orderedTime}
             </span>
-            
-            {/* Overdue/Red or Normal TAT pill */}
-            {order.tat1.startsWith("-") ? (
-              <span className="bg-[#FEE2E2] dark:bg-[#EF4444]/20 text-[#EF4444] dark:text-[#F87171] font-bold text-[11px] px-2.5 py-0.5 rounded-[5px] whitespace-nowrap">
-                TAT: {order.tat1}
-              </span>
-            ) : (
-              <span className="bg-secondary text-secondary-foreground font-bold text-[11px] px-2.5 py-0.5 rounded-[5px] whitespace-nowrap">
-                TAT: {order.tat1}
-              </span>
-            )}
           </div>
 
           {/* Three-dots menu button */}
@@ -238,7 +255,10 @@ export function SampleCollectionCard({ order, onMarkCollected }) {
           {order.status === "Collected" ? (
             <button
               onClick={handleMarkCollectedToggle}
-              className="flex items-center justify-center gap-1.5 bg-primary text-primary-foreground border border-primary font-bold text-[13px] px-4 py-2 rounded-[5px] transition-colors cursor-pointer select-none shadow-none hover:shadow-none focus:shadow-none w-full sm:w-auto"
+              disabled={isDisableMarkCollected}
+              className={`flex items-center justify-center gap-1.5 bg-primary text-primary-foreground border border-primary font-bold text-[13px] px-4 py-2 rounded-[5px] transition-colors select-none shadow-none hover:shadow-none focus:shadow-none w-full sm:w-auto ${
+                isDisableMarkCollected ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+              }`}
             >
               <span>✓</span>
               <span>Mark Collected</span>
@@ -246,7 +266,10 @@ export function SampleCollectionCard({ order, onMarkCollected }) {
           ) : (
             <button
               onClick={handleMarkCollectedToggle}
-              className="flex items-center justify-center gap-1.5 bg-transparent text-primary border border-primary font-bold text-[13px] px-4 py-2 rounded-[5px] hover:bg-primary/5 transition-colors cursor-pointer select-none shadow-none hover:shadow-none focus:shadow-none w-full sm:w-auto"
+              disabled={isDisableMarkCollected}
+              className={`flex items-center justify-center gap-1.5 bg-transparent text-primary border border-primary font-bold text-[13px] px-4 py-2 rounded-[5px] hover:bg-primary/5 transition-colors cursor-pointer select-none shadow-none hover:shadow-none focus:shadow-none w-full sm:w-auto ${
+                isDisableMarkCollected ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+              }`}
             >
               <span>Mark Collected</span>
             </button>

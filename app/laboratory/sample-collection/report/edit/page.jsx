@@ -1,7 +1,7 @@
 "use client";
 import React, { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { ArrowLeft, Trash2, Plus } from "lucide-react";
+import { ArrowLeft, Trash2, Plus, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 // Mock database matching all active and historical patients in Sample Collection list
@@ -163,27 +163,14 @@ const DEFAULT_REPORT = {
   subLocation: "Bed W1-102"
 };
 
-// Initial test rows matching screenshot
+// Initial test rows - only one single blank row by default for manual typing
 const INITIAL_TEST_ROWS = [
   {
-    name: "ER-Main-Hemoglobin (Hb)South",
-    result: "11.2",
-    units: "g/dL"
-  },
-  {
-    name: "White Blood Cells (WBC)",
-    result: "35.5",
-    units: "g/dL"
-  },
-  {
-    name: "Red Blood Cells (RBC)",
-    result: "22.6",
-    units: "g/dL"
-  },
-  {
-    name: "Hematocrit (HCT)",
-    result: "26.6",
-    units: "g/dL"
+    name: "",
+    result: "",
+    units: "",
+    minValue: "",
+    maxValue: ""
   }
 ];
 
@@ -192,13 +179,76 @@ function ReportEditContent() {
   const router = useRouter();
   const id = searchParams.get("id");
 
-  // Lookup dynamically or fallback to James Wilson reference data
-  const data = PATIENT_REPORTS[id] || DEFAULT_REPORT;
+  const [orderData, setOrderData] = useState(null);
+  const [loadingOrder, setLoadingOrder] = useState(true);
+  const [testRows, setTestRows] = useState([]);
 
-  const [testRows, setTestRows] = useState(INITIAL_TEST_ROWS);
+  // Fetch authentic order details from backend
+  useEffect(() => {
+    async function fetchOrder() {
+      if (!id) {
+        setLoadingOrder(false);
+        return;
+      }
+      try {
+        const token = localStorage.getItem("authtoken");
+        const res = await fetch(`/api/laboratory/test-orders/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        if (res.ok) {
+          const result = await res.json();
+          if (result.success && result.data) {
+            setOrderData(result.data);
+          }
+        }
+      } catch (err) {
+        console.error("Error loading order from backend:", err);
+      } finally {
+        setLoadingOrder(false);
+      }
+    }
+    fetchOrder();
+  }, [id]);
+
+  // Map demographics
+  const data = orderData ? {
+    name: orderData.patient?.name || [orderData.patient?.firstName, orderData.patient?.lastName].filter(Boolean).join(" ") || "Patient",
+    ageGender: `${orderData.patient?.age || "N/A"} yrs • ${orderData.patient?.gender || "N/A"}`,
+    uhid: orderData.patient?.uhid || `UHID-${orderData.patient?.id ? orderData.patient?.id.slice(0, 8).toUpperCase() : "UNKNOWN"}`,
+    bedNo: orderData.patient?.bedNo || "N/A",
+    admissionDate: orderData.createdAt ? new Date(orderData.createdAt).toLocaleDateString([], { day: '2-digit', month: 'short', year: 'numeric' }) : "N/A",
+    attendingDoctor: orderData.doctorName || "Dr. Sarah Jenkins",
+    diagnosis: orderData.clinicalNotes || "N/A",
+    accession: orderData.orderNumber || orderData.orderId || `L-${orderData.id ? orderData.id.slice(0, 6).toUpperCase() : "UNKNOWN"}`,
+    reported: orderData.createdAt ? new Date(orderData.createdAt).toLocaleString([], { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : "N/A",
+    orderedBy: orderData.doctorName || "Dr. Sarah Well",
+    department: orderData.departmentName || "Internal Medicine",
+    specimen: "Whole Blood (EDTA)",
+    collectedTime: orderData.createdAt ? new Date(new Date(orderData.createdAt).getTime() + 15 * 60 * 1000).toLocaleString([], { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : "N/A",
+    location: orderData.patient?.ward || "IPD Ward A",
+    subLocation: orderData.patient?.bedNo || "N/A"
+  } : PATIENT_REPORTS[id] || DEFAULT_REPORT;
+
+  // Initialize test rows from localStorage or fallback to single blank manually-typed row
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem(`report-results-${id}`);
+      if (saved) {
+        try {
+          setTestRows(JSON.parse(saved));
+          return;
+        } catch (e) {
+          console.error("Error parsing saved results", e);
+        }
+      }
+    }
+    setTestRows(INITIAL_TEST_ROWS);
+  }, [id]);
 
   const handleAddTest = () => {
-    setTestRows((prev) => [...prev, { name: "", result: "", units: "" }]);
+    setTestRows((prev) => [...prev, { name: "", result: "", units: "", minValue: "", maxValue: "" }]);
   };
 
   const handleRemoveTest = (index) => {
@@ -216,18 +266,55 @@ function ReportEditContent() {
   };
 
   const handleSaveAndGenerate = () => {
-    // Save to localStorage so subsequent opens load the report page instead of edit page
+    // Dynamically calculate high/low abnormal flags
+    const processedRows = testRows.map(row => {
+      const valNum = parseFloat(row.result);
+      const minVal = parseFloat(row.minValue);
+      const maxVal = parseFloat(row.maxValue);
+
+      let flag = "-";
+      let isAbnormal = false;
+
+      if (!isNaN(valNum)) {
+        if (!isNaN(minVal) && valNum < minVal) {
+          flag = "Low";
+          isAbnormal = true;
+        } else if (!isNaN(maxVal) && valNum > maxVal) {
+          flag = "High";
+          isAbnormal = true;
+        }
+      }
+
+      return {
+        ...row,
+        flag,
+        isAbnormal
+      };
+    });
+
+    localStorage.setItem(`report-results-${id || "james-wilson"}`, JSON.stringify(processedRows));
     localStorage.setItem(`report-generated-${id || "james-wilson"}`, "true");
-    toast.success(`Lab report generated successfully for ${data.name}!`);
+    localStorage.setItem(`report-edited-${id || "james-wilson"}`, "true");
+
+    toast.success(`Lab report saved and generated successfully for ${data.name}!`);
     
     // Redirect to the generated report
     router.push(`/laboratory/sample-collection/report?id=${id || ""}`);
   };
 
+  if (loadingOrder) {
+    return (
+      <div className="p-[20px] min-h-screen flex flex-col items-center justify-center bg-background text-foreground font-sans">
+        <Loader2 className="w-8 h-8 animate-spin text-primary mb-3" />
+        <span className="text-[14px] font-semibold text-muted-foreground">Loading test order details...</span>
+      </div>
+    );
+  }
+
   return (
     <div className="p-[20px] bg-background text-foreground min-h-screen space-y-[20px] font-sans transition-colors duration-300">
       
-      {/* Header section with back button and breadcrumbs */}
+      {/* Header section with back button */}
       <div className="flex items-center gap-3">
         <button
           onClick={handleDiscard}
@@ -237,14 +324,7 @@ function ReportEditContent() {
           <ArrowLeft size={16} />
         </button>
         <div className="flex flex-col">
-          <div className="flex items-center gap-2 text-[12px] text-muted-foreground font-semibold">
-            <span>{data.name}</span>
-            <span>/</span>
-            <span>Lab Results</span>
-            <span>/</span>
-            <span>Lab Result</span>
-          </div>
-          <h1 className="text-[20px] font-bold text-foreground leading-tight mt-0.5">
+          <h1 className="text-[20px] font-bold text-foreground leading-tight">
             Lab Result
           </h1>
         </div>
@@ -423,7 +503,7 @@ function ReportEditContent() {
               </div>
 
               {/* Result Input */}
-              <div className="w-full md:w-[180px] flex flex-col gap-1.5">
+              <div className="w-full md:w-[120px] flex flex-col gap-1.5">
                 <label className="text-[11px] font-bold text-muted-foreground/80 tracking-wide uppercase">
                   Result
                 </label>
@@ -437,7 +517,7 @@ function ReportEditContent() {
               </div>
 
               {/* Units Input */}
-              <div className="w-full md:w-[150px] flex flex-col gap-1.5">
+              <div className="w-full md:w-[100px] flex flex-col gap-1.5">
                 <label className="text-[11px] font-bold text-muted-foreground/80 tracking-wide uppercase">
                   Units
                 </label>
@@ -446,6 +526,34 @@ function ReportEditContent() {
                   placeholder="e.g. g/dL"
                   value={row.units}
                   onChange={(e) => handleFieldChange(idx, "units", e.target.value)}
+                  className="h-10 px-3 bg-background border border-border rounded-[5px] text-[13px] text-foreground focus:ring-1 focus:ring-primary/20 outline-none w-full shadow-none font-semibold transition-all"
+                />
+              </div>
+
+              {/* Min Value Input */}
+              <div className="w-full md:w-[110px] flex flex-col gap-1.5">
+                <label className="text-[11px] font-bold text-muted-foreground/80 tracking-wide uppercase">
+                  Min Value
+                </label>
+                <input
+                  type="text"
+                  placeholder="Min"
+                  value={row.minValue || ""}
+                  onChange={(e) => handleFieldChange(idx, "minValue", e.target.value)}
+                  className="h-10 px-3 bg-background border border-border rounded-[5px] text-[13px] text-foreground focus:ring-1 focus:ring-primary/20 outline-none w-full shadow-none font-semibold transition-all"
+                />
+              </div>
+
+              {/* Max Value Input */}
+              <div className="w-full md:w-[110px] flex flex-col gap-1.5">
+                <label className="text-[11px] font-bold text-muted-foreground/80 tracking-wide uppercase">
+                  Max Value
+                </label>
+                <input
+                  type="text"
+                  placeholder="Max"
+                  value={row.maxValue || ""}
+                  onChange={(e) => handleFieldChange(idx, "maxValue", e.target.value)}
                   className="h-10 px-3 bg-background border border-border rounded-[5px] text-[13px] text-foreground focus:ring-1 focus:ring-primary/20 outline-none w-full shadow-none font-semibold transition-all"
                 />
               </div>

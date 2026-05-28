@@ -1,7 +1,7 @@
 "use client";
-import React, { Suspense } from "react";
+import React, { Suspense, useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { ArrowLeft, Printer, Download, Check } from "lucide-react";
+import { ArrowLeft, Printer, Download, Check, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 // Mock database matching all active and historical patients in Sample Collection list
@@ -220,8 +220,113 @@ function ReportContent() {
   const router = useRouter();
   const id = searchParams.get("id");
 
-  // Lookup dynamically or fallback to James Wilson reference data
-  const data = PATIENT_REPORTS[id] || DEFAULT_REPORT;
+  const [orderData, setOrderData] = useState(null);
+  const [loadingOrder, setLoadingOrder] = useState(true);
+  const [results, setResults] = useState([]);
+  const [reportGenerated, setReportGenerated] = useState(false);
+
+  // Fetch authentic order details from backend
+  useEffect(() => {
+    async function fetchOrder() {
+      if (!id) {
+        setLoadingOrder(false);
+        return;
+      }
+      try {
+        const token = localStorage.getItem("authtoken");
+        const res = await fetch(`/api/laboratory/test-orders/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        });
+        if (res.ok) {
+          const result = await res.json();
+          if (result.success && result.data) {
+            setOrderData(result.data);
+          }
+        }
+      } catch (err) {
+        console.error("Error loading order from backend:", err);
+      } finally {
+        setLoadingOrder(false);
+      }
+    }
+    fetchOrder();
+  }, [id]);
+
+  // Map demographics dynamically
+  const data = orderData ? {
+    name: orderData.patient?.name || [orderData.patient?.firstName, orderData.patient?.lastName].filter(Boolean).join(" ") || "Patient",
+    ageGender: `${orderData.patient?.age || "N/A"} yrs • ${orderData.patient?.gender || "N/A"}`,
+    uhid: orderData.patient?.uhid || `UHID-${orderData.patient?.id ? orderData.patient?.id.slice(0, 8).toUpperCase() : "UNKNOWN"}`,
+    bedNo: orderData.patient?.bedNo || "N/A",
+    admissionDate: orderData.createdAt ? new Date(orderData.createdAt).toLocaleDateString([], { day: '2-digit', month: 'short', year: 'numeric' }) : "N/A",
+    attendingDoctor: orderData.doctorName || "Dr. Sarah Jenkins",
+    diagnosis: orderData.clinicalNotes || "N/A",
+    accession: orderData.orderNumber || orderData.orderId || `L-${orderData.id ? orderData.id.slice(0, 6).toUpperCase() : "UNKNOWN"}`,
+    reported: orderData.createdAt ? new Date(orderData.createdAt).toLocaleString([], { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : "N/A",
+    orderedBy: orderData.doctorName || "Dr. Sarah Well",
+    department: orderData.departmentName || "Internal Medicine",
+    specimen: "Whole Blood (EDTA)",
+    collectedTime: orderData.createdAt ? new Date(new Date(orderData.createdAt).getTime() + 15 * 60 * 1000).toLocaleString([], { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : "N/A",
+    location: orderData.patient?.ward || "IPD Ward A",
+    subLocation: orderData.patient?.bedNo || "N/A"
+  } : PATIENT_REPORTS[id] || DEFAULT_REPORT;
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const isGenerated = localStorage.getItem(`report-generated-${id || "james-wilson"}`) === "true";
+      setReportGenerated(isGenerated);
+
+      const savedResults = localStorage.getItem(`report-results-${id || "james-wilson"}`);
+      if (savedResults) {
+        try {
+          const parsed = JSON.parse(savedResults);
+          const standardized = parsed.map(r => {
+            const valNum = parseFloat(r.result);
+            const minVal = parseFloat(r.minValue);
+            const maxVal = parseFloat(r.maxValue);
+
+            let flag = "-";
+            let isAbnormal = false;
+
+            if (!isNaN(valNum)) {
+              if (!isNaN(minVal) && valNum < minVal) {
+                flag = "Low";
+                isAbnormal = true;
+              } else if (!isNaN(maxVal) && valNum > maxVal) {
+                flag = "High";
+                isAbnormal = true;
+              }
+            }
+
+            let referenceRange = "Normal Range";
+            if (!isNaN(minVal) && !isNaN(maxVal)) {
+              referenceRange = `${r.minValue} - ${r.maxValue}`;
+            } else if (!isNaN(minVal)) {
+              referenceRange = `>= ${r.minValue}`;
+            } else if (!isNaN(maxVal)) {
+              referenceRange = `<= ${r.maxValue}`;
+            } else if (r.referenceRange) {
+              referenceRange = r.referenceRange;
+            }
+
+            return {
+              description: r.name,
+              result: r.result,
+              units: r.units,
+              referenceRange,
+              flag,
+              isAbnormal
+            };
+          });
+          setResults(standardized);
+        } catch (e) {
+          console.error("Error parsing results", e);
+        }
+      }
+    }
+  }, [id]);
 
   const handlePrint = () => {
     toast.success(`Sent Lab Result report for ${data.name} to printer.`);
@@ -433,44 +538,52 @@ function ReportContent() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border/60 text-[13px]">
-              {TEST_ROWS.map((row, idx) => {
-                const isLow = row.flag === "Low";
-                const isHigh = row.flag === "High";
+              {results.length > 0 ? (
+                results.map((row, idx) => {
+                  const isLow = row.flag === "Low";
+                  const isHigh = row.flag === "High";
 
-                return (
-                  <tr key={idx} className="hover:bg-muted/5 transition-colors">
-                    <td className="px-[20px] py-[12px] font-bold text-foreground whitespace-nowrap">
-                      {row.description}
-                    </td>
-                    <td
-                      className={`px-[20px] py-[12px] font-bold text-[14px] whitespace-nowrap ${
-                        row.isAbnormal ? "text-destructive" : "text-foreground"
-                      }`}
-                    >
-                      {row.result}
-                    </td>
-                    <td className="px-[20px] py-[12px] text-muted-foreground font-semibold whitespace-nowrap">
-                      {row.units}
-                    </td>
-                    <td className="px-[20px] py-[12px] text-muted-foreground font-semibold whitespace-nowrap">
-                      {row.referenceRange}
-                    </td>
-                    <td className="px-[20px] py-[12px] whitespace-nowrap">
-                      {isLow && (
-                        <span className="inline-flex items-center gap-1 bg-destructive/10 text-destructive font-bold text-[11px] px-2.5 py-0.5 rounded-[5px]">
-                          ↓ Low
-                        </span>
-                      )}
-                      {isHigh && (
-                        <span className="inline-flex items-center gap-1 bg-[#FFE8D6] dark:bg-[#F97316]/20 text-[#EA580C] dark:text-[#FB923C] font-bold text-[11px] px-2.5 py-0.5 rounded-[5px]">
-                          ↑ High
-                        </span>
-                      )}
-                      {!row.isAbnormal && <span className="text-muted-foreground">-</span>}
-                    </td>
-                  </tr>
-                );
-              })}
+                  return (
+                    <tr key={idx} className="hover:bg-muted/5 transition-colors">
+                      <td className="px-[20px] py-[12px] font-bold text-foreground whitespace-nowrap">
+                        {row.description}
+                      </td>
+                      <td
+                        className={`px-[20px] py-[12px] font-bold text-[14px] whitespace-nowrap ${
+                          row.isAbnormal ? "text-destructive" : "text-foreground"
+                        }`}
+                      >
+                        {row.result}
+                      </td>
+                      <td className="px-[20px] py-[12px] text-muted-foreground font-semibold whitespace-nowrap">
+                        {row.units}
+                      </td>
+                      <td className="px-[20px] py-[12px] text-muted-foreground font-semibold whitespace-nowrap">
+                        {row.referenceRange}
+                      </td>
+                      <td className="px-[20px] py-[12px] whitespace-nowrap">
+                        {isLow && (
+                          <span className="inline-flex items-center gap-1 bg-destructive/10 text-destructive font-bold text-[11px] px-2.5 py-0.5 rounded-[5px]">
+                            ↓ Low
+                          </span>
+                        )}
+                        {isHigh && (
+                          <span className="inline-flex items-center gap-1 bg-[#FFE8D6] dark:bg-[#F97316]/20 text-[#EA580C] dark:text-[#FB923C] font-bold text-[11px] px-2.5 py-0.5 rounded-[5px]">
+                            ↑ High
+                          </span>
+                        )}
+                        {!row.isAbnormal && <span className="text-muted-foreground">-</span>}
+                      </td>
+                    </tr>
+                  );
+                })
+              ) : (
+                <tr>
+                  <td colSpan="5" className="px-[20px] py-[40px] text-center text-muted-foreground font-bold text-[13px]">
+                    No results have been filled yet. Please generate results from the "Generate Result" menu option first.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>

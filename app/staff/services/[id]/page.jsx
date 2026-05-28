@@ -1,70 +1,109 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Clock, Activity, MessageSquare, Repeat } from "lucide-react";
+import { ArrowLeft, Clock, Activity, MessageSquare, Repeat, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-const INITIAL_SERVICES = [
-  {
-    id: 1,
-    patientName: "John Smith",
-    age: "50 yrs • Male",
-    bed: "W1-B12",
-    uhid: "UHID-839211",
-    admissionDate: "12 Oct 2023",
-    doctor: "Dr. Sarah Jenkins",
-    diagnosis: "Acute Myocardial Infarction",
-    requestType: "Lab Pickup",
-    requestDescription: "Blood sample needs to be collected for CBC test. Patient is currently fasting. Please prioritize as results are needed before noon rounds.",
-    priority: "Normal",
-    time: "10:45 AM, Today",
-    prefTime: "11:00 AM (ASAP)",
-    dept: "Laboratory",
-    status: "Pending"
-  },
-  {
-    id: 2,
-    patientName: "Sarah Jenkins",
-    age: "60 yrs • Female",
-    bed: "W3-B04",
-    uhid: "UHID-839212",
-    admissionDate: "14 Oct 2023",
-    doctor: "Dr. Sarah Jenkins",
-    diagnosis: "Chronic Heart Failure",
-    requestType: "X-ray",
-    requestDescription: "Chest PA view needed for routine recovery check.",
-    priority: "Urgent",
-    time: "10:30 AM, Today",
-    prefTime: "11:00 AM (ASAP)",
-    dept: "Radiology",
-    status: "Accepted"
-  },
-  {
-    id: 3,
-    patientName: "Michael Chang",
-    age: "55 yrs • Male",
-    bed: "W1-B08",
-    uhid: "UHID-839213",
-    admissionDate: "15 Oct 2023",
-    doctor: "Dr. Aris Thorne",
-    diagnosis: "Acute Stroke",
-    requestType: "Housekeeping",
-    requestDescription: "Bed spill cleanup in room W1-B08 immediately.",
-    priority: "Urgent",
-    time: "10:15 AM, Today",
-    prefTime: "10:30 AM (ASAP)",
-    dept: "Facilities",
-    status: "Pending"
-  }
-];
+import { toast } from "sonner";
 
 export default function ServiceDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const id = params.id;
 
-  const id = parseInt(params.id, 10) || 1;
-  const service = INITIAL_SERVICES.find((s) => s.id === id) || INITIAL_SERVICES[0];
+  const [service, setService] = useState(null);
+  const [patient, setPatient] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem("authtoken");
+        const headers = { Authorization: `Bearer ${token}` };
+
+        // Fetch service request details
+        const res = await fetch(`/api/services/${id}`, { headers });
+        if (res.ok) {
+          const result = await res.json();
+          if (result.success && result.data) {
+            const svcData = result.data;
+            const createdDate = new Date(svcData.createdAt);
+            const timeString = createdDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) + ", Today";
+            
+            setService({
+              ...svcData,
+              time: timeString,
+              prefTime: svcData.priority === "Urgent" ? "Immediate (ASAP)" : "Within 2 Hours"
+            });
+
+            // Load associated patient details
+            if (svcData.patientId) {
+              const patRes = await fetch(`/api/patients/${svcData.patientId}`, { headers });
+              if (patRes.ok) {
+                const patData = await patRes.json();
+                setPatient(patData);
+              }
+            }
+          } else {
+            toast.error("Failed to load service request details.");
+          }
+        } else {
+          toast.error("Service request not found in database.");
+        }
+      } catch (err) {
+        console.error("Error loading service details", err);
+        toast.error("An error occurred loading service details.");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    if (id) {
+      loadData();
+    }
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="p-5 bg-background min-h-screen flex flex-col items-center justify-center font-sans">
+        <Loader2 className="w-8 h-8 animate-spin text-primary mb-3" />
+        <span className="text-[13px] font-bold text-muted-foreground font-semibold">Loading service details...</span>
+      </div>
+    );
+  }
+
+  if (!service) {
+    return (
+      <div className="p-5 bg-background min-h-screen flex flex-col items-center justify-center font-sans">
+        <p className="text-[14px] font-bold text-muted-foreground">Service Request Not Found</p>
+        <button
+          onClick={() => router.back()}
+          className="mt-4 h-10 px-5 bg-primary hover:bg-primary/90 text-primary-foreground rounded-lg text-[13px] font-bold flex items-center justify-center transition-all shadow-none outline-none"
+        >
+          Go Back
+        </button>
+      </div>
+    );
+  }
+
+  const displayPatient = patient;
+  const displayService = service;
+
+  const doctorName = displayPatient?.admissions?.[0]?.doctor?.name || 
+                     (displayPatient?.admissions?.[0]?.doctor?.firstName && 
+                      [displayPatient.admissions[0].doctor.firstName, displayPatient.admissions[0].doctor.lastName].filter(Boolean).join(" ")) || 
+                     "Unassigned";
+  
+  const diagnosis = displayPatient?.admissions?.[0]?.reason || "Not Specified";
+  
+  const ageGender = displayPatient ? `${displayPatient.age || 'N/A'} yrs • ${displayPatient.gender || 'N/A'}` : "N/A";
+  
+  const uhid = displayPatient?.id ? `UHID-${displayPatient.id.slice(0, 8).toUpperCase()}` : "N/A";
+  
+  const admissionDate = displayPatient?.admissions?.[0]?.admissionDate ? 
+                        new Date(displayPatient.admissions[0].admissionDate).toLocaleDateString("en-GB", { day: 'numeric', month: 'short', year: 'numeric' }) : 
+                        "N/A";
 
   return (
     <div className="p-4 md:p-6 bg-background min-h-screen flex flex-col space-y-[20px] transition-colors duration-300 font-sans pb-20 ">
@@ -90,14 +129,14 @@ export default function ServiceDetailPage() {
           <div>
             <div className="flex items-center gap-2">
               <h2 className="text-[18px] md:text-[20px] font-bold text-foreground leading-tight">
-                {service.patientName}
+                {displayService.patientName}
               </h2>
               <span className="bg-destructive/10 text-destructive border border-destructive/20 font-bold text-[10px] px-2 py-0.5 rounded-lg leading-tight ">
                 CRITICAL
               </span>
             </div>
             <p className="text-[13px] font-medium text-muted-foreground mt-1">
-              {service.age}
+              {ageGender}
             </p>
           </div>
         </div>
@@ -105,23 +144,23 @@ export default function ServiceDetailPage() {
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 md:gap-5 w-full border-t md:border-t-0 md:border-l border-border pt-5 md:pt-0 md:pl-5">
           <div>
             <p className="text-[11px] font-bold text-muted-foreground leading-tight">UHID</p>
-            <p className="text-[13px] font-bold text-foreground mt-1">{service.uhid}</p>
+            <p className="text-[13px] font-bold text-foreground mt-1">{uhid}</p>
           </div>
           <div>
             <p className="text-[11px] font-bold text-muted-foreground leading-tight">BED NO.</p>
-            <p className="text-[13px] font-bold text-foreground mt-1">{service.bed}</p>
+            <p className="text-[13px] font-bold text-foreground mt-1">{displayService.bed}</p>
           </div>
           <div>
             <p className="text-[11px] font-bold text-muted-foreground leading-tight">ADMISSION DATE</p>
-            <p className="text-[13px] font-bold text-foreground mt-1">{service.admissionDate}</p>
+            <p className="text-[13px] font-bold text-foreground mt-1">{admissionDate}</p>
           </div>
           <div>
             <p className="text-[11px] font-bold text-muted-foreground leading-tight">ATTENDING DOCTOR</p>
-            <p className="text-[13px] font-bold text-foreground mt-1 leading-snug">{service.doctor}</p>
+            <p className="text-[13px] font-bold text-foreground mt-1 leading-snug">{doctorName}</p>
           </div>
           <div>
             <p className="text-[11px] font-bold text-muted-foreground leading-tight">DIAGNOSIS</p>
-            <p className="text-[13px] font-bold text-foreground mt-1 leading-tight">{service.diagnosis}</p>
+            <p className="text-[13px] font-bold text-foreground mt-1 leading-tight">{diagnosis}</p>
           </div>
         </div>
       </div>
@@ -130,30 +169,30 @@ export default function ServiceDetailPage() {
       <div className="bg-card border border-border p-5 rounded-lg flex flex-col md:flex-row justify-between md:items-center gap-4 shadow-none ">
         <div>
           <h3 className="text-[18px] font-bold text-foreground leading-tight">
-            {service.requestType}
+            {displayService.requestType}
           </h3>
           <p className="text-[13px] font-medium text-muted-foreground mt-1">
-            Requested on {service.time}
+            Requested on {displayService.time}
           </p>
         </div>
 
         <div className="flex items-center gap-3">
           <span className={cn(
             "rounded-lg font-bold px-3 py-1 text-[11px] tracking-wide",
-            service.status === "Pending" && "bg-amber-500/10 text-amber-600 border border-amber-500/20",
-            service.status === "Accepted" && "bg-blue-500/10 text-blue-600 border border-blue-500/20",
-            service.status === "Completed" && "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20",
+            displayService.status === "Pending" && "bg-amber-500/10 text-amber-600 border border-amber-500/20",
+            displayService.status === "Accepted" && "bg-blue-500/10 text-blue-600 border border-blue-500/20",
+            displayService.status === "Completed" && "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20",
           )}>
-            • {service.status.toUpperCase()}
+            • {displayService.status.toUpperCase()}
           </span>
 
           <span className={cn(
             "rounded-lg font-bold px-3 py-1 text-[11px] tracking-wide flex items-center gap-1.5",
-            service.priority === "Urgent" && "bg-destructive/10 text-destructive border border-destructive/20",
-            service.priority === "Normal" && "bg-muted text-muted-foreground border border-border"
+            displayService.priority === "Urgent" && "bg-destructive/10 text-destructive border border-destructive/20",
+            displayService.priority === "Normal" && "bg-muted text-muted-foreground border border-border"
           )}>
             <Clock className="w-3.5 h-3.5" />
-            {service.priority}
+            {displayService.priority}
           </span>
         </div>
       </div>
@@ -172,7 +211,7 @@ export default function ServiceDetailPage() {
             <div className="flex items-center gap-2 mt-2">
               <Activity className="w-4 h-4 text-primary" />
               <p className="text-[14px] font-bold text-foreground leading-none">
-                {service.dept}
+                {displayService.dept}
               </p>
             </div>
           </div>
@@ -181,7 +220,7 @@ export default function ServiceDetailPage() {
             <div className="flex items-center gap-2 mt-2">
               <Clock className="w-4 h-4 text-primary" />
               <p className="text-[14px] font-bold text-foreground leading-none">
-                {service.prefTime}
+                {displayService.prefTime}
               </p>
             </div>
           </div>
@@ -190,7 +229,7 @@ export default function ServiceDetailPage() {
         <div className="border-t border-border pt-5">
           <p className="text-[11px] font-bold text-muted-foreground uppercase">Description & Notes</p>
           <div className="mt-3 p-4 bg-muted/50 border border-border rounded-lg text-[13px] font-medium leading-relaxed text-foreground">
-            {service.requestDescription}
+            {displayService.requestDescription}
           </div>
         </div>
       </div>
@@ -198,7 +237,7 @@ export default function ServiceDetailPage() {
       {/* ── Action Buttons ── */}
       <div className="flex justify-end items-center gap-3 ">
         <button
-          onClick={() => alert(`Contacting ${service.dept} department...`)}
+          onClick={() => alert(`Contacting ${displayService.dept} department...`)}
           className="h-11 px-5 border border-primary hover:bg-primary/5 text-primary rounded-lg text-[13px] font-bold flex items-center justify-center gap-2 transition-all shadow-none outline-none bg-card"
         >
           <MessageSquare className="w-4 h-4" /> Contact Department

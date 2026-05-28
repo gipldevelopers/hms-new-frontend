@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Search,
   Plus,
@@ -13,11 +13,13 @@ import {
   Activity,
   Filter,
   MessageSquare,
-  Phone
+  Phone,
+  Loader2
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -76,33 +78,21 @@ const statusBadge = (s) => ({
   Completed: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 rounded-lg font-medium px-2.5 py-0.5 text-[11px] inline-flex shadow-none",
 }[s] ?? "bg-muted text-muted-foreground border border-border rounded-lg font-medium px-2.5 py-0.5 text-[11px] inline-flex shadow-none");
 
-// Predefined mock patients to add new request
-const MOCK_PATIENTS = [
-  { name: "John Smith", bed: "W1-B12" },
-  { name: "Sarah Jenkins", bed: "W3-B04" },
-  { name: "Michael Chang", bed: "W1-B08" },
-  { name: "Emma Davis", bed: "W2-B22" },
-  { name: "Robert Wilson", bed: "ICU-02" },
-  { name: "Rajesh Kumar", bed: "ICU-04" },
-  { name: "Maria Lopez", bed: "ICU-01" },
-  { name: "Carlos Vega", bed: "ICU-05" },
-];
+
 
 const DEPARTMENTS = ["Laboratory", "Radiology", "Facilities", "Therapy", "Blood Bank"];
 
 // Modal Popup for Adding Service Request
-function NewRequestModal({ onClose, onSave }) {
+function NewRequestModal({ onClose, onSave, patientsList = [] }) {
   const [patientSearch, setPatientSearch] = useState("");
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [patientOpen, setPatientOpen] = useState(false);
   const [requestType, setRequestType] = useState("");
   const [description, setDescription] = useState("");
   const [priority, setPriority] = useState("Normal");
-  const [priorityOpen, setPriorityOpen] = useState(false);
   const [dept, setDept] = useState("Laboratory");
-  const [deptOpen, setDeptOpen] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === "Escape") onClose();
     };
@@ -110,7 +100,7 @@ function NewRequestModal({ onClose, onSave }) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [onClose]);
 
-  const filteredPatients = MOCK_PATIENTS.filter((p) =>
+  const filteredPatients = patientsList.filter((p) =>
     p.name.toLowerCase().includes(patientSearch.toLowerCase()) ||
     p.bed.toLowerCase().includes(patientSearch.toLowerCase())
   );
@@ -118,12 +108,12 @@ function NewRequestModal({ onClose, onSave }) {
   const handleSave = () => {
     if (!selectedPatient || !requestType) return;
     onSave({
+      patientId: selectedPatient.id || crypto.randomUUID(),
       patientName: selectedPatient.name,
       bed: selectedPatient.bed,
       requestType,
       requestDescription: description,
       priority,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       dept,
       status: "Pending",
     });
@@ -186,7 +176,7 @@ function NewRequestModal({ onClose, onSave }) {
                   <div className="max-h-[160px] overflow-y-auto no-scrollbar">
                     {filteredPatients.map((p) => (
                       <button
-                        key={p.name}
+                        key={p.id}
                         onClick={() => { setSelectedPatient(p); setPatientOpen(false); }}
                         className="w-full px-4 py-2.5 text-left text-[13px] font-medium hover:bg-muted flex items-center justify-between"
                       >
@@ -235,27 +225,31 @@ function NewRequestModal({ onClose, onSave }) {
                 Assigned Dept
               </label>
               <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setDeptOpen(!deptOpen)}
-                  className="w-full h-11 px-4 bg-muted border border-border rounded-lg text-[13px] font-medium text-left flex items-center justify-between outline-none transition-all shadow-none text-foreground"
-                >
-                  <span className="truncate">{dept}</span>
-                  <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
-                </button>
-                {deptOpen && (
-                  <div className="absolute top-12 left-0 right-0 z-50 bg-card border border-border rounded-lg overflow-hidden shadow-none">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      type="button"
+                      className="w-full h-11 px-4 bg-muted border border-border rounded-lg text-[13px] font-medium text-left flex items-center justify-between outline-none transition-all shadow-none text-foreground cursor-pointer"
+                    >
+                      <span className="truncate">{dept}</span>
+                      <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-[180px] border border-border bg-card rounded-lg p-1 z-[1100] shadow-none">
                     {DEPARTMENTS.map((d) => (
-                      <button
+                      <DropdownMenuItem
                         key={d}
-                        onClick={() => { setDept(d); setDeptOpen(false); }}
-                        className="w-full px-4 py-2.5 text-left text-[13px] font-medium hover:bg-muted text-foreground"
+                        onClick={() => setDept(d)}
+                        className={cn(
+                          "rounded-lg text-[13px] font-medium px-3 py-2.5 cursor-pointer text-foreground hover:bg-muted",
+                          dept === d && "bg-accent text-accent-foreground font-semibold"
+                        )}
                       >
                         {d}
-                      </button>
+                      </DropdownMenuItem>
                     ))}
-                  </div>
-                )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
 
@@ -264,27 +258,31 @@ function NewRequestModal({ onClose, onSave }) {
                 Priority
               </label>
               <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setPriorityOpen(!priorityOpen)}
-                  className="w-full h-11 px-4 bg-muted border border-border rounded-lg text-[13px] font-medium text-left flex items-center justify-between outline-none transition-all shadow-none text-foreground"
-                >
-                  {priority}
-                  <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
-                </button>
-                {priorityOpen && (
-                  <div className="absolute top-12 left-0 right-0 z-50 bg-card border border-border rounded-lg overflow-hidden shadow-none">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      type="button"
+                      className="w-full h-11 px-4 bg-muted border border-border rounded-lg text-[13px] font-medium text-left flex items-center justify-between outline-none transition-all shadow-none text-foreground cursor-pointer"
+                    >
+                      <span>{priority}</span>
+                      <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-[180px] border border-border bg-card rounded-lg p-1 z-[1100] shadow-none">
                     {["Normal", "Urgent"].map((p) => (
-                      <button
+                      <DropdownMenuItem
                         key={p}
-                        onClick={() => { setPriority(p); setPriorityOpen(false); }}
-                        className="w-full px-4 py-2 text-left text-[13px] font-medium hover:bg-muted text-foreground"
+                        onClick={() => setPriority(p)}
+                        className={cn(
+                          "rounded-lg text-[13px] font-medium px-3 py-2.5 cursor-pointer text-foreground hover:bg-muted",
+                          priority === p && "bg-accent text-accent-foreground font-semibold"
+                        )}
                       >
                         {p}
-                      </button>
+                      </DropdownMenuItem>
                     ))}
-                  </div>
-                )}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
             </div>
           </div>
@@ -321,6 +319,28 @@ function LiveTrackingModal({ item, onClose }) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [onClose]);
 
+  const shortId = `#SR-${item.id.slice(0, 6).toUpperCase()}`;
+  const isPending = item.status === "Pending";
+  const isAccepted = item.status === "Accepted";
+  const isCompleted = item.status === "Completed";
+  
+  let bannerTitle = "Awaiting acceptance";
+  let bannerDetail = "The department will accept and dispatch personnel shortly.";
+  let estTime = "N/A";
+  if (isAccepted) {
+    bannerTitle = "Technician is on the way";
+    bannerDetail = "Expected arrival in approx. 5 minutes";
+    estTime = "5 Min";
+  } else if (isCompleted) {
+    bannerTitle = "Request Completed";
+    bannerDetail = "The requested service has been successfully completed.";
+    estTime = "0 Min";
+  }
+
+  const personnelName = isPending ? "Unassigned" : "Alex Turner";
+  const personnelRole = isPending ? "Awaiting assignment" : `Senior ${item.dept} Specialist`;
+  const personnelInitials = isPending ? "--" : "AT";
+
   return (
     <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
       <motion.div
@@ -340,10 +360,15 @@ function LiveTrackingModal({ item, onClose }) {
         <div className="flex items-center justify-between px-5 py-4 border-b border-border shrink-0 bg-card">
           <div className="flex items-center gap-3">
             <h2 className="text-[16px] md:text-[18px] font-bold text-foreground">
-              Live Tracking: #SR-8921
+              Live Tracking: {shortId}
             </h2>
-            <span className="bg-blue-500/10 text-blue-600 border border-blue-500/20 rounded-lg px-2 py-0.5 text-[10px] font-bold  leading-tight">
-              In Progress
+            <span className={cn(
+              "rounded-lg px-2 py-0.5 text-[10px] font-bold leading-tight border",
+              isPending && "bg-amber-500/10 text-amber-600 border-amber-500/20",
+              isAccepted && "bg-blue-500/10 text-blue-600 border-blue-500/20",
+              isCompleted && "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
+            )}>
+              {item.status}
             </span>
           </div>
           <div className="flex items-center gap-3">
@@ -362,7 +387,7 @@ function LiveTrackingModal({ item, onClose }) {
 
         {/* Body */}
         <div className="px-5 py-5 space-y-5 overflow-y-auto flex-1 no-scrollbar bg-card">
-          {/* Light Blue Banner */}
+          {/* Status Banner */}
           <div className="bg-primary/5 border border-primary/20 p-4 rounded-lg flex items-center justify-between shadow-none ">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center shrink-0">
@@ -370,16 +395,16 @@ function LiveTrackingModal({ item, onClose }) {
               </div>
               <div>
                 <h4 className="text-[14px] font-bold text-primary leading-tight">
-                  Technician is on the way
+                  {bannerTitle}
                 </h4>
                 <p className="text-[12px] font-medium text-primary/80 mt-0.5 leading-tight">
-                  Expected arrival in approx. 5 minutes
+                  {bannerDetail}
                 </p>
               </div>
             </div>
             <div className="text-right shrink-0">
               <p className="text-[20px] font-bold text-primary leading-none">
-                5 Min
+                {estTime}
               </p>
               <p className="text-[9px] font-black text-primary/60 uppercase tracking-wider mt-1 ">
                 Est. Time
@@ -407,49 +432,58 @@ function LiveTrackingModal({ item, onClose }) {
                   <div>
                     <h5 className="text-[13px] font-bold text-foreground leading-tight">Request Created</h5>
                     <p className="text-[11px] text-muted-foreground font-bold mt-1 leading-none ">
-                      10:45 AM • Nurse Joy
+                      {item.time || "Today"} • Staff
                     </p>
                   </div>
                 </div>
 
                 {/* Point 2 */}
-                <div className="relative flex items-start gap-4 z-10 ">
-                  <div className="w-6 h-6 rounded-full bg-emerald-500 border border-emerald-600 flex items-center justify-center shrink-0 text-white">
-                    <Check className="w-3.5 h-3.5" />
+                <div className="relative flex items-start gap-4 z-10 " style={{ opacity: isPending ? 0.5 : 1 }}>
+                  <div className={cn(
+                    "w-6 h-6 rounded-full flex items-center justify-center shrink-0 text-white",
+                    (isAccepted || isCompleted) ? "bg-emerald-500 border border-emerald-600" : "bg-card border border-border text-muted-foreground"
+                  )}>
+                    {(isAccepted || isCompleted) ? <Check className="w-3.5 h-3.5" /> : <div className="w-2 h-2 bg-transparent rounded-full" />}
                   </div>
                   <div>
                     <h5 className="text-[13px] font-bold text-foreground leading-tight">Accepted by Dept</h5>
                     <p className="text-[11px] text-muted-foreground font-bold mt-1 leading-none ">
-                      10:52 AM • Central Lab
+                      {(isAccepted || isCompleted) ? `${item.time || "Today"} • Central ${item.dept}` : "Pending..."}
                     </p>
                   </div>
                 </div>
 
                 {/* Point 3 */}
-                <div className="relative flex items-start gap-4 z-10 ">
-                  <div className="w-6 h-6 rounded-full bg-card border-2 border-primary flex items-center justify-center shrink-0">
-                    <div className="w-2.5 h-2.5 bg-primary rounded-full" />
+                <div className="relative flex items-start gap-4 z-10 " style={{ opacity: isPending ? 0.5 : 1 }}>
+                  <div className={cn(
+                    "w-6 h-6 rounded-full flex items-center justify-center shrink-0",
+                    isCompleted ? "bg-emerald-500 border border-emerald-600 text-white" : isAccepted ? "bg-card border-2 border-primary" : "bg-card border border-border"
+                  )}>
+                    {isCompleted ? <Check className="w-3.5 h-3.5 text-white" /> : isAccepted ? <div className="w-2.5 h-2.5 bg-primary rounded-full" /> : <div className="w-2 h-2 bg-transparent rounded-full" />}
                   </div>
                   <div>
-                    <h5 className="text-[13px] font-bold text-primary leading-tight">In Transit to Ward</h5>
+                    <h5 className={cn("text-[13px] font-bold leading-tight", isAccepted ? "text-primary" : "text-foreground")}>In Transit to Ward</h5>
                     <p className="text-[12px] font-bold text-foreground mt-1 leading-tight ">
-                      Currently moving to W1-B12
+                      {isAccepted ? `Currently moving to Bed ${item.bed}` : isCompleted ? "Arrived at destination" : "Pending..."}
                     </p>
                     <p className="text-[11px] text-muted-foreground font-bold mt-1 leading-none ">
-                      10:55 AM • Alex Turner
+                      {(isAccepted || isCompleted) ? `${item.time || "Today"} • ${personnelName}` : "Pending..."}
                     </p>
                   </div>
                 </div>
 
                 {/* Point 4 */}
-                <div className="relative flex items-start gap-4 z-10  opacity-50">
-                  <div className="w-6 h-6 rounded-full bg-card border border-border flex items-center justify-center shrink-0">
-                    <div className="w-2 h-2 bg-transparent rounded-full" />
+                <div className="relative flex items-start gap-4 z-10 " style={{ opacity: isCompleted ? 1 : 0.5 }}>
+                  <div className={cn(
+                    "w-6 h-6 rounded-full flex items-center justify-center shrink-0",
+                    isCompleted ? "bg-emerald-500 border border-emerald-600 text-white" : "bg-card border border-border"
+                  )}>
+                    {isCompleted ? <Check className="w-3.5 h-3.5" /> : <div className="w-2 h-2 bg-transparent rounded-full" />}
                   </div>
                   <div>
-                    <h5 className="text-[13px] font-bold text-foreground leading-tight">Sample Collected</h5>
+                    <h5 className="text-[13px] font-bold text-foreground leading-tight">Request Completed</h5>
                     <p className="text-[11px] text-muted-foreground font-bold mt-1 leading-none ">
-                      Pending...
+                      {isCompleted ? `${item.time || "Today"} • Done` : "Pending..."}
                     </p>
                   </div>
                 </div>
@@ -466,24 +500,26 @@ function LiveTrackingModal({ item, onClose }) {
                 <div className="p-4 bg-card border border-border rounded-lg flex items-center justify-between shadow-none ">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-muted border border-border flex items-center justify-center text-[12px] font-black text-foreground shrink-0 ">
-                      AT
+                      {personnelInitials}
                     </div>
                     <div>
                       <h5 className="text-[13px] font-bold text-foreground leading-tight ">
-                        Alex Turner
+                        {personnelName}
                       </h5>
                       <p className="text-[11px] text-muted-foreground font-medium mt-1 leading-none ">
-                        Senior Lab Technician
+                        {personnelRole}
                       </p>
                     </div>
                   </div>
-                  <button
-                    onClick={() => alert("Calling personnel...")}
-                    className="h-8 px-3.5 border border-border hover:bg-muted text-foreground rounded-lg text-[11px] font-bold flex items-center justify-center gap-1.5 bg-card transition-all shadow-none  outline-none"
-                  >
-                    <Phone className="w-3.5 h-3.5 text-foreground shrink-0" />
-                    <span>Connect</span>
-                  </button>
+                  {!isPending && (
+                    <button
+                      onClick={() => alert("Calling personnel...")}
+                      className="h-8 px-3.5 border border-border hover:bg-muted text-foreground rounded-lg text-[11px] font-bold flex items-center justify-center gap-1.5 bg-card transition-all shadow-none  outline-none"
+                    >
+                      <Phone className="w-3.5 h-3.5 text-foreground shrink-0" />
+                      <span>Connect</span>
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -500,7 +536,7 @@ function LiveTrackingModal({ item, onClose }) {
                         Destination
                       </p>
                       <p className="text-[13px] font-bold text-foreground mt-1 leading-tight ">
-                        Ward 1, Bed 12 (W1-B12)
+                        Bed {item.bed}
                       </p>
                     </div>
                   </div>
@@ -511,7 +547,7 @@ function LiveTrackingModal({ item, onClose }) {
                         Origin
                       </p>
                       <p className="text-[13px] font-bold text-foreground mt-1 leading-tight ">
-                        Central Laboratory (Ground Floor)
+                        Central {item.dept}
                       </p>
                     </div>
                   </div>
@@ -536,69 +572,83 @@ function LiveTrackingModal({ item, onClose }) {
 // Main Page
 export default function ServicesPage() {
   const router = useRouter();
-  const [services, setServices] = useState([
-    {
-      id: 1,
-      patientName: "John Smith",
-      bed: "W1-B12",
-      requestType: "Lab Pickup",
-      requestDescription: "CBC Blood Sample",
-      priority: "Normal",
-      time: "10:45 AM",
-      dept: "Laboratory",
-      status: "Pending"
-    },
-    {
-      id: 2,
-      patientName: "Sarah Jenkins",
-      bed: "W3-B04",
-      requestType: "X-ray",
-      requestDescription: "Chest PA view",
-      priority: "Urgent",
-      time: "10:30 AM",
-      dept: "Radiology",
-      status: "Accepted"
-    },
-    {
-      id: 3,
-      patientName: "Michael Chang",
-      bed: "W1-B08",
-      requestType: "Housekeeping",
-      requestDescription: "Bed spill cleanup",
-      priority: "Urgent",
-      time: "10:15 AM",
-      dept: "Facilities",
-      status: "Pending"
-    },
-    {
-      id: 4,
-      patientName: "Emma Davis",
-      bed: "W2-B22",
-      requestType: "Physiotherapy",
-      requestDescription: "Post-op mobility",
-      priority: "Normal",
-      time: "09:00 AM",
-      dept: "Therapy",
-      status: "Completed"
-    },
-    {
-      id: 5,
-      patientName: "Robert Wilson",
-      bed: "ICU-02",
-      requestType: "Blood Bank",
-      requestDescription: "2 Units O+ PRBC",
-      priority: "Urgent",
-      time: "08:45 AM",
-      dept: "Blood Bank",
-      status: "Accepted"
-    }
-  ]);
+  const [services, setServices] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [patientsList, setPatientsList] = useState([]);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [deptFilter, setDeptFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [trackingItem, setTrackingItem] = useState(null);
+
+  const fetchServices = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("authtoken");
+      const res = await fetch("/api/services", {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      if (res.ok) {
+        const result = await res.json();
+        if (result.success && Array.isArray(result.data)) {
+          const mapped = result.data.map(item => {
+            const createdDate = new Date(item.createdAt);
+            const timeString = createdDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            return {
+              ...item,
+              time: timeString
+            };
+          });
+          setServices(mapped);
+        }
+      }
+    } catch (err) {
+      console.error("Error loading services", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchPatientsList = async () => {
+    try {
+      const token = localStorage.getItem("authtoken");
+      const res = await fetch("/api/patients", {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      if (res.ok) {
+        const result = await res.json();
+        const patientsArray = Array.isArray(result)
+          ? result
+          : (result.success && Array.isArray(result.data))
+            ? result.data
+            : [];
+
+        const mapped = patientsArray.map(p => {
+          const name = p.name || [p.firstName, p.lastName].filter(Boolean).join(" ") || "Patient";
+          const admission = p.admissions?.[0] || {};
+          const bedLabel = admission.bed?.label || p.bedNo || "N/A";
+          return {
+            id: p.id,
+            name,
+            bed: bedLabel
+          };
+        });
+        setPatientsList(mapped);
+      }
+    } catch (err) {
+      console.error("Error loading patients in services page", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchServices();
+    fetchPatientsList();
+  }, []);
 
   const deptOptions = [
     { label: "Laboratory", value: "Laboratory" },
@@ -619,21 +669,64 @@ export default function ServicesPage() {
     const matchSearch =
       item.patientName.toLowerCase().includes(s) ||
       item.requestType.toLowerCase().includes(s) ||
-      item.requestDescription.toLowerCase().includes(s);
+      (item.requestDescription && item.requestDescription.toLowerCase().includes(s));
     const matchDept = !deptFilter || item.dept === deptFilter;
     const matchStatus = !statusFilter || item.status === statusFilter;
     return matchSearch && matchDept && matchStatus;
   });
 
-  const handleAddRequest = (newRequest) => {
-    setServices((prev) => [{ id: prev.length + 1, ...newRequest }, ...prev]);
+  const handleAddRequest = async (newRequest) => {
+    try {
+      const token = localStorage.getItem("authtoken");
+      const res = await fetch("/api/services", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(newRequest)
+      });
+      if (res.ok) {
+        toast.success("Service request created successfully!");
+        fetchServices();
+      } else {
+        toast.error("Failed to create service request.");
+      }
+    } catch (err) {
+      console.error("Error creating request", err);
+      toast.error("Error creating request.");
+    }
   };
 
-  const updateStatus = (id, nextStatus) => {
-    setServices((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, status: nextStatus } : item))
-    );
+  const updateStatus = async (id, nextStatus) => {
+    try {
+      const token = localStorage.getItem("authtoken");
+      const res = await fetch(`/api/services/${id}/status`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ status: nextStatus })
+      });
+      if (res.ok) {
+        setServices((prev) =>
+          prev.map((item) => (item.id === id ? { ...item, status: nextStatus } : item))
+        );
+      }
+    } catch (err) {
+      console.error("Error updating status", err);
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="p-5 bg-background min-h-screen flex flex-col items-center justify-center font-sans">
+        <Loader2 className="w-8 h-8 animate-spin text-primary mb-3" />
+        <span className="text-[13px] font-bold text-muted-foreground font-semibold">Loading service requests...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="p-5 bg-background min-h-screen flex flex-col space-y-5 transition-colors duration-300 font-sans pb-20 ">
@@ -846,7 +939,7 @@ export default function ServicesPage() {
       {/* ── Add New Request Modal ── */}
       <AnimatePresence>
         {showModal && (
-          <NewRequestModal onClose={() => setShowModal(false)} onSave={handleAddRequest} />
+          <NewRequestModal onClose={() => setShowModal(false)} onSave={handleAddRequest} patientsList={patientsList} />
         )}
       </AnimatePresence>
 
