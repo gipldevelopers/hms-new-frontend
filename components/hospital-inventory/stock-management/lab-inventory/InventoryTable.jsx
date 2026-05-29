@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Search, ChevronDown, Download, Plus, Edit3, Eye, Trash2, ChevronLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -86,6 +87,7 @@ const CustomDialogContent = React.forwardRef(({ className, children, ...props },
 CustomDialogContent.displayName = "CustomDialogContent";
 
 export function InventoryTable({ items, setItems, onViewItem, triggerAddModal, clearAddTrigger, hideTableContent, onRefresh, onAddClick }) {
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedStatus, setSelectedStatus] = useState("All");
@@ -306,7 +308,7 @@ export function InventoryTable({ items, setItems, onViewItem, triggerAddModal, c
           <div className="flex flex-wrap items-center gap-1.5 p-1 bg-[#F1F5F9] dark:bg-[#1E293B]/60 rounded-[8px] border border-[#E2E8F0] dark:border-[#334155] w-fit">
             <button
               className="px-4 py-2 text-[12px] font-bold rounded-[6px] transition-all bg-transparent text-[#5E6C84] dark:text-slate-400 hover:text-[#2E37A4] dark:hover:text-[#5F69F8] cursor-pointer"
-              onClick={() => window.location.href = "/hospital-inventory/stock/stock-inventory"}
+              onClick={() => router.push("/hospital-inventory/stock/stock-inventory")}
             >
               Stock Inventory
             </button>
@@ -317,13 +319,13 @@ export function InventoryTable({ items, setItems, onViewItem, triggerAddModal, c
             </button>
             <button
               className="px-4 py-2 text-[12px] font-bold rounded-[6px] transition-all bg-transparent text-[#5E6C84] dark:text-slate-400 hover:text-[#2E37A4] dark:hover:text-[#5F69F8] cursor-pointer"
-              onClick={() => toast.info("Transfers & Requests module is ready for integration")}
+              onClick={() => router.push("/hospital-inventory/stock/stock-transfer")}
             >
-              Transfers & Requests
+              Stock Transfer
             </button>
             <button
               className="px-4 py-2 text-[12px] font-bold rounded-[6px] transition-all bg-transparent text-[#5E6C84] dark:text-slate-400 hover:text-[#2E37A4] dark:hover:text-[#5F69F8] cursor-pointer"
-              onClick={() => toast.info("Batch & Expiry Tracking module is ready for integration")}
+              onClick={() => router.push("/hospital-inventory/stock/batch-expiry-tracking")}
             >
               Batch & Expiry Tracking
             </button>

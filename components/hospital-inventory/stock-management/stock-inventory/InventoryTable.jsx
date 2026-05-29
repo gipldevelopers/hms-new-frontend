@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Search, ChevronDown, Download, Plus, Edit3, Eye, Trash2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -17,6 +18,7 @@ const INITIAL_STOCK_ITEMS = [
 ];
 
 export function InventoryTable({ items = [], setItems, onViewItem, triggerAddModal, clearAddTrigger, onAddClick }) {
+  const router = useRouter();
   const [localItems, setLocalItems] = useState(INITIAL_STOCK_ITEMS);
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -156,19 +158,19 @@ export function InventoryTable({ items = [], setItems, onViewItem, triggerAddMod
         </button>
         <button
           className="px-4 py-2 text-[12px] font-bold rounded-[6px] transition-all bg-transparent text-[#5E6C84] dark:text-slate-400 hover:text-[#2E37A4] dark:hover:text-[#5F69F8] cursor-pointer"
-          onClick={() => window.location.href = "/hospital-inventory/stock/lab-inventory"}
+          onClick={() => router.push("/hospital-inventory/stock/lab-inventory")}
         >
           Lab Inventory
         </button>
         <button
           className="px-4 py-2 text-[12px] font-bold rounded-[6px] transition-all bg-transparent text-[#5E6C84] dark:text-slate-400 hover:text-[#2E37A4] dark:hover:text-[#5F69F8] cursor-pointer"
-          onClick={() => toast.info("Transfers & Requests module is ready for integration")}
+          onClick={() => router.push("/hospital-inventory/stock/stock-transfer")}
         >
           Stock Transfer
         </button>
         <button
           className="px-4 py-2 text-[12px] font-bold rounded-[6px] transition-all bg-transparent text-[#5E6C84] dark:text-slate-400 hover:text-[#2E37A4] dark:hover:text-[#5F69F8] cursor-pointer"
-          onClick={() => toast.info("Batch & Expiry Tracking module is ready for integration")}
+          onClick={() => router.push("/hospital-inventory/stock/batch-expiry-tracking")}
         >
           Batch & Expiry Tracking
         </button>

@@ -59,9 +59,9 @@ export function CreateItemProfile({ onCancel, onSave }) {
         <div className="bg-white dark:bg-[#1e293b] p-6 sm:p-8 rounded-[5px] border border-[#e2e8f0] dark:border-[#334155] space-y-4 shadow-none">
 
           {/* Title & Divider Inside the Box - Spans Full Width */}
-          <div className="border-b border-[#e2e8f0] dark:border-slate-700 pb-5 px-6 sm:px-8 -mx-6 sm:-mx-8">
+          <div className="border-b border-[#e2e8f0] dark:border-slate-700 pb-6 px-6 sm:px-8 -mx-6 sm:-mx-8">
             <h2 className="text-[20px] font-bold text-[#1e293b] dark:text-white leading-none tracking-tight">
-              Create New Item Profile
+              Create New Stock Profile
             </h2>
           </div>
 
@@ -299,7 +299,7 @@ export function CreateItemProfile({ onCancel, onSave }) {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-slate-500">Purchase Unit Cost ($)</label>
+                    <label className="text-[11px] font-bold text-slate-500">Purchase Unit Cost (₹)</label>
                     <input
                       type="text"
                       className="w-full h-10 px-3 bg-[#F8F9FC] dark:bg-[#0A0F1D] border border-[#E2E8F0] dark:border-slate-700 rounded-[5px] text-[13px] outline-none focus:border-[#2E37A4] text-foreground font-semibold"

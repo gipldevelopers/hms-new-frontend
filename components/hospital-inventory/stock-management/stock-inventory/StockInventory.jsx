@@ -46,7 +46,10 @@ export function StockInventory({ slugs = [] }) {
 
   // Sync URL ID with details view
   useEffect(() => {
-    if (itemId) {
+    if (itemId === "add") {
+      setIsAddingItem(true);
+      setViewingItem(null);
+    } else if (itemId) {
       const matched = items.find(item => String(item.id) === String(itemId));
       if (matched) {
         setViewingItem(matched);
@@ -54,6 +57,7 @@ export function StockInventory({ slugs = [] }) {
       }
     } else {
       setViewingItem(null);
+      setIsAddingItem(false);
     }
   }, [itemId, items]);
 
@@ -75,21 +79,29 @@ export function StockInventory({ slugs = [] }) {
   };
 
   return (
-    <div className="p-4 sm:p-6 bg-[#F8F9FC] dark:bg-[#0A0F1D] min-h-screen space-y-[20px] font-sans transition-colors duration-300">
+    <div className="flex-1 p-6 bg-slate-50/50 dark:bg-slate-900/20 max-w-[1600px] mx-auto min-h-screen space-y-[20px] font-sans transition-colors duration-300">
       
       {isAddingItem ? (
         <CreateItemProfile
-          onCancel={() => setIsAddingItem(false)}
+          onCancel={() => {
+            setIsAddingItem(false);
+            if (itemId === "add") {
+              router.push("/hospital-inventory/stock/stock-inventory");
+            }
+          }}
           onSave={(newItem) => {
             setItems([newItem, ...items]);
             setIsAddingItem(false);
+            if (itemId === "add") {
+              router.push("/hospital-inventory/stock/stock-inventory");
+            }
           }}
         />
       ) : viewingItem ? (
         <ItemDetailView
           item={viewingItem}
           onBack={handleBack}
-          onAddItem={() => setIsAddingItem(true)}
+          onAddItem={() => router.push("/hospital-inventory/stock/stock-inventory/add")}
           onRefreshDetails={() => {
             // handle refresh
           }}
@@ -101,7 +113,7 @@ export function StockInventory({ slugs = [] }) {
           onViewItem={handleViewItem}
           triggerAddModal={triggerAddModal}
           clearAddTrigger={() => setTriggerAddModal(false)}
-          onAddClick={() => setIsAddingItem(true)}
+          onAddClick={() => router.push("/hospital-inventory/stock/stock-inventory/add")}
         />
       )}
 

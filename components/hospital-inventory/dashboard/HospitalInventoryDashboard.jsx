@@ -492,11 +492,11 @@ export function HospitalInventoryDashboard() {
                         </div>
                         <div>
                           <div className="text-[9px] font-extrabold text-slate-400 tracking-wider">PRE-NEGOTIATED SAVINGS</div>
-                          <div className="text-[15px] font-black text-white mt-0.5">$1,250.00</div>
+                          <div className="text-[15px] font-black text-white mt-0.5">₹1,250.00</div>
                         </div>
                         <div className="text-right">
                           <div className="text-[9px] font-extrabold text-slate-400 tracking-wider">GRAND SOURCING TOTAL</div>
-                          <div className="text-[20px] font-black text-white mt-0.5 tracking-tight">$13,500.00</div>
+                          <div className="text-[20px] font-black text-white mt-0.5 tracking-tight">₹13,500.00</div>
                         </div>
                       </div>
 
