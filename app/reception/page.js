@@ -1,6 +1,7 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import ReceptionStats from "@/components/reception/dashboard/ReceptionStats";
 import ReceptionQuickLinks from "@/components/reception/dashboard/ReceptionQuickLinks";
 import RevenueOverview from "@/components/reception/dashboard/RevenueOverview";
@@ -8,16 +9,31 @@ import LiveTokenQueue from "@/components/reception/dashboard/LiveTokenQueue";
 import ActionNeeded from "@/components/reception/dashboard/ActionNeeded";
 import TodayAppointments from "@/components/reception/dashboard/TodayAppointments";
 import BedOccupancy from "@/components/reception/dashboard/BedOccupancy";
+import CreatePurchaseRequest from "@/components/reception/dashboard/CreatePurchaseRequest";
 
 export default function ReceptionDashboard() {
+  const router = useRouter();
+  const [showPurchaseRequest, setShowPurchaseRequest] = useState(false);
+
+  if (showPurchaseRequest) {
+    return <CreatePurchaseRequest onBack={() => setShowPurchaseRequest(false)} />;
+  }
+
   return (
     <div className="p-4 md:p-5 bg-background min-h-screen flex flex-col gap-5 md:gap-6 transition-colors duration-300 font-sans pb-20">
-      
+
       {/* Header Area */}
       <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4">
         <h1 className="text-[20px] font-bold text-foreground tracking-tight leading-none">
           Today's Overview
         </h1>
+        <button
+          type="button"
+          onClick={() => setShowPurchaseRequest(true)}
+          className="flex items-center gap-1.5 h-10 px-4 rounded-[5px] bg-[#2E37A4] hover:bg-[#232a7d] text-[13px] font-bold text-white transition-all cursor-pointer shadow-none"
+        >
+          <span className="text-[16px] font-medium leading-none">+</span> Create New Purchase Request
+        </button>
       </div>
 
       {/* Stats Row (Full Width) */}
@@ -25,7 +41,7 @@ export default function ReceptionDashboard() {
 
       {/* Primary Grid Row: Quick Links, Queue, Revenue, Actions */}
       <div className="grid grid-cols-1 lg:grid-cols-7 gap-6 items-stretch">
-        
+
         {/* Left Column (Quick Links + Live Queue) */}
         <div className="lg:col-span-5 flex flex-col gap-6">
           <ReceptionQuickLinks />
