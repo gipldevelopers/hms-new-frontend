@@ -1,11 +1,19 @@
 "use client";
 
 import React, { useState } from "react";
-import { ArrowLeft, Box, AlertTriangle, Layers, IndianRupee, ChevronRight } from "lucide-react";
+import { ArrowLeft, Box, AlertTriangle, Layers, IndianRupee, ChevronRight, Info } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export function ItemDetailView({ item, onBack }) {
+export function ItemDetailView({ item, onBack, onTransferStock }) {
   if (!item) return null;
+
+  React.useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+    const scrollContainers = document.querySelectorAll(".overflow-y-auto");
+    scrollContainers.forEach((container) => {
+      container.scrollTop = 0;
+    });
+  }, [item]);
 
   // Mock standard values based on Propofol if details are missing
   const skuCode = item.sku || "ITM-90234";
@@ -329,6 +337,39 @@ export function ItemDetailView({ item, onBack }) {
           </div>
         </div>
 
+      </div>
+
+      {/* FOOTER ACTIONS ROW */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pt-4 border-t border-[#e2e8f0] dark:border-[#334155]">
+        {/* Info tag */}
+        <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+          <Info size={16} className="text-[#2E37A4] dark:text-[#5C67F2]" />
+          <span className="text-[12px] font-semibold">Make sure code is unique across the catalog.</span>
+        </div>
+
+        {/* Button actions */}
+        <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+          <button
+            type="button"
+            onClick={onBack}
+            className="h-10 px-8 rounded-[8px] border border-[#ff4d4f] text-[#ff4d4f] bg-[#fff5f5] dark:bg-[#2c1c24] hover:bg-[#ffeef0] dark:hover:bg-[#3d252f] text-[14px] font-bold transition-all cursor-pointer"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              if (onTransferStock) {
+                onTransferStock(item);
+              } else {
+                import("sonner").then(({ toast }) => toast.success("Stock transfer initiated successfully!"));
+              }
+            }}
+            className="h-10 px-8 rounded-[8px] bg-[#2E37A4] hover:bg-[#232a7d] text-[14px] font-bold text-white transition-all cursor-pointer"
+          >
+            Transfer Stock
+          </button>
+        </div>
       </div>
 
     </div>

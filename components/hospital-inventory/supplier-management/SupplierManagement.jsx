@@ -107,7 +107,7 @@ export function SupplierManagement({ slugs = [] }) {
             }}
             onCreatePOClick={() => {
               toast.success("Redirecting to Purchase Order builder...");
-              router.push("/hospital-inventory/purchase");
+              router.push("/hospital-inventory/purchase/add");
             }}
           />
         </>
