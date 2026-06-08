@@ -42,6 +42,7 @@ export function StockInventory({ slugs = [] }) {
   const [isAddingItem, setIsAddingItem] = useState(false);
   const [triggerAddModal, setTriggerAddModal] = useState(false);
 
+  const [editItem, setEditItem] = useState(null);
   const itemId = slugs[0] || "";
 
   // Sync URL ID with details view
@@ -49,15 +50,29 @@ export function StockInventory({ slugs = [] }) {
     if (itemId === "add") {
       setIsAddingItem(true);
       setViewingItem(null);
+      const params = new URLSearchParams(window.location.search);
+      const editId = params.get("id");
+      if (editId) {
+        const matched = items.find(item => String(item.id) === String(editId));
+        if (matched) {
+          setEditItem(matched);
+        } else {
+          setEditItem(null);
+        }
+      } else {
+        setEditItem(null);
+      }
     } else if (itemId) {
       const matched = items.find(item => String(item.id) === String(itemId));
       if (matched) {
         setViewingItem(matched);
         setIsAddingItem(false);
+        setEditItem(null);
       }
     } else {
       setViewingItem(null);
       setIsAddingItem(false);
+      setEditItem(null);
     }
   }, [itemId, items]);
 
@@ -83,15 +98,22 @@ export function StockInventory({ slugs = [] }) {
       
       {isAddingItem ? (
         <CreateItemProfile
+          editItem={editItem}
           onCancel={() => {
             setIsAddingItem(false);
+            setEditItem(null);
             if (itemId === "add") {
               router.push("/hospital-inventory/stock/stock-inventory");
             }
           }}
           onSave={(newItem) => {
-            setItems([newItem, ...items]);
+            if (editItem) {
+              setItems(items.map(item => String(item.id) === String(editItem.id) ? { ...item, ...newItem, id: editItem.id } : item));
+            } else {
+              setItems([newItem, ...items]);
+            }
             setIsAddingItem(false);
+            setEditItem(null);
             if (itemId === "add") {
               router.push("/hospital-inventory/stock/stock-inventory");
             }

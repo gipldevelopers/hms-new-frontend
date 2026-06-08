@@ -307,7 +307,7 @@ export function InventoryTable({ items = [], setItems, onViewItem, triggerAddMod
                   <td className="px-5 py-3.5">
                     <div className="flex items-center gap-1.5 text-slate-400">
                       <button
-                        onClick={() => openEdit(item)}
+                        onClick={() => router.push(`/hospital-inventory/stock/stock-inventory/add?id=${item.id}`)}
                         className="p-1 hover:text-[#2E37A4] dark:hover:text-[#5F69F8] transition-colors cursor-pointer"
                       >
                         <Edit3 size={15} />
