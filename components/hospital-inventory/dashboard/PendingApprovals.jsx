@@ -31,7 +31,7 @@ export function PendingApprovals() {
       id: "PO-2025-9812",
       dept: "Central Surgery",
       item: "20,000 sterile surgical gloves",
-      cost: "$18,400",
+      cost: "₹18,400",
       user: "Head Nurse Mary J.",
       time: "2 hours ago",
       urgent: true
@@ -40,7 +40,7 @@ export function PendingApprovals() {
       id: "PO-2025-9812",
       dept: "Central Surgery",
       item: "20,000 sterile surgical gloves",
-      cost: "$18,400",
+      cost: "₹18,400",
       user: "Head Nurse Mary J.",
       time: "2 hours ago",
       urgent: true
@@ -49,7 +49,7 @@ export function PendingApprovals() {
       id: "PO-2025-9812",
       dept: "Central Surgery",
       item: "20,000 sterile surgical gloves",
-      cost: "$18,400",
+      cost: "₹18,400",
       user: "Head Nurse Mary J.",
       time: "2 hours ago",
       urgent: true
@@ -58,7 +58,7 @@ export function PendingApprovals() {
       id: "PO-2025-9812",
       dept: "Central Surgery",
       item: "20,000 sterile surgical gloves",
-      cost: "$18,400",
+      cost: "₹18,400",
       user: "Head Nurse Mary J.",
       time: "2 hours ago",
       urgent: true

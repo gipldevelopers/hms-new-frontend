@@ -13,7 +13,7 @@ export function ExpiryRiskTable() {
       expiry: "2025-04-12",
       daysLeft: "12 days left",
       qty: "1,450 vials",
-      loss: "$4,350"
+      loss: "₹4,350"
     },
     {
       id: 2,
@@ -24,7 +24,7 @@ export function ExpiryRiskTable() {
       expiry: "2025-04-12",
       daysLeft: "12 days left",
       qty: "1,450 vials",
-      loss: "$4,350"
+      loss: "₹4,350"
     },
     {
       id: 3,
@@ -35,7 +35,7 @@ export function ExpiryRiskTable() {
       expiry: "2025-04-12",
       daysLeft: "12 days left",
       qty: "1,450 vials",
-      loss: "$4,350"
+      loss: "₹4,350"
     },
     {
       id: 4,
@@ -46,7 +46,7 @@ export function ExpiryRiskTable() {
       expiry: "2025-04-12",
       daysLeft: "12 days left",
       qty: "1,450 vials",
-      loss: "$4,350"
+      loss: "₹4,350"
     }
   ]);
 

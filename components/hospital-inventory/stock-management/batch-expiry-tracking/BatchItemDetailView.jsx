@@ -1,39 +1,41 @@
 "use client";
 
-import React, { useState } from "react";
-import { ArrowLeft, Box, AlertTriangle, Layers, IndianRupee, ChevronRight, Info } from "lucide-react";
+import React from "react";
+import { ArrowLeft, Box, AlertTriangle, Layers, IndianRupee, ChevronRight, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export function ItemDetailView({ item, onBack, onTransferStock }) {
-  if (!item) return null;
-
+export function BatchItemDetailView({ item, onBack }) {
   React.useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
-    const scrollContainers = document.querySelectorAll(".overflow-y-auto");
-    scrollContainers.forEach((container) => {
-      container.scrollTop = 0;
-    });
+    const mainEl = document.querySelector("main");
+    if (mainEl) {
+      mainEl.scrollTo({ top: 0, behavior: "instant" });
+    }
   }, [item]);
 
-  // Mock standard values based on Propofol if details are missing
-  const skuCode = item.sku || "ITM-90234";
-  const itemName = item.name || "Propofol 10mg/ml (20ml)";
+  if (!item) return null;
+
+  // Standard values from Saline IV Solution 0.9% if missing
+  const skuCode = item.code || "ITM-99234";
+  const itemName = item.name || "Saline IV Solution 0.9%";
   const categoryName = item.category || "Anesthetics & Sedatives";
   const subcategoryName = item.subcategory || "Intravenous Anesthetics";
   const unitOfMeasure = item.unit || "Ampoule";
-  const storageLocation = item.location || "Cold Vault Room B";
-  
-  // Format numbers nicely with commas
+  const storageLocation = item.room || "Cold Vault Room B";
+  const statusLabel = item.status || "Safe (1+ Year)";
+
+  // Format numbers with commas
   const formatNumber = (num) => {
     if (!num) return "0";
     const cleaned = String(num).replace(/,/g, "");
-    return Number(cleaned).toLocaleString("en-IN");
+    return Number(cleaned).toLocaleString("en-US");
   };
 
   const currentQty = item.qty ? formatNumber(item.qty) : "3,100";
-  const reorderThreshold = item.minStock ? formatNumber(item.minStock) : "1,500";
-  const safetyLimit = item.minThreshold ? formatNumber(item.minThreshold) : "1,000";
-  const activeBatches = item.batches || "4";
+  const reorderThreshold = "1,500";
+  const safetyLimit = "1,000";
+  const activeBatches = "4";
+  const estValue = item.value ? String(item.value).replace("$", "₹") : "₹4,320.00";
 
   return (
     <div className="font-sans space-y-4">
@@ -48,14 +50,14 @@ export function ItemDetailView({ item, onBack, onTransferStock }) {
           >
             <ArrowLeft className="h-4 w-4 text-slate-700 dark:text-slate-300" />
           </button>
-          
+
           <div>
             <div className="flex items-center gap-2">
               <h1 className="text-[18px] sm:text-[20px] font-bold text-slate-800 dark:text-white leading-none">
                 {itemName}
               </h1>
-              <span className="px-2.5 py-0.5 rounded-[5px] text-[10px] font-bold bg-[#E2FBE9] border border-[#B7F4C7] text-[#0F8A5F] dark:bg-emerald-950/20 dark:border-emerald-900/30 uppercase leading-none">
-                {item.status || "In Stock"}
+              <span className="px-3 py-0.5 rounded-full text-[10px] font-bold bg-[#ECFDF5] border border-[#A7F3D0] text-[#059669] dark:bg-emerald-950/20 dark:border-emerald-900/30 uppercase leading-none whitespace-nowrap">
+                {statusLabel}
               </span>
             </div>
             {/* Breadcrumb Navigation */}
@@ -72,7 +74,7 @@ export function ItemDetailView({ item, onBack, onTransferStock }) {
 
       {/* STAT CARDS ROW */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        
+
         {/* On-Hand Stock */}
         <div className="bg-white dark:bg-[#1e293b] p-4 rounded-[5px] border border-[#e2e8f0] dark:border-[#334155] flex items-center gap-3">
           <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-950/20 flex items-center justify-center text-blue-600 dark:text-blue-400">
@@ -129,7 +131,7 @@ export function ItemDetailView({ item, onBack, onTransferStock }) {
 
       {/* BASIC SPECIFICATIONS SECTION - WITH FULL WIDTH SEPARATORS */}
       <div className="bg-white dark:bg-[#1e293b] rounded-[5px] border border-[#e2e8f0] dark:border-[#334155] p-6 space-y-6 shadow-none">
-        
+
         {/* Title & Divider - Spans Full Width */}
         <div className="border-b border-[#e2e8f0] dark:border-slate-700 pb-4 px-6 -mx-6 -mt-2 flex items-center justify-between">
           <h2 className="text-[15px] font-extrabold text-slate-800 dark:text-white">Basic Specifications</h2>
@@ -140,20 +142,20 @@ export function ItemDetailView({ item, onBack, onTransferStock }) {
         <div className="bg-[#F8F9FC] dark:bg-[#0A0F1D] p-4 rounded-[5px] border border-[#e2e8f0] dark:border-slate-800 space-y-1.5">
           <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Clinical Description</div>
           <p className="text-[13px] font-medium text-slate-600 dark:text-slate-300 leading-relaxed">
-            {item.notes || "Short-acting, intravenously administered anesthetic agent. Used for induction and maintenance of general anesthesia."}
+            Short-acting, intravenously administered anesthetic agent. Used for induction and maintenance of general anesthesia.
           </p>
         </div>
 
         {/* Specification field rows divided by full-width separator lines */}
         <div className="space-y-5 pt-2">
-          
+
           {/* Row 1: Category & Subcategory */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex flex-col gap-0.5">
               <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Category</span>
               <span className="text-[13px] font-bold text-slate-800 dark:text-white">{categoryName}</span>
             </div>
-            
+
             <div className="flex flex-col gap-0.5">
               <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Subcategory</span>
               <span className="text-[13px] font-bold text-slate-800 dark:text-white">{subcategoryName}</span>
@@ -208,10 +210,10 @@ export function ItemDetailView({ item, onBack, onTransferStock }) {
             <div className="flex flex-col gap-0.5">
               <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Alarms & Monitoring</span>
               <div className="flex items-center gap-2 mt-1">
-                <span className="px-2.5 py-0.5 text-[10px] font-bold text-blue-600 bg-blue-50 dark:bg-blue-950/20 dark:text-blue-400 rounded-[5px] leading-none uppercase border border-blue-100 dark:border-blue-900/30">
+                <span className="px-2.5 py-0.5 text-[10px] font-bold text-[#0369A1] bg-[#E0F2FE] dark:bg-sky-950/20 dark:text-sky-400 rounded-[5px] leading-none uppercase border border-[#BAE6FD]">
                   Batch Tracking Enabled
                 </span>
-                <span className="px-2.5 py-0.5 text-[10px] font-bold text-purple-600 bg-purple-50 dark:bg-purple-950/20 dark:text-purple-400 rounded-[5px] leading-none uppercase border border-purple-100 dark:border-purple-900/30">
+                <span className="px-2.5 py-0.5 text-[10px] font-bold text-purple-600 bg-purple-50 dark:bg-purple-950/20 dark:text-purple-400 rounded-[5px] leading-none uppercase border border-purple-100">
                   Expiry Alarm 3n
                 </span>
               </div>
@@ -219,9 +221,11 @@ export function ItemDetailView({ item, onBack, onTransferStock }) {
           </div>
 
         </div>
-      </div>      {/* BOTTOM ROW GRID */}
+      </div>
+
+      {/* BOTTOM ROW GRID */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        
+
         {/* Order History (Left - 3/5 wide) */}
         <div className="lg:col-span-3 bg-white dark:bg-[#1e293b] rounded-[5px] border border-[#e2e8f0] dark:border-[#334155] pt-5 pb-0 px-0 shadow-none flex flex-col justify-between">
           <div className="flex items-center justify-between pb-4 px-6">
@@ -245,7 +249,7 @@ export function ItemDetailView({ item, onBack, onTransferStock }) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#e2e8f0] dark:divide-slate-800 text-[13px]">
-                
+
                 {/* Transaction 1 */}
                 <tr className="hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors">
                   <td className="py-3.5 pl-6 font-semibold text-slate-700 dark:text-slate-350">PO-2024-0891</td>
@@ -254,7 +258,7 @@ export function ItemDetailView({ item, onBack, onTransferStock }) {
                   <td className="py-3.5 px-4 font-semibold text-slate-650 dark:text-slate-400">₹12.50</td>
                   <td className="py-3.5 px-4 font-extrabold text-slate-800 dark:text-white">₹18,750.00</td>
                   <td className="py-3.5 pr-6 text-right">
-                    <span className="px-2 py-0.5 rounded-[5px] text-[10px] font-bold text-[#2E37A4] border border-[#2E37A4] bg-[#2E37A4]/5 uppercase leading-none">
+                    <span className="px-2 py-0.5 rounded-[5px] text-[10px] font-bold text-[#0369A1] border border-[#BAE6FD] bg-[#E0F2FE] uppercase leading-none">
                       Delivered
                     </span>
                   </td>
@@ -268,7 +272,7 @@ export function ItemDetailView({ item, onBack, onTransferStock }) {
                   <td className="py-3.5 px-4 font-semibold text-slate-650 dark:text-slate-400">₹12.50</td>
                   <td className="py-3.5 px-4 font-extrabold text-slate-800 dark:text-white">₹18,750.00</td>
                   <td className="py-3.5 pr-6 text-right">
-                    <span className="px-2 py-0.5 rounded-[5px] text-[10px] font-bold text-[#2E37A4] border border-[#2E37A4] bg-[#2E37A4]/5 uppercase leading-none">
+                    <span className="px-2 py-0.5 rounded-[5px] text-[10px] font-bold text-[#0369A1] border border-[#BAE6FD] bg-[#E0F2FE] uppercase leading-none">
                       Delivered
                     </span>
                   </td>
@@ -282,7 +286,7 @@ export function ItemDetailView({ item, onBack, onTransferStock }) {
                   <td className="py-3.5 px-4 font-semibold text-slate-650 dark:text-slate-400">₹12.00</td>
                   <td className="py-3.5 px-4 font-extrabold text-slate-800 dark:text-white">₹12,000.00</td>
                   <td className="py-3.5 pr-6 text-right">
-                    <span className="px-2 py-0.5 rounded-[5px] text-[10px] font-bold text-[#2E37A4] border border-[#2E37A4] bg-[#2E37A4]/5 uppercase leading-none">
+                    <span className="px-2 py-0.5 rounded-[5px] text-[10px] font-bold text-[#0369A1] border border-[#BAE6FD] bg-[#E0F2FE] uppercase leading-none">
                       Delivered
                     </span>
                   </td>
@@ -318,10 +322,10 @@ export function ItemDetailView({ item, onBack, onTransferStock }) {
 
           {/* List Details with exact top/bottom borders matching user view */}
           <div className="text-[13px] bg-white dark:bg-[#1e293b]">
-            
+
             <div className="py-3.5 px-6 flex items-center justify-between border-b border-[#e2e8f0] dark:border-slate-800 hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors">
               <span className="font-semibold text-slate-500 dark:text-slate-400">Purchase Unit Cost</span>
-              <span className="font-extrabold text-slate-800 dark:text-white">₹563.50</span>
+              <span className="font-extrabold text-slate-800 dark:text-white">₹583.50</span>
             </div>
 
             <div className="py-3.5 px-6 flex items-center justify-between border-b border-[#e2e8f0] dark:border-slate-800 hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors">
@@ -337,39 +341,6 @@ export function ItemDetailView({ item, onBack, onTransferStock }) {
           </div>
         </div>
 
-      </div>
-
-      {/* FOOTER ACTIONS ROW */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pt-4 border-t border-[#e2e8f0] dark:border-[#334155]">
-        {/* Info tag */}
-        <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
-          <Info size={16} className="text-[#2E37A4] dark:text-[#5C67F2]" />
-          <span className="text-[12px] font-semibold">Make sure code is unique across the catalog.</span>
-        </div>
-
-        {/* Button actions */}
-        <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
-          <button
-            type="button"
-            onClick={onBack}
-            className="h-10 px-8 rounded-[8px] border border-[#ff4d4f] text-[#ff4d4f] bg-[#fff5f5] dark:bg-[#2c1c24] hover:bg-[#ffeef0] dark:hover:bg-[#3d252f] text-[14px] font-bold transition-all cursor-pointer"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              if (onTransferStock) {
-                onTransferStock(item);
-              } else {
-                import("sonner").then(({ toast }) => toast.success("Stock transfer initiated successfully!"));
-              }
-            }}
-            className="h-10 px-8 rounded-[8px] bg-[#2E37A4] hover:bg-[#232a7d] text-[14px] font-bold text-white transition-all cursor-pointer"
-          >
-            Transfer Stock
-          </button>
-        </div>
       </div>
 
     </div>

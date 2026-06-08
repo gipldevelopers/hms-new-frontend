@@ -93,7 +93,7 @@ export function LabInventory({ slugs = [] }) {
   };
 
   return (
-    <div className="p-4 sm:p-6 bg-[#F8F9FC] dark:bg-[#0A0F1D] min-h-screen space-y-[20px] font-sans transition-colors duration-300">
+    <div className="flex-1 p-6 bg-slate-50/50 dark:bg-slate-900/20 max-w-[1600px] mx-auto min-h-screen space-y-[20px] font-sans transition-colors duration-300">
 
       {viewingItem ? (
         <ItemDetailView

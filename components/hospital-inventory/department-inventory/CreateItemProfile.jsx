@@ -33,35 +33,33 @@ export function CreateItemProfile({ onCancel, onSave }) {
     toast.success("New Item Profile created successfully!");
     if (onSave) {
       onSave({
-        id: Date.now(),
         sku: formData.sku,
         name: formData.name,
-        category: formData.category,
+        category: formData.category.replace(" & Sedatives", ""),
         unit: formData.unit,
-        qty: formData.reorderQty.replace(/,/g, ""),
-        minStock: formData.minStock.replace(/,/g, ""),
-        batches: formData.enableBatch ? "1" : "0",
+        qty: parseFloat(formData.reorderQty.replace(/,/g, "")) || 0,
+        minThreshold: parseFloat(formData.minStock.replace(/,/g, "")) || 0,
+        minStock: parseFloat(formData.minStock.replace(/,/g, "")) || 0,
+        expiry: "Valid",
         status: "In Stock",
-        vendor: formData.vendor,
-        supplier: formData.vendor,
-        minThreshold: formData.minStock.replace(/,/g, ""),
-        notes: formData.notes
+        notes: formData.notes,
+        lastUpdated: "Just now",
+        location: formData.location,
+        batches: formData.enableBatch ? "1" : "0"
       });
     }
   };
 
   return (
     <div className="font-sans">
-
       <form onSubmit={handleSubmit} className="space-y-6">
-
-        {/* ONE SINGLE CONSOLIDATED CONTAINER CARD */}
-        <div className="bg-white dark:bg-[#1e293b] p-6 sm:p-8 rounded-[5px] border border-[#e2e8f0] dark:border-[#334155] space-y-4 shadow-none">
-
-          {/* Title & Divider Inside the Box - Spans Full Width */}
-          <div className="border-b border-[#e2e8f0] dark:border-slate-700 pb-6 px-6 sm:px-8 -mx-6 sm:-mx-8">
+        {/* main card container */}
+        <div className="bg-white dark:bg-[#1e293b] p-6 sm:p-8 rounded-[5px] border border-[#e2e8f0] dark:border-[#334155] space-y-6 shadow-none">
+          
+          {/* Header Title */}
+          <div>
             <h2 className="text-[20px] font-bold text-[#1e293b] dark:text-white leading-none tracking-tight">
-              Create New Stock Profile
+              Create New Item Profile
             </h2>
           </div>
 
@@ -76,7 +74,7 @@ export function CreateItemProfile({ onCancel, onSave }) {
                 <label className="text-[11px] font-bold text-slate-500">Item Name *</label>
                 <input
                   type="text"
-                  className="w-full h-10 px-3 bg-[#F8F9FC] dark:bg-[#0A0F1D] border border-[#E2E8F0] dark:border-slate-700 rounded-[5px] text-[13px] outline-none focus:border-[#2E37A4] text-foreground font-medium"
+                  className="w-full h-10 px-3 bg-[#F8F9FC] dark:bg-[#0A0F1D] border border-[#E2E8F0] dark:border-slate-700 rounded-[5px] text-[13px] outline-none focus:border-[#2E37A4] text-foreground font-semibold"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   required
@@ -87,7 +85,7 @@ export function CreateItemProfile({ onCancel, onSave }) {
                 <label className="text-[11px] font-bold text-slate-500">Item Code (Unique ID) *</label>
                 <input
                   type="text"
-                  className="w-full h-10 px-3 bg-[#F8F9FC] dark:bg-[#0A0F1D] border border-[#E2E8F0] dark:border-slate-700 rounded-[5px] text-[13px] outline-none focus:border-[#2E37A4] text-foreground font-medium"
+                  className="w-full h-10 px-3 bg-[#F8F9FC] dark:bg-[#0A0F1D] border border-[#E2E8F0] dark:border-slate-700 rounded-[5px] text-[13px] outline-none focus:border-[#2E37A4] text-foreground font-semibold"
                   value={formData.sku}
                   onChange={(e) => setFormData({ ...formData, sku: e.target.value })}
                   required
@@ -100,7 +98,7 @@ export function CreateItemProfile({ onCancel, onSave }) {
                 <label className="text-[11px] font-bold text-slate-500">Category *</label>
                 <div className="relative">
                   <select
-                    className="w-full h-10 pl-3 pr-10 bg-[#F8F9FC] dark:bg-[#0A0F1D] border border-[#E2E8F0] dark:border-slate-700 rounded-[5px] text-[13px] outline-none focus:border-[#2E37A4] text-foreground font-medium appearance-none cursor-pointer"
+                    className="w-full h-10 pl-3 pr-10 bg-[#F8F9FC] dark:bg-[#0A0F1D] border border-[#E2E8F0] dark:border-slate-700 rounded-[5px] text-[13px] outline-none focus:border-[#2E37A4] text-foreground font-semibold appearance-none cursor-pointer"
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
                   >
@@ -110,6 +108,7 @@ export function CreateItemProfile({ onCancel, onSave }) {
                     <option>Intravenous Fluids</option>
                     <option>Analgesics</option>
                     <option>PPE</option>
+                    <option>Anticoagulants</option>
                   </select>
                   <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
                     <ChevronDown size={16} />
@@ -121,7 +120,7 @@ export function CreateItemProfile({ onCancel, onSave }) {
                 <label className="text-[11px] font-bold text-slate-500">Subcategory</label>
                 <div className="relative">
                   <select
-                    className="w-full h-10 pl-3 pr-10 bg-[#F8F9FC] dark:bg-[#0A0F1D] border border-[#E2E8F0] dark:border-slate-700 rounded-[5px] text-[13px] outline-none focus:border-[#2E37A4] text-foreground font-medium appearance-none cursor-pointer"
+                    className="w-full h-10 pl-3 pr-10 bg-[#F8F9FC] dark:bg-[#0A0F1D] border border-[#E2E8F0] dark:border-slate-700 rounded-[5px] text-[13px] outline-none focus:border-[#2E37A4] text-foreground font-semibold appearance-none cursor-pointer"
                     value={formData.subcategory}
                     onChange={(e) => setFormData({ ...formData, subcategory: e.target.value })}
                   >
@@ -140,7 +139,7 @@ export function CreateItemProfile({ onCancel, onSave }) {
               <label className="text-[11px] font-bold text-slate-500">Clinical Description</label>
               <textarea
                 rows={3}
-                className="w-full p-3 bg-[#F8F9FC] dark:bg-[#0A0F1D] border border-[#E2E8F0] dark:border-slate-700 rounded-[5px] text-[13px] outline-none focus:border-[#2E37A4] text-foreground resize-none leading-relaxed font-medium"
+                className="w-full p-3 bg-[#F8F9FC] dark:bg-[#0A0F1D] border border-[#E2E8F0] dark:border-slate-700 rounded-[5px] text-[13px] outline-none focus:border-[#2E37A4] text-foreground resize-none leading-relaxed font-semibold"
                 value={formData.notes}
                 onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
               />
@@ -158,7 +157,7 @@ export function CreateItemProfile({ onCancel, onSave }) {
                 <label className="text-[11px] font-bold text-slate-500">Unit of Measure *</label>
                 <div className="relative">
                   <select
-                    className="w-full h-10 pl-3 pr-10 bg-[#F8F9FC] dark:bg-[#0A0F1D] border border-[#E2E8F0] dark:border-slate-700 rounded-[5px] text-[13px] outline-none focus:border-[#2E37A4] text-foreground font-medium appearance-none cursor-pointer"
+                    className="w-full h-10 pl-3 pr-10 bg-[#F8F9FC] dark:bg-[#0A0F1D] border border-[#E2E8F0] dark:border-slate-700 rounded-[5px] text-[13px] outline-none focus:border-[#2E37A4] text-foreground font-semibold appearance-none cursor-pointer"
                     value={formData.unit}
                     onChange={(e) => setFormData({ ...formData, unit: e.target.value })}
                   >
@@ -167,6 +166,8 @@ export function CreateItemProfile({ onCancel, onSave }) {
                     <option>Pair</option>
                     <option>Capsule</option>
                     <option>Bag</option>
+                    <option>Box of 20</option>
+                    <option>Box of 36</option>
                   </select>
                   <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-slate-400">
                     <ChevronDown size={16} />
@@ -178,7 +179,7 @@ export function CreateItemProfile({ onCancel, onSave }) {
                 <label className="text-[11px] font-bold text-slate-500">Storage Zone / Location</label>
                 <div className="relative">
                   <select
-                    className="w-full h-10 pl-3 pr-10 bg-[#F8F9FC] dark:bg-[#0A0F1D] border border-[#E2E8F0] dark:border-slate-700 rounded-[5px] text-[13px] outline-none focus:border-[#2E37A4] text-foreground font-medium appearance-none cursor-pointer"
+                    className="w-full h-10 pl-3 pr-10 bg-[#F8F9FC] dark:bg-[#0A0F1D] border border-[#E2E8F0] dark:border-slate-700 rounded-[5px] text-[13px] outline-none focus:border-[#2E37A4] text-foreground font-semibold appearance-none cursor-pointer"
                     value={formData.location}
                     onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                   >
@@ -243,10 +244,9 @@ export function CreateItemProfile({ onCancel, onSave }) {
             </h3>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
+              
               {/* Left checkboxes panel */}
               <div className="space-y-3 justify-center flex flex-col">
-
                 {/* Batch Tracking Toggle */}
                 <div
                   onClick={() => setFormData({ ...formData, enableBatch: !formData.enableBatch })}
@@ -274,7 +274,6 @@ export function CreateItemProfile({ onCancel, onSave }) {
                     {formData.enableExpiry && <Check size={12} strokeWidth={3} />}
                   </div>
                 </div>
-
               </div>
 
               {/* Right details fields */}
@@ -283,7 +282,7 @@ export function CreateItemProfile({ onCancel, onSave }) {
                   <label className="text-[11px] font-bold text-slate-500">Preferred Supplier / Vendor</label>
                   <div className="relative">
                     <select
-                      className="w-full h-10 pl-3 pr-10 bg-[#F8F9FC] dark:bg-[#0A0F1D] border border-[#E2E8F0] dark:border-slate-700 rounded-[5px] text-[13px] outline-none focus:border-[#2E37A4] text-foreground font-medium appearance-none cursor-pointer"
+                      className="w-full h-10 pl-3 pr-10 bg-[#F8F9FC] dark:bg-[#0A0F1D] border border-[#E2E8F0] dark:border-slate-700 rounded-[5px] text-[13px] outline-none focus:border-[#2E37A4] text-foreground font-semibold appearance-none cursor-pointer"
                       value={formData.vendor}
                       onChange={(e) => setFormData({ ...formData, vendor: e.target.value })}
                     >
@@ -299,7 +298,7 @@ export function CreateItemProfile({ onCancel, onSave }) {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1">
-                    <label className="text-[11px] font-bold text-slate-500">Purchase Unit Cost (₹)</label>
+                    <label className="text-[11px] font-bold text-slate-500">Purchase Unit Cost ($)</label>
                     <input
                       type="text"
                       className="w-full h-10 px-3 bg-[#F8F9FC] dark:bg-[#0A0F1D] border border-[#E2E8F0] dark:border-slate-700 rounded-[5px] text-[13px] outline-none focus:border-[#2E37A4] text-foreground font-semibold"
@@ -312,7 +311,7 @@ export function CreateItemProfile({ onCancel, onSave }) {
                     <label className="text-[11px] font-bold text-slate-500">Standard Tax Rate</label>
                     <div className="relative">
                       <select
-                        className="w-full h-10 pl-3 pr-10 bg-[#F8F9FC] dark:bg-[#0A0F1D] border border-[#E2E8F0] dark:border-slate-700 rounded-[5px] text-[13px] outline-none focus:border-[#2E37A4] text-foreground font-medium appearance-none cursor-pointer"
+                        className="w-full h-10 pl-3 pr-10 bg-[#F8F9FC] dark:bg-[#0A0F1D] border border-[#E2E8F0] dark:border-slate-700 rounded-[5px] text-[13px] outline-none focus:border-[#2E37A4] text-foreground font-semibold appearance-none cursor-pointer"
                         value={formData.taxRate}
                         onChange={(e) => setFormData({ ...formData, taxRate: e.target.value })}
                       >
@@ -338,7 +337,7 @@ export function CreateItemProfile({ onCancel, onSave }) {
           {/* Info tag */}
           <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
             <Info size={16} className="text-[#2E37A4] dark:text-[#5C67F2]" />
-            <span className="text-[12px] font-medium">Make sure code is unique across the catalog.</span>
+            <span className="text-[12px] font-semibold">Make sure code is unique across the catalog.</span>
           </div>
 
           {/* Button actions */}
@@ -360,7 +359,8 @@ export function CreateItemProfile({ onCancel, onSave }) {
         </div>
 
       </form>
-
     </div>
   );
 }
+
+export default CreateItemProfile;
