@@ -4,24 +4,46 @@ import React, { useState } from "react";
 import { Info, Check, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 
-export function CreateItemProfile({ onCancel, onSave }) {
-  const [formData, setFormData] = useState({
-    name: "Propofol 10mg/ml (20ml)",
-    sku: "ITM-90234",
-    category: "Anesthetics & Sedatives",
-    subcategory: "Intravenous Anesthetics",
-    notes: "Short-acting, intravenously administered anesthetic agent. Used for induction and maintenance of general anesthesia.",
-    unit: "Ampoule",
-    location: "Cold Vault Room B",
-    minStock: "1,000",
-    maxStock: "10,000",
-    reorderQty: "1,500",
-    shelfLife: "24 Months",
-    enableBatch: true,
-    enableExpiry: true,
-    vendor: "Baxter Healthcare",
-    cost: "12.50",
-    taxRate: "12% (CGST+SGST)"
+export function CreateItemProfile({ onCancel, onSave, editItem }) {
+  const [formData, setFormData] = useState(() => {
+    if (editItem) {
+      return {
+        name: editItem.name || "",
+        sku: editItem.sku || "",
+        category: editItem.category || "Anesthetics & Sedatives",
+        subcategory: editItem.subcategory || "Intravenous Anesthetics",
+        notes: editItem.notes || "",
+        unit: editItem.unit || "Ampoule",
+        location: editItem.location || "Cold Vault Room B",
+        minStock: String(editItem.minStock || editItem.minThreshold || "").replace(/,/g, ""),
+        maxStock: String(editItem.maxStock || "10,000").replace(/,/g, ""),
+        reorderQty: String(editItem.qty || "").replace(/,/g, ""),
+        shelfLife: editItem.shelfLife || "24 Months",
+        enableBatch: editItem.enableBatch !== undefined ? editItem.enableBatch : true,
+        enableExpiry: editItem.enableExpiry !== undefined ? editItem.enableExpiry : true,
+        vendor: editItem.vendor || editItem.supplier || "",
+        cost: String(editItem.cost || editItem.unitPrice || ""),
+        taxRate: editItem.taxRate || "12% (CGST+SGST)"
+      };
+    }
+    return {
+      name: "Propofol 10mg/ml (20ml)",
+      sku: "ITM-90234",
+      category: "Anesthetics & Sedatives",
+      subcategory: "Intravenous Anesthetics",
+      notes: "Short-acting, intravenously administered anesthetic agent. Used for induction and maintenance of general anesthesia.",
+      unit: "Ampoule",
+      location: "Cold Vault Room B",
+      minStock: "1,000",
+      maxStock: "10,000",
+      reorderQty: "1,500",
+      shelfLife: "24 Months",
+      enableBatch: true,
+      enableExpiry: true,
+      vendor: "Baxter Healthcare",
+      cost: "12.50",
+      taxRate: "12% (CGST+SGST)"
+    };
   });
 
   const handleSubmit = (e) => {
@@ -30,10 +52,10 @@ export function CreateItemProfile({ onCancel, onSave }) {
       toast.error("Please fill in required fields.");
       return;
     }
-    toast.success("New Item Profile created successfully!");
+    toast.success(editItem ? "Stock Profile updated successfully!" : "New Item Profile created successfully!");
     if (onSave) {
       onSave({
-        id: Date.now(),
+        id: editItem ? editItem.id : Date.now(),
         sku: formData.sku,
         name: formData.name,
         category: formData.category,
@@ -61,7 +83,7 @@ export function CreateItemProfile({ onCancel, onSave }) {
           {/* Title & Divider Inside the Box - Spans Full Width */}
           <div className="border-b border-[#e2e8f0] dark:border-slate-700 pb-6 px-6 sm:px-8 -mx-6 sm:-mx-8">
             <h2 className="text-[20px] font-bold text-[#1e293b] dark:text-white leading-none tracking-tight">
-              Create New Stock Profile
+              {editItem ? "Edit Stock Profile" : "Create New Stock Profile"}
             </h2>
           </div>
 
@@ -354,7 +376,7 @@ export function CreateItemProfile({ onCancel, onSave }) {
               type="submit"
               className="h-10 px-6 rounded-[5px] bg-[#2E37A4] hover:bg-[#232a7d] text-[12px] font-bold text-white transition-all cursor-pointer"
             >
-              Save Item
+              {editItem ? "Update Item" : "Save Item"}
             </button>
           </div>
         </div>
