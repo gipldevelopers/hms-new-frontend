@@ -45,7 +45,7 @@ export function ItemDetailView({ item, onBack, onAddItem, onRefreshDetails }) {
     try {
       setSubmitting(true);
       const token = localStorage.getItem("authtoken");
-      const res = await fetch(`/api/hospital-inventory/${item.id}/stock`, {
+      const res = await fetch(`/api/lab-inventory/${item.id}/stock`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

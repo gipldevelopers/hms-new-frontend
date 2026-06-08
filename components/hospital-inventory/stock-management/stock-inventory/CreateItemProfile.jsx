@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Info, Check, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 
@@ -15,10 +15,10 @@ export function CreateItemProfile({ onCancel, onSave, editItem }) {
         notes: editItem.notes || "",
         unit: editItem.unit || "Ampoule",
         location: editItem.location || "Cold Vault Room B",
-        minStock: String(editItem.minStock || editItem.minThreshold || "").replace(/,/g, ""),
+                minStock: String(editItem.minStock || editItem.minThreshold || "").replace(/,/g, ""),
         maxStock: String(editItem.maxStock || "10,000").replace(/,/g, ""),
-        reorderQty: String(editItem.qty || "").replace(/,/g, ""),
-        shelfLife: editItem.shelfLife || "24 Months",
+        reorderQty: String(parseFloat(editItem.qty) !== undefined && !isNaN(parseFloat(editItem.qty)) ? parseFloat(editItem.qty) : (editItem.qty || "")).replace(/,/g, ""),
+        shelfLife: editItem.shelfLife || editItem.expiry || "24 Months",
         enableBatch: editItem.enableBatch !== undefined ? editItem.enableBatch : true,
         enableExpiry: editItem.enableExpiry !== undefined ? editItem.enableExpiry : true,
         vendor: editItem.vendor || editItem.supplier || "",
@@ -46,13 +46,36 @@ export function CreateItemProfile({ onCancel, onSave, editItem }) {
     };
   });
 
+  // Sync state when editItem is loaded asynchronously
+  useEffect(() => {
+    if (editItem) {
+      setFormData({
+        name: editItem.name || "",
+        sku: editItem.sku || "",
+        category: editItem.category || "Anesthetics & Sedatives",
+        subcategory: editItem.subcategory || "Intravenous Anesthetics",
+        notes: editItem.notes || "",
+        unit: editItem.unit || "Ampoule",
+        location: editItem.location || "Cold Vault Room B",
+        minStock: String(editItem.minStock || editItem.minThreshold || "").replace(/,/g, ""),
+        maxStock: String(editItem.maxStock || "10,000").replace(/,/g, ""),
+        reorderQty: String(parseFloat(editItem.qty) !== undefined && !isNaN(parseFloat(editItem.qty)) ? parseFloat(editItem.qty) : (editItem.qty || "")).replace(/,/g, ""),
+        shelfLife: editItem.shelfLife || editItem.expiry || "24 Months",
+        enableBatch: editItem.enableBatch !== undefined ? editItem.enableBatch : true,
+        enableExpiry: editItem.enableExpiry !== undefined ? editItem.enableExpiry : true,
+        vendor: editItem.vendor || editItem.supplier || "",
+        cost: String(editItem.cost || editItem.unitPrice || ""),
+        taxRate: editItem.taxRate || "12% (CGST+SGST)"
+      });
+    }
+  }, [editItem]);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!formData.name || !formData.sku) {
       toast.error("Please fill in required fields.");
       return;
     }
-    toast.success(editItem ? "Stock Profile updated successfully!" : "New Item Profile created successfully!");
     if (onSave) {
       onSave({
         id: editItem ? editItem.id : Date.now(),
@@ -67,7 +90,10 @@ export function CreateItemProfile({ onCancel, onSave, editItem }) {
         vendor: formData.vendor,
         supplier: formData.vendor,
         minThreshold: formData.minStock.replace(/,/g, ""),
-        notes: formData.notes
+        notes: formData.notes,
+        cost: formData.cost,
+        unitPrice: formData.cost,
+        expiry: formData.shelfLife
       });
     }
   };

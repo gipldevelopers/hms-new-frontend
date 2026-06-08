@@ -17,9 +17,10 @@ const INITIAL_STOCK_ITEMS = [
   { id: 8, sku: "ITM-29103", name: "Heparin Sodium 5000 IU/ml", category: "Anticoagulants", unit: "Vial", qty: "0", minStock: "100", batches: "0", status: "Out of Stock", vendor: "Sandoz" }
 ];
 
+import { API_URL } from "@/lib/api";
+
 export function InventoryTable({ items = [], setItems, onViewItem, triggerAddModal, clearAddTrigger, onAddClick }) {
   const router = useRouter();
-  const [localItems, setLocalItems] = useState(INITIAL_STOCK_ITEMS);
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedStatus, setSelectedStatus] = useState("All");
@@ -51,70 +52,169 @@ export function InventoryTable({ items = [], setItems, onViewItem, triggerAddMod
   }, [triggerAddModal]);
 
   // Handle Add Item Submit
-  const handleAddSubmit = (e) => {
+  const handleAddSubmit = async (e) => {
     e.preventDefault();
     if (!formData.name || !formData.sku) {
       toast.error("Please enter item SKU and Name");
       return;
     }
-    const newItem = {
-      id: Date.now(),
-      ...formData,
-      status: parseInt(formData.qty) === 0 ? "Out of Stock" : parseInt(formData.qty) < parseInt(formData.minStock) ? "Low" : "In Stock"
-    };
-    setLocalItems([newItem, ...localItems]);
-    setIsAddOpen(false);
-    toast.success("Stock Item added successfully!");
-    setFormData({ sku: "", name: "", category: "", unit: "", qty: "", minStock: "", batches: "1", status: "In Stock", vendor: "" });
+
+    try {
+      const token = localStorage.getItem("authtoken");
+      const userStr = localStorage.getItem("user");
+      if (!token || !userStr) {
+        toast.error("Session expired.");
+        return;
+      }
+      const user = JSON.parse(userStr);
+      const branchId = user.branchId;
+
+      const payload = {
+        name: formData.name,
+        sku: formData.sku,
+        category: formData.category,
+        qty: `${formData.qty} ${formData.unit || "Units"}`,
+        expiry: "24 Months",
+        status: parseInt(formData.qty) === 0 ? "Out of Stock" : parseInt(formData.qty) < parseInt(formData.minStock) ? "LOW" : "In Stock",
+        supplier: formData.vendor || "",
+        minThreshold: formData.minStock || "5",
+        notes: "Created via inventory table",
+        unitPrice: 0.0
+      };
+
+      const res = await fetch(`${API_URL}/stock-inventory?branchId=${branchId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+      const result = await res.json();
+      if (result.success) {
+        toast.success("Stock Item added successfully!");
+        setIsAddOpen(false);
+        setFormData({ sku: "", name: "", category: "", unit: "", qty: "", minStock: "", batches: "1", status: "In Stock", vendor: "" });
+        window.dispatchEvent(new Event("refresh-inventory"));
+      } else {
+        toast.error(result.error || "Failed to add item.");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Network error. Please try again.");
+    }
   };
 
   // Handle Edit Item Submit
-  const handleEditSubmit = (e) => {
+  const handleEditSubmit = async (e) => {
     e.preventDefault();
-    setLocalItems(localItems.map(item => item.id === selectedItem.id ? {
-      ...item,
-      ...formData,
-      status: parseInt(formData.qty) === 0 ? "Out of Stock" : parseInt(formData.qty) < parseInt(formData.minStock) ? "Low" : "In Stock"
-    } : item));
-    setIsEditOpen(false);
-    toast.success("Stock Item updated successfully!");
+    if (!formData.name || !formData.sku) {
+      toast.error("Please enter item SKU and Name");
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("authtoken");
+      const userStr = localStorage.getItem("user");
+      if (!token || !userStr) {
+        toast.error("Session expired.");
+        return;
+      }
+      const user = JSON.parse(userStr);
+      const branchId = user.branchId;
+
+      const payload = {
+        name: formData.name,
+        sku: formData.sku,
+        category: formData.category,
+        qty: `${formData.qty} ${formData.unit || "Units"}`,
+        expiry: selectedItem.expiry || "24 Months",
+        status: parseInt(formData.qty) === 0 ? "Out of Stock" : parseInt(formData.qty) < parseInt(formData.minStock) ? "LOW" : "In Stock",
+        supplier: formData.vendor || "",
+        minThreshold: formData.minStock || "5",
+        notes: selectedItem.notes || "",
+        unitPrice: parseFloat(selectedItem.unitPrice || 0.0)
+      };
+
+      const res = await fetch(`${API_URL}/stock-inventory/${selectedItem.id}?branchId=${branchId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+      const result = await res.json();
+      if (result.success) {
+        toast.success("Stock Item updated successfully!");
+        setIsEditOpen(false);
+        window.dispatchEvent(new Event("refresh-inventory"));
+      } else {
+        toast.error(result.error || "Failed to update item.");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Network error. Please try again.");
+    }
   };
 
   // Open Edit Modal
   const openEdit = (item) => {
     setSelectedItem(item);
     setFormData({
-      sku: item.sku,
-      name: item.name,
-      category: item.category,
-      unit: item.unit,
-      qty: item.qty,
-      minStock: item.minStock,
-      batches: item.batches,
-      status: item.status,
-      vendor: item.vendor
+      sku: item.sku || "",
+      name: item.name || "",
+      category: item.category || "",
+      unit: item.unit || "",
+      qty: item.qtyNum || parseFloat(item.qty) || "0",
+      minStock: item.minStock || item.minThreshold || "0",
+      batches: item.batches || "1",
+      status: item.status || "In Stock",
+      vendor: item.vendor || item.supplier || ""
     });
     setIsEditOpen(true);
   };
 
-  const deleteItem = (item) => {
-    if (window.confirm(`Are you sure you want to delete ${item.name}?`)) {
-      setLocalItems(localItems.filter(i => i.id !== item.id));
-      toast.success("Item deleted successfully!");
+  const deleteItem = async (item) => {
+    if (!window.confirm(`Are you sure you want to delete ${item.name}?`)) return;
+
+    try {
+      const token = localStorage.getItem("authtoken");
+      const userStr = localStorage.getItem("user");
+      if (!token || !userStr) return;
+      const user = JSON.parse(userStr);
+      const branchId = user.branchId;
+
+      const res = await fetch(`${API_URL}/stock-inventory/${item.id}?branchId=${branchId}`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+      const result = await res.json();
+      if (result.success) {
+        toast.success("Item deleted successfully!");
+        window.dispatchEvent(new Event("refresh-inventory"));
+      } else {
+        toast.error(result.error || "Failed to delete item.");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Network error. Please try again.");
     }
   };
 
   // Filter Logic
-  const filtered = localItems.filter(item => {
-    const matchesSearch = item.name.toLowerCase().includes(search.toLowerCase()) ||
-      item.sku.toLowerCase().includes(search.toLowerCase()) ||
-      item.vendor.toLowerCase().includes(search.toLowerCase());
+  const filtered = items.filter(item => {
+    const matchesSearch = (item.name || "").toLowerCase().includes(search.toLowerCase()) ||
+      (item.sku || "").toLowerCase().includes(search.toLowerCase()) ||
+      (item.vendor || item.supplier || "").toLowerCase().includes(search.toLowerCase());
 
     const matchesCategory = selectedCategory === "All" || item.category === selectedCategory;
 
     const matchesStatus = selectedStatus === "All" ||
-      (selectedStatus === "In Stock" && item.status === "In Stock") ||
-      (selectedStatus === "Low" && item.status === "Low") ||
+      (selectedStatus === "In Stock" && (item.status === "In Stock" || item.status === "Optimal")) ||
+      (selectedStatus === "Low" && (item.status === "Low" || item.status === "LOW")) ||
       (selectedStatus === "Out of Stock" && item.status === "Out of Stock");
 
     return matchesSearch && matchesCategory && matchesStatus;

@@ -20,7 +20,7 @@ export function LabInventory({ slugs = [] }) {
     try {
       setLoading(true);
       const token = localStorage.getItem("authtoken");
-      const res = await fetch("/api/hospital-inventory", {
+      const res = await fetch("/api/lab-inventory", {
         headers: { Authorization: `Bearer ${token}` }
       });
       const json = await res.json();
@@ -49,7 +49,7 @@ export function LabInventory({ slugs = [] }) {
       const fetchDetails = async () => {
         try {
           const token = localStorage.getItem("authtoken");
-          const res = await fetch(`/api/hospital-inventory/${itemId}`, {
+          const res = await fetch(`/api/lab-inventory/${itemId}`, {
             headers: { Authorization: `Bearer ${token}` }
           });
           const json = await res.json();
@@ -107,7 +107,7 @@ export function LabInventory({ slugs = [] }) {
             if (itemId) {
               try {
                 const token = localStorage.getItem("authtoken");
-                const res = await fetch(`/api/hospital-inventory/${itemId}`, {
+                const res = await fetch(`/api/lab-inventory/${itemId}`, {
                   headers: { Authorization: `Bearer ${token}` }
                 });
                 const json = await res.json();
@@ -148,7 +148,7 @@ export function LabInventory({ slugs = [] }) {
                 if (itemId) {
                   try {
                     const token = localStorage.getItem("authtoken");
-                    const res = await fetch(`/api/hospital-inventory/${itemId}`, {
+                    const res = await fetch(`/api/lab-inventory/${itemId}`, {
                       headers: { Authorization: `Bearer ${token}` }
                     });
                     const json = await res.json();

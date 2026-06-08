@@ -35,6 +35,10 @@ export function ItemDetailView({ item, onBack, onTransferStock }) {
   const safetyLimit = item.minThreshold ? formatNumber(item.minThreshold) : "1,000";
   const activeBatches = item.batches || "4";
 
+  const supplierName = item.supplier || item.vendor || "Not Specified";
+  const supplierLetter = (supplierName.trim().charAt(0) || "S").toUpperCase();
+  const unitPrice = parseFloat(item.unitPrice || 0).toFixed(2);
+
   return (
     <div className="font-sans space-y-4">
 
@@ -120,7 +124,7 @@ export function ItemDetailView({ item, onBack, onTransferStock }) {
           <div>
             <div className="text-[11px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider leading-none">Unit Stock Valuation</div>
             <div className="text-[16px] font-extrabold text-slate-800 dark:text-white mt-1.5 leading-none">
-              ₹52.50
+              ₹{unitPrice}
             </div>
           </div>
         </div>
@@ -221,12 +225,11 @@ export function ItemDetailView({ item, onBack, onTransferStock }) {
         </div>
       </div>      {/* BOTTOM ROW GRID */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        
-        {/* Order History (Left - 3/5 wide) */}
+               {/* Stock Transaction History (Left - 3/5 wide) */}
         <div className="lg:col-span-3 bg-white dark:bg-[#1e293b] rounded-[5px] border border-[#e2e8f0] dark:border-[#334155] pt-5 pb-0 px-0 shadow-none flex flex-col justify-between">
           <div className="flex items-center justify-between pb-4 px-6">
-            <h2 className="text-[15px] font-extrabold text-slate-800 dark:text-white">Order History</h2>
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Last 3 Transactions</span>
+            <h2 className="text-[15px] font-extrabold text-slate-800 dark:text-white">Stock Transaction History</h2>
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Audit History Log</span>
           </div>
 
           {/* Full-width Divider */}
@@ -236,65 +239,59 @@ export function ItemDetailView({ item, onBack, onTransferStock }) {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-[#F8F9FC] dark:bg-[#0A0F1D] border-b border-[#e2e8f0] dark:border-slate-850">
-                  <th className="py-3.5 pl-6 text-[11px] font-bold text-slate-450 uppercase tracking-wider">Order Code</th>
-                  <th className="py-3.5 px-4 text-[11px] font-bold text-slate-450 uppercase tracking-wider">Date</th>
-                  <th className="py-3.5 px-4 text-[11px] font-bold text-slate-450 uppercase tracking-wider">Quantity</th>
-                  <th className="py-3.5 px-4 text-[11px] font-bold text-slate-450 uppercase tracking-wider">Unit Rate</th>
-                  <th className="py-3.5 px-4 text-[11px] font-bold text-slate-450 uppercase tracking-wider">Total Price</th>
-                  <th className="py-3.5 pr-6 text-[11px] font-bold text-slate-450 uppercase tracking-wider text-right">Status</th>
+                  <th className="py-3.5 pl-6 text-[11px] font-bold text-slate-450 uppercase tracking-wider">Date & Time</th>
+                  <th className="py-3.5 px-4 text-[11px] font-bold text-slate-450 uppercase tracking-wider">Type</th>
+                  <th className="py-3.5 px-4 text-[11px] font-bold text-slate-450 uppercase tracking-wider">Qty Changed</th>
+                  <th className="py-3.5 px-4 text-[11px] font-bold text-slate-450 uppercase tracking-wider">User</th>
+                  <th className="py-3.5 pr-6 text-[11px] font-bold text-slate-450 uppercase tracking-wider text-right">Notes</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#e2e8f0] dark:divide-slate-800 text-[13px]">
-                
-                {/* Transaction 1 */}
-                <tr className="hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors">
-                  <td className="py-3.5 pl-6 font-semibold text-slate-700 dark:text-slate-350">PO-2024-0891</td>
-                  <td className="py-3.5 px-4 font-medium text-slate-500">14 Oct 2024</td>
-                  <td className="py-3.5 px-4 font-semibold text-slate-700 dark:text-slate-350">1,500 units</td>
-                  <td className="py-3.5 px-4 font-semibold text-slate-650 dark:text-slate-400">₹12.50</td>
-                  <td className="py-3.5 px-4 font-extrabold text-slate-800 dark:text-white">₹18,750.00</td>
-                  <td className="py-3.5 pr-6 text-right">
-                    <span className="px-2 py-0.5 rounded-[5px] text-[10px] font-bold text-[#2E37A4] border border-[#2E37A4] bg-[#2E37A4]/5 uppercase leading-none">
-                      Delivered
-                    </span>
-                  </td>
-                </tr>
-
-                {/* Transaction 2 */}
-                <tr className="hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors">
-                  <td className="py-3.5 pl-6 font-semibold text-slate-700 dark:text-slate-350">PO-2024-0542</td>
-                  <td className="py-3.5 px-4 font-medium text-slate-500">22 May 2024</td>
-                  <td className="py-3.5 px-4 font-semibold text-slate-700 dark:text-slate-350">1,500 units</td>
-                  <td className="py-3.5 px-4 font-semibold text-slate-650 dark:text-slate-400">₹12.50</td>
-                  <td className="py-3.5 px-4 font-extrabold text-slate-800 dark:text-white">₹18,750.00</td>
-                  <td className="py-3.5 pr-6 text-right">
-                    <span className="px-2 py-0.5 rounded-[5px] text-[10px] font-bold text-[#2E37A4] border border-[#2E37A4] bg-[#2E37A4]/5 uppercase leading-none">
-                      Delivered
-                    </span>
-                  </td>
-                </tr>
-
-                {/* Transaction 3 */}
-                <tr className="hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors">
-                  <td className="py-3.5 pl-6 font-semibold text-slate-700 dark:text-slate-350">PO-2024-0112</td>
-                  <td className="py-3.5 px-4 font-medium text-slate-500">09 Jan 2024</td>
-                  <td className="py-3.5 px-4 font-semibold text-slate-700 dark:text-slate-350">1,000 units</td>
-                  <td className="py-3.5 px-4 font-semibold text-slate-650 dark:text-slate-400">₹12.00</td>
-                  <td className="py-3.5 px-4 font-extrabold text-slate-800 dark:text-white">₹12,000.00</td>
-                  <td className="py-3.5 pr-6 text-right">
-                    <span className="px-2 py-0.5 rounded-[5px] text-[10px] font-bold text-[#2E37A4] border border-[#2E37A4] bg-[#2E37A4]/5 uppercase leading-none">
-                      Delivered
-                    </span>
-                  </td>
-                </tr>
-
+              <tbody className="divide-y divide-[#e2e8f0] dark:divide-slate-850 text-[13px]">
+                {(!item.stockHistory || item.stockHistory.length === 0) ? (
+                  <tr>
+                    <td colSpan="5" className="py-8 text-center text-slate-400 font-semibold pl-6">
+                      No stock history recorded yet
+                    </td>
+                  </tr>
+                ) : (
+                  item.stockHistory.map((log) => (
+                    <tr key={log.id} className="hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors">
+                      <td className="py-3.5 pl-6 font-semibold text-slate-700 dark:text-slate-350">
+                        {new Date(log.dateTime).toLocaleString('en-IN', {
+                          dateStyle: 'medium',
+                          timeStyle: 'short'
+                        })}
+                      </td>
+                      <td className="py-3.5 px-4 font-medium">
+                        <span className={cn(
+                          "px-2 py-0.5 rounded-[5px] text-[10px] font-bold uppercase border leading-none",
+                          log.type === "Addition" && "bg-emerald-50 text-emerald-600 border-emerald-200/50",
+                          log.type === "Usage" && "bg-[#FFF7E6] text-[#D48806] border-[#FFE7BA]",
+                          log.type === "Initial Stock" && "bg-blue-50 text-blue-600 border-blue-200/50"
+                        )}>
+                          {log.type}
+                        </span>
+                      </td>
+                      <td className={cn(
+                        "py-3.5 px-4 font-extrabold",
+                        log.qtyChanged.startsWith("+") ? "text-[#0F8A5F]" : "text-red-500"
+                      )}>
+                        {log.qtyChanged}
+                      </td>
+                      <td className="py-3.5 px-4 font-semibold text-slate-700 dark:text-slate-200">{log.user}</td>
+                      <td className="py-3.5 pr-6 text-right text-slate-500 dark:text-slate-400 font-medium">
+                        {log.notes || "N/A"}
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
         </div>
 
         {/* Preferred Supplier (Right - 2/5 wide) */}
-        <div className="lg:col-span-2 bg-white dark:bg-[#1e293b] rounded-[5px] border border-[#e2e8f0] dark:border-[#334155] pt-5 pb-0 px-0 shadow-none flex flex-col">
+        <div className="lg:col-span-2 bg-white dark:bg-[#1e293b] rounded-[5px] border border-[#e2e8f0] dark:border-[#334155] pt-5 pb-0 px-0 shadow-none flex flex-col self-start">
           <div className="pb-4 px-6">
             <h2 className="text-[15px] font-extrabold text-slate-800 dark:text-white">Preferred Supplier</h2>
           </div>
@@ -303,12 +300,12 @@ export function ItemDetailView({ item, onBack, onTransferStock }) {
           <div className="border-t border-[#e2e8f0] dark:border-slate-800"></div>
 
           {/* Supplier Info Row */}
-          <div className="flex items-center gap-3 py-4 px-6 bg-white dark:bg-[#1e293b] flex-1 min-h-[72px]">
+          <div className="flex items-center gap-3 py-4 px-6 bg-white dark:bg-[#1e293b] min-h-[72px]">
             <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-950/20 flex items-center justify-center text-blue-600 dark:text-blue-400 font-extrabold text-[15px] shrink-0">
-              B
+              {supplierLetter}
             </div>
             <div>
-              <div className="text-[14px] font-extrabold text-slate-800 dark:text-white">Baxter Healthcare</div>
+              <div className="text-[14px] font-extrabold text-slate-800 dark:text-white">{supplierName}</div>
               <div className="text-[10px] font-bold text-slate-450 dark:text-slate-500 mt-0.5">Contract Active (ID: SUP-8812)</div>
             </div>
           </div>
@@ -321,7 +318,7 @@ export function ItemDetailView({ item, onBack, onTransferStock }) {
             
             <div className="py-3.5 px-6 flex items-center justify-between border-b border-[#e2e8f0] dark:border-slate-800 hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors">
               <span className="font-semibold text-slate-500 dark:text-slate-400">Purchase Unit Cost</span>
-              <span className="font-extrabold text-slate-800 dark:text-white">₹563.50</span>
+              <span className="font-extrabold text-slate-800 dark:text-white">₹{unitPrice}</span>
             </div>
 
             <div className="py-3.5 px-6 flex items-center justify-between border-b border-[#e2e8f0] dark:border-slate-800 hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors">
