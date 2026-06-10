@@ -216,7 +216,7 @@ export function InventoryTable({ items, setItems, onViewItem, triggerAddModal, c
     try {
       const token = localStorage.getItem("authtoken");
       if (modalType === "edit") {
-        const res = await fetch(`/api/hospital-inventory/${selectedItem.id}`, {
+        const res = await fetch(`/api/lab-inventory/${selectedItem.id}`, {
           method: "PUT",
           headers: {
             "Content-Type": "application/json",
@@ -232,7 +232,7 @@ export function InventoryTable({ items, setItems, onViewItem, triggerAddModal, c
           toast.error(json.error || "Failed to update item");
         }
       } else {
-        const res = await fetch("/api/hospital-inventory", {
+        const res = await fetch("/api/lab-inventory", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -262,7 +262,7 @@ export function InventoryTable({ items, setItems, onViewItem, triggerAddModal, c
     if (confirmed) {
       try {
         const token = localStorage.getItem("authtoken");
-        const res = await fetch(`/api/hospital-inventory/${item.id}`, {
+        const res = await fetch(`/api/lab-inventory/${item.id}`, {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` }
         });

@@ -8,27 +8,87 @@ import { Calendar } from "lucide-react";
 
 export function StockTransfer({ slugs = [] }) {
   const router = useRouter();
-  // Recent dispatches list matching your shared image
-  const [dispatches, setDispatches] = useState([
-    { id: "TX-2024-991", source: "Central Store", destination: "O.T. Recovery Unit", date: "2024-03-22", totalItems: 5 },
-    { id: "TX-2024-988", source: "Central Pharmacy", destination: "Emergency Ward", date: "2024-03-21", totalItems: 3 },
-    { id: "TX-2024-984", source: "Central Store", destination: "ICU Department B", date: "2024-03-20", totalItems: 12 },
-    { id: "TX-2024-979", source: "Central Store", destination: "Outpatient Clinic", date: "2024-03-18", totalItems: 2 },
-  ]);
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+
+  const [dispatches, setDispatches] = useState([]);
+  const [availableItems, setAvailableItems] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   // Form states
-  const [transferId, setTransferId] = useState("TX-2024-995");
+  const [transferId, setTransferId] = useState("");
   const [fromDept, setFromDept] = useState("Central Store");
   const [toDept, setToDept] = useState("O.T. Recovery Unit");
-  const [transferDate, setTransferDate] = useState("2024-03-22");
+  const [transferDate, setTransferDate] = useState(() => {
+    const today = new Date();
+    return today.toISOString().split("T")[0];
+  });
+  const [items, setItems] = useState([]);
+  const [notes, setNotes] = useState("");
 
-  // Selected items with initial quantities
-  const [items, setItems] = useState([
-    { id: 1, name: "Surgical Gloves Sterile", batch: "GLV-11", stock: "160 pr", qty: 50 },
-    { id: 2, name: "Propofol 10mg/ml", batch: "PPF-24-A", stock: "3100 amp", qty: 100 }
-  ]);
+  // Fetch recent dispatches and active stock inventory items
+  const fetchData = React.useCallback(async () => {
+    try {
+      const token = localStorage.getItem("authtoken");
+      const userStr = localStorage.getItem("user");
+      if (!token || !userStr) return;
+      const user = JSON.parse(userStr);
+      const branchId = user.branchId;
 
-  const [notes, setNotes] = useState("Urgent restocking for evening neuro-surgeries.");
+      // 1. Fetch available stock items
+      const itemsRes = await fetch(`${API_URL}/stock-inventory?branchId=${branchId}`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      const itemsData = await itemsRes.json();
+      if (itemsData.success) {
+        setAvailableItems(itemsData.data || []);
+      }
+
+      // 2. Fetch recent dispatches
+      const transRes = await fetch(`${API_URL}/stock-transfer?branchId=${branchId}`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      const transData = await transRes.json();
+      if (transData.success) {
+        setDispatches(transData.data || []);
+      }
+    } catch (err) {
+      console.error("Error fetching transfer module data:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [API_URL]);
+
+  React.useEffect(() => {
+    fetchData();
+  }, [fetchData]);
+
+  // Handle auto-selected item from query parameters (e.g. from the Details page)
+  React.useEffect(() => {
+    if (availableItems.length > 0) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const queryItemId = urlParams.get("itemId");
+      if (queryItemId) {
+        const matched = availableItems.find(x => x.id === queryItemId);
+        if (matched && !items.some(x => x.id === matched.id)) {
+          setItems([{
+            id: matched.id,
+            name: matched.name,
+            sku: matched.sku,
+            batch: matched.sku,
+            stock: matched.qty,
+            qty: 1
+          }]);
+        }
+      }
+    }
+  }, [availableItems]);
+
+  // Generate next transfer ID if empty
+  React.useEffect(() => {
+    if (!transferId) {
+      setTransferId(`TX-2026-${Math.floor(1000 + Math.random() * 9000)}`);
+    }
+  }, [transferId]);
 
   // Handle quantity change
   const handleQtyChange = (id, val) => {
@@ -36,8 +96,8 @@ export function StockTransfer({ slugs = [] }) {
     setItems(items.map(item => item.id === id ? { ...item, qty: numericVal } : item));
   };
 
-  // Submit transfer
-  const handleTransferSubmit = (e) => {
+  // Submit transfer to backend
+  const handleTransferSubmit = async (e) => {
     e.preventDefault();
 
     if (!fromDept || !toDept) {
@@ -50,31 +110,68 @@ export function StockTransfer({ slugs = [] }) {
       return;
     }
 
-    const totalItems = items.reduce((sum, item) => sum + item.qty, 0);
-    if (totalItems <= 0) {
-      toast.error("Please enter a valid transfer quantity greater than 0");
+    if (items.length === 0) {
+      toast.error("Please add at least one item to transfer");
       return;
     }
 
-    // Append new transfer record
-    const newDispatch = {
-      id: transferId,
-      source: fromDept,
-      destination: toDept,
-      date: transferDate,
-      totalItems: items.length // Number of unique line items
-    };
+    const invalidItem = items.find(item => item.qty <= 0);
+    if (invalidItem) {
+      toast.error(`Please enter a valid transfer quantity for ${invalidItem.name}`);
+      return;
+    }
 
-    setDispatches([newDispatch, ...dispatches]);
-    toast.success(`Successfully transferred stock! ID: ${transferId}`);
+    // Double check available stock
+    for (const item of items) {
+      const avail = parseFloat(item.stock) || 0;
+      if (item.qty > avail) {
+        toast.error(`Transfer quantity for ${item.name} exceeds available stock of ${item.stock}`);
+        return;
+      }
+    }
 
-    // Generate next transfer ID (mock increment)
-    const nextNum = parseInt(transferId.split("-")[2]) + 1;
-    setTransferId(`TX-2024-${nextNum}`);
+    try {
+      const token = localStorage.getItem("authtoken");
+      const userStr = localStorage.getItem("user");
+      if (!token || !userStr) {
+        toast.error("Session expired.");
+        return;
+      }
+      const user = JSON.parse(userStr);
+      const branchId = user.branchId;
 
-    // Reset notes/quantities
-    setNotes("");
-    setItems(items.map(item => ({ ...item, qty: 0 })));
+      const payload = {
+        transferId,
+        source: fromDept,
+        destination: toDept,
+        date: transferDate,
+        items: items.map(x => ({ id: x.id, sku: x.sku, name: x.name, qty: String(x.qty) })),
+        notes
+      };
+
+      const res = await fetch(`${API_URL}/stock-transfer?branchId=${branchId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const result = await res.json();
+      if (result.success) {
+        toast.success(`Successfully transferred stock! ID: ${transferId}`);
+        setTransferId(`TX-2026-${Math.floor(1000 + Math.random() * 9000)}`);
+        setItems([]);
+        setNotes("");
+        fetchData();
+      } else {
+        toast.error(result.error || "Failed to complete stock transfer.");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Network error. Please try again.");
+    }
   };
 
   return (
@@ -87,7 +184,7 @@ export function StockTransfer({ slugs = [] }) {
         </h2>
       </div>
 
-      {/* Sub-tabs List matching mockup */}
+      {/* Sub-tabs List */}
       <div className="flex flex-wrap items-center gap-1.5 p-1 bg-[#F1F5F9] dark:bg-[#1E293B]/60 rounded-[8px] border border-[#E2E8F0] dark:border-[#334155] w-fit">
         <button
           className="px-4 py-2 text-[12px] font-bold rounded-[6px] transition-all bg-transparent text-[#5E6C84] dark:text-slate-400 hover:text-[#2E37A4] dark:hover:text-[#5F69F8] cursor-pointer"
@@ -114,7 +211,7 @@ export function StockTransfer({ slugs = [] }) {
         </button>
       </div>
 
-      {/* Two Column Grid matching your exact shared layout */}
+      {/* Two Column Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
 
         {/* Left Column - Create Internal Stock Transfer Form */}
@@ -190,31 +287,79 @@ export function StockTransfer({ slugs = [] }) {
               </div>
             </div>
 
+            {/* Add Item Selection Dropdown */}
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Add Item to Transfer</label>
+              <select
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (!val) return;
+                  const selected = availableItems.find(x => x.id === val);
+                  if (selected) {
+                    if (items.some(x => x.id === selected.id)) {
+                      toast.error("Item already added to transfer list.");
+                      return;
+                    }
+                    setItems([...items, {
+                      id: selected.id,
+                      name: selected.name,
+                      sku: selected.sku,
+                      batch: selected.sku,
+                      stock: selected.qty,
+                      qty: 1
+                    }]);
+                  }
+                  e.target.value = ""; // reset selection
+                }}
+                className="w-full h-10 px-3 bg-white dark:bg-[#0f172a] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-semibold text-slate-700 dark:text-slate-200 outline-none focus:border-[#2E37A4] transition-all"
+              >
+                <option value="">-- Select Item from Stock Inventory --</option>
+                {availableItems.map(x => (
+                  <option key={x.id} value={x.id}>{x.name} (Stock: {x.qty})</option>
+                ))}
+              </select>
+            </div>
+
             {/* Selected Items */}
             <div className="space-y-2">
               <label className="text-[11px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Selected Items to Transfer</label>
 
               <div className="space-y-2.5">
-                {items.map((item) => (
-                  <div key={item.id} className="flex justify-between items-center p-3 rounded-[5px] border border-[#e2e8f0] dark:border-[#334155] bg-[#F8F9FC] dark:bg-[#0f172a]/20">
-                    <div className="space-y-0.5">
-                      <span className="text-[13px] font-bold text-slate-800 dark:text-slate-200">{item.name}</span>
-                      <div className="text-[11px] text-slate-400 font-semibold">
-                        Batch: <span className="text-slate-500 dark:text-slate-300 font-bold">{item.batch}</span> &bull; Stock: <span className="text-slate-500 dark:text-slate-300 font-bold">{item.stock}</span>
+                {items.length === 0 ? (
+                  <div className="p-4 text-center text-slate-400 font-semibold border border-dashed border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[12px]">
+                    No items selected. Choose an item above to add.
+                  </div>
+                ) : (
+                  items.map((item) => (
+                    <div key={item.id} className="flex justify-between items-center p-3 rounded-[5px] border border-[#e2e8f0] dark:border-[#334155] bg-[#F8F9FC] dark:bg-[#0f172a]/20">
+                      <div className="space-y-0.5">
+                        <span className="text-[13px] font-bold text-slate-800 dark:text-slate-200">{item.name}</span>
+                        <div className="text-[11px] text-slate-400 font-semibold">
+                          SKU: <span className="text-slate-500 dark:text-slate-300 font-bold">{item.sku}</span> &bull; Stock: <span className="text-slate-500 dark:text-slate-300 font-bold">{item.stock}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-[11px] text-slate-400 font-bold">Qty:</span>
+                          <input
+                            type="number"
+                            min="1"
+                            value={item.qty}
+                            onChange={(e) => handleQtyChange(item.id, e.target.value)}
+                            className="w-14 h-8 px-2 border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#0f172a] rounded-[4px] text-[12px] font-extrabold text-center outline-none focus:border-[#2E37A4]"
+                          />
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setItems(items.filter(x => x.id !== item.id))}
+                          className="text-red-500 hover:text-red-700 text-[11px] font-bold cursor-pointer"
+                        >
+                          Remove
+                        </button>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-[11px] text-slate-400 font-bold">Qty:</span>
-                      <input
-                        type="number"
-                        min="0"
-                        value={item.qty}
-                        onChange={(e) => handleQtyChange(item.id, e.target.value)}
-                        className="w-14 h-8 px-2 border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#0f172a] rounded-[4px] text-[12px] font-extrabold text-center outline-none focus:border-[#2E37A4]"
-                      />
-                    </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
             </div>
 
@@ -261,19 +406,39 @@ export function StockTransfer({ slugs = [] }) {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#e2e8f0] dark:divide-[#334155]">
-                {dispatches.map((disp) => (
-                  <tr key={disp.id} className="hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors">
-                    <td className="px-5 py-3.5 font-bold text-[#2E37A4] dark:text-[#5F69F8]">{disp.id}</td>
-                    <td className="px-5 py-3.5 font-semibold text-slate-500 dark:text-slate-400">{disp.source}</td>
-                    <td className="px-5 py-3.5 font-semibold text-slate-500 dark:text-slate-400">{disp.destination}</td>
-                    <td className="px-5 py-3.5 font-bold text-slate-800 dark:text-slate-100">{disp.date}</td>
-                    <td className="px-5 py-3.5 text-center">
-                      <span className="inline-block px-2.5 py-0.5 rounded-[4px] text-[11px] font-extrabold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
-                        {disp.totalItems}
-                      </span>
+                {loading ? (
+                  <tr>
+                    <td colSpan="5" className="px-5 py-8 text-center text-slate-400 font-semibold">
+                      Loading stock transfer dispatches...
                     </td>
                   </tr>
-                ))}
+                ) : dispatches.length === 0 ? (
+                  <tr>
+                    <td colSpan="5" className="px-5 py-8 text-center text-slate-400 font-semibold">
+                      No stock transfers recorded yet
+                    </td>
+                  </tr>
+                ) : (
+                  dispatches.map((disp) => (
+                    <tr key={disp.id} className="hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors">
+                      <td className="px-5 py-3.5 font-bold text-[#2E37A4] dark:text-[#5F69F8]">{disp.transferId}</td>
+                      <td className="px-5 py-3.5 font-semibold text-slate-500 dark:text-slate-400">{disp.source}</td>
+                      <td className="px-5 py-3.5 font-semibold text-slate-500 dark:text-slate-400">{disp.destination}</td>
+                      <td className="px-5 py-3.5 font-bold text-slate-800 dark:text-slate-100 text-slate-700 dark:text-slate-300">
+                        {new Date(disp.date).toLocaleDateString("en-IN", {
+                          day: "numeric",
+                          month: "short",
+                          year: "numeric"
+                        })}
+                      </td>
+                      <td className="px-5 py-3.5 text-center">
+                        <span className="inline-block px-2.5 py-0.5 rounded-[4px] text-[11px] font-extrabold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+                          {disp.totalItems}
+                        </span>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
