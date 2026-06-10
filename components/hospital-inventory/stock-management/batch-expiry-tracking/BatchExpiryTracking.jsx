@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -11,6 +9,7 @@ import { Expiring60Days } from "./Expiring60Days";
 import { ShowAllHealthy } from "./ShowAllHealthy";
 import { BatchItemDetailView } from "./BatchItemDetailView";
 import { ReturnVendorView } from "./ReturnVendorView";
+import { API_URL } from "@/lib/api";
 
 export function BatchExpiryTracking({ slugs = [] }) {
   const router = useRouter();
@@ -23,6 +22,43 @@ export function BatchExpiryTracking({ slugs = [] }) {
 
   // Dropdown states
   const [activeDropdown, setActiveDropdown] = useState(null);
+
+  const [batchesData, setBatchesData] = useState({
+    expired: [],
+    expiring30: [],
+    expiring60: [],
+    healthy: []
+  });
+  const [loading, setLoading] = useState(false);
+
+  const fetchBatches = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("authtoken");
+      const userStr = localStorage.getItem("user");
+      if (!token || !userStr) return;
+      const user = JSON.parse(userStr);
+      const branchId = user.branchId;
+
+      const res = await fetch(`${API_URL}/batch-expiry?branchId=${branchId}`, {
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+      const data = await res.json();
+      if (data.success && data.data) {
+        setBatchesData(data.data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch batches:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBatches();
+  }, []);
 
   const categories = ["All", "Anesthetics", "Surgical Supplies", "Antibiotics", "Intravenous Fluids"];
   const rooms = ["All", "Central Pharmacy", "O.T. Recovery Unit", "Main Store", "Cold Storage A", "Anesthesia Vault"];
@@ -43,7 +79,7 @@ export function BatchExpiryTracking({ slugs = [] }) {
     <div className="flex-1 p-6 bg-slate-50/50 dark:bg-slate-900/20 max-w-[1600px] mx-auto min-h-screen space-y-[20px] font-sans transition-colors duration-300">
 
       {returnItem ? (
-        <ReturnVendorView item={returnItem} onBack={() => setReturnItem(null)} />
+        <ReturnVendorView item={returnItem} onBack={() => setReturnItem(null)} onSuccess={() => { setReturnItem(null); fetchBatches(); }} />
       ) : selectedItem ? (
         <BatchItemDetailView item={selectedItem} onBack={() => setSelectedItem(null)} />
       ) : (
@@ -200,12 +236,14 @@ export function BatchExpiryTracking({ slugs = [] }) {
           {/* Dynamic Modular Component Rendering depending on Active Pill */}
           {activePill === "Expired" ? (
             <ExpiredBatches 
+              items={batchesData.expired}
               searchQuery={searchQuery}
               selectedCategory={selectedCategory}
               selectedRoom={selectedRoom}
             />
           ) : activePill === "Expiring in 30 Days" ? (
             <Expiring30Days 
+              items={batchesData.expiring30}
               searchQuery={searchQuery}
               selectedCategory={selectedCategory}
               selectedRoom={selectedRoom}
@@ -213,6 +251,7 @@ export function BatchExpiryTracking({ slugs = [] }) {
             />
           ) : activePill === "Expiring in 60 Days" ? (
             <Expiring60Days 
+              items={batchesData.expiring60}
               searchQuery={searchQuery}
               selectedCategory={selectedCategory}
               selectedRoom={selectedRoom}
@@ -220,6 +259,7 @@ export function BatchExpiryTracking({ slugs = [] }) {
             />
           ) : activePill === "Show All (Healthy)" ? (
             <ShowAllHealthy 
+              items={batchesData.healthy}
               searchQuery={searchQuery}
               selectedCategory={selectedCategory}
               selectedRoom={selectedRoom}

@@ -42,7 +42,7 @@ export function AcknowledgeCriticalModal({ isOpen, onClose, onConfirm, alertItem
       >
         {/* Modal Header */}
         <div className="flex items-center justify-between p-[20px] border-b border-border select-none">
-          <h3 className="text-[14px] md:text-[15px] font-bold text-foreground leading-none">
+          <h3 className="text-[14px] md: leading-none">
             Acknowledge Critical Value
           </h3>
           <button

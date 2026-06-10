@@ -7,19 +7,8 @@ import { cn } from "@/lib/utils";
 import { AlertCircle } from "lucide-react";
 
 // Near-expiry dataset from mockup Image 2/3
-const NEAR_EXPIRY_DATA_60 = [
-  { id: 10, name: "Amoxicillin Trihydrate 500mg", code: "AMX-202", mfg: "2022-04", expiry: "2024-04 (In 15 days)", qty: "480", cabinet: "Cold Storage A", value: "₹2,400.00", category: "Antibiotics", room: "Cold Storage A" },
-  { id: 11, name: "Propofol 10mg/ml (20ml)", code: "PRP-24-A", mfg: "2022-06", expiry: "2024-05 (In 40 days)", qty: "120", cabinet: "Anesthesia Vault", value: "₹1,500.00", category: "Anesthetics", room: "Anesthesia Vault" },
-  { id: 12, name: "Gentamicin 80mg/2ml Inj", code: "GNT-881", mfg: "2022-08", expiry: "2024-05 (In 50 days)", qty: "75", cabinet: "Cabinet B-1", value: "₹450.00", category: "Antibiotics", room: "Central Pharmacy" },
-  { id: 13, name: "Gentamicin 80mg/2ml Inj", code: "GNT-881", mfg: "2022-08", expiry: "2024-05 (In 50 days)", qty: "75", cabinet: "Cabinet B-1", value: "₹450.00", category: "Antibiotics", room: "Central Pharmacy" },
-  { id: 14, name: "Gentamicin 80mg/2ml Inj", code: "GNT-881", mfg: "2022-08", expiry: "2024-05 (In 50 days)", qty: "75", cabinet: "Cabinet B-1", value: "₹450.00", category: "Antibiotics", room: "Central Pharmacy" },
-  { id: 15, name: "Gentamicin 80mg/2ml Inj", code: "GNT-881", mfg: "2022-08", expiry: "2024-05 (In 50 days)", qty: "75", cabinet: "Cabinet B-1", value: "₹450.00", category: "Antibiotics", room: "Central Pharmacy" },
-  { id: 16, name: "Gentamicin 80mg/2ml Inj", code: "GNT-881", mfg: "2022-08", expiry: "2024-05 (In 50 days)", qty: "75", cabinet: "Cabinet B-1", value: "₹450.00", category: "Antibiotics", room: "Central Pharmacy" }
-];
-
-export function Expiring60Days({ searchQuery = "", selectedCategory = "All", selectedRoom = "All", onReturn }) {
+export function Expiring60Days({ items = [], searchQuery = "", selectedCategory = "All", selectedRoom = "All", onReturn }) {
   const router = useRouter();
-  const [items] = useState(NEAR_EXPIRY_DATA_60);
 
   // Filters logic
   const filtered = items.filter(item => {
@@ -48,7 +37,7 @@ export function Expiring60Days({ searchQuery = "", selectedCategory = "All", sel
           </span>
         </div>
         <div className="text-[12px] font-bold text-[#D97706]">
-          3 Batches Near Expiry
+          {filtered.length} {filtered.length === 1 ? "Batch" : "Batches"} Near Expiry
         </div>
       </div>
 

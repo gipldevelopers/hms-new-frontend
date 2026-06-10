@@ -5,21 +5,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { ShieldCheck, Eye } from "lucide-react";
 
-// Healthy batches dataset from mockup Image 4
-const HEALTHY_DATA = [
-  { id: 20, name: "Saline IV Solution 0.9%", code: "SLN-99-B", mfg: "2023-10", expiry: "2025-12", qty: "2400", cabinet: "Pallet Main-3", value: "₹4,320.00", status: "Safe (1+ Year)", category: "Intravenous Fluids", room: "Main Store" },
-  { id: 21, name: "Aspirin Cardio 100mg Tab", code: "ASP-112", mfg: "2023-11", expiry: "2026-05", qty: "3200", cabinet: "Shelf D-5", value: "₹980.00", status: "Safe (4+ Years)", category: "Antibiotics", room: "Central Pharmacy" },
-  { id: 22, name: "Heparin Sodium 5000 IU/ml", code: "HEP-003", mfg: "2023-08", expiry: "2026-08", qty: "150", cabinet: "Cold Room Fridge B", value: "₹1,850.00", status: "Safe (3+ Years)", category: "Intravenous Fluids", room: "Cold Storage A" },
-  { id: 23, name: "Heparin Sodium 5000 IU/ml", code: "HEP-003", mfg: "2023-08", expiry: "2026-08", qty: "150", cabinet: "Cold Room Fridge B", value: "₹1,850.00", status: "Safe (6+ Years)", category: "Intravenous Fluids", room: "Cold Storage A" },
-  { id: 24, name: "Heparin Sodium 5000 IU/ml", code: "HEP-003", mfg: "2023-08", expiry: "2026-08", qty: "150", cabinet: "Cold Room Fridge B", value: "₹1,850.00", status: "Safe (2+ Years)", category: "Intravenous Fluids", room: "Cold Storage A" },
-  { id: 25, name: "Heparin Sodium 5000 IU/ml", code: "HEP-003", mfg: "2023-08", expiry: "2026-08", qty: "150", cabinet: "Cold Room Fridge B", value: "₹1,850.00", status: "Safe (2+ Years)", category: "Intravenous Fluids", room: "Cold Storage A" },
-  { id: 26, name: "Heparin Sodium 5000 IU/ml", code: "HEP-003", mfg: "2023-08", expiry: "2026-08", qty: "150", cabinet: "Cold Room Fridge B", value: "₹1,850.00", status: "Safe (2+ Years)", category: "Intravenous Fluids", room: "Cold Storage A" },
-  { id: 27, name: "Heparin Sodium 5000 IU/ml", code: "HEP-003", mfg: "2023-08", expiry: "2026-08", qty: "150", cabinet: "Cold Room Fridge B", value: "₹1,850.00", status: "Safe (2+ Years)", category: "Intravenous Fluids", room: "Cold Storage A" }
-];
-
-export function ShowAllHealthy({ searchQuery = "", selectedCategory = "All", selectedRoom = "All", onView }) {
-  const [items] = useState(HEALTHY_DATA);
-
+export function ShowAllHealthy({ items = [], searchQuery = "", selectedCategory = "All", selectedRoom = "All", onView }) {
   // Filters logic
   const filtered = items.filter(item => {
     if (selectedCategory !== "All" && item.category !== selectedCategory) return false;
@@ -47,7 +33,7 @@ export function ShowAllHealthy({ searchQuery = "", selectedCategory = "All", sel
           </span>
         </div>
         <div className="text-[12px] font-bold text-[#10B981]">
-          3 Batches Healthy
+          {filtered.length} {filtered.length === 1 ? "Batch" : "Batches"} Healthy
         </div>
       </div>
 
