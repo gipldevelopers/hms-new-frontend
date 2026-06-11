@@ -5,19 +5,7 @@ import { cn } from "@/lib/utils";
 import { AlertCircle } from "lucide-react";
 
 // Expired dataset from mockup Image 1
-const EXPIRED_DATA = [
-  { id: 1, name: "Cefuroxime Axetil 250mg", code: "CEF-912", mfg: "2022-03", expiry: "2024-02", qty: "240", cabinet: "Cabinet C-2", valueLoss: "₹1,200.00", category: "Antibiotics", room: "Central Pharmacy" },
-  { id: 2, name: "Suture Silk Black Braided 2-0", code: "SU-4421", mfg: "2021-01", expiry: "2024-01", qty: "45", cabinet: "O.T. Cabinet 4", valueLoss: "₹380.00", category: "Surgical Supplies", room: "O.T. Recovery Unit" },
-  { id: 3, name: "Suture Silk Black Braided 2-0", code: "SU-4421", mfg: "2021-01", expiry: "2024-01", qty: "45", cabinet: "O.T. Cabinet 4", valueLoss: "₹380.00", category: "Surgical Supplies", room: "O.T. Recovery Unit" },
-  { id: 4, name: "Suture Silk Black Braided 2-0", code: "SU-4421", mfg: "2021-01", expiry: "2024-01", qty: "45", cabinet: "O.T. Cabinet 4", valueLoss: "₹380.00", category: "Surgical Supplies", room: "O.T. Recovery Unit" },
-  { id: 5, name: "Suture Silk Black Braided 2-0", code: "SU-4421", mfg: "2021-01", expiry: "2024-01", qty: "45", cabinet: "O.T. Cabinet 4", valueLoss: "₹360.00", category: "Surgical Supplies", room: "O.T. Recovery Unit" },
-  { id: 6, name: "Suture Silk Black Braided 2-0", code: "SU-4421", mfg: "2021-01", expiry: "2024-01", qty: "45", cabinet: "O.T. Cabinet 4", valueLoss: "₹360.00", category: "Surgical Supplies", room: "O.T. Recovery Unit" }
-];
-
-export function ExpiredBatches({ searchQuery = "", selectedCategory = "All", selectedRoom = "All" }) {
-  const [items] = useState(EXPIRED_DATA);
-
-  // Filters logic
+export function ExpiredBatches({ items = [], searchQuery = "", selectedCategory = "All", selectedRoom = "All" }) {
   const filtered = items.filter(item => {
     if (selectedCategory !== "All" && item.category !== selectedCategory) return false;
     if (selectedRoom !== "All" && item.room !== selectedRoom) return false;

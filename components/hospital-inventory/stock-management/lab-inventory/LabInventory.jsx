@@ -12,6 +12,7 @@ export function LabInventory({ slugs = [] }) {
   const [loading, setLoading] = useState(true);
   const [viewingItem, setViewingItem] = useState(null);
   const [triggerAddModal, setTriggerAddModal] = useState(false);
+  const [triggerEditModal, setTriggerEditModal] = useState(null);
 
   const itemId = slugs[0] || "";
 
@@ -96,30 +97,60 @@ export function LabInventory({ slugs = [] }) {
     <div className="flex-1 p-6 bg-slate-50/50 dark:bg-slate-900/20 max-w-[1600px] mx-auto min-h-screen space-y-[20px] font-sans transition-colors duration-300">
 
       {viewingItem ? (
-        <ItemDetailView
-          item={viewingItem}
-          onBack={handleBack}
-          onAddItem={() => {
-            setTriggerAddModal(true);
-          }}
-          onRefreshDetails={async () => {
-            await fetchItems();
-            if (itemId) {
-              try {
-                const token = localStorage.getItem("authtoken");
-                const res = await fetch(`/api/lab-inventory/${itemId}`, {
-                  headers: { Authorization: `Bearer ${token}` }
-                });
-                const json = await res.json();
-                if (json.success) {
-                  setViewingItem(json.data);
+        <>
+          <ItemDetailView
+            item={viewingItem}
+            onBack={handleBack}
+            onAddItem={() => {
+              setTriggerEditModal(viewingItem);
+            }}
+            onRefreshDetails={async () => {
+              await fetchItems();
+              if (itemId) {
+                try {
+                  const token = localStorage.getItem("authtoken");
+                  const res = await fetch(`/api/lab-inventory/${itemId}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                  });
+                  const json = await res.json();
+                  if (json.success) {
+                    setViewingItem(json.data);
+                  }
+                } catch (e) {
+                  console.error("Error refreshing item details:", e);
                 }
-              } catch (e) {
-                console.error("Error refreshing item details:", e);
               }
-            }
-          }}
-        />
+            }}
+          />
+          <InventoryTable
+            items={items}
+            setItems={setItems}
+            onViewItem={handleViewItem}
+            triggerAddModal={triggerAddModal}
+            clearAddTrigger={() => setTriggerAddModal(false)}
+            triggerEditModal={triggerEditModal}
+            clearEditTrigger={() => setTriggerEditModal(null)}
+            hideTableContent={true}
+            editModalTitle="Add New Item"
+            onRefresh={async () => {
+              await fetchItems();
+              if (itemId) {
+                try {
+                  const token = localStorage.getItem("authtoken");
+                  const res = await fetch(`/api/lab-inventory/${itemId}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                  });
+                  const json = await res.json();
+                  if (json.success) {
+                    setViewingItem(json.data);
+                  }
+                } catch (e) {
+                  console.error("Error refreshing item details on edit:", e);
+                }
+              }
+            }}
+          />
+        </>
       ) : (
         <>
           {/* Title Block for Stock Management page */}
@@ -142,6 +173,8 @@ export function LabInventory({ slugs = [] }) {
               onViewItem={handleViewItem}
               triggerAddModal={triggerAddModal}
               clearAddTrigger={() => setTriggerAddModal(false)}
+              triggerEditModal={triggerEditModal}
+              clearEditTrigger={() => setTriggerEditModal(null)}
               hideTableContent={false}
               onRefresh={async () => {
                 await fetchItems();

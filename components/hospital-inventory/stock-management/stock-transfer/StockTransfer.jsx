@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -24,6 +25,30 @@ export function StockTransfer({ slugs = [] }) {
   });
   const [items, setItems] = useState([]);
   const [notes, setNotes] = useState("");
+  
+  // Success Popup state
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [successDetails, setSuccessDetails] = useState({ from: "", to: "" });
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setShowSuccessModal(false);
+      }
+    };
+    if (showSuccessModal) {
+      window.addEventListener("keydown", handleKeyDown);
+    }
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [showSuccessModal]);
 
   // Fetch recent dispatches and active stock inventory items
   const fetchData = React.useCallback(async () => {
@@ -160,6 +185,8 @@ export function StockTransfer({ slugs = [] }) {
 
       const result = await res.json();
       if (result.success) {
+        setSuccessDetails({ from: fromDept, to: toDept });
+        setShowSuccessModal(true);
         toast.success(`Successfully transferred stock! ID: ${transferId}`);
         setTransferId(`TX-2026-${Math.floor(1000 + Math.random() * 9000)}`);
         setItems([]);
@@ -442,11 +469,46 @@ export function StockTransfer({ slugs = [] }) {
               </tbody>
             </table>
           </div>
-
         </div>
-
       </div>
 
+      {/* Success Modal */}
+      {mounted && showSuccessModal && createPortal(
+        <div 
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/80 backdrop-blur-[0.5px]"
+          style={{ backdropFilter: "blur(0.5px)" }}
+        >
+          <div className="relative w-full max-w-[440px] bg-white dark:bg-[#1e293b] rounded-[16px] shadow-2xl border border-slate-100 dark:border-slate-800 p-8 flex flex-col items-center text-center animate-in fade-in zoom-in-95 duration-200">
+            {/* Close Button */}
+            <button 
+              onClick={() => setShowSuccessModal(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            {/* Green checkmark circle */}
+            <div className="w-16 h-16 bg-[#10B981] rounded-full flex items-center justify-center text-white mb-6 shadow-lg shadow-emerald-500/20">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+
+            {/* Modal Heading */}
+            <h3 className="text-[18px] font-extrabold text-slate-900 dark:text-white mb-2 leading-tight">
+              Stock Successfully Transferred
+            </h3>
+
+            {/* Modal Subtext */}
+            <p className="text-[13px] font-semibold text-slate-500 dark:text-slate-400">
+              {successDetails.from} Manager to {successDetails.to} department
+            </p>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 }

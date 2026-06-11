@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { ChevronLeft, Plus, Download, RefreshCw, Send } from "lucide-react";
+import { ChevronLeft, Plus, Download, RefreshCw, Send, Edit3 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 

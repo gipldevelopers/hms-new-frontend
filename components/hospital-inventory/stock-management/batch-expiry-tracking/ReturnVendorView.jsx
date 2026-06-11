@@ -1,10 +1,10 @@
-"use client";
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { toast } from "sonner";
 import { ArrowLeft, ChevronRight, Info, Calendar } from "lucide-react";
+import { API_URL } from "@/lib/api";
 
-export function ReturnVendorView({ item, onBack }) {
+export function ReturnVendorView({ item, onBack, onSuccess }) {
   React.useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
     const mainEl = document.querySelector("main");
@@ -17,21 +17,104 @@ export function ReturnVendorView({ item, onBack }) {
 
   // Derive initial values from the selected batch item
   const batchCode = item.code || "AMX-202";
-  const itemQty = item.qty || "480";
-  const itemValue = item.value ? String(item.value).replace("$", "₹") : "₹2,400.00";
-  const statusLabel = "Near Expiry (60d)";
+  const itemQty = parseFloat(item.qty) || 0;
+  const unitOfMeasure = item.qty ? item.qty.replace(/^[0-9.\s]+/, "").trim() : "Units";
+  const unitPrice = item.unitPrice || 5.0;
+  const statusLabel = item.status || "Near Expiry (60d)";
 
   // Form states
-  const [returnQty, setReturnQty] = useState(`${itemQty} Capsules`);
-  const [pickupDate, setPickupDate] = useState("2024-03-25");
+  const [returnQty, setReturnQty] = useState(String(itemQty));
+  const [pickupDate, setPickupDate] = useState(new Date().toISOString().substring(0, 10));
+  const [vendor, setVendor] = useState("Pfizer Inc. — Contact: Arun Mehta");
+  const [reason, setReason] = useState("Near Expiry — Unusable Before Expiry Date");
+  const [settlementMode, setSettlementMode] = useState("Credit Note Against Future PO");
+  const [loading, setLoading] = useState(false);
   const [returnNote, setReturnNote] = useState(
-    `Batch ${batchCode} is expiring in 15 days (Apr 2024). ${itemQty} units are in sellable condition. Requesting vendor pickup and full credit note. Original Invoice GRN-2024-72.`
+    `Batch ${batchCode} is expiring soon. ${itemQty} units are in sellable condition. Requesting vendor pickup and credit note.`
   );
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  const handleConfirm = () => {
-    toast.success(`Debit Note request generated for batch ${batchCode}!`);
-    onBack();
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
+
+  const handleCloseSuccess = () => {
+    setShowSuccessModal(false);
+    if (onSuccess) onSuccess();
   };
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        handleCloseSuccess();
+      }
+    };
+    if (showSuccessModal) {
+      window.addEventListener("keydown", handleKeyDown);
+    }
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [showSuccessModal]);
+
+  const handleConfirm = async () => {
+    try {
+      const qtyVal = parseFloat(returnQty) || 0;
+      if (qtyVal <= 0) {
+        toast.error("Please enter a valid quantity to return");
+        return;
+      }
+      if (qtyVal > itemQty) {
+        toast.error(`Return quantity cannot exceed current batch quantity (${itemQty})`);
+        return;
+      }
+
+      setLoading(true);
+      const token = localStorage.getItem("authtoken");
+      const userStr = localStorage.getItem("user");
+      if (!token || !userStr) {
+        toast.error("Authentication required");
+        return;
+      }
+      const user = JSON.parse(userStr);
+      const branchId = user.branchId;
+
+      const res = await fetch(`${API_URL}/batch-expiry/return?branchId=${branchId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          itemId: item.id,
+          returnQty: String(qtyVal),
+          returnNote,
+          vendor,
+          reason,
+          settlementMode
+        })
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        toast.success(`Debit Note request generated for batch ${batchCode}!`);
+        setShowSuccessModal(true);
+      } else {
+        toast.error(data.error || "Failed to process return");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("An error occurred while confirming return");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const qtyToReturnVal = parseFloat(returnQty) || 0;
+  const derivedDebitVal = qtyToReturnVal * unitPrice;
+  const derivedDebitStr = `₹${derivedDebitVal.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
   return (
     <div className="font-sans space-y-4">
@@ -145,31 +228,43 @@ export function ReturnVendorView({ item, onBack }) {
             {/* Vendor */}
             <div className="space-y-1.5">
               <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Return Vendor *</label>
-              <select className="w-full h-10 px-3 bg-[#F8F9FC] dark:bg-[#0A0F1D] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-semibold text-slate-700 dark:text-slate-200 outline-none focus:border-blue-500 transition-colors cursor-pointer">
-                <option>Pfizer Inc. — Contact: Arun Mehta</option>
-                <option>Baxter Healthcare — Contact: Sales Team</option>
-                <option>Roche Diagnostics — Contact: Support</option>
+              <select
+                value={vendor}
+                onChange={(e) => setVendor(e.target.value)}
+                className="w-full h-10 px-3 bg-[#F8F9FC] dark:bg-[#0A0F1D] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-semibold text-slate-700 dark:text-slate-200 outline-none focus:border-blue-500 transition-colors cursor-pointer"
+              >
+                <option value="Pfizer Inc. — Contact: Arun Mehta">Pfizer Inc. — Contact: Arun Mehta</option>
+                <option value="Baxter Healthcare — Contact: Sales Team">Baxter Healthcare — Contact: Sales Team</option>
+                <option value="Roche Diagnostics — Contact: Support">Roche Diagnostics — Contact: Support</option>
               </select>
             </div>
 
             {/* Reason */}
             <div className="space-y-1.5">
               <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Return Reason *</label>
-              <select className="w-full h-10 px-3 bg-[#F8F9FC] dark:bg-[#0A0F1D] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-semibold text-slate-700 dark:text-slate-200 outline-none focus:border-blue-500 transition-colors cursor-pointer">
-                <option>Near Expiry — Unusable Before Expiry Date</option>
-                <option>Expired Stock — Returning for Replacement</option>
-                <option>Defective / Broken Seal</option>
-                <option>Excess Stock Transfer</option>
+              <select
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                className="w-full h-10 px-3 bg-[#F8F9FC] dark:bg-[#0A0F1D] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-semibold text-slate-700 dark:text-slate-200 outline-none focus:border-blue-500 transition-colors cursor-pointer"
+              >
+                <option value="Near Expiry — Unusable Before Expiry Date">Near Expiry — Unusable Before Expiry Date</option>
+                <option value="Expired Stock — Returning for Replacement">Expired Stock — Returning for Replacement</option>
+                <option value="Defective / Broken Seal">Defective / Broken Seal</option>
+                <option value="Excess Stock Transfer">Excess Stock Transfer</option>
               </select>
             </div>
 
             {/* Settlement Mode */}
             <div className="space-y-1.5">
               <label className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Settlement Mode</label>
-              <select className="w-full h-10 px-3 bg-[#F8F9FC] dark:bg-[#0A0F1D] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-semibold text-slate-700 dark:text-slate-200 outline-none focus:border-blue-500 transition-colors cursor-pointer">
-                <option>Credit Note Against Future PO</option>
-                <option>Direct Bank Refund</option>
-                <option>Product Replacement / Exchange</option>
+              <select
+                value={settlementMode}
+                onChange={(e) => setSettlementMode(e.target.value)}
+                className="w-full h-10 px-3 bg-[#F8F9FC] dark:bg-[#0A0F1D] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-semibold text-slate-700 dark:text-slate-200 outline-none focus:border-blue-500 transition-colors cursor-pointer"
+              >
+                <option value="Credit Note Against Future PO">Credit Note Against Future PO</option>
+                <option value="Direct Bank Refund">Direct Bank Refund</option>
+                <option value="Product Replacement / Exchange">Product Replacement / Exchange</option>
               </select>
             </div>
 
@@ -194,15 +289,15 @@ export function ReturnVendorView({ item, onBack }) {
           <div className="grid grid-cols-3 gap-4 pt-1">
             <div className="flex flex-col gap-1">
               <span className="text-[11px] font-bold text-slate-400">Batch Qty Returning</span>
-              <span className="text-[13px] font-bold text-slate-800 dark:text-white">{itemQty} Capsules</span>
+              <span className="text-[13px] font-bold text-slate-800 dark:text-white">{qtyToReturnVal} {unitOfMeasure}</span>
             </div>
             <div className="flex flex-col gap-1">
               <span className="text-[11px] font-bold text-slate-400">Unit Purchase Price</span>
-              <span className="text-[13px] font-bold text-slate-800 dark:text-white">₹5.00</span>
+              <span className="text-[13px] font-bold text-slate-800 dark:text-white">₹{unitPrice.toFixed(2)}</span>
             </div>
             <div className="flex flex-col gap-1">
               <span className="text-[11px] font-bold text-slate-400">Total Debit / Credit</span>
-              <span className="text-[14px] font-extrabold text-[#2E37A4] dark:text-[#5F69F8]">{itemValue}</span>
+              <span className="text-[14px] font-extrabold text-[#2E37A4] dark:text-[#5F69F8]">{derivedDebitStr}</span>
             </div>
           </div>
         </div>
@@ -225,6 +320,43 @@ export function ReturnVendorView({ item, onBack }) {
         </button>
       </div>
 
+      {/* Success Modal */}
+      {mounted && showSuccessModal && createPortal(
+        <div 
+          className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/80 backdrop-blur-[0.5px]"
+          style={{ backdropFilter: "blur(0.5px)" }}
+        >
+          <div className="relative w-full max-w-[440px] bg-white dark:bg-[#1e293b] rounded-[16px] shadow-2xl border border-slate-100 dark:border-slate-800 p-8 flex flex-col items-center text-center animate-in fade-in zoom-in-95 duration-200">
+            {/* Close Button */}
+            <button 
+              onClick={handleCloseSuccess}
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+
+            {/* Green checkmark circle */}
+            <div className="w-16 h-16 bg-[#10B981] rounded-full flex items-center justify-center text-white mb-6 shadow-lg shadow-emerald-500/20">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3.5}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+
+            {/* Modal Heading */}
+            <h3 className="text-[18px] font-extrabold text-slate-900 dark:text-white mb-2 leading-tight">
+              Stock Successfully Return
+            </h3>
+
+            {/* Modal Subtext */}
+            <p className="text-[13px] font-semibold text-slate-500 dark:text-slate-400">
+              Which is {statusLabel}
+            </p>
+          </div>
+        </div>,
+        document.body
+      )}
     </div>
   );
 }

@@ -1,11 +1,15 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { ArrowLeft, Box, AlertTriangle, Layers, IndianRupee, ChevronRight, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { API_URL } from "@/lib/api";
 
 export function BatchItemDetailView({ item, onBack }) {
-  React.useEffect(() => {
+  const [detailItem, setDetailItem] = useState(item);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
     const mainEl = document.querySelector("main");
     if (mainEl) {
@@ -13,14 +17,46 @@ export function BatchItemDetailView({ item, onBack }) {
     }
   }, [item]);
 
+  useEffect(() => {
+    const fetchDetails = async () => {
+      try {
+        setLoading(true);
+        const token = localStorage.getItem("authtoken");
+        const userStr = localStorage.getItem("user");
+        if (!token || !userStr) return;
+        const user = JSON.parse(userStr);
+        const branchId = user.branchId;
+
+        const res = await fetch(`${API_URL}/stock-inventory/${item.id}?branchId=${branchId}`, {
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        });
+        const data = await res.json();
+        if (data.success && data.data) {
+          setDetailItem(data.data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch item details:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (item && item.id) {
+      fetchDetails();
+    }
+  }, [item]);
+
   if (!item) return null;
 
-  // Standard values from Saline IV Solution 0.9% if missing
-  const skuCode = item.code || "ITM-99234";
-  const itemName = item.name || "Saline IV Solution 0.9%";
-  const categoryName = item.category || "Anesthetics & Sedatives";
-  const subcategoryName = item.subcategory || "Intravenous Anesthetics";
-  const unitOfMeasure = item.unit || "Ampoule";
+  // Map fields dynamically from the fetched detailed item
+  const skuCode = detailItem.sku || item.code || "ITM-99234";
+  const itemName = detailItem.name || item.name || "Saline IV Solution 0.9%";
+  const categoryName = detailItem.category || item.category || "Anesthetics & Sedatives";
+  const subcategoryName = detailItem.subcategory || item.subcategory || "Intravenous Anesthetics";
+  const rawQty = String(detailItem.qty || item.qty || "0");
+  const unitOfMeasure = rawQty.replace(/^[0-9.\s]+/, "").trim() || item.unit || "Ampoule";
   const storageLocation = item.room || "Cold Vault Room B";
   const statusLabel = item.status || "Safe (1+ Year)";
 
@@ -31,11 +67,17 @@ export function BatchItemDetailView({ item, onBack }) {
     return Number(cleaned).toLocaleString("en-US");
   };
 
-  const currentQty = item.qty ? formatNumber(item.qty) : "3,100";
-  const reorderThreshold = "1,500";
-  const safetyLimit = "1,000";
-  const activeBatches = "4";
-  const estValue = item.value ? String(item.value).replace("$", "₹") : "₹4,320.00";
+  const qtyVal = parseFloat(rawQty) || 0;
+  const currentQty = formatNumber(qtyVal);
+  const reorderThreshold = formatNumber(detailItem.minThreshold || item.minThreshold || "1,500");
+  const safetyLimit = formatNumber(detailItem.minThreshold || item.minThreshold || "1,000");
+  const activeBatches = detailItem.stockHistory ? String(detailItem.stockHistory.length) : "1";
+  
+  const val = qtyVal * (detailItem.unitPrice || item.unitPrice || 0);
+  const estValue = `₹${val.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const unitPriceFormatted = parseFloat(detailItem.unitPrice || item.unitPrice || 0).toFixed(2);
+  const supplierName = detailItem.supplier || item.supplier || "Baxter Healthcare";
+  const supplierLetter = (supplierName.trim().charAt(0) || "B").toUpperCase();
 
   return (
     <div className="font-sans space-y-4">
@@ -139,10 +181,10 @@ export function BatchItemDetailView({ item, onBack }) {
         </div>
 
         {/* Clinical Description block */}
-        <div className="bg-[#F8F9FC] dark:bg-[#0A0F1D] p-4 rounded-[5px] border border-[#e2e8f0] dark:border-slate-800 space-y-1.5">
+        <div className="bg-[#F8F9FC] dark:bg-[#0A0F1D] p-4 rounded-[5px] border border-[#e2e8f0] dark:border-slate-880 space-y-1.5">
           <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Clinical Description</div>
           <p className="text-[13px] font-medium text-slate-600 dark:text-slate-300 leading-relaxed">
-            Short-acting, intravenously administered anesthetic agent. Used for induction and maintenance of general anesthesia.
+            {detailItem.notes || item.notes || "Short-acting agent or surgical supply. Used in accordance with clinical guidelines."}
           </p>
         </div>
 
@@ -204,7 +246,7 @@ export function BatchItemDetailView({ item, onBack }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="flex flex-col gap-0.5">
               <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Shelf Life</span>
-              <span className="text-[13px] font-bold text-slate-800 dark:text-white">24 Months</span>
+              <span className="text-[13px] font-bold text-slate-800 dark:text-white">{detailItem.expiry || item.expiry || "24 Months"}</span>
             </div>
 
             <div className="flex flex-col gap-0.5">
@@ -226,11 +268,11 @@ export function BatchItemDetailView({ item, onBack }) {
       {/* BOTTOM ROW GRID */}
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
 
-        {/* Order History (Left - 3/5 wide) */}
+        {/* Stock Transaction History (Left - 3/5 wide) */}
         <div className="lg:col-span-3 bg-white dark:bg-[#1e293b] rounded-[5px] border border-[#e2e8f0] dark:border-[#334155] pt-5 pb-0 px-0 shadow-none flex flex-col justify-between">
           <div className="flex items-center justify-between pb-4 px-6">
-            <h2 className="text-[15px] font-extrabold text-slate-800 dark:text-white">Order History</h2>
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Last 3 Transactions</span>
+            <h2 className="text-[15px] font-extrabold text-slate-800 dark:text-white">Stock Transaction History</h2>
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Audit History Log</span>
           </div>
 
           {/* Full-width Divider */}
@@ -240,58 +282,52 @@ export function BatchItemDetailView({ item, onBack }) {
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-[#F8F9FC] dark:bg-[#0A0F1D] border-b border-[#e2e8f0] dark:border-slate-850">
-                  <th className="py-3.5 pl-6 text-[11px] font-bold text-slate-450 uppercase tracking-wider">Order Code</th>
-                  <th className="py-3.5 px-4 text-[11px] font-bold text-slate-450 uppercase tracking-wider">Date</th>
-                  <th className="py-3.5 px-4 text-[11px] font-bold text-slate-450 uppercase tracking-wider">Quantity</th>
-                  <th className="py-3.5 px-4 text-[11px] font-bold text-slate-450 uppercase tracking-wider">Unit Rate</th>
-                  <th className="py-3.5 px-4 text-[11px] font-bold text-slate-450 uppercase tracking-wider">Total Price</th>
-                  <th className="py-3.5 pr-6 text-[11px] font-bold text-slate-450 uppercase tracking-wider text-right">Status</th>
+                  <th className="py-3.5 pl-6 text-[11px] font-bold text-slate-450 uppercase tracking-wider">Date & Time</th>
+                  <th className="py-3.5 px-4 text-[11px] font-bold text-slate-450 uppercase tracking-wider">Type</th>
+                  <th className="py-3.5 px-4 text-[11px] font-bold text-slate-450 uppercase tracking-wider">Qty Changed</th>
+                  <th className="py-3.5 px-4 text-[11px] font-bold text-slate-450 uppercase tracking-wider">User</th>
+                  <th className="py-3.5 pr-6 text-[11px] font-bold text-slate-450 uppercase tracking-wider text-right">Notes</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-[#e2e8f0] dark:divide-slate-800 text-[13px]">
-
-                {/* Transaction 1 */}
-                <tr className="hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors">
-                  <td className="py-3.5 pl-6 font-semibold text-slate-700 dark:text-slate-350">PO-2024-0891</td>
-                  <td className="py-3.5 px-4 font-medium text-slate-500">14 Oct 2024</td>
-                  <td className="py-3.5 px-4 font-semibold text-slate-700 dark:text-slate-350">1,500 units</td>
-                  <td className="py-3.5 px-4 font-semibold text-slate-650 dark:text-slate-400">₹12.50</td>
-                  <td className="py-3.5 px-4 font-extrabold text-slate-800 dark:text-white">₹18,750.00</td>
-                  <td className="py-3.5 pr-6 text-right">
-                    <span className="px-2 py-0.5 rounded-[5px] text-[10px] font-bold text-[#0369A1] border border-[#BAE6FD] bg-[#E0F2FE] uppercase leading-none">
-                      Delivered
-                    </span>
-                  </td>
-                </tr>
-
-                {/* Transaction 2 */}
-                <tr className="hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors">
-                  <td className="py-3.5 pl-6 font-semibold text-slate-700 dark:text-slate-350">PO-2024-0542</td>
-                  <td className="py-3.5 px-4 font-medium text-slate-500">22 May 2024</td>
-                  <td className="py-3.5 px-4 font-semibold text-slate-700 dark:text-slate-350">1,500 units</td>
-                  <td className="py-3.5 px-4 font-semibold text-slate-650 dark:text-slate-400">₹12.50</td>
-                  <td className="py-3.5 px-4 font-extrabold text-slate-800 dark:text-white">₹18,750.00</td>
-                  <td className="py-3.5 pr-6 text-right">
-                    <span className="px-2 py-0.5 rounded-[5px] text-[10px] font-bold text-[#0369A1] border border-[#BAE6FD] bg-[#E0F2FE] uppercase leading-none">
-                      Delivered
-                    </span>
-                  </td>
-                </tr>
-
-                {/* Transaction 3 */}
-                <tr className="hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors">
-                  <td className="py-3.5 pl-6 font-semibold text-slate-700 dark:text-slate-350">PO-2024-0112</td>
-                  <td className="py-3.5 px-4 font-medium text-slate-500">09 Jan 2024</td>
-                  <td className="py-3.5 px-4 font-semibold text-slate-700 dark:text-slate-350">1,000 units</td>
-                  <td className="py-3.5 px-4 font-semibold text-slate-650 dark:text-slate-400">₹12.00</td>
-                  <td className="py-3.5 px-4 font-extrabold text-slate-800 dark:text-white">₹12,000.00</td>
-                  <td className="py-3.5 pr-6 text-right">
-                    <span className="px-2 py-0.5 rounded-[5px] text-[10px] font-bold text-[#0369A1] border border-[#BAE6FD] bg-[#E0F2FE] uppercase leading-none">
-                      Delivered
-                    </span>
-                  </td>
-                </tr>
-
+              <tbody className="divide-y divide-[#e2e8f0] dark:divide-slate-850 text-[13px]">
+                {(!detailItem.stockHistory || detailItem.stockHistory.length === 0) ? (
+                  <tr>
+                    <td colSpan="5" className="py-8 text-center text-slate-400 font-semibold pl-6">
+                      No stock history recorded yet
+                    </td>
+                  </tr>
+                ) : (
+                  detailItem.stockHistory.map((log) => (
+                    <tr key={log.id} className="hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors">
+                      <td className="py-3.5 pl-6 font-semibold text-slate-700 dark:text-slate-350">
+                        {new Date(log.dateTime).toLocaleString('en-IN', {
+                          dateStyle: 'medium',
+                          timeStyle: 'short'
+                        })}
+                      </td>
+                      <td className="py-3.5 px-4 font-medium">
+                        <span className={cn(
+                          "px-2 py-0.5 rounded-[5px] text-[10px] font-bold uppercase border leading-none",
+                          log.type === "Addition" && "bg-emerald-50 text-emerald-600 border-emerald-200/50",
+                          log.type === "Usage" && "bg-[#FFF7E6] text-[#D48806] border-[#FFE7BA]",
+                          log.type === "Initial Stock" && "bg-blue-50 text-blue-600 border-blue-200/50"
+                        )}>
+                          {log.type}
+                        </span>
+                      </td>
+                      <td className={cn(
+                        "py-3.5 px-4 font-extrabold",
+                        log.qtyChanged.startsWith("+") ? "text-[#0F8A5F]" : "text-red-500"
+                      )}>
+                        {log.qtyChanged}
+                      </td>
+                      <td className="py-3.5 px-4 font-semibold text-slate-700 dark:text-slate-200">{log.user}</td>
+                      <td className="py-3.5 pr-6 text-right text-slate-500 dark:text-slate-400 font-medium">
+                        {log.notes || "N/A"}
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -309,10 +345,10 @@ export function BatchItemDetailView({ item, onBack }) {
           {/* Supplier Info Row */}
           <div className="flex items-center gap-3 py-4 px-6 bg-white dark:bg-[#1e293b] flex-1 min-h-[72px]">
             <div className="w-10 h-10 rounded-full bg-blue-50 dark:bg-blue-950/20 flex items-center justify-center text-blue-600 dark:text-blue-400 font-extrabold text-[15px] shrink-0">
-              B
+              {supplierLetter}
             </div>
             <div>
-              <div className="text-[14px] font-extrabold text-slate-800 dark:text-white">Baxter Healthcare</div>
+              <div className="text-[14px] font-extrabold text-slate-800 dark:text-white">{supplierName}</div>
               <div className="text-[10px] font-bold text-slate-450 dark:text-slate-500 mt-0.5">Contract Active (ID: SUP-8812)</div>
             </div>
           </div>
@@ -325,7 +361,7 @@ export function BatchItemDetailView({ item, onBack }) {
 
             <div className="py-3.5 px-6 flex items-center justify-between border-b border-[#e2e8f0] dark:border-slate-800 hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors">
               <span className="font-semibold text-slate-500 dark:text-slate-400">Purchase Unit Cost</span>
-              <span className="font-extrabold text-slate-800 dark:text-white">₹583.50</span>
+              <span className="font-extrabold text-slate-800 dark:text-white">₹{unitPriceFormatted}</span>
             </div>
 
             <div className="py-3.5 px-6 flex items-center justify-between border-b border-[#e2e8f0] dark:border-slate-800 hover:bg-slate-50/50 dark:hover:bg-white/5 transition-colors">
