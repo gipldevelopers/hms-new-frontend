@@ -223,6 +223,49 @@ export function InventoryTable({ items = [], setItems, onViewItem, triggerAddMod
   const categories = ["All", "Anesthetics", "Surgical Supplies", "Antibiotics", "Intravenous Fluids", "Analgesics", "PPE", "Anticoagulants"];
   const statuses = ["All", "In Stock", "Low", "Out of Stock"];
 
+  const handleExportExcel = () => {
+    try {
+      if (!filtered || filtered.length === 0) {
+        toast.error("No items to export");
+        return;
+      }
+      
+      const headers = ["SKU Code", "Item Name", "Category", "Unit", "Current Stock", "Min Stock", "Batches", "Status", "Preferred Vendor"];
+      
+      const rows = filtered.map(item => [
+        item.sku || "",
+        item.name || "",
+        item.category || "",
+        item.unit || "",
+        item.qty || "0",
+        item.minStock || "0",
+        item.batches || "0",
+        item.status || "",
+        item.vendor || item.supplier || ""
+      ]);
+
+      // format csv
+      const csvContent = [
+        headers.join(","),
+        ...rows.map(row => row.map(val => `"${String(val).replace(/"/g, '""')}"`).join(","))
+      ].join("\n");
+
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `Stock_Inventory_${new Date().toISOString().slice(0, 10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      toast.success("Stock Inventory exported successfully!");
+    } catch (error) {
+      console.error("Export failed:", error);
+      toast.error("Failed to export stock inventory.");
+    }
+  };
+
   return (
     <div className="space-y-[20px]">
 
@@ -233,7 +276,7 @@ export function InventoryTable({ items = [], setItems, onViewItem, triggerAddMod
         </h2>
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <button
-            onClick={() => toast.success("Stock Inventory exported successfully!")}
+            onClick={handleExportExcel}
             className="flex items-center justify-center gap-2 h-10 px-4 rounded-[5px] border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] hover:bg-muted text-[13px] font-bold text-foreground transition-all cursor-pointer shadow-none"
           >
             <Download size={14} />

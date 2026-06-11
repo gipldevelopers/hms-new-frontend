@@ -52,6 +52,76 @@ export function PurchaseOrderDetailView({ order, onBack, onEdit }) {
 
   if (!order) return null;
 
+  const getTimelineEvents = (orderObj) => {
+    const events = [];
+    if (!orderObj.orderDate || orderObj.orderDate === "--") return events;
+
+    const baseDate = new Date(orderObj.orderDate);
+    if (isNaN(baseDate.getTime())) return events;
+
+    const formatDateStr = (date, daysToAdd, timeStr) => {
+      const d = new Date(date);
+      d.setDate(d.getDate() + daysToAdd);
+      const formatted = d.toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" });
+      return `${formatted} | ${timeStr}`;
+    };
+
+    // 1. Order Placed is always there
+    events.push({
+      title: "Order Placed",
+      time: formatDateStr(baseDate, 0, "10:45 AM"),
+      color: "bg-[#0F8A5F]",
+      description: null
+    });
+
+    const status = orderObj.orderStatus || "ORDERED";
+
+    if (status === "CANCELLED") {
+      events.push({
+        title: "Order Cancelled",
+        time: formatDateStr(baseDate, 1, "04:15 PM"),
+        color: "bg-rose-500",
+        description: orderObj.justification || "Cancelled by Logistics Committee."
+      });
+      return events;
+    }
+
+    // 2. Vendor Confirmed is present for ORDERED, PARTIAL RECEIVED, COMPLETED
+    events.push({
+      title: "Vendor Confirmed",
+      time: formatDateStr(baseDate, 1, "02:20 PM"),
+      color: "bg-[#0F8A5F]",
+      description: null
+    });
+
+    if (status === "ORDERED") {
+      events.push({
+        title: "Awaiting Shipment",
+        time: `Expected ${orderObj.expectedDelivery || "Pending"}`,
+        color: "bg-[#2E37A4]",
+        description: orderObj.justification || "Purchase order sent to vendor queue."
+      });
+    } else if (status === "PARTIAL RECEIVED") {
+      events.push({
+        title: "Partial Items Received",
+        time: formatDateStr(baseDate, 3, "09:15 AM"),
+        color: "bg-[#2E37A4]",
+        description: `Sourced items delivered to ${orderObj.deliveryStore || "Main Store"}. Remaining items pending.`
+      });
+    } else if (status === "COMPLETED") {
+      events.push({
+        title: "Sourced Items Delivered",
+        time: formatDateStr(baseDate, 3, "11:30 AM"),
+        color: "bg-[#0F8A5F]",
+        description: `All items received successfully at ${orderObj.deliveryStore || "Main Store"}.`
+      });
+    }
+
+    return events;
+  };
+
+  const timelineEvents = getTimelineEvents(order);
+
   const vendorInfo = VENDORS_DETAILS[order.vendor] || VENDORS_DETAILS["Global Health Medical"];
 
   // Helper styles for order state badges
@@ -97,7 +167,104 @@ export function PurchaseOrderDetailView({ order, onBack, onEdit }) {
   const itemsGrandTotal = itemsSubtotal + itemsTax;
 
   return (
-    <div ref={containerRef} className="font-sans space-y-4">
+    <div ref={containerRef} className="font-sans space-y-4" id="printable-po-area">
+      <style dangerouslySetInnerHTML={{__html: `
+        @media print {
+          html, body, #__next, 
+          div, main, section, article {
+            height: auto !important;
+            overflow: visible !important;
+            position: static !important;
+          }
+          
+          /* Hide everything on page */
+          body * {
+            visibility: hidden;
+          }
+          
+          /* Show only our print container */
+          #printable-po-area, #printable-po-area * {
+            visibility: visible;
+          }
+          
+          /* Position the print container to cover full page */
+          #printable-po-area {
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 20px !important;
+            background: white !important;
+            color: black !important;
+            box-shadow: none !important;
+            border: none !important;
+          }
+
+          /* Force layout to be normal block and take full width */
+          #printable-po-area .grid {
+            display: block !important;
+          }
+          #printable-po-area .grid-cols-1,
+          #printable-po-area .grid-cols-2,
+          #printable-po-area .grid-cols-3,
+          #printable-po-area .grid-cols-4,
+          #printable-po-area .lg\\:grid-cols-12 {
+            display: block !important;
+          }
+          
+          #printable-po-area .lg\\:col-span-8,
+          #printable-po-area .lg\\:col-span-4,
+          #printable-po-area .md\\:grid-cols-2 {
+            width: 100% !important;
+            max-width: 100% !important;
+            flex: 0 0 100% !important;
+            display: block !important;
+            margin-bottom: 20px !important;
+          }
+
+          /* Hide buttons and navigation */
+          .no-print {
+            display: none !important;
+          }
+
+          /* Ensure text colors are black for printing */
+          #printable-po-area text,
+          #printable-po-area span,
+          #printable-po-area h1,
+          #printable-po-area h2,
+          #printable-po-area h3,
+          #printable-po-area td,
+          #printable-po-area th,
+          #printable-po-area p {
+            color: #000000 !important;
+          }
+          
+          /* Keep timeline background colors etc white for printing */
+          #printable-po-area .bg-white,
+          #printable-po-area .bg-[#F8F9FC] {
+            background-color: #ffffff !important;
+            background: #ffffff !important;
+          }
+          
+          /* Table styling for neat print */
+          #printable-po-area table {
+            width: 100% !important;
+            border-collapse: collapse !important;
+            margin-top: 15px !important;
+          }
+          #printable-po-area th {
+            background-color: #f1f5f9 !important;
+            border-bottom: 2px solid #cbd5e1 !important;
+            padding: 10px 8px !important;
+            font-weight: bold !important;
+          }
+          #printable-po-area td {
+            border-bottom: 1px solid #e2e8f0 !important;
+            padding: 10px 8px !important;
+          }
+        }
+      `}} />
 
       {/* TOP HEADER CONTAINER CARD */}
       <div className="bg-white dark:bg-[#1e293b] p-4 rounded-[5px] border border-[#e2e8f0] dark:border-[#334155] flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-none">
@@ -105,7 +272,7 @@ export function PurchaseOrderDetailView({ order, onBack, onEdit }) {
           {/* Circular Back Button with ArrowLeft */}
           <button
             onClick={onBack}
-            className="flex items-center justify-center w-9 h-9 rounded-[5px] border border-[#e2e8f0] dark:border-slate-700 bg-white dark:bg-[#1e293b] text-slate-655 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer shadow-none"
+            className="flex items-center justify-center w-9 h-9 rounded-[5px] border border-[#e2e8f0] dark:border-slate-700 bg-white dark:bg-[#1e293b] text-slate-655 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors cursor-pointer shadow-none no-print"
           >
             <ArrowLeft className="h-4 w-4 text-slate-700 dark:text-slate-300" />
           </button>
@@ -131,7 +298,7 @@ export function PurchaseOrderDetailView({ order, onBack, onEdit }) {
         </div>
 
         {/* Right side actions */}
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-2.5 no-print">
           <button
             onClick={() => window.print()}
             className="h-[38px] px-[16px] rounded-[5px] border border-slate-200 dark:border-slate-700 bg-white dark:bg-[#101935] text-[13px] font-semibold text-slate-655 dark:text-slate-350 hover:bg-[#F8F9FC] dark:hover:bg-white/5 transition flex items-center justify-center gap-[6px] cursor-pointer"
@@ -342,43 +509,25 @@ export function PurchaseOrderDetailView({ order, onBack, onEdit }) {
             </span>
 
             <div className="relative border-l border-slate-200 dark:border-slate-800 ml-2 pl-5.5 space-y-4">
-
-              {/* Timeline Point 1 */}
-              <div className="relative">
-                <span className="absolute -left-[28.5px] top-1 w-2.5 h-2.5 rounded-full bg-[#0F8A5F]" />
-                <div className="font-extrabold text-[12.5px] text-slate-800 dark:text-white leading-tight">
-                  Order Placed
+              {timelineEvents.map((evt, idx) => (
+                <div key={idx} className="relative">
+                  <span className={`absolute -left-[28.5px] top-1 w-2.5 h-2.5 rounded-full ${evt.color}`} />
+                  <div className="font-extrabold text-[12.5px] text-slate-800 dark:text-white leading-tight">
+                    {evt.title}
+                  </div>
+                  <div className="text-[10.5px] font-bold text-slate-400 mt-1 uppercase tracking-wide">
+                    {evt.time}
+                  </div>
+                  {evt.description && (
+                    <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 italic bg-slate-50/80 dark:bg-[#101935]/40 border border-slate-100 dark:border-slate-800/40 p-2 rounded-[4px] mt-1.5 leading-relaxed">
+                      "{evt.description}"
+                    </p>
+                  )}
                 </div>
-                <div className="text-[10.5px] font-bold text-slate-400 mt-1 uppercase tracking-wide">
-                  Oct 12, 2023 | 10:45 AM
-                </div>
-              </div>
-
-              {/* Timeline Point 2 */}
-              <div className="relative">
-                <span className="absolute -left-[28.5px] top-1 w-2.5 h-2.5 rounded-full bg-[#0F8A5F]" />
-                <div className="font-extrabold text-[12.5px] text-slate-800 dark:text-white leading-tight">
-                  Vendor Confirmed
-                </div>
-                <div className="text-[10.5px] font-bold text-slate-400 mt-1 uppercase tracking-wide">
-                  Oct 13, 2023 | 02:20 PM
-                </div>
-              </div>
-
-              {/* Timeline Point 3 */}
-              <div className="relative">
-                <span className="absolute -left-[28.5px] top-1 w-2.5 h-2.5 rounded-full bg-[#2E37A4]" />
-                <div className="font-extrabold text-[12.5px] text-slate-800 dark:text-white leading-tight flex items-center gap-1.5">
-                  Partial Items Received
-                </div>
-                <div className="text-[10.5px] font-bold text-slate-400 mt-1 uppercase tracking-wide">
-                  Oct 18, 2023 | 09:15 AM
-                </div>
-                <p className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 italic bg-slate-50/80 dark:bg-[#101935]/40 border border-slate-100 dark:border-slate-800/40 p-2 rounded-[4px] mt-1.5 leading-relaxed">
-                  "Gloves received, Scalpels delayed."
-                </p>
-              </div>
-
+              ))}
+              {timelineEvents.length === 0 && (
+                <p className="text-[12px] text-slate-405 font-semibold italic">No timeline events recorded.</p>
+              )}
             </div>
           </div>
 

@@ -4,6 +4,66 @@ import React, { useState } from "react";
 import { ChevronDown, Download, Plus, Edit3, Eye, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+const ITEM_CATEGORIES = {
+  "SKU-PRP-9021": "Pharmaceuticals",
+  "SKU-AMX-1120": "Pharmaceuticals",
+  "SKU-PAR-3021": "Pharmaceuticals",
+  "SKU-SAL-1022": "Pharmaceuticals",
+  "SKU-SYR-85ML": "Surgical Supplies",
+  "SKU-GLV-8800": "PPE & Safety"
+};
+
+const ITEM_STOCK_STATUS = {
+  "SKU-PRP-9021": "In Stock",
+  "SKU-AMX-1120": "In Stock",
+  "SKU-SYR-85ML": "In Stock",
+  "SKU-SAL-1022": "Low Stock",
+  "SKU-PAR-3021": "Low Stock",
+  "SKU-GLV-8800": "Out of Stock"
+};
+
+const getItemCategory = (item) => {
+  if (!item) return "Pharmaceuticals";
+  const name = (item.name || "").toLowerCase();
+  const sku = (item.sku || "").toUpperCase();
+
+  if (ITEM_CATEGORIES[sku]) return ITEM_CATEGORIES[sku];
+  
+  if (sku.includes("PRP") || sku.includes("AMX") || sku.includes("PAR") || sku.includes("SAL")) {
+    return "Pharmaceuticals";
+  }
+  if (sku.includes("SYR") || name.includes("syringe") || name.includes("cotton") || name.includes("scalpel") || name.includes("spirit")) {
+    return "Surgical Supplies";
+  }
+  if (sku.includes("GLV") || name.includes("glove") || name.includes("mask")) {
+    return "PPE & Safety";
+  }
+  if (name.includes("reagent")) {
+    return "Lab Reagents";
+  }
+  if (name.includes("valve") || name.includes("pacemaker") || name.includes("device")) {
+    return "Medical Devices";
+  }
+
+  return "Pharmaceuticals";
+};
+
+const getItemStockStatus = (item) => {
+  if (!item) return "In Stock";
+  const name = (item.name || "").toLowerCase();
+  const sku = (item.sku || "").toUpperCase();
+
+  if (ITEM_STOCK_STATUS[sku]) return ITEM_STOCK_STATUS[sku];
+
+  if (name.includes("scalpel") || sku.includes("GLV")) {
+    return "Out of Stock";
+  }
+  if (name.includes("valve") || name.includes("mask") || sku.includes("SAL") || sku.includes("PAR")) {
+    return "Low Stock";
+  }
+  return "In Stock";
+};
+
 export function PurchaseTable({
   orders = [],
   onViewOrder,
@@ -25,9 +85,13 @@ export function PurchaseTable({
       order.poNumber.toLowerCase().includes(search.toLowerCase()) ||
       order.vendor.toLowerCase().includes(search.toLowerCase());
 
-    // Mock filtering logic for Category and Stock Status since they are demo filters
-    const matchesCategory = selectedCategory === "All" || true;
-    const matchesStockStatus = selectedStockStatus === "All" || true;
+    const matchesCategory = selectedCategory === "All" || (order.items && order.items.some(item => {
+      return getItemCategory(item) === selectedCategory;
+    }));
+
+    const matchesStockStatus = selectedStockStatus === "All" || (order.items && order.items.some(item => {
+      return getItemStockStatus(item) === selectedStockStatus;
+    }));
 
     return matchesSearch && matchesCategory && matchesStockStatus;
   });
