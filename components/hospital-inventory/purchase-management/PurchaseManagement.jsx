@@ -7,117 +7,47 @@ import { PurchaseOrderDetailView } from "./PurchaseOrderDetailView";
 import { CreatePurchaseOrderModal } from "./CreatePurchaseOrderModal";
 import { toast } from "sonner";
 
-// Initial mock data based directly on the provided screenshot
-const INITIAL_ORDERS = [
-  {
-    id: 1,
-    poNumber: "PO-2024-0892",
-    vendor: "Global Health Medical",
-    orderDate: "Oct 12, 2023",
-    expectedDelivery: "Oct 20, 2023",
-    totalAmount: "₹12,450.00",
-    payment: "PAID",
-    orderStatus: "PARTIAL RECEIVED",
-    items: [
-      { id: 1, name: "Reagent A (Hematology)", qty: 25, unitPrice: 200, total: 5000 },
-      { id: 2, name: "Sterile Disposable Syringes (10ml)", qty: 100, unitPrice: 15, total: 1500 },
-      { id: 3, name: "N95 Protective Masks", qty: 200, unitPrice: 25, total: 5000 },
-      { id: 4, name: "Surgical Spirit (500ml)", qty: 15, unitPrice: 63.33, total: 950 }
-    ]
-  },
-  {
-    id: 2,
-    poNumber: "PO-2024-0901",
-    vendor: "Medtronic Inc.",
-    orderDate: "Oct 14, 2023",
-    expectedDelivery: "Oct 22, 2023",
-    totalAmount: "₹45,210.50",
-    payment: "PENDING",
-    orderStatus: "ORDERED",
-    items: [
-      { id: 1, name: "Premium Heart Valves (Model B)", qty: 5, unitPrice: 8000, total: 40000 },
-      { id: 2, name: "Pacemaker Electrodes", qty: 10, unitPrice: 521.05, total: 5210.50 }
-    ]
-  },
-  {
-    id: 3,
-    poNumber: "PO-2024-0850",
-    vendor: "Surgical Supply Co.",
-    orderDate: "Oct 01, 2023",
-    expectedDelivery: "Oct 05, 2023",
-    totalAmount: "₹3,120.00",
-    payment: "PAID",
-    orderStatus: "COMPLETED",
-    items: [
-      { id: 1, name: "Surgical Cotton Rolls", qty: 50, unitPrice: 42.40, total: 2120 },
-      { id: 2, name: "Disposable Scalpels (Size 10)", qty: 20, unitPrice: 50, total: 1000 }
-    ]
-  },
-  {
-    id: 4,
-    poNumber: "PO-2024-0850",
-    vendor: "Surgical Supply Co.",
-    orderDate: "Oct 01, 2023",
-    expectedDelivery: "Oct 05, 2023",
-    totalAmount: "₹3,120.00",
-    payment: "PAID",
-    orderStatus: "COMPLETED",
-    items: [
-      { id: 1, name: "Surgical Cotton Rolls", qty: 50, unitPrice: 42.40, total: 2120 },
-      { id: 2, name: "Disposable Scalpels (Size 10)", qty: 20, unitPrice: 50, total: 1000 }
-    ]
-  },
-  {
-    id: 5,
-    poNumber: "PO-2024-0850",
-    vendor: "Surgical Supply Co.",
-    orderDate: "Oct 01, 2023",
-    expectedDelivery: "Oct 05, 2023",
-    totalAmount: "₹3,120.00",
-    payment: "PAID",
-    orderStatus: "COMPLETED",
-    items: [
-      { id: 1, name: "Surgical Cotton Rolls", qty: 50, unitPrice: 42.40, total: 2120 },
-      { id: 2, name: "Disposable Scalpels (Size 10)", qty: 20, unitPrice: 50, total: 1000 }
-    ]
-  },
-  {
-    id: 6,
-    poNumber: "PO-2024-0915",
-    vendor: "Advanced Pharma",
-    orderDate: "Oct 18, 2023",
-    expectedDelivery: "Pending",
-    totalAmount: "₹5,800.00",
-    payment: "PAID",
-    orderStatus: "COMPLETED",
-    items: [
-      { id: 1, name: "Amoxicillin Capsules 500mg", qty: 40, unitPrice: 100, total: 4000 },
-      { id: 2, name: "Paracetamol Syrup (100ml)", qty: 60, unitPrice: 30, total: 1800 }
-    ]
-  },
-  {
-    id: 7,
-    poNumber: "PO-2024-0812",
-    vendor: "MedEquip Logistics",
-    orderDate: "Sep 28, 2023",
-    expectedDelivery: "--",
-    totalAmount: "₹890.00",
-    payment: "VOID",
-    orderStatus: "CANCELLED",
-    items: [
-      { id: 1, name: "Cardboard Disposal Bins", qty: 10, unitPrice: 89, total: 890 }
-    ]
-  }
-];
-
 export function PurchaseManagement({ slugs = [] }) {
   const router = useRouter();
-  const [orders, setOrders] = useState(INITIAL_ORDERS);
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+  
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [viewingOrder, setViewingOrder] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [orderToEdit, setOrderToEdit] = useState(null);
 
   const orderId = slugs[0] || "";
+
+  // Fetch all purchase orders from the backend
+  const fetchOrders = React.useCallback(async () => {
+    try {
+      const token = localStorage.getItem("authtoken");
+      const userStr = localStorage.getItem("user");
+      if (!token || !userStr) return;
+      const user = JSON.parse(userStr);
+      const branchId = user.branchId;
+
+      const res = await fetch(`${API_URL}/purchase?branchId=${branchId}`, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+      const result = await res.json();
+      if (result.success) {
+        setOrders(result.data || []);
+      } else {
+        toast.error(result.error || "Failed to load purchase orders.");
+      }
+    } catch (err) {
+      console.error("Error fetching purchase orders:", err);
+      toast.error("Network error. Failed to load purchase orders.");
+    } finally {
+      setLoading(false);
+    }
+  }, [API_URL]);
+
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
 
   // Sync viewingOrder state with URL dynamic slugs
   useEffect(() => {
@@ -131,8 +61,7 @@ export function PurchaseManagement({ slugs = [] }) {
     }
   }, [orderId, orders]);
 
-  // Handle URL change when modal opens/closes to match AddSupplier patterns if preferred,
-  // or simply control via modal state. Let's support both cleanly.
+  // Handle URL change when modal opens/closes
   useEffect(() => {
     if (orderId === "add") {
       setOrderToEdit(null);
@@ -157,25 +86,98 @@ export function PurchaseManagement({ slugs = [] }) {
     setIsModalOpen(true);
   };
 
-  const handleDeleteOrder = (order) => {
+  const handleDeleteOrder = async (order) => {
     if (window.confirm(`Are you sure you want to remove Purchase Order ${order.poNumber}?`)) {
-      setOrders(orders.filter(o => o.id !== order.id));
-      toast.success(`Purchase Order ${order.poNumber} deleted successfully.`);
-      if (viewingOrder?.id === order.id) {
-        handleBack();
+      try {
+        const token = localStorage.getItem("authtoken");
+        const userStr = localStorage.getItem("user");
+        if (!token || !userStr) {
+          toast.error("Session expired.");
+          return;
+        }
+        const user = JSON.parse(userStr);
+        const branchId = user.branchId;
+
+        const res = await fetch(`${API_URL}/purchase/${order.id}?branchId=${branchId}`, {
+          method: "DELETE",
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        const result = await res.json();
+        if (result.success) {
+          toast.success(`Purchase Order ${order.poNumber} deleted successfully.`);
+          fetchOrders();
+          if (viewingOrder?.id === order.id) {
+            handleBack();
+          }
+        } else {
+          toast.error(result.error || "Failed to delete purchase order.");
+        }
+      } catch (err) {
+        console.error("Error deleting purchase order:", err);
+        toast.error("Network error. Failed to delete purchase order.");
       }
     }
   };
 
-  const handleSaveOrder = (savedOrder) => {
-    if (orderToEdit) {
-      setOrders(orders.map(o => o.id === savedOrder.id ? savedOrder : o));
-    } else {
-      setOrders([savedOrder, ...orders]);
-    }
+  const handleCloseModal = () => {
     setIsModalOpen(false);
     setOrderToEdit(null);
-    router.push("/hospital-inventory/purchase");
+    if (orderId === "add") {
+      router.push("/hospital-inventory/purchase");
+    }
+  };
+
+  const handleSaveOrder = async (savedOrder) => {
+    try {
+      const token = localStorage.getItem("authtoken");
+      const userStr = localStorage.getItem("user");
+      if (!token || !userStr) {
+        toast.error("Session expired.");
+        return;
+      }
+      const user = JSON.parse(userStr);
+      const branchId = user.branchId;
+
+      const method = orderToEdit ? "PUT" : "POST";
+      const url = orderToEdit 
+        ? `${API_URL}/purchase/${orderToEdit.id}?branchId=${branchId}`
+        : `${API_URL}/purchase?branchId=${branchId}`;
+
+      // If editing, we keep some current status fields if not changed in form
+      const payload = {
+        ...savedOrder,
+        branchId
+      };
+
+      const res = await fetch(url, {
+        method,
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const result = await res.json();
+      if (result.success) {
+        toast.success(orderToEdit 
+          ? `Purchase Order ${savedOrder.poNumber} updated successfully.`
+          : `Purchase Order ${savedOrder.poNumber} created successfully.`
+        );
+        fetchOrders();
+        setIsModalOpen(false);
+        setOrderToEdit(null);
+        if (orderId === "add") {
+          router.push("/hospital-inventory/purchase");
+        }
+      } else {
+        toast.error(result.error || "Failed to save purchase order.");
+      }
+    } catch (err) {
+      console.error("Error saving purchase order:", err);
+      toast.error("Network error. Failed to save purchase order.");
+    }
   };
 
   const handleExport = () => {
@@ -208,6 +210,15 @@ export function PurchaseManagement({ slugs = [] }) {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center min-h-[400px] bg-slate-50/50 dark:bg-slate-900/20 rounded-[5px] border border-[#e2e8f0] dark:border-[#334155] p-6 text-slate-400 font-semibold font-sans mt-3">
+        <div className="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p className="text-[14px]">Loading Purchase Orders...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex-1 p-6 bg-slate-50/50 dark:bg-slate-900/20 max-w-[1600px] mx-auto min-h-screen space-y-[20px] font-sans transition-colors duration-300">
       {viewingOrder ? (
@@ -232,7 +243,7 @@ export function PurchaseManagement({ slugs = [] }) {
       {/* Creation and Edit Modal */}
       <CreatePurchaseOrderModal
         isOpen={isModalOpen}
-        onClose={handleBack}
+        onClose={handleCloseModal}
         onSave={handleSaveOrder}
         orderToEdit={orderToEdit}
       />

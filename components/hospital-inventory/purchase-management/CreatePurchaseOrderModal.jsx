@@ -86,19 +86,32 @@ export function CreatePurchaseOrderModal({ isOpen, onClose, onSave, orderToEdit 
     if (orderToEdit) {
       setPoNumber(orderToEdit.poNumber || "");
       setVendor(orderToEdit.vendor || "Baxter Healthcare Corp");
+      setJustification(orderToEdit.justification || "Surgical supplies levels reached critical thresholds (less than 15 days of operating volume). Immediate fast-track shipment approved by Logistics Committee.");
+      setDeliveryStore(orderToEdit.deliveryStore || "Main Central Pharmacy Store");
+      setShippingUrgency(orderToEdit.shippingUrgency || "⚡ Emergency Expedited (24h)");
 
       const parseDate = (dStr) => {
         if (!dStr || dStr === "--" || dStr.toLowerCase() === "pending") return "";
         try {
           const dateObj = new Date(dStr);
           if (isNaN(dateObj.getTime())) return "";
-          return dateObj.toISOString().split("T")[0];
+          const year = dateObj.getFullYear();
+          const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+          const day = String(dateObj.getDate()).padStart(2, '0');
+          return `${year}-${month}-${day}`;
         } catch (e) {
           return "";
         }
       };
 
-      const today = new Date().toISOString().split("T")[0];
+      const getLocalDateString = (dateObj) => {
+        const year = dateObj.getFullYear();
+        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const day = String(dateObj.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      };
+
+      const today = getLocalDateString(new Date());
       setOrderDate(orderToEdit.orderDate ? parseDate(orderToEdit.orderDate) : today);
 
       if (orderToEdit.items && orderToEdit.items.length > 0) {
@@ -129,7 +142,13 @@ export function CreatePurchaseOrderModal({ isOpen, onClose, onSave, orderToEdit 
       }
     } else {
       const randomNum = Math.floor(100 + Math.random() * 900);
-      const today = new Date().toISOString().split("T")[0];
+      const getLocalDateString = (dateObj) => {
+        const year = dateObj.getFullYear();
+        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const day = String(dateObj.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      };
+      const today = getLocalDateString(new Date());
       setPoNumber(`PO-2026-${randomNum}`);
       setVendor("Baxter Healthcare Corp");
       setOrderDate(today);
@@ -282,12 +301,30 @@ export function CreatePurchaseOrderModal({ isOpen, onClose, onSave, orderToEdit 
 
     const formattedTotalAmount = `₹${grandTotal.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
+    const calculateExpectedDelivery = (baseDateStr, urgency) => {
+      if (!baseDateStr) return "Pending";
+      const dateObj = new Date(baseDateStr);
+      if (isNaN(dateObj.getTime())) return "Pending";
+
+      let daysToAdd = 4; // Default Standard Delivery: 4 days
+      if (urgency.includes("24h")) {
+        daysToAdd = 1;
+      } else if (urgency.includes("48h")) {
+        daysToAdd = 2;
+      } else if (urgency.includes("3-5")) {
+        daysToAdd = 4;
+      }
+
+      dateObj.setDate(dateObj.getDate() + daysToAdd);
+      return dateObj.toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" });
+    };
+
     const finalOrder = {
       id: orderToEdit ? orderToEdit.id : Date.now(),
       poNumber: poNumber,
       vendor: vendor,
       orderDate: formatDate(orderDate),
-      expectedDelivery: "Pending", // Will be marked pending or calculated based on urgency
+      expectedDelivery: calculateExpectedDelivery(orderDate, shippingUrgency),
       totalAmount: formattedTotalAmount,
       payment: orderToEdit ? orderToEdit.payment : "PENDING",
       orderStatus: "ORDERED",
@@ -296,7 +333,10 @@ export function CreatePurchaseOrderModal({ isOpen, onClose, onSave, orderToEdit 
         name: item.name,
         qty: parseFloat(item.qty) || 0,
         unitPrice: parseFloat(item.unitPrice) || 0
-      }))
+      })),
+      justification: justification,
+      deliveryStore: deliveryStore,
+      shippingUrgency: shippingUrgency
     };
 
     if (onSave) {
