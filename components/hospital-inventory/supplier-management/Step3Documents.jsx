@@ -5,13 +5,22 @@ import { ArrowLeft, Eye, Trash2, Upload, FileText, CheckCircle2, X, Download, Sh
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
-export function Step3Documents({ data, onChange, onComplete, onBack }) {
+export function Step3Documents({ data, onChange, onComplete, onBack, onCancel, readOnly }) {
   const [docs, setDocs] = useState({
-    gst: data.gst || { name: "gst registration Certificate.pdf", size: "2.4 MB", uploaded: true, fileObj: null },
-    pan: data.pan || { name: "Pan Card Copy.pdf", size: "1.1 MB", uploaded: true, fileObj: null },
-    drug: data.drug || { name: "", size: "", uploaded: false, fileObj: null },
+    gst: (data.gst && (data.gst.name || data.gst.uploaded)) ? data.gst : { name: "", size: "", uploaded: false, fileObj: null },
+    pan: (data.pan && (data.pan.name || data.pan.uploaded)) ? data.pan : { name: "", size: "", uploaded: false, fileObj: null },
+    drug: (data.drug && (data.drug.name || data.drug.uploaded)) ? data.drug : { name: "", size: "", uploaded: false, fileObj: null },
     additional: data.additional || []
   });
+
+  useEffect(() => {
+    setDocs({
+      gst: (data.gst && (data.gst.name || data.gst.uploaded)) ? data.gst : { name: "", size: "", uploaded: false, fileObj: null },
+      pan: (data.pan && (data.pan.name || data.pan.uploaded)) ? data.pan : { name: "", size: "", uploaded: false, fileObj: null },
+      drug: (data.drug && (data.drug.name || data.drug.uploaded)) ? data.drug : { name: "", size: "", uploaded: false, fileObj: null },
+      additional: data.additional || []
+    });
+  }, [data]);
 
   const [previewFile, setPreviewFile] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
@@ -84,7 +93,7 @@ export function Step3Documents({ data, onChange, onComplete, onBack }) {
       setPreviewUrl(null);
     }
 
-    if (doc.fileObj) {
+    if (doc.fileObj && (doc.fileObj instanceof Blob || doc.fileObj instanceof File)) {
       try {
         const url = URL.createObjectURL(doc.fileObj);
         setPreviewUrl(url);
@@ -115,6 +124,10 @@ export function Step3Documents({ data, onChange, onComplete, onBack }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (readOnly) {
+      if (onCancel) onCancel();
+      return;
+    }
     if (!docs.gst.uploaded || !docs.pan.uploaded || !docs.drug.uploaded) {
       toast.error("Please upload all required documents to proceed.");
       return;
@@ -182,14 +195,18 @@ export function Step3Documents({ data, onChange, onComplete, onBack }) {
                   >
                     <Eye size={16} />
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDelete("gst")}
-                    className="p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-red-500 cursor-pointer"
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                  {!readOnly && (
+                    <button
+                      type="button"
+                      onClick={() => handleDelete("gst")}
+                      className="p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-red-500 cursor-pointer"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  )}
                 </div>
+              ) : readOnly ? (
+                <span className="text-[12px] font-semibold text-slate-400 italic">Not Uploaded</span>
               ) : (
                 <button
                   type="button"
@@ -240,14 +257,18 @@ export function Step3Documents({ data, onChange, onComplete, onBack }) {
                   >
                     <Eye size={16} />
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDelete("pan")}
-                    className="p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-red-500 cursor-pointer"
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                  {!readOnly && (
+                    <button
+                      type="button"
+                      onClick={() => handleDelete("pan")}
+                      className="p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-red-500 cursor-pointer"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  )}
                 </div>
+              ) : readOnly ? (
+                <span className="text-[12px] font-semibold text-slate-400 italic">Not Uploaded</span>
               ) : (
                 <button
                   type="button"
@@ -298,14 +319,18 @@ export function Step3Documents({ data, onChange, onComplete, onBack }) {
                   >
                     <Eye size={16} />
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDelete("drug")}
-                    className="p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-red-500 cursor-pointer"
-                  >
-                    <Trash2 size={16} />
-                  </button>
+                  {!readOnly && (
+                    <button
+                      type="button"
+                      onClick={() => handleDelete("drug")}
+                      className="p-2 rounded hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-400 hover:text-red-500 cursor-pointer"
+                    >
+                      <Trash2 size={16} />
+                    </button>
+                  )}
                 </div>
+              ) : readOnly ? (
+                <span className="text-[12px] font-semibold text-slate-400 italic">Not Uploaded</span>
               ) : (
                 <button
                   type="button"
@@ -327,26 +352,28 @@ export function Step3Documents({ data, onChange, onComplete, onBack }) {
           Additional Documents (Optional)
         </h3>
         
-        <div
-          onClick={() => additionalInputRef.current.click()}
-          className="border-2 border-dashed border-[#e2e8f0] dark:border-[#334155] rounded-[5px] p-8 text-center bg-white dark:bg-[#0A0F1D] hover:bg-slate-50/50 dark:hover:bg-[#0A0F1D]/50 transition-all cursor-pointer flex flex-col items-center justify-center gap-2"
-        >
-          <div className="w-12 h-12 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-[#2E37A4]">
-            <Upload size={20} className="text-[#2E37A4]" />
-          </div>
-          <span className="text-[13px] font-extrabold text-slate-850 dark:text-slate-200 mt-1">
-            Click to upload or drag and drop
-          </span>
-          <span className="text-[11px] font-bold text-slate-400">
-            Prescriptions, ID Proofs, Previous records (Max 10MB each)
-          </span>
-          <button
-            type="button"
-            className="mt-3.5 h-9 px-4 rounded-[5px] border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-slate-800 text-[12px] font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50/50 transition cursor-pointer shadow-none"
+        {!readOnly && (
+          <div
+            onClick={() => additionalInputRef.current.click()}
+            className="border-2 border-dashed border-[#e2e8f0] dark:border-[#334155] rounded-[5px] p-8 text-center bg-white dark:bg-[#0A0F1D] hover:bg-slate-50/50 dark:hover:bg-[#0A0F1D]/50 transition-all cursor-pointer flex flex-col items-center justify-center gap-2"
           >
-            Browse Files
-          </button>
-        </div>
+            <div className="w-12 h-12 rounded-full bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-[#2E37A4]">
+              <Upload size={20} className="text-[#2E37A4]" />
+            </div>
+            <span className="text-[13px] font-extrabold text-slate-850 dark:text-slate-200 mt-1">
+              Click to upload or drag and drop
+            </span>
+            <span className="text-[11px] font-bold text-slate-400">
+              Prescriptions, ID Proofs, Previous records (Max 10MB each)
+            </span>
+            <button
+              type="button"
+              className="mt-3.5 h-9 px-4 rounded-[5px] border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-slate-800 text-[12px] font-bold text-slate-700 dark:text-slate-200 hover:bg-slate-50/50 transition cursor-pointer shadow-none"
+            >
+              Browse Files
+            </button>
+          </div>
+        )}
 
         {/* List of uploaded additional docs with View & Trash Actions */}
         {docs.additional.length > 0 && (
@@ -368,14 +395,16 @@ export function Step3Documents({ data, onChange, onComplete, onBack }) {
                   >
                     <Eye size={15} />
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveAdditional(idx)}
-                    className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-400 hover:text-red-500 cursor-pointer"
-                    title="Remove File"
-                  >
-                    <Trash2 size={15} />
-                  </button>
+                  {!readOnly && (
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveAdditional(idx)}
+                      className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-800 text-slate-400 hover:text-red-500 cursor-pointer"
+                      title="Remove File"
+                    >
+                      <Trash2 size={15} />
+                    </button>
+                  )}
                 </div>
               </div>
             ))}
@@ -396,18 +425,20 @@ export function Step3Documents({ data, onChange, onComplete, onBack }) {
 
         {/* Action Buttons */}
         <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => onComplete(docs)}
-            className="h-10 px-5 rounded-[5px] border border-[#2E37A4] text-[12px] font-bold text-[#2E37A4] hover:bg-slate-50 transition cursor-pointer shadow-none"
-          >
-            Save Draft
-          </button>
+          {!readOnly && (
+            <button
+              type="button"
+              onClick={() => onComplete(docs)}
+              className="h-10 px-5 rounded-[5px] border border-[#2E37A4] text-[12px] font-bold text-[#2E37A4] hover:bg-slate-50 transition cursor-pointer shadow-none"
+            >
+              Save Draft
+            </button>
+          )}
           <button
             type="submit"
             className="h-10 px-6 rounded-[5px] bg-[#2E37A4] hover:bg-[#232a7d] text-[12px] font-bold text-white transition cursor-pointer shadow-none"
           >
-            Add Supplier
+            {readOnly ? "Finish" : "Add Supplier"}
           </button>
         </div>
       </div>
