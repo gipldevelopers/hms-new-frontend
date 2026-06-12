@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ArrowLeft } from "lucide-react";
 
-export function Step2PaymentInfo({ data, onChange, onNext, onBack }) {
+export function Step2PaymentInfo({ data, onChange, onNext, onBack, readOnly }) {
   const [formData, setFormData] = useState({
     bankName: data.bankName || "",
     accountNumber: data.accountNumber || "",
@@ -14,6 +14,19 @@ export function Step2PaymentInfo({ data, onChange, onNext, onBack }) {
     taxCategory: data.taxCategory || "",
     panNumber: data.panNumber || ""
   });
+
+  useEffect(() => {
+    setFormData({
+      bankName: data.bankName || "",
+      accountNumber: data.accountNumber || "",
+      ifscCode: data.ifscCode || "",
+      accountType: data.accountType || "",
+      branchName: data.branchName || "",
+      paymentType: data.paymentType || "",
+      taxCategory: data.taxCategory || "",
+      panNumber: data.panNumber || ""
+    });
+  }, [data]);
 
   const handleChange = (field, val) => {
     const updated = { ...formData, [field]: val };
@@ -48,6 +61,7 @@ export function Step2PaymentInfo({ data, onChange, onNext, onBack }) {
               onChange={(e) => handleChange("bankName", e.target.value)}
               className="w-full h-10 px-3 bg-white dark:bg-[#0A0F1D] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-semibold text-slate-700 dark:text-slate-200 outline-none focus:border-[#2E37A4]"
               required
+              disabled={readOnly}
             />
           </div>
 
@@ -63,6 +77,7 @@ export function Step2PaymentInfo({ data, onChange, onNext, onBack }) {
               onChange={(e) => handleChange("accountNumber", e.target.value)}
               className="w-full h-10 px-3 bg-white dark:bg-[#0A0F1D] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-semibold text-slate-700 dark:text-slate-200 outline-none focus:border-[#2E37A4]"
               required
+              disabled={readOnly}
             />
           </div>
 
@@ -78,6 +93,7 @@ export function Step2PaymentInfo({ data, onChange, onNext, onBack }) {
               onChange={(e) => handleChange("ifscCode", e.target.value)}
               className="w-full h-10 px-3 bg-white dark:bg-[#0A0F1D] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-semibold text-slate-700 dark:text-slate-200 outline-none focus:border-[#2E37A4]"
               required
+              disabled={readOnly}
             />
           </div>
 
@@ -91,6 +107,7 @@ export function Step2PaymentInfo({ data, onChange, onNext, onBack }) {
               onChange={(e) => handleChange("accountType", e.target.value)}
               className="w-full h-10 px-3 bg-white dark:bg-[#0A0F1D] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-bold text-slate-700 dark:text-slate-200 outline-none focus:border-[#2E37A4] cursor-pointer"
               required
+              disabled={readOnly}
             >
               <option value="">Select Account Type</option>
               <option value="Savings">Savings Account</option>
@@ -108,6 +125,7 @@ export function Step2PaymentInfo({ data, onChange, onNext, onBack }) {
               onChange={(e) => handleChange("branchName", e.target.value)}
               className="w-full h-10 px-3 bg-white dark:bg-[#0A0F1D] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-bold text-slate-700 dark:text-slate-200 outline-none focus:border-[#2E37A4] cursor-pointer"
               required
+              disabled={readOnly}
             >
               <option value="">Select Branch</option>
               <option value="New Delhi">New Delhi Central</option>
@@ -127,6 +145,7 @@ export function Step2PaymentInfo({ data, onChange, onNext, onBack }) {
               onChange={(e) => handleChange("paymentType", e.target.value)}
               className="w-full h-10 px-3 bg-white dark:bg-[#0A0F1D] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-bold text-slate-700 dark:text-slate-200 outline-none focus:border-[#2E37A4] cursor-pointer"
               required
+              disabled={readOnly}
             >
               <option value="">Select Payment Type</option>
               <option value="NEFT">NEFT Transfer</option>
@@ -156,6 +175,7 @@ export function Step2PaymentInfo({ data, onChange, onNext, onBack }) {
               onChange={(e) => handleChange("taxCategory", e.target.value)}
               className="w-full h-10 px-3 bg-white dark:bg-[#0A0F1D] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-bold text-slate-700 dark:text-slate-200 outline-none focus:border-[#2E37A4] cursor-pointer"
               required
+              disabled={readOnly}
             >
               <option value="">Select Category</option>
               <option value="GST Registered">GST Registered</option>
@@ -176,6 +196,7 @@ export function Step2PaymentInfo({ data, onChange, onNext, onBack }) {
               onChange={(e) => handleChange("panNumber", e.target.value)}
               className="w-full h-10 px-3 bg-white dark:bg-[#0A0F1D] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-semibold text-slate-700 dark:text-slate-200 outline-none focus:border-[#2E37A4]"
               required
+              disabled={readOnly}
             />
           </div>
 
@@ -195,18 +216,20 @@ export function Step2PaymentInfo({ data, onChange, onNext, onBack }) {
 
         {/* Action Buttons */}
         <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => onNext(formData)}
-            className="h-10 px-5 rounded-[5px] border border-[#2E37A4] text-[12px] font-bold text-[#2E37A4] hover:bg-slate-50 transition cursor-pointer shadow-none"
-          >
-            Save Draft
-          </button>
+          {!readOnly && (
+            <button
+              type="button"
+              onClick={() => onNext(formData)}
+              className="h-10 px-5 rounded-[5px] border border-[#2E37A4] text-[12px] font-bold text-[#2E37A4] hover:bg-slate-50 transition cursor-pointer shadow-none"
+            >
+              Save Draft
+            </button>
+          )}
           <button
             type="submit"
             className="h-10 px-5 rounded-[5px] bg-[#2E37A4] hover:bg-[#232a7d] text-[12px] font-bold text-white transition cursor-pointer shadow-none"
           >
-            Save & Next
+            {readOnly ? "Next" : "Save & Next"}
           </button>
         </div>
       </div>

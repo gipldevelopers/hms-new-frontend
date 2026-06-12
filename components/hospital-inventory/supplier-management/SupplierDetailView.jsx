@@ -17,7 +17,7 @@ export function SupplierDetailView({ supplier, onBack }) {
 
   return (
     <div className="space-y-[20px] font-sans transition-colors duration-300">
-      
+
       {/* Header Panel */}
       <div className="-mt-4 sm:-mt-6 -mx-4 sm:-mx-6 bg-white dark:bg-[#101935] border-b border-[#E7E8EB] dark:border-white/10 px-[20px] py-[16px]">
         <div className="max-w-[1400px] mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-[16px]">
@@ -58,14 +58,14 @@ export function SupplierDetailView({ supplier, onBack }) {
 
       {/* Grid Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
+
         {/* Left Card: Essential Stats & Contact Details */}
         <div className="lg:col-span-1 space-y-5">
-          
+
           {/* Supplier Info Details Card */}
           <div className="bg-white dark:bg-[#1e293b] p-5 rounded-[5px] border border-[#e2e8f0] dark:border-[#334155] space-y-5">
             <h3 className="text-[15px] font-bold text-slate-800 dark:text-white">Supplier Profile</h3>
-            
+
             {/* Rating Stars Details */}
             <div className="flex items-center gap-3 bg-[#F8F9FC] dark:bg-[#0A0F1D] p-3 rounded-[5px] border border-[#e2e8f0] dark:border-slate-800">
               <div className="flex gap-0.5 text-amber-400">
@@ -84,7 +84,7 @@ export function SupplierDetailView({ supplier, onBack }) {
             </div>
 
             <div className="space-y-4">
-              
+
               <div className="flex items-start gap-3">
                 <Mail className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
                 <div>
@@ -117,7 +117,7 @@ export function SupplierDetailView({ supplier, onBack }) {
           {/* Compliance & Risk Level */}
           <div className="bg-white dark:bg-[#1e293b] p-5 rounded-[5px] border border-[#e2e8f0] dark:border-[#334155] space-y-4">
             <h4 className="text-[14px] font-bold text-slate-800 dark:text-white">Compliance Status</h4>
-            
+
             <div className="flex items-center gap-3">
               <CheckCircle className="w-8 h-8 text-emerald-500 shrink-0" />
               <div>
@@ -140,7 +140,7 @@ export function SupplierDetailView({ supplier, onBack }) {
         {/* Right Card: Order History List */}
         <div className="lg:col-span-2">
           <div className="bg-white dark:bg-[#1e293b] rounded-[5px] border border-[#e2e8f0] dark:border-[#334155] h-full flex flex-col overflow-hidden">
-            
+
             <div className="px-5 py-4 border-b border-[#e2e8f0] dark:border-[#334155] flex justify-between items-center bg-white dark:bg-[#1e293b]">
               <h4 className="text-[15px] font-bold text-[#1e293b] dark:text-white">Recent Purchase Orders</h4>
               <button

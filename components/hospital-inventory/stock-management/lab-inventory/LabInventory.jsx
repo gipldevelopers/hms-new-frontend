@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { StatCards } from "./StatCards";
 import { InventoryTable } from "./InventoryTable";
 import { ItemDetailView } from "./ItemDetailView";
 
@@ -154,12 +153,7 @@ export function LabInventory({ slugs = [] }) {
       ) : (
         <>
           {/* Title Block for Stock Management page */}
-          <div className="flex justify-between items-center mb-2">
 
-          </div>
-
-          {/* Overview Cards (Stat Cards) */}
-          <StatCards items={items} />
 
           {/* Lab Inventory items & Filter Table */}
           {loading && items.length === 0 ? (

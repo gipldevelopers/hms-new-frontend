@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ArrowLeft } from "lucide-react";
 
-export function Step1BasicInfo({ data, onChange, onNext, onCancel }) {
+export function Step1BasicInfo({ data, onChange, onNext, onCancel, readOnly }) {
   const [formData, setFormData] = useState({
     name: data.name || "",
     category: data.category || "",
@@ -16,6 +16,21 @@ export function Step1BasicInfo({ data, onChange, onNext, onCancel }) {
     gstNumber: data.gstNumber || "",
     address: data.address || ""
   });
+
+  useEffect(() => {
+    setFormData({
+      name: data.name || "",
+      category: data.category || "",
+      supplierType: data.supplierType || "",
+      website: data.website || "",
+      contactPerson: data.contactPerson || "",
+      designation: data.designation || "",
+      phone1: data.phone1 || "",
+      phone2: data.phone2 || "",
+      gstNumber: data.gstNumber || "",
+      address: data.address || ""
+    });
+  }, [data]);
 
   const handleChange = (field, val) => {
     const updated = { ...formData, [field]: val };
@@ -50,6 +65,7 @@ export function Step1BasicInfo({ data, onChange, onNext, onCancel }) {
               onChange={(e) => handleChange("name", e.target.value)}
               className="w-full h-10 px-3 bg-white dark:bg-[#0A0F1D] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-semibold text-slate-700 dark:text-slate-200 outline-none focus:border-[#2E37A4]"
               required
+              disabled={readOnly}
             />
           </div>
 
@@ -63,6 +79,7 @@ export function Step1BasicInfo({ data, onChange, onNext, onCancel }) {
               onChange={(e) => handleChange("category", e.target.value)}
               className="w-full h-10 px-3 bg-white dark:bg-[#0A0F1D] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-bold text-slate-700 dark:text-slate-200 outline-none focus:border-[#2E37A4] cursor-pointer"
               required
+              disabled={readOnly}
             >
               <option value="">Select Supplier Category</option>
               <option value="Pharmaceuticals">Pharmaceuticals</option>
@@ -83,6 +100,7 @@ export function Step1BasicInfo({ data, onChange, onNext, onCancel }) {
               onChange={(e) => handleChange("supplierType", e.target.value)}
               className="w-full h-10 px-3 bg-white dark:bg-[#0A0F1D] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-bold text-slate-700 dark:text-slate-200 outline-none focus:border-[#2E37A4] cursor-pointer"
               required
+              disabled={readOnly}
             >
               <option value="">Select Supplier Type</option>
               <option value="Manufacturer">Manufacturer</option>
@@ -103,6 +121,7 @@ export function Step1BasicInfo({ data, onChange, onNext, onCancel }) {
               value={formData.website}
               onChange={(e) => handleChange("website", e.target.value)}
               className="w-full h-10 px-3 bg-white dark:bg-[#0A0F1D] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-semibold text-slate-700 dark:text-slate-200 outline-none focus:border-[#2E37A4]"
+              disabled={readOnly}
             />
           </div>
 
@@ -128,6 +147,7 @@ export function Step1BasicInfo({ data, onChange, onNext, onCancel }) {
               onChange={(e) => handleChange("contactPerson", e.target.value)}
               className="w-full h-10 px-3 bg-white dark:bg-[#0A0F1D] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-semibold text-slate-700 dark:text-slate-200 outline-none focus:border-[#2E37A4]"
               required
+              disabled={readOnly}
             />
           </div>
 
@@ -143,6 +163,7 @@ export function Step1BasicInfo({ data, onChange, onNext, onCancel }) {
               onChange={(e) => handleChange("designation", e.target.value)}
               className="w-full h-10 px-3 bg-white dark:bg-[#0A0F1D] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-semibold text-slate-700 dark:text-slate-200 outline-none focus:border-[#2E37A4]"
               required
+              disabled={readOnly}
             />
           </div>
 
@@ -161,6 +182,7 @@ export function Step1BasicInfo({ data, onChange, onNext, onCancel }) {
               }}
               className="w-full h-10 px-3 bg-white dark:bg-[#0A0F1D] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-semibold text-slate-700 dark:text-slate-200 outline-none focus:border-[#2E37A4]"
               required
+              disabled={readOnly}
             />
           </div>
 
@@ -179,6 +201,7 @@ export function Step1BasicInfo({ data, onChange, onNext, onCancel }) {
               }}
               className="w-full h-10 px-3 bg-white dark:bg-[#0A0F1D] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-semibold text-slate-700 dark:text-slate-200 outline-none focus:border-[#2E37A4]"
               required
+              disabled={readOnly}
             />
           </div>
 
@@ -199,6 +222,7 @@ export function Step1BasicInfo({ data, onChange, onNext, onCancel }) {
             handleChange("gstNumber", val);
           }}
           className="w-full h-10 px-3 bg-white dark:bg-[#0A0F1D] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-semibold text-slate-700 dark:text-slate-200 outline-none focus:border-[#2E37A4]"
+          disabled={readOnly}
         />
       </div>
 
@@ -213,6 +237,7 @@ export function Step1BasicInfo({ data, onChange, onNext, onCancel }) {
           value={formData.address}
           onChange={(e) => handleChange("address", e.target.value)}
           className="w-full p-3 bg-white dark:bg-[#0A0F1D] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-semibold text-slate-700 dark:text-slate-200 outline-none focus:border-[#2E37A4] resize-none"
+          disabled={readOnly}
         />
       </div>
 
@@ -229,18 +254,20 @@ export function Step1BasicInfo({ data, onChange, onNext, onCancel }) {
 
         {/* Action Buttons */}
         <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => onNext(formData)}
-            className="h-10 px-5 rounded-[5px] border border-[#2E37A4] text-[12px] font-bold text-[#2E37A4] hover:bg-slate-50 transition cursor-pointer shadow-none"
-          >
-            Save Draft
-          </button>
+          {!readOnly && (
+            <button
+              type="button"
+              onClick={() => onNext(formData)}
+              className="h-10 px-5 rounded-[5px] border border-[#2E37A4] text-[12px] font-bold text-[#2E37A4] hover:bg-slate-50 transition cursor-pointer shadow-none"
+            >
+              Save Draft
+            </button>
+          )}
           <button
             type="submit"
             className="h-10 px-5 rounded-[5px] bg-[#2E37A4] hover:bg-[#232a7d] text-[12px] font-bold text-white transition cursor-pointer shadow-none"
           >
-            Save & Next
+            {readOnly ? "Next" : "Save & Next"}
           </button>
         </div>
       </div>

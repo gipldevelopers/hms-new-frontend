@@ -24,13 +24,13 @@ const StatCard = ({ title, value, iconBgColor, iconColor }) => (
   </div>
 );
 
-export function StatCards({ suppliers = [] }) {
-  const totalSuppliers = suppliers.length || 184;
-  const activeSuppliers = suppliers.filter(s => s.status === "Active").length || 156;
-  const pendingDeliveries = 24;
-  const delayedDeliveries = 7;
+export function StatCards({ suppliers = [], stats = null }) {
+  const totalSuppliers = stats?.totalSuppliers ?? (suppliers.length || 0);
+  const activeSuppliers = stats?.activeSuppliers ?? (suppliers.filter(s => s.status === "Active").length || 0);
+  const pendingDeliveries = stats?.pendingDeliveries ?? 0;
+  const delayedDeliveries = stats?.delayedDeliveries ?? 0;
 
-  const stats = [
+  const stats_list = [
     {
       title: "Total Supplier",
       value: totalSuppliers,
@@ -45,7 +45,7 @@ export function StatCards({ suppliers = [] }) {
     },
     {
       title: "Pending Deliveries",
-      value: pendingDeliveries,
+      value: String(pendingDeliveries).padStart(2, "0"),
       iconBgColor: "bg-blue-50 dark:bg-blue-950/20",
       iconColor: "text-blue-500"
     },
@@ -57,9 +57,10 @@ export function StatCards({ suppliers = [] }) {
     }
   ];
 
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[20px]">
-      {stats.map((stat, i) => (
+      {stats_list.map((stat, i) => (
         <StatCard key={i} {...stat} />
       ))}
     </div>

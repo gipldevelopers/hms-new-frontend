@@ -294,9 +294,9 @@ export function InventoryTable({ items, setItems, onViewItem, triggerAddModal, c
         toast.error("No items to export");
         return;
       }
-      
+
       const headers = ["Item Name", "SKU Code", "Category", "Quantity", "Expiry", "Status", "Supplier", "Notes"];
-      
+
       const rows = filteredItems.map(item => [
         item.name || "",
         item.sku || "",
@@ -322,7 +322,7 @@ export function InventoryTable({ items, setItems, onViewItem, triggerAddModal, c
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-      
+
       toast.success("Lab Inventory exported successfully!");
     } catch (error) {
       console.error("Export failed:", error);
@@ -335,7 +335,7 @@ export function InventoryTable({ items, setItems, onViewItem, triggerAddModal, c
       {!hideTableContent && (
         <>
           {/* Lab Inventory Header */}
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pt-4">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 ">
             <h2 className="text-[20px] font-bold text-[#1e293b] dark:text-white leading-none tracking-tight">
               Lab Inventory Items
             </h2>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Step1BasicInfo } from "./Step1BasicInfo";
@@ -8,7 +8,12 @@ import { Step2PaymentInfo } from "./Step2PaymentInfo";
 import { Step3Documents } from "./Step3Documents";
 import { toast } from "sonner";
 
-export function AddSupplierWizard({ onSave, onCancel }) {
+export function AddSupplierWizard({ editId, viewOnly, onSave, onCancel }) {
+  const [isViewOnly, setIsViewOnly] = useState(!!viewOnly);
+
+  useEffect(() => {
+    setIsViewOnly(!!viewOnly);
+  }, [viewOnly]);
   const [activeStep, setActiveStep] = useState(1);
   const [supplierData, setSupplierData] = useState({
     // Step 1
@@ -32,11 +37,62 @@ export function AddSupplierWizard({ onSave, onCancel }) {
     taxCategory: "",
     panNumber: "",
     // Step 3
-    gst: { name: "gst registration Certificate.pdf", size: "2.4 MB", uploaded: true },
-    pan: { name: "Pan Card Copy.pdf", size: "1.1 MB", uploaded: true },
+    gst: { name: "", size: "", uploaded: false },
+    pan: { name: "", size: "", uploaded: false },
     drug: { name: "", size: "", uploaded: false },
     additional: []
   });
+
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+
+  useEffect(() => {
+    if (editId) {
+      const fetchSupplierDetails = async () => {
+        try {
+          const token = localStorage.getItem("authtoken");
+          const userStr = localStorage.getItem("user");
+          if (!token || !userStr) return;
+          const user = JSON.parse(userStr);
+          const branchId = user.branchId;
+
+          const res = await fetch(`${API_URL}/supplier/${editId}?branchId=${branchId}`, {
+            headers: { "Authorization": `Bearer ${token}` }
+          });
+          const result = await res.json();
+          if (result.success && result.data) {
+            const data = result.data;
+            setSupplierData({
+              name: data.name || "",
+              category: data.category || "",
+              supplierType: data.supplierType || "",
+              website: data.website || "",
+              contactPerson: data.contactPerson || "",
+              designation: data.designation || "",
+              phone1: data.phone1 || "",
+              phone2: data.phone2 || "",
+              gstNumber: data.gstNumber || "",
+              address: data.address || "",
+              bankName: data.bankName || "",
+              accountNumber: data.accountNumber || "",
+              ifscCode: data.ifscCode || "",
+              accountType: data.accountType || "",
+              branchName: data.branchName || "",
+              paymentType: data.paymentType || "",
+              taxCategory: data.taxCategory || "",
+              panNumber: data.panNumber || "",
+              gst: data.documents?.gst || { name: "", size: "", uploaded: false },
+              pan: data.documents?.pan || { name: "", size: "", uploaded: false },
+              drug: data.documents?.drug || { name: "", size: "", uploaded: false },
+              additional: data.documents?.additional || []
+            });
+          }
+        } catch (err) {
+          console.error("Error fetching supplier details for edit:", err);
+        }
+      };
+      fetchSupplierDetails();
+    }
+  }, [editId, API_URL]);
 
   const handleStepChange = (stepData) => {
     setSupplierData((prev) => ({ ...prev, ...stepData }));
@@ -59,19 +115,7 @@ export function AddSupplierWizard({ onSave, onCancel }) {
 
     toast.success("Supplier profile created successfully!");
     if (onSave) {
-      onSave({
-        id: Date.now(),
-        name: finalData.name,
-        sku: `SUP-2026-${Math.floor(100 + Math.random() * 900)}`,
-        category: finalData.category || "Pharmaceuticals",
-        contact: finalData.contactPerson,
-        phone: finalData.phone1,
-        lastOrder: "N/A",
-        rating: 5,
-        status: "Active",
-        email: finalData.website || "N/A",
-        address: finalData.address || "N/A"
-      });
+      onSave(finalData);
     }
   };
 
@@ -87,10 +131,18 @@ export function AddSupplierWizard({ onSave, onCancel }) {
     <div className="space-y-[20px] font-sans">
       
       {/* Page Plain Title */}
-      <div className="pt-2">
+      <div className="pt-2 flex justify-between items-center">
         <h1 className="text-[20px] font-bold text-[#1e293b] dark:text-white leading-none tracking-tight">
-          Add Supplier
+          {isViewOnly ? "View Supplier Details" : editId ? "Edit Supplier" : "Add Supplier"}
         </h1>
+        {isViewOnly && (
+          <button
+            onClick={() => setIsViewOnly(false)}
+            className="h-9 px-4 rounded-[5px] bg-[#2E37A4] hover:bg-[#232a7d] text-[12px] font-bold text-white transition cursor-pointer"
+          >
+            Edit Supplier
+          </button>
+        )}
       </div>
 
       {/* Grid Layout matching your visual specs */}
@@ -99,7 +151,7 @@ export function AddSupplierWizard({ onSave, onCancel }) {
         {/* Left Column: Multi-step Sidebar indicator card */}
         <div className="lg:col-span-1 bg-white dark:bg-[#1e293b] p-5 rounded-[5px] border border-[#e2e8f0] dark:border-[#334155] min-h-[300px]">
           <h2 className="text-[14px] font-bold text-slate-800 dark:text-white mb-6">
-            Add Supplier Steps
+            {isViewOnly ? "View Supplier Steps" : editId ? "Edit Supplier Steps" : "Add Supplier Steps"}
           </h2>
           <div className="space-y-6">
             {steps.map((step) => {
@@ -165,6 +217,7 @@ export function AddSupplierWizard({ onSave, onCancel }) {
                   onChange={handleStepChange}
                   onNext={handleNext}
                   onCancel={onCancel}
+                  readOnly={isViewOnly}
                 />
               )}
 
@@ -174,6 +227,7 @@ export function AddSupplierWizard({ onSave, onCancel }) {
                   onChange={handleStepChange}
                   onNext={handleNext}
                   onBack={handleBack}
+                  readOnly={isViewOnly}
                 />
               )}
 
@@ -183,6 +237,8 @@ export function AddSupplierWizard({ onSave, onCancel }) {
                   onChange={handleStepChange}
                   onComplete={handleComplete}
                   onBack={handleBack}
+                  onCancel={onCancel}
+                  readOnly={isViewOnly}
                 />
               )}
             </div>

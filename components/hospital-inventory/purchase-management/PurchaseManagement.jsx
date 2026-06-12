@@ -10,7 +10,7 @@ import { toast } from "sonner";
 export function PurchaseManagement({ slugs = [] }) {
   const router = useRouter();
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
-  
+
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [viewingOrder, setViewingOrder] = useState(null);
@@ -140,7 +140,7 @@ export function PurchaseManagement({ slugs = [] }) {
       const branchId = user.branchId;
 
       const method = orderToEdit ? "PUT" : "POST";
-      const url = orderToEdit 
+      const url = orderToEdit
         ? `${API_URL}/purchase/${orderToEdit.id}?branchId=${branchId}`
         : `${API_URL}/purchase?branchId=${branchId}`;
 
@@ -161,7 +161,7 @@ export function PurchaseManagement({ slugs = [] }) {
 
       const result = await res.json();
       if (result.success) {
-        toast.success(orderToEdit 
+        toast.success(orderToEdit
           ? `Purchase Order ${savedOrder.poNumber} updated successfully.`
           : `Purchase Order ${savedOrder.poNumber} created successfully.`
         );
@@ -193,9 +193,9 @@ export function PurchaseManagement({ slugs = [] }) {
         o.orderStatus
       ]);
 
-      const csvContent = "data:text/csv;charset=utf-8," 
+      const csvContent = "data:text/csv;charset=utf-8,"
         + [headers.join(","), ...rows.map(r => r.join(","))].join("\n");
-      
+
       const encodedUri = encodeURI(csvContent);
       const link = document.createElement("a");
       link.setAttribute("href", encodedUri);

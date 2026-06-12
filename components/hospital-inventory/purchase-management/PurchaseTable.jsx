@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
-import { ChevronDown, Download, Plus, Edit3, Eye, Trash2 } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { ChevronDown, Download, Plus, Edit3, Eye, Trash2, X, Clock, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils";
+
 
 const ITEM_CATEGORIES = {
   "SKU-PRP-9021": "Pharmaceuticals",
@@ -28,7 +29,7 @@ const getItemCategory = (item) => {
   const sku = (item.sku || "").toUpperCase();
 
   if (ITEM_CATEGORIES[sku]) return ITEM_CATEGORIES[sku];
-  
+
   if (sku.includes("PRP") || sku.includes("AMX") || sku.includes("PAR") || sku.includes("SAL")) {
     return "Pharmaceuticals";
   }
@@ -70,17 +71,47 @@ export function PurchaseTable({
   onEditOrder,
   onDeleteOrder,
   onCreatePOClick,
-  onExportClick
+  onExportClick,
+  defaultFilter = "all"
 }) {
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [selectedStockStatus, setSelectedStockStatus] = useState("All");
+  const [activeFilter, setActiveFilter] = useState(defaultFilter);
+
+  // Sync activeFilter when defaultFilter prop changes (e.g. navigating from stat card)
+  useEffect(() => {
+    setActiveFilter(defaultFilter);
+  }, [defaultFilter]);
+
+  const now = new Date();
+
+  // Pre-filter by pending/delayed before search/category filters
+  const isPendingOrder = (order) => {
+    const status = (order.orderStatus || "").toUpperCase();
+    return status !== "COMPLETED" && status !== "CANCELLED" && status !== "DELIVERED";
+  };
+
+  const isDelayedOrder = (order) => {
+    if (!isPendingOrder(order)) return false;
+    if (!order.expectedDelivery) return false;
+    const expectedDate = new Date(order.expectedDelivery);
+    return !isNaN(expectedDate.getTime()) && expectedDate < now;
+  };
+
+  const preFiltered = orders.filter(order => {
+    if (activeFilter === "pending") return isPendingOrder(order);
+    if (activeFilter === "delayed") return isDelayedOrder(order);
+    return true;
+  });
+
 
   const categories = ["All", "Pharmaceuticals", "Medical Devices", "Surgical Supplies", "PPE & Safety", "Lab Reagents"];
   const stockStatuses = ["All", "In Stock", "Low Stock", "Out of Stock"];
 
-  // Filter orders
-  const filteredOrders = orders.filter(order => {
+  // Filter orders (from pre-filtered set)
+  const filteredOrders = preFiltered.filter(order => {
+
     const matchesSearch =
       order.poNumber.toLowerCase().includes(search.toLowerCase()) ||
       order.vendor.toLowerCase().includes(search.toLowerCase());
@@ -118,6 +149,33 @@ export function PurchaseTable({
 
   return (
     <div className="space-y-[20px]">
+      {/* Filter Banner — shown when stat card was clicked */}
+      {activeFilter !== "all" && (
+        <div className={cn(
+          "flex items-center justify-between gap-3 px-4 py-3 rounded-[5px] border text-[13px] font-semibold",
+          activeFilter === "pending"
+            ? "bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-900/30 text-blue-700 dark:text-blue-300"
+            : "bg-rose-50 dark:bg-rose-950/20 border-rose-200 dark:border-rose-900/30 text-rose-700 dark:text-rose-300"
+        )}>
+          <div className="flex items-center gap-2.5">
+            {activeFilter === "pending"
+              ? <Clock size={15} className="shrink-0" />
+              : <AlertTriangle size={15} className="shrink-0" />}
+            <span>
+              {activeFilter === "pending"
+                ? `Showing ${preFiltered.length} Pending Deliveries — Purchase Orders not yet completed or delivered.`
+                : `Showing ${preFiltered.length} Delayed Deliveries — Pending orders whose expected delivery date has passed.`}
+            </span>
+          </div>
+          <button
+            onClick={() => setActiveFilter("all")}
+            className="flex items-center gap-1.5 shrink-0 px-2.5 py-1 rounded-[5px] bg-white/70 dark:bg-white/10 hover:bg-white dark:hover:bg-white/20 border border-current/20 text-[12px] font-bold transition-all cursor-pointer"
+          >
+            <X size={11} /> Clear Filter
+          </button>
+        </div>
+      )}
+
       {/* 1. Header Title & Actions Row */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pt-2">
         <h1 className="text-[20px] font-bold text-[#1e293b] dark:text-white leading-none tracking-tight">
