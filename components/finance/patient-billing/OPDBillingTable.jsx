@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Search, Eye, User, CreditCard } from "lucide-react";
+import { Eye, User, CreditCard, FileX } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CustomSelect } from "@/components/ui/custom-select";
 
@@ -22,26 +22,27 @@ export function OPDBillingTable() {
   const [opdPaymentFilter, setOpdPaymentFilter] = useState("");
   const [billingData, setBillingData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   React.useEffect(() => {
     const fetchRecords = async () => {
       try {
         setLoading(true);
+        setError(null);
         const res = await fetch(`${API_BASE}/billing/opd-records`, {
           headers: getAuthHeaders()
         });
-        if (!res.ok) throw new Error("Failed to load records");
+        if (!res.ok) throw new Error(`Server error: ${res.status}`);
         const json = await res.json();
         if (json.success) {
-          setBillingData(json.data);
+          setBillingData(json.data || []);
+        } else {
+          throw new Error(json.message || "Failed to load records");
         }
       } catch (e) {
         console.error("Error fetching OPD billing records:", e);
-        // Fallback for demonstration/resiliency
-        setBillingData([
-          { uhid: "UHID-12A4F", patient: "Sarah Connor", doctor: "John Doe", opdCharge: "₹450.00", otherCharge: "₹720.00", amountReceived: "₹1170.00", paymentMethod: "UPI", status: "PENDING" },
-          { uhid: "UHID-89F3B", patient: "James Wilson", doctor: "Dr. Sarah Jenkins", opdCharge: "₹500.00", otherCharge: "₹0.00", amountReceived: "₹500.00", paymentMethod: "Cash", status: "PENDING" }
-        ]);
+        setError(e.message || "Failed to load OPD billing records.");
+        setBillingData([]);
       } finally {
         setLoading(false);
       }
@@ -126,10 +127,22 @@ export function OPDBillingTable() {
           <tbody className="divide-y divide-border">
             {loading ? (
               <tr>
-                <td colSpan="9" className="py-8 text-center text-[13px] text-gray-500">
+                <td colSpan="9" className="py-12 text-center text-[13px] text-gray-500">
                   <div className="flex items-center justify-center gap-2">
                     <div className="w-4 h-4 border-2 border-[#2E37A4] border-t-transparent rounded-full animate-spin"></div>
                     <span>Loading patient records...</span>
+                  </div>
+                </td>
+              </tr>
+            ) : error ? (
+              <tr>
+                <td colSpan="9" className="py-12 text-center">
+                  <div className="flex flex-col items-center justify-center gap-2">
+                    <div className="w-10 h-10 rounded-full bg-red-50 dark:bg-red-500/10 flex items-center justify-center">
+                      <FileX className="w-5 h-5 text-red-500" />
+                    </div>
+                    <p className="text-[13px] font-semibold text-red-500">Failed to load billing records</p>
+                    <p className="text-[12px] text-gray-400 dark:text-slate-500">{error}</p>
                   </div>
                 </td>
               </tr>
@@ -165,8 +178,18 @@ export function OPDBillingTable() {
               ))
             ) : (
               <tr>
-                <td colSpan="9" className="py-8 text-center text-[13px] text-gray-500">
-                  No invoices found matching your criteria.
+                <td colSpan="9" className="py-12 text-center">
+                  <div className="flex flex-col items-center justify-center gap-2">
+                    <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center">
+                      <FileX className="w-5 h-5 text-muted-foreground" />
+                    </div>
+                    <p className="text-[13px] font-semibold text-muted-foreground">No Billing Records Found</p>
+                    <p className="text-[12px] text-gray-400 dark:text-slate-500">
+                      {searchTerm || opdDoctorFilter || opdPaymentFilter
+                        ? "No records match your current filters."
+                        : "No OPD billing records exist for this branch yet."}
+                    </p>
+                  </div>
                 </td>
               </tr>
             )}
