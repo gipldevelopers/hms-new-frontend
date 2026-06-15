@@ -3,6 +3,44 @@ import React, { useState } from "react";
 import { Download, Plus, Search, ChevronDown, Edit3, Eye, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+export function formatRelativeTime(dateInput) {
+  if (!dateInput) return "1 hrs ago";
+  const date = new Date(dateInput);
+  if (isNaN(date.getTime())) return String(dateInput);
+
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffSecs = Math.floor(diffMs / 1000);
+  const diffMins = Math.floor(diffSecs / 60);
+  const diffHours = Math.floor(diffMins / 60);
+  const diffDays = Math.floor(diffHours / 24);
+
+  if (diffSecs < 10) {
+    return "just now";
+  }
+  if (diffSecs < 60) {
+    return `${diffSecs}s ago`;
+  }
+  if (diffMins < 60) {
+    return `${diffMins} mins ago`;
+  }
+  if (diffHours < 24) {
+    return `${diffHours} hrs ago`;
+  }
+  if (diffDays === 1) {
+    return "1 day ago";
+  }
+  if (diffDays < 7) {
+    return `${diffDays} days ago`;
+  }
+  return date.toLocaleDateString("en-US", {
+    day: "numeric",
+    month: "short",
+    year: "numeric"
+  });
+}
+
+
 export function DepartmentTable({
   items,
   onViewItem,
@@ -191,7 +229,7 @@ export function DepartmentTable({
                       </span>
                     </td>
                     <td className="px-5 py-4 text-slate-500">
-                      {item.lastUpdated || "1 hrs ago"}
+                      {formatRelativeTime(item.updatedAt)}
                     </td>
                     <td className="px-5 py-4 text-center">
                       <span className={cn(
