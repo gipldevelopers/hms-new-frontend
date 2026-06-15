@@ -108,12 +108,12 @@ const roleMenus = {
   "branch-admin": [
     { name: "Dashboard", icon: LayoutGrid, path: "/branch-admin", section: "none" },
     { name: "Bed & Ward Overview", icon: Hotel, path: "/branch-admin/wards", section: "Main" },
-    { name: "Staff Management", icon: Users2, path: "/branch-admin/staff", section: "Main" },
+    { name: "Staff Roster", icon: Users2, path: "/branch-admin/staff", section: "Main" },
     { name: "Admissions & Discharges", icon: ClipboardList, path: "/branch-admin/admissions", section: "Main" },
+    { name: "Lab Inventory", icon: FlaskConical, path: "/branch-admin/lab-inventory", section: "Main" },
     { name: "Billing & Payments", icon: Wallet, path: "/branch-admin/billing", section: "Operations" },
     { name: "Emergency Reports", icon: Stethoscope, path: "/branch-admin/emergency", section: "Admin" },
-    { name: "Configurations", icon: Settings, path: "/branch-admin/configuration", section: "Admin" },
-    { name: "Profile & Settings", icon: User, path: "/branch-admin/profile", section: "Admin" },
+    { name: "Configuration", icon: Settings, path: "/branch-admin/configuration", section: "Admin" },
   ],
   "doctor": [
     { name: "Dashboard", icon: LayoutGrid, path: "/doctor", section: "Main" },

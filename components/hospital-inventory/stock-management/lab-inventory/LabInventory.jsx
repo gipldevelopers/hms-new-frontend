@@ -4,8 +4,9 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { InventoryTable } from "./InventoryTable";
 import { ItemDetailView } from "./ItemDetailView";
+import { StatCards } from "./StatCards";
 
-export function LabInventory({ slugs = [] }) {
+export function LabInventory({ slugs = [], basePath = "/hospital-inventory/stock/lab-inventory", hideSubTabs = false }) {
   const router = useRouter();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -84,12 +85,12 @@ export function LabInventory({ slugs = [] }) {
 
   const handleBack = () => {
     setViewingItem(null);
-    router.push("/hospital-inventory/stock/lab-inventory");
+    router.push(basePath);
   };
 
   const handleViewItem = (item) => {
     setViewingItem(item);
-    router.push(`/hospital-inventory/stock/lab-inventory/${item.id}`);
+    router.push(`${basePath}/${item.id}`);
   };
 
   return (
@@ -131,6 +132,7 @@ export function LabInventory({ slugs = [] }) {
             clearEditTrigger={() => setTriggerEditModal(null)}
             hideTableContent={true}
             editModalTitle="Add New Item"
+            hideSubTabs={hideSubTabs}
             onRefresh={async () => {
               await fetchItems();
               if (itemId) {
@@ -152,8 +154,8 @@ export function LabInventory({ slugs = [] }) {
         </>
       ) : (
         <>
-          {/* Title Block for Stock Management page */}
-
+          {/* Top Stat Cards */}
+          <StatCards items={items} />
 
           {/* Lab Inventory items & Filter Table */}
           {loading && items.length === 0 ? (
@@ -170,6 +172,7 @@ export function LabInventory({ slugs = [] }) {
               triggerEditModal={triggerEditModal}
               clearEditTrigger={() => setTriggerEditModal(null)}
               hideTableContent={false}
+              hideSubTabs={hideSubTabs}
               onRefresh={async () => {
                 await fetchItems();
                 if (itemId) {
