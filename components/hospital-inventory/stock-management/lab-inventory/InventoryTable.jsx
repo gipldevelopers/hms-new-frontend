@@ -86,7 +86,7 @@ const CustomDialogContent = React.forwardRef(({ className, children, ...props },
 ));
 CustomDialogContent.displayName = "CustomDialogContent";
 
-export function InventoryTable({ items, setItems, onViewItem, triggerAddModal, clearAddTrigger, triggerEditModal, clearEditTrigger, hideTableContent, onRefresh, onAddClick, editModalTitle }) {
+export function InventoryTable({ items, setItems, onViewItem, triggerAddModal, clearAddTrigger, triggerEditModal, clearEditTrigger, hideTableContent, onRefresh, onAddClick, editModalTitle, hideSubTabs = false }) {
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
@@ -266,25 +266,30 @@ export function InventoryTable({ items, setItems, onViewItem, triggerAddModal, c
   };
 
   const handleDeleteItem = async (item) => {
-    const confirmed = window.confirm(`Are you sure you want to delete ${item.name}?`);
-    if (confirmed) {
-      try {
-        const token = localStorage.getItem("authtoken");
-        const res = await fetch(`/api/lab-inventory/${item.id}`, {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        const json = await res.json();
-        if (json.success) {
-          toast.success(`${item.name} deleted successfully`);
-          if (onRefresh) onRefresh();
-        } else {
-          toast.error(json.error || "Failed to delete item");
-        }
-      } catch (err) {
-        console.error("Error deleting item:", err);
-        toast.error("Network error deleting item");
+    setSelectedItem(item);
+    setModalType("delete");
+  };
+
+  const executeDeleteItem = async (item) => {
+    try {
+      const token = localStorage.getItem("authtoken");
+      const res = await fetch(`/api/lab-inventory/${item.id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const json = await res.json();
+      if (json.success) {
+        toast.success(`${item.name} deleted successfully`);
+        if (onRefresh) onRefresh();
+      } else {
+        toast.error(json.error || "Failed to delete item");
       }
+    } catch (err) {
+      console.error("Error deleting item:", err);
+      toast.error("Network error deleting item");
+    } finally {
+      setModalType(null);
+      setSelectedItem(null);
     }
   };
 
@@ -358,31 +363,33 @@ export function InventoryTable({ items, setItems, onViewItem, triggerAddModal, c
           </div>
 
           {/* Sub-tabs List matching your exact mockup */}
-          <div className="flex flex-wrap items-center gap-1.5 p-1 bg-[#F1F5F9] dark:bg-[#1E293B]/60 rounded-[8px] border border-[#E2E8F0] dark:border-[#334155] w-fit">
-            <button
-              className="px-4 py-2 text-[12px] font-bold rounded-[6px] transition-all bg-transparent text-[#5E6C84] dark:text-slate-400 hover:text-[#2E37A4] dark:hover:text-[#5F69F8] cursor-pointer"
-              onClick={() => router.push("/hospital-inventory/stock/stock-inventory")}
-            >
-              Stock Inventory
-            </button>
-            <button
-              className="px-4 py-2 text-[12px] font-bold rounded-[6px] transition-all bg-[#2E37A4] text-white shadow-none cursor-pointer"
-            >
-              Lab Inventory
-            </button>
-            <button
-              className="px-4 py-2 text-[12px] font-bold rounded-[6px] transition-all bg-transparent text-[#5E6C84] dark:text-slate-400 hover:text-[#2E37A4] dark:hover:text-[#5F69F8] cursor-pointer"
-              onClick={() => router.push("/hospital-inventory/stock/stock-transfer")}
-            >
-              Stock Transfer
-            </button>
-            <button
-              className="px-4 py-2 text-[12px] font-bold rounded-[6px] transition-all bg-transparent text-[#5E6C84] dark:text-slate-400 hover:text-[#2E37A4] dark:hover:text-[#5F69F8] cursor-pointer"
-              onClick={() => router.push("/hospital-inventory/stock/batch-expiry-tracking")}
-            >
-              Batch & Expiry Tracking
-            </button>
-          </div>
+          {!hideSubTabs && (
+            <div className="flex flex-wrap items-center gap-1.5 p-1 bg-[#F1F5F9] dark:bg-[#1E293B]/60 rounded-[8px] border border-[#E2E8F0] dark:border-[#334155] w-fit">
+              <button
+                className="px-4 py-2 text-[12px] font-bold rounded-[6px] transition-all bg-transparent text-[#5E6C84] dark:text-slate-400 hover:text-[#2E37A4] dark:hover:text-[#5F69F8] cursor-pointer"
+                onClick={() => router.push("/hospital-inventory/stock/stock-inventory")}
+              >
+                Stock Inventory
+              </button>
+              <button
+                className="px-4 py-2 text-[12px] font-bold rounded-[6px] transition-all bg-[#2E37A4] text-white shadow-none cursor-pointer"
+              >
+                Lab Inventory
+              </button>
+              <button
+                className="px-4 py-2 text-[12px] font-bold rounded-[6px] transition-all bg-transparent text-[#5E6C84] dark:text-slate-400 hover:text-[#2E37A4] dark:hover:text-[#5F69F8] cursor-pointer"
+                onClick={() => router.push("/hospital-inventory/stock/stock-transfer")}
+              >
+                Stock Transfer
+              </button>
+              <button
+                className="px-4 py-2 text-[12px] font-bold rounded-[6px] transition-all bg-transparent text-[#5E6C84] dark:text-slate-400 hover:text-[#2E37A4] dark:hover:text-[#5F69F8] cursor-pointer"
+                onClick={() => router.push("/hospital-inventory/stock/batch-expiry-tracking")}
+              >
+                Batch & Expiry Tracking
+              </button>
+            </div>
+          )}
 
           {/* Filter bar */}
           <div className="relative flex flex-col md:flex-row justify-between items-stretch md:items-center gap-4 bg-white dark:bg-[#1e293b] p-3 rounded-[5px] border border-[#e2e8f0] dark:border-[#334155] shadow-none">
@@ -814,6 +821,45 @@ export function InventoryTable({ items, setItems, onViewItem, triggerAddModal, c
               </button>
             </div>
           </form>
+        </CustomDialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Modal */}
+      <Dialog open={modalType === "delete"} onOpenChange={(open) => { if (!open) { setModalType(null); setSelectedItem(null); } }}>
+        <CustomDialogContent className="max-w-md w-[95vw] p-0 bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] flex flex-col gap-0 overflow-hidden shadow-2xl">
+          <div className="flex justify-between items-center border-b border-[#e2e8f0] dark:border-[#334155] px-5 py-3.5 bg-white dark:bg-[#1e293b]">
+            <h3 className="text-[15px] font-bold text-foreground">
+              Delete Inventory Item
+            </h3>
+            <button onClick={() => { setModalType(null); setSelectedItem(null); }} className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5"><line x1="18" x2="6" y1="6" y2="18" /><line x1="6" x2="18" y1="6" y2="18" /></svg>
+            </button>
+          </div>
+          <div className="p-6 bg-white dark:bg-[#1e293b]">
+            <p className="text-[13px] text-gray-600 dark:text-gray-300 font-medium">
+              Are you sure you want to delete <span className="font-bold text-[#1e293b] dark:text-white">"{selectedItem?.name}"</span>? This action cannot be undone.
+            </p>
+          </div>
+          <div className="flex justify-end items-center gap-2 px-5 py-3.5 bg-[#F8F9FC] dark:bg-[#101935] border-t border-[#e2e8f0] dark:border-[#334155]">
+            <button
+              type="button"
+              onClick={() => { setModalType(null); setSelectedItem(null); }}
+              className="h-9 px-4 rounded-[5px] border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#1e293b] hover:bg-muted text-[13px] font-bold text-foreground transition-all cursor-pointer shadow-none"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={async () => {
+                if (selectedItem) {
+                  await executeDeleteItem(selectedItem);
+                }
+              }}
+              className="h-9 px-4 rounded-[5px] bg-red-600 hover:bg-red-700 text-white text-[13px] font-bold transition-all cursor-pointer shadow-none"
+            >
+              Delete Item
+            </button>
+          </div>
         </CustomDialogContent>
       </Dialog>
     </div>
