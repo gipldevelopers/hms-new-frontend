@@ -23,6 +23,16 @@ export function StockTransfer({ slugs = [] }) {
     const today = new Date();
     return today.toISOString().split("T")[0];
   });
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      const queryFromDept = urlParams.get("fromDept");
+      if (queryFromDept) {
+        setFromDept(queryFromDept);
+      }
+    }
+  }, []);
   const [items, setItems] = useState([]);
   const [notes, setNotes] = useState("");
   
@@ -50,7 +60,7 @@ export function StockTransfer({ slugs = [] }) {
     };
   }, [showSuccessModal]);
 
-  // Fetch recent dispatches and active stock inventory items
+  // Fetch recent dispatches and active stock/department inventory items
   const fetchData = React.useCallback(async () => {
     try {
       const token = localStorage.getItem("authtoken");
@@ -59,8 +69,13 @@ export function StockTransfer({ slugs = [] }) {
       const user = JSON.parse(userStr);
       const branchId = user.branchId;
 
-      // 1. Fetch available stock items
-      const itemsRes = await fetch(`${API_URL}/stock-inventory?branchId=${branchId}`, {
+      // 1. Fetch available items based on fromDept
+      const isDept = fromDept !== "Central Store" && fromDept !== "Central Pharmacy";
+      const endpoint = isDept 
+        ? `${API_URL}/department-inventory?branchId=${branchId}`
+        : `${API_URL}/stock-inventory?branchId=${branchId}`;
+
+      const itemsRes = await fetch(endpoint, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       const itemsData = await itemsRes.json();
@@ -81,32 +96,105 @@ export function StockTransfer({ slugs = [] }) {
     } finally {
       setLoading(false);
     }
-  }, [API_URL]);
+  }, [API_URL, fromDept]);
 
   React.useEffect(() => {
     fetchData();
   }, [fetchData]);
 
-  // Handle auto-selected item from query parameters (e.g. from the Details page)
+  // Track previous fromDept to reset items when source changes manually
+  const prevFromDeptRef = React.useRef(fromDept);
   React.useEffect(() => {
-    if (availableItems.length > 0) {
-      const urlParams = new URLSearchParams(window.location.search);
-      const queryItemId = urlParams.get("itemId");
-      if (queryItemId) {
-        const matched = availableItems.find(x => x.id === queryItemId);
-        if (matched && !items.some(x => x.id === matched.id)) {
-          setItems([{
-            id: matched.id,
-            name: matched.name,
-            sku: matched.sku,
-            batch: matched.sku,
-            stock: matched.qty,
-            qty: 1
-          }]);
-        }
+    if (prevFromDeptRef.current !== fromDept) {
+      setItems([]);
+      prevFromDeptRef.current = fromDept;
+    }
+  }, [fromDept]);
+
+  // Resolve clash if fromDept and toDept are equal
+  React.useEffect(() => {
+    if (fromDept === toDept) {
+      if (fromDept === "Central Store") {
+        setToDept("O.T. Recovery Unit");
+      } else {
+        setToDept("Central Store");
       }
     }
-  }, [availableItems]);
+  }, [fromDept]);
+
+  React.useEffect(() => {
+    if (fromDept === toDept) {
+      if (toDept === "Central Store") {
+        setFromDept("O.T. Recovery Unit");
+      } else {
+        setFromDept("Central Store");
+      }
+    }
+  }, [toDept]);
+
+  React.useEffect(() => {
+    const checkQueryParam = async () => {
+      if (!loading) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const queryItemId = urlParams.get("itemId");
+        const querySku = urlParams.get("sku");
+
+        if (queryItemId || querySku) {
+          // 1. Try to find directly in availableItems (by ID or SKU)
+          let matched = availableItems.find(x => 
+            x.id === queryItemId || 
+            (querySku && x.sku === querySku) ||
+            x.sku === queryItemId
+          );
+
+          // 2. If not found and we have queryItemId, try fetching from department-inventory
+          if (!matched && queryItemId) {
+            try {
+              const token = localStorage.getItem("authtoken");
+              const userStr = localStorage.getItem("user");
+              if (token && userStr) {
+                const user = JSON.parse(userStr);
+                const branchId = user.branchId;
+                const res = await fetch(`/api/department-inventory/${queryItemId}?branchId=${branchId}`, {
+                  headers: { "Authorization": `Bearer ${token}` }
+                });
+                const json = await res.json();
+                if (json.success && json.data) {
+                  const deptItem = json.data;
+                  matched = availableItems.find(x => x.sku === deptItem.sku);
+                  
+                  if (!matched) {
+                    matched = {
+                      id: deptItem.id,
+                      name: deptItem.name,
+                      sku: deptItem.sku,
+                      qty: deptItem.qty || "0"
+                    };
+                  }
+                }
+              }
+            } catch (err) {
+              console.error("Failed to fetch department item to resolve SKU:", err);
+            }
+          }
+
+          // 3. If matched, add to items
+          if (matched && !items.some(x => x.id === matched.id)) {
+            setItems([{
+              id: matched.id,
+              name: matched.name,
+              sku: matched.sku,
+              batch: matched.sku,
+              stock: matched.qty,
+              qty: 1
+            }]);
+          }
+        }
+      }
+    };
+
+    checkQueryParam();
+  }, [loading, availableItems]);
 
   // Generate next transfer ID if empty
   React.useEffect(() => {
@@ -340,7 +428,11 @@ export function StockTransfer({ slugs = [] }) {
                 }}
                 className="w-full h-10 px-3 bg-white dark:bg-[#0f172a] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-semibold text-slate-700 dark:text-slate-200 outline-none focus:border-[#2E37A4] transition-all"
               >
-                <option value="">-- Select Item from Stock Inventory --</option>
+                <option value="">
+                  {fromDept !== "Central Store" && fromDept !== "Central Pharmacy"
+                    ? "-- Select Item from Department Inventory --"
+                    : "-- Select Item from Stock Inventory --"}
+                </option>
                 {availableItems.map(x => (
                   <option key={x.id} value={x.id}>{x.name} (Stock: {x.qty})</option>
                 ))}

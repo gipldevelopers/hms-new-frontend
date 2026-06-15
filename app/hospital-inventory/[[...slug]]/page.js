@@ -68,7 +68,7 @@ export default function HospitalInventoryPage({ params }) {
 
   // Render /hospital-inventory/department
   if (firstSlug === "department") {
-    return <DepartmentInventoryDashboard />;
+    return <DepartmentInventoryDashboard slugs={slugs.slice(1)} />;
   }
 
   // Render /hospital-inventory/ot-supplies

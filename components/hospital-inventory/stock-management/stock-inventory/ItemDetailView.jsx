@@ -333,9 +333,34 @@ export function ItemDetailView({ item, onBack, onTransferStock }) {
 
           </div>
         </div>
-
       </div>
 
+      {/* FOOTER ACTIONS ROW */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pt-4 border-t border-[#e2e8f0] dark:border-[#334155]">
+        {/* Info tag */}
+        <div className="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+          <Info size={16} className="text-[#2E37A4] dark:text-[#5C67F2]" />
+          <span className="text-[12px] font-semibold">Make sure code is unique across the catalog.</span>
+        </div>
+
+        {/* Button actions */}
+        <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+          <button
+            type="button"
+            onClick={onBack}
+            className="h-10 px-6 rounded-[5px] border border-rose-500 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 text-[12px] font-bold transition-all cursor-pointer bg-transparent"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={onTransferStock}
+            className="h-10 px-6 rounded-[5px] bg-[#2E37A4] hover:bg-[#232a7d] text-[12px] font-bold text-white transition-all cursor-pointer"
+          >
+            Transfer Stock
+          </button>
+        </div>
+      </div>
 
     </div>
   );

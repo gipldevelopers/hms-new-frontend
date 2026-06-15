@@ -4,24 +4,24 @@ import React, { useState } from "react";
 import { Info, Check, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 
-export function CreateItemProfile({ onCancel, onSave }) {
+export function CreateItemProfile({ initialData, onCancel, onSave }) {
   const [formData, setFormData] = useState({
-    name: "Propofol 10mg/ml (20ml)",
-    sku: "ITM-90234",
-    category: "Anesthetics & Sedatives",
-    subcategory: "Intravenous Anesthetics",
-    notes: "Short-acting, intravenously administered anesthetic agent. Used for induction and maintenance of general anesthesia.",
-    unit: "Ampoule",
-    location: "Cold Vault Room B",
-    minStock: "1,000",
-    maxStock: "10,000",
-    reorderQty: "1,500",
-    shelfLife: "24 Months",
-    enableBatch: true,
-    enableExpiry: true,
-    vendor: "Baxter Healthcare",
-    cost: "12.50",
-    taxRate: "12% (CGST+SGST)"
+    name: initialData?.name || "Propofol 10mg/ml (20ml)",
+    sku: initialData?.sku || "ITM-90234",
+    category: initialData ? (initialData.category.includes("&") ? initialData.category : `${initialData.category} & Sedatives`) : "Anesthetics & Sedatives",
+    subcategory: initialData?.subcategory || "Intravenous Anesthetics",
+    notes: initialData?.notes || "Short-acting, intravenously administered anesthetic agent. Used for induction and maintenance of general anesthesia.",
+    unit: initialData?.unit || "Ampoule",
+    location: initialData?.location || "Cold Vault Room B",
+    minStock: initialData?.minThreshold !== undefined ? String(initialData.minThreshold) : "1,000",
+    maxStock: initialData?.maxStock !== undefined ? String(initialData.maxStock) : "10,000",
+    reorderQty: initialData?.qty !== undefined ? String(initialData.qty) : "1,500",
+    shelfLife: initialData?.shelfLife || "24 Months",
+    enableBatch: initialData?.enableBatch !== undefined ? initialData.enableBatch : true,
+    enableExpiry: initialData?.enableExpiry !== undefined ? initialData.enableExpiry : true,
+    vendor: initialData?.supplier || "Baxter Healthcare",
+    cost: initialData?.unitPrice !== undefined ? String(initialData.unitPrice) : "12.50",
+    taxRate: initialData?.taxRate || "12% (CGST+SGST)"
   });
 
   const handleSubmit = (e) => {
@@ -30,22 +30,24 @@ export function CreateItemProfile({ onCancel, onSave }) {
       toast.error("Please fill in required fields.");
       return;
     }
-    toast.success("New Item Profile created successfully!");
+    toast.success(initialData ? "Item Profile updated successfully!" : "New Item Profile created successfully!");
     if (onSave) {
       onSave({
+        ...initialData,
         sku: formData.sku,
         name: formData.name,
         category: formData.category.replace(" & Sedatives", ""),
         unit: formData.unit,
-        qty: parseFloat(formData.reorderQty.replace(/,/g, "")) || 0,
-        minThreshold: parseFloat(formData.minStock.replace(/,/g, "")) || 0,
-        minStock: parseFloat(formData.minStock.replace(/,/g, "")) || 0,
-        expiry: "Valid",
-        status: "In Stock",
+        qty: parseFloat(String(formData.reorderQty).replace(/,/g, "")) || 0,
+        minThreshold: parseFloat(String(formData.minStock).replace(/,/g, "")) || 0,
+        minStock: parseFloat(String(formData.minStock).replace(/,/g, "")) || 0,
+        expiry: initialData?.expiry || "Valid",
+        status: initialData?.status || "In Stock",
         notes: formData.notes,
         lastUpdated: "Just now",
         location: formData.location,
-        batches: formData.enableBatch ? "1" : "0"
+        batches: formData.enableBatch ? "1" : "0",
+        unitPrice: parseFloat(formData.cost) || 0
       });
     }
   };
@@ -59,7 +61,7 @@ export function CreateItemProfile({ onCancel, onSave }) {
           {/* Header Title */}
           <div>
             <h2 className="text-[20px] font-bold text-[#1e293b] dark:text-white leading-none tracking-tight">
-              Create New Item Profile
+              {initialData ? "Edit Item Profile" : "Create New Item Profile"}
             </h2>
           </div>
 

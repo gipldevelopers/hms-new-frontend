@@ -279,6 +279,7 @@ export function StockInventory({ slugs = [] }) {
           onBack={handleBack}
           onAddItem={() => router.push("/hospital-inventory/stock/stock-inventory/add")}
           onRefreshDetails={fetchItems}
+          onTransferStock={() => router.push(`/hospital-inventory/stock/stock-transfer?itemId=${viewingItem.id}&sku=${viewingItem.sku}`)}
         />
       ) : (
         <InventoryTable
