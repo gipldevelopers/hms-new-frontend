@@ -25,45 +25,53 @@ const ShoppingBagIcon = (props) => (
   </svg>
 );
 
-export function PendingApprovals() {
-  const [approvals, setApprovals] = useState([
-    {
-      id: "PO-2025-9812",
-      dept: "Central Surgery",
-      item: "20,000 sterile surgical gloves",
-      cost: "₹18,400",
-      user: "Head Nurse Mary J.",
-      time: "2 hours ago",
-      urgent: true
-    },
-    {
-      id: "PO-2025-9812",
-      dept: "Central Surgery",
-      item: "20,000 sterile surgical gloves",
-      cost: "₹18,400",
-      user: "Head Nurse Mary J.",
-      time: "2 hours ago",
-      urgent: true
-    },
-    {
-      id: "PO-2025-9812",
-      dept: "Central Surgery",
-      item: "20,000 sterile surgical gloves",
-      cost: "₹18,400",
-      user: "Head Nurse Mary J.",
-      time: "2 hours ago",
-      urgent: true
-    },
-    {
-      id: "PO-2025-9812",
-      dept: "Central Surgery",
-      item: "20,000 sterile surgical gloves",
-      cost: "₹18,400",
-      user: "Head Nurse Mary J.",
-      time: "2 hours ago",
-      urgent: true
+const defaultApprovals = [
+  {
+    id: "PO-2025-9812",
+    dept: "Central Surgery",
+    item: "20,000 sterile surgical gloves",
+    cost: "₹18,400",
+    user: "Head Nurse Mary J.",
+    time: "2 hours ago",
+    urgent: true
+  },
+  {
+    id: "PO-2025-9813",
+    dept: "Central Surgery",
+    item: "20,000 sterile surgical gloves",
+    cost: "₹18,400",
+    user: "Head Nurse Mary J.",
+    time: "2 hours ago",
+    urgent: true
+  },
+  {
+    id: "PO-2025-9814",
+    dept: "Central Surgery",
+    item: "20,000 sterile surgical gloves",
+    cost: "₹18,400",
+    user: "Head Nurse Mary J.",
+    time: "2 hours ago",
+    urgent: true
+  },
+  {
+    id: "PO-2025-9815",
+    dept: "Central Surgery",
+    item: "20,000 sterile surgical gloves",
+    cost: "₹18,400",
+    user: "Head Nurse Mary J.",
+    time: "2 hours ago",
+    urgent: true
+  }
+];
+
+export function PendingApprovals({ approvals: approvalsProp }) {
+  const [approvals, setApprovals] = useState(defaultApprovals);
+
+  React.useEffect(() => {
+    if (approvalsProp) {
+      setApprovals(approvalsProp);
     }
-  ]);
+  }, [approvalsProp]);
 
   const handleAction = (id) => {
     // For visual demo, let's keep elements intact or delete upon action

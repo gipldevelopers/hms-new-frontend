@@ -22,33 +22,35 @@ const AlertDiamond = (props) => (
   </svg>
 );
 
-export function LiveInventoryAlert() {
-  const [alerts] = useState([
-    {
-      id: 1,
-      name: "Insulin Glargine 100 U/mL (3ml Pen)",
-      details: "Main Store quantity down to 15 pens. Min threshold level: 80 pens.",
-      type: "CRITICAL"
-    },
-    {
-      id: 2,
-      name: "Insulin Glargine 100 U/mL (3ml Pen)",
-      details: "Main Store quantity down to 15 pens. Min threshold level: 80 pens.",
-      type: "CRITICAL"
-    },
-    {
-      id: 3,
-      name: "Insulin Glargine 100 U/mL (3ml Pen)",
-      details: "Main Store quantity down to 15 pens. Min threshold level: 80 pens.",
-      type: "CRITICAL"
-    },
-    {
-      id: 4,
-      name: "Insulin Glargine 100 U/mL (3ml Pen)",
-      details: "Main Store quantity down to 15 pens. Min threshold level: 80 pens.",
-      type: "CRITICAL"
-    }
-  ]);
+const defaultAlerts = [
+  {
+    id: 1,
+    name: "Insulin Glargine 100 U/mL (3ml Pen)",
+    details: "Main Store quantity down to 15 pens. Min threshold level: 80 pens.",
+    type: "CRITICAL"
+  },
+  {
+    id: 2,
+    name: "Insulin Glargine 100 U/mL (3ml Pen)",
+    details: "Main Store quantity down to 15 pens. Min threshold level: 80 pens.",
+    type: "CRITICAL"
+  },
+  {
+    id: 3,
+    name: "Insulin Glargine 100 U/mL (3ml Pen)",
+    details: "Main Store quantity down to 15 pens. Min threshold level: 80 pens.",
+    type: "CRITICAL"
+  },
+  {
+    id: 4,
+    name: "Insulin Glargine 100 U/mL (3ml Pen)",
+    details: "Main Store quantity down to 15 pens. Min threshold level: 80 pens.",
+    type: "CRITICAL"
+  }
+];
+
+export function LiveInventoryAlert({ alerts }) {
+  const activeAlerts = alerts || defaultAlerts;
 
   return (
     <div className="bg-white dark:bg-[#1E293B] rounded-[5px] border border-[#E7E8EB] dark:border-white/10 p-5 flex flex-col h-full">
@@ -61,8 +63,8 @@ export function LiveInventoryAlert() {
         </button>
       </div>
 
-      <div className="space-y-4">
-        {alerts.map((alert) => (
+      <div className="flex flex-col gap-3 overflow-y-auto">
+        {activeAlerts.map((alert) => (
           <div
             key={alert.id}
             className="p-4 bg-[#FFF0F0] dark:bg-red-950/10 border border-[#FFE0E0] dark:border-red-950/20 rounded-[8px] flex gap-3 relative transition-all duration-200"

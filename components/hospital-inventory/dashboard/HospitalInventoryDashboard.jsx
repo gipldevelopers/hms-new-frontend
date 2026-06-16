@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Plus, FilePlus } from "lucide-react";
 import { StatCards } from "./StatCards";
 import { InventoryValueTrends } from "./InventoryValueTrends";
@@ -9,16 +9,51 @@ import { LiveInventoryAlert } from "./LiveInventoryAlert";
 import { PendingApprovals } from "./PendingApprovals";
 import { StockHealthStatus } from "./StockHealthStatus";
 import { ExpiryRiskTable } from "./ExpiryRiskTable";
+import { API_URL } from "@/lib/api";
 
 export function HospitalInventoryDashboard() {
   const [showAddStock, setShowAddStock] = useState(false);
   const [showCreatePO, setShowCreatePO] = useState(false);
   const [qty, setQty] = useState(2500);
   const [cost, setCost] = useState(120);
+  const [dashboardData, setDashboardData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const totalValue = qty * cost;
 
-  React.useEffect(() => {
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("authtoken");
+      const userStr = localStorage.getItem("user");
+      if (!token || !userStr) {
+        setLoading(false);
+        return;
+      }
+      const user = JSON.parse(userStr);
+      const branchId = user.branchId;
+
+      const res = await fetch(`${API_URL}/stock-inventory/dashboard/stats?branchId=${branchId}`, {
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+      const result = await res.json();
+      if (result.success) {
+        setDashboardData(result.data);
+      }
+    } catch (err) {
+      console.error("Error fetching dashboard data:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === "Escape") {
         setShowAddStock(false);
@@ -59,29 +94,29 @@ export function HospitalInventoryDashboard() {
       </div>
 
       {/* 1. Main Stat Cards Row (8 stats) */}
-      <StatCards />
+      <StatCards stats={dashboardData?.stats} />
 
       {/* 2. Charts Row (Trends & Department Consumption) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        <InventoryValueTrends />
-        <DepartmentConsumption />
+        <InventoryValueTrends trends={dashboardData?.trends} />
+        <DepartmentConsumption consumption={dashboardData?.consumption} />
       </div>
 
       {/* 3. Alerts, Approvals, Circular Health Column Block (Refined with 60-40% remaining space split) */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
         <div className="lg:col-span-4 flex flex-col">
-          <LiveInventoryAlert />
+          <LiveInventoryAlert alerts={dashboardData?.alerts} />
         </div>
         <div className="lg:col-span-5 flex flex-col">
-          <PendingApprovals />
+          <PendingApprovals approvals={dashboardData?.approvals} />
         </div>
         <div className="lg:col-span-3 flex flex-col">
-          <StockHealthStatus />
+          <StockHealthStatus health={dashboardData?.health} />
         </div>
       </div>
 
       {/* 4. Bottom Table: Expiry Risk Management */}
-      <ExpiryRiskTable />
+      <ExpiryRiskTable expiryRisks={dashboardData?.expiryRisks} />
 
       {/* Add Stock Popup with Backdrop Blur Overlay (Handoff Replication) */}
       {showAddStock && (

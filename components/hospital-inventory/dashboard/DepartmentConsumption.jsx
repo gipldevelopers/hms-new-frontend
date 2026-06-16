@@ -12,7 +12,7 @@ import {
   ResponsiveContainer
 } from "recharts";
 
-const consumptionData = [
+const defaultConsumptionData = [
   { name: "ICU", value: 11000 },
   { name: "OT", value: 13000 },
   { name: "Pharmacy", value: 10000 },
@@ -21,8 +21,9 @@ const consumptionData = [
   { name: "Wards", value: 11000 }
 ];
 
-export function DepartmentConsumption() {
+export function DepartmentConsumption({ consumption }) {
   const [selectedPeriod, setSelectedPeriod] = useState("Monthly");
+  const chartData = consumption || defaultConsumptionData;
 
   return (
     <div className="bg-white dark:bg-[#1E293B] rounded-[5px] border border-[#E7E8EB] dark:border-white/10 p-5 h-full">
@@ -48,7 +49,7 @@ export function DepartmentConsumption() {
 
       <div className="h-[280px] w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={consumptionData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }} barSize={38}>
+          <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }} barSize={38}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" className="dark:stroke-slate-800" />
             <XAxis
               dataKey="name"
@@ -73,7 +74,7 @@ export function DepartmentConsumption() {
               formatter={(value) => [`${value.toLocaleString()} Units`, "Consumption"]}
             />
             <Bar dataKey="value" radius={[4, 4, 0, 0]}>
-              {consumptionData.map((entry, index) => (
+              {chartData.map((entry, index) => (
                 <Cell key={`cell-${index}`} fill={index === 3 ? "#4338CA" : "#5F54F1"} />
               ))}
             </Bar>
