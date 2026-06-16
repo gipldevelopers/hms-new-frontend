@@ -1,93 +1,61 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { 
-  ArrowLeft, 
-  User, 
-  Calendar, 
-  Bed, 
-  Stethoscope, 
-  ChevronDown, 
+import {
+  ArrowLeft,
+  ChevronDown,
   ChevronUp,
   FileText,
   CreditCard,
   Plus,
-  Info
+  Info,
+  Loader2,
+  AlertCircle,
+  BedDouble
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import Image from "next/image";
 import { CollectPaymentDialog } from "@/components/finance/patient-billing/CollectPaymentDialog";
 import { InitiateDischargeDialog } from "@/components/finance/patient-billing/InitiateDischargeDialog";
 
 const rupee = "₹";
 
-// Mock data - in real app, this would come from API
-const patientData = {
-  "T-01": {
-    name: "James Wilson",
-    age: "62",
-    gender: "Male",
-    uhid: "UHID-839211",
-    photo: null,
-    admissionDate: "12 Oct 2023",
-    bedNo: "ICU-04",
-    attendingDoctor: "Dr. Sarah Jenkins",
-    diagnosis: "Acute Myocardial Infarction",
-    insurance: {
-      name: "BlueCross",
-      provider: "BlueCross BlueShield",
-      policyNo: "POL-98234-AX",
-      status: "Approved",
-      statusColor: "bg-[#E6F4EA] text-[#137333] border-[#CEEAD6]"
-    },
-    charges: [
-      {
-        category: "Room Charges",
-        items: [
-          { name: "General Ward (Oct 12 - Oct 14)", category: "Accommodation", qty: 2, price: 150.00, total: 300.00, source: "System" }
-        ]
-      },
-      {
-        category: "Doctor Visits",
-        items: [
-          { name: "Initial Consultation", category: "Consultation", qty: 1, price: 100.00, total: 100.00, source: "IPD" },
-          { name: "Follow-up Visit", category: "Consultation", qty: 2, price: 75.00, total: 150.00, source: "IPD" }
-        ]
-      },
-      {
-        category: "Lab Tests",
-        items: [
-          { name: "Complete Blood Count (CBC)", category: "Pathology", qty: 1, price: 45.00, total: 45.00, source: "LAB" },
-          { name: "Lipid Profile", category: "Pathology", qty: 1, price: 60.00, total: 60.00, source: "LAB" }
-        ]
-      },
-      {
-        category: "Pharmacy",
-        items: [
-          { name: "Paracetamol 500mg (30 tabs)", category: "Medicine", qty: 2, price: 5.00, total: 10.00, source: "Pharmacy" },
-          { name: "Amoxicillin 250mg (Strip)", category: "Medicine", qty: 1, price: 12.00, total: 12.00, source: "Pharmacy" }
-        ]
-      }
-    ],
-    billing: {
-      subtotal: 677.00,
-      discount: 33.85,
-      insuranceCovered: 400.63,
-      netPayable: 243.15,
-      advancePaid: 100.00,
-      balanceDue: 143.15,
-      totalItems: 7
-    }
-  }
-};
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050/api";
+
+function getAuthHeaders() {
+  const token = typeof window !== "undefined" ? localStorage.getItem("authtoken") : "";
+  return { "Content-Type": "application/json", Authorization: `Bearer ${token}` };
+}
 
 export default function IPDPatientBillingDetails() {
   const router = useRouter();
   const params = useParams();
-  const uhid = params.uhid;
-  
-  const patient = patientData[uhid] || patientData["T-01"];
+  // params.uhid holds the admissionId (UUID) passed from IPDBillingTable
+  const admissionId = params.uhid;
+
+  const [data, setData]       = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError]     = useState(null);
+
+  const fetchDetails = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res  = await fetch(`${API_BASE}/billing/ipd-details/${admissionId}`, {
+        headers: getAuthHeaders()
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) throw new Error(json.message || `Error ${res.status}`);
+      setData(json.data);
+    } catch (e) {
+      console.error("IPD details fetch error:", e);
+      setError(e.message || "Failed to load IPD billing details.");
+    } finally {
+      setLoading(false);
+    }
+  }, [admissionId]);
+
+  useEffect(() => { fetchDetails(); }, [fetchDetails]);
 
   const [expandedCategories, setExpandedCategories] = useState({
     "Room Charges": true,
@@ -98,9 +66,22 @@ export default function IPDPatientBillingDetails() {
   const [showCollectPaymentDialog, setShowCollectPaymentDialog] = useState(false);
   const [showInitiateDischargeDialog, setShowInitiateDischargeDialog] = useState(false);
 
-  // Stateful charges list
-  const [charges, setCharges] = useState(patient.charges);
-  const [advancePaid, setAdvancePaid] = useState(100.00);
+  // Charges state: seeded from API data, supports inline additions
+  const [charges, setCharges] = useState([]);
+  const [advancePaid, setAdvancePaid] = useState(0);
+
+  // Seed charges from API data once loaded
+  useEffect(() => {
+    if (!data) return;
+    const { charges: c, totals } = data;
+    setCharges([
+      { category: "Room Charges",   items: c.roomCharges        || [] },
+      { category: "Doctor Visits",  items: c.doctorVisitCharges || [] },
+      { category: "Lab Tests",      items: c.labCharges         || [] },
+      { category: "Pharmacy",       items: c.pharmacyCharges    || [] }
+    ]);
+    setAdvancePaid(totals?.advancePaid || 0);
+  }, [data]);
   
   // State for inline add form
   const [activeAddFormCategory, setActiveAddFormCategory] = useState(null);
@@ -218,19 +199,76 @@ export default function IPDPatientBillingDetails() {
     handleCancelAddForm();
   };
 
-  // Dynamic billing calculations
-  const subtotal = charges.reduce((acc, section) => {
-    return acc + section.items.reduce((secAcc, item) => secAcc + item.total, 0);
-  }, 0);
-  
+  // Dynamic billing calculations (derived from live charges state)
+  const subtotal = charges.reduce((acc, section) =>
+    acc + section.items.reduce((s, item) => s + (item.total || 0), 0), 0);
+
   const totalItems = charges.reduce((acc, section) => acc + section.items.length, 0);
-  const discount = subtotal * 0.05; // 5% discount
-  const insuranceCovered = 400.00; // Mock Insurance amount matching screenshot
-  const netPayable = Math.max(0, subtotal - discount - insuranceCovered);
-  const balanceDue = netPayable - advancePaid;
+
+  // Use API-sourced discount & insurance when available, else derive locally
+  const discount         = data?.totals?.discount         ?? subtotal * 0.05;
+  const insuranceCovered = data?.totals?.insuranceCovered ?? 0;
+  const netPayable       = Math.max(0, subtotal - discount - insuranceCovered);
+  const balanceDue       = Math.max(0, netPayable - advancePaid);
 
   const advancePercentage = netPayable > 0 ? (advancePaid / netPayable) * 100 : 100;
-  const isLowAdvance = advancePercentage < 50;
+  const isLowAdvance      = advancePercentage < 50;
+
+  // ── Loading state ─────────────────────────────────────────────────────────
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#F8F9FC] dark:bg-[#0A0F1D] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <Loader2 className="w-8 h-8 animate-spin text-[#2E37A4]" />
+          <p className="text-[13px] font-semibold text-slate-500">Loading IPD billing details...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Error state ───────────────────────────────────────────────────────────
+  if (error) {
+    return (
+      <div className="min-h-screen bg-[#F8F9FC] dark:bg-[#0A0F1D] flex items-center justify-center p-6">
+        <div className="flex flex-col items-center gap-4 text-center max-w-sm">
+          <div className="w-12 h-12 rounded-full bg-red-50 dark:bg-red-500/10 flex items-center justify-center">
+            <AlertCircle className="w-6 h-6 text-red-500" />
+          </div>
+          <p className="text-[15px] font-bold text-red-500">Failed to load billing details</p>
+          <p className="text-[13px] text-slate-500 dark:text-slate-400">{error}</p>
+          <button
+            onClick={() => router.push("/finance/patient-billing?tab=ipd")}
+            className="h-9 px-4 rounded-[5px] bg-[#2E37A4] text-white text-[13px] font-semibold hover:bg-[#2E37A4]/90 transition"
+          >
+            Back to IPD List
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Empty state (no data but no error) ───────────────────────────────────
+  if (!data) {
+    return (
+      <div className="min-h-screen bg-[#F8F9FC] dark:bg-[#0A0F1D] flex items-center justify-center p-6">
+        <div className="flex flex-col items-center gap-4 text-center max-w-sm">
+          <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
+            <BedDouble className="w-6 h-6 text-muted-foreground" />
+          </div>
+          <p className="text-[15px] font-bold text-slate-600 dark:text-slate-300">No Admission Found</p>
+          <p className="text-[13px] text-slate-400">This admission record does not exist or has been removed.</p>
+          <button
+            onClick={() => router.push("/finance/patient-billing?tab=ipd")}
+            className="h-9 px-4 rounded-[5px] bg-[#2E37A4] text-white text-[13px] font-semibold hover:bg-[#2E37A4]/90 transition"
+          >
+            Back to IPD List
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const { patient, admission, insurance, totals } = data;
 
   return (
     <div className="min-h-screen bg-[#F8F9FC] dark:bg-[#0A0F1D]">
@@ -239,7 +277,7 @@ export default function IPDPatientBillingDetails() {
         <div className="max-w-[1400px] mx-auto flex flex-col sm:flex-row sm:items-center justify-between gap-[16px]">
           <div className="flex items-center gap-[12px]">
             <button
-              onClick={() => router.push('/finance/patient-billing')}
+              onClick={() => router.push('/finance/patient-billing?tab=ipd')}
               className="flex items-center justify-center w-[36px] h-[36px] rounded-[5px] border border-[#E7E8EB] text-slate-600 hover:bg-[#F8F9FC] transition dark:border-white/10 dark:text-slate-400 dark:hover:bg-white/5"
             >
               <ArrowLeft className="h-4 w-4" />
@@ -252,19 +290,16 @@ export default function IPDPatientBillingDetails() {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-[12px]">
-            <button 
+            <button
               onClick={() => setShowInitiateDischargeDialog(true)}
               className="h-[38px] px-[16px] rounded-[5px] border border-[#2E37A4] bg-white text-[13px] font-semibold text-[#2E37A4] hover:bg-[#2E37A4]/5 transition dark:bg-[#101935] flex items-center justify-center gap-[6px]"
             >
               <FileText className="h-4 w-4" />
               Initiate Discharge
             </button>
-            <button 
+            <button
               onClick={() => {
-                setExpandedCategories(prev => ({
-                  ...prev,
-                  "Room Charges": true
-                }));
+                setExpandedCategories(prev => ({ ...prev, "Room Charges": true }));
                 handleToggleAddForm("Room Charges");
               }}
               className="h-[38px] px-[16px] rounded-[5px] border border-[#2E37A4] bg-white text-[13px] font-semibold text-[#2E37A4] hover:bg-[#2E37A4]/5 transition dark:bg-[#101935] flex items-center justify-center gap-[6px]"
@@ -272,7 +307,7 @@ export default function IPDPatientBillingDetails() {
               <Plus className="h-4 w-4" />
               Add Charge
             </button>
-            <button 
+            <button
               onClick={() => setShowCollectPaymentDialog(true)}
               className="h-[38px] px-[16px] rounded-[5px] bg-[#2E37A4] text-[13px] font-semibold text-white hover:bg-[#2E37A4]/90 transition flex items-center justify-center gap-[6px]"
             >
@@ -285,83 +320,94 @@ export default function IPDPatientBillingDetails() {
 
       {/* Content */}
       <div className="max-w-[1400px] mx-auto p-[20px] space-y-[20px]">
-        {/* Top Card: Patient Info & Insurance Details Combined */}
+
+        {/* ── Patient Info & Insurance Card ─────────────────────────────── */}
         <div className="bg-white dark:bg-[#101935] rounded-[5px] border border-[#E7E8EB] dark:border-white/10 p-[20px]">
           <div className="flex flex-col lg:flex-row gap-[20px] justify-between">
-            {/* Patient Info (Left Part) */}
+
+            {/* Left: Patient Info */}
             <div className="flex-1 flex flex-col sm:flex-row gap-[20px]">
-              {/* Avatar */}
-              <div className="w-[80px] h-[80px] rounded-full bg-gradient-to-br from-[#2E37A4] to-[#4F5BD5] flex items-center justify-center text-white text-[28px] font-bold shrink-0 overflow-hidden">
-                {patient.name.split(' ').map(n => n[0]).join('')}
+              {/* Avatar initials */}
+              <div className="w-[80px] h-[80px] rounded-full bg-gradient-to-br from-[#2E37A4] to-[#4F5BD5] flex items-center justify-center text-white text-[28px] font-bold shrink-0">
+                {patient.name.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()}
               </div>
-              {/* Patient Details */}
               <div className="flex-1 space-y-[16px]">
                 <div className="flex items-baseline gap-[12px] flex-wrap">
                   <h2 className="text-[20px] font-bold text-slate-800 dark:text-white">{patient.name}</h2>
-                  <span className="text-[13px] text-slate-500 dark:text-slate-400">{patient.age} yrs • {patient.gender}</span>
+                  {(patient.age || patient.gender) && (
+                    <span className="text-[13px] text-slate-500 dark:text-slate-400">
+                      {patient.age ? `${patient.age} yrs` : ""}
+                      {patient.age && patient.gender ? " • " : ""}
+                      {patient.gender || ""}
+                    </span>
+                  )}
                 </div>
-                
                 <div className="grid grid-cols-2 sm:grid-cols-3 gap-[20px]">
                   <div>
-                    <p className="text-[11px] font-semibold text-slate-400">Uhid</p>
+                    <p className="text-[11px] font-semibold text-slate-400">UHID</p>
                     <p className="text-[13px] font-bold text-slate-800 dark:text-white mt-[2px]">{patient.uhid}</p>
                   </div>
                   <div>
                     <p className="text-[11px] font-semibold text-slate-400">Bed No.</p>
-                    <p className="text-[13px] font-bold text-slate-800 dark:text-white mt-[2px]">{patient.bedNo}</p>
+                    <p className="text-[13px] font-bold text-slate-800 dark:text-white mt-[2px]">{admission.room || admission.bed || "—"}</p>
                   </div>
                   <div>
                     <p className="text-[11px] font-semibold text-slate-400">Admission Date</p>
-                    <p className="text-[13px] font-bold text-slate-800 dark:text-white mt-[2px]">{patient.admissionDate}</p>
+                    <p className="text-[13px] font-bold text-slate-800 dark:text-white mt-[2px]">{admission.admissionDate}</p>
                   </div>
                 </div>
-
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-[20px] pt-[16px] border-t border-[#E7E8EB] dark:border-white/10">
                   <div>
                     <p className="text-[11px] font-semibold text-slate-400">Attending Doctor</p>
-                    <p className="text-[13px] font-bold text-slate-800 dark:text-white mt-[2px]">{patient.attendingDoctor}</p>
+                    <p className="text-[13px] font-bold text-slate-800 dark:text-white mt-[2px]">{admission.doctor || "—"}</p>
                   </div>
                   <div>
                     <p className="text-[11px] font-semibold text-slate-400">Diagnosis</p>
-                    <p className="text-[13px] font-bold text-slate-800 dark:text-white mt-[2px]">{patient.diagnosis}</p>
+                    <p className="text-[13px] font-bold text-slate-800 dark:text-white mt-[2px]">{admission.diagnosis || "—"}</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Vertical Divider (Desktop Only) */}
+            {/* Vertical Divider */}
             <div className="hidden lg:block w-[1px] bg-[#E7E8EB] dark:bg-white/10 self-stretch mx-[10px]" />
 
-            {/* Insurance Details (Right Part) */}
+            {/* Right: Insurance Details */}
             <div className="w-full lg:w-[420px] shrink-0 flex flex-col justify-between gap-[16px]">
               <div>
                 <div className="flex items-center gap-[8px] mb-[16px]">
                   <h3 className="text-[15px] font-bold text-slate-800 dark:text-white">Insurance Details</h3>
-                  <span className="px-[8px] py-[2px] rounded-[4px] bg-[#E6F4EA] text-[#137333] border border-[#CEEAD6] text-[10px] font-bold">
-                    Active
-                  </span>
+                  {insurance?.status ? (
+                    <span className="px-[8px] py-[2px] rounded-[4px] bg-[#E6F4EA] text-[#137333] border border-[#CEEAD6] text-[10px] font-bold">
+                      {insurance.status}
+                    </span>
+                  ) : (
+                    <span className="px-[8px] py-[2px] rounded-[4px] bg-slate-100 text-slate-500 border border-slate-200 dark:bg-white/5 dark:border-white/10 dark:text-slate-400 text-[10px] font-bold">
+                      Not Linked
+                    </span>
+                  )}
                 </div>
-
                 <div className="grid grid-cols-2 gap-[20px]">
                   <div>
                     <p className="text-[11px] font-semibold text-slate-400">Insurance Name</p>
-                    <p className="text-[13px] font-bold text-slate-800 dark:text-white mt-[2px]">{patient.insurance.name}</p>
+                    <p className="text-[13px] font-bold text-slate-800 dark:text-white mt-[2px]">{insurance?.name || "—"}</p>
                   </div>
                   <div>
                     <p className="text-[11px] font-semibold text-slate-400">Provider</p>
-                    <p className="text-[13px] font-bold text-slate-800 dark:text-white mt-[2px]">{patient.insurance.provider}</p>
+                    <p className="text-[13px] font-bold text-slate-800 dark:text-white mt-[2px]">{insurance?.provider || "—"}</p>
                   </div>
                 </div>
               </div>
-
               <div className="grid grid-cols-2 gap-[20px] pt-[16px] border-t border-[#E7E8EB] dark:border-white/10">
                 <div>
                   <p className="text-[11px] font-semibold text-slate-400">Policy No.</p>
-                  <p className="text-[13px] font-bold text-slate-800 dark:text-white mt-[2px]">{patient.insurance.policyNo}</p>
+                  <p className="text-[13px] font-bold text-slate-800 dark:text-white mt-[2px]">{insurance?.policyNo || "—"}</p>
                 </div>
                 <div>
                   <p className="text-[11px] font-semibold text-slate-400">Status</p>
-                  <p className="text-[13px] font-bold text-green-600 dark:text-green-400 mt-[2px]">Approved</p>
+                  <p className={cn("text-[13px] font-bold mt-[2px]", insurance?.status ? "text-green-600 dark:text-green-400" : "text-slate-400")}>
+                    {insurance?.status || "Not Available"}
+                  </p>
                 </div>
               </div>
             </div>
@@ -627,7 +673,7 @@ export default function IPDPatientBillingDetails() {
                   Collect Payment
                 </button>
                 <button
-                  onClick={() => router.push('/finance/patient-billing/create?uhid=' + (uhid || 'T-01'))}
+                  onClick={() => router.push('/finance/patient-billing/create?admissionId=' + admissionId + '&uhid=' + encodeURIComponent(patient.uhid))}
                   className="w-full h-[40px] rounded-[5px] bg-[#F1F3F9] dark:bg-white/10 text-[13px] font-semibold text-slate-700 dark:text-slate-300 hover:bg-[#F1F3F9]/80 dark:hover:bg-white/15 transition flex items-center justify-center gap-[8px]"
                 >
                   <FileText className="h-4 w-4" />
@@ -648,11 +694,12 @@ export default function IPDPatientBillingDetails() {
       </div>
 
       {/* Collect Payment Dialog */}
-      <CollectPaymentDialog 
-        open={showCollectPaymentDialog} 
+      <CollectPaymentDialog
+        open={showCollectPaymentDialog}
         onOpenChange={setShowCollectPaymentDialog}
         patientData={{
-          ...patient,
+          name:   patient.name,
+          uhid:   patient.uhid,
           billing: {
             subtotal,
             discount,
@@ -665,7 +712,9 @@ export default function IPDPatientBillingDetails() {
         }}
         onPaymentConfirm={(amount, method, ref) => {
           setAdvancePaid(prev => prev + amount);
-          router.push(`/finance/patient-billing/invoice/${uhid || 'T-01'}?amount=${amount}&method=${method}&ref=${ref || ''}`);
+          router.push(
+            `/finance/patient-billing/invoice/${admissionId}?amount=${amount}&method=${encodeURIComponent(method)}&ref=${encodeURIComponent(ref || "")}`
+          );
         }}
       />
 
@@ -674,7 +723,8 @@ export default function IPDPatientBillingDetails() {
         open={showInitiateDischargeDialog}
         onOpenChange={setShowInitiateDischargeDialog}
         patientData={{
-          ...patient,
+          name:   patient.name,
+          uhid:   patient.uhid,
           billing: {
             subtotal,
             discount,
