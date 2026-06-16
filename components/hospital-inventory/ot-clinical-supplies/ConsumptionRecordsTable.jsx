@@ -18,7 +18,7 @@ export function ConsumptionRecordsTable({ records, searchValue, setSearchValue }
       {/* Table Element Card */}
       <div className="bg-white dark:bg-[#1e293b] rounded-[5px] border border-[#e2e8f0] dark:border-[#334155] overflow-hidden shadow-none">
         {/* Table Filter / Header */}
-        <div className="p-5 border-b border-[#e2e8f0] dark:border-[#334155] flex justify-between items-center">
+        <div className="p-5 border-b border-[#e2e8f0] dark:border-[#334155] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="flex items-center gap-3">
             <h2 className="text-[15px] font-extrabold text-slate-800 dark:text-white">
               Consumption Records
@@ -29,7 +29,17 @@ export function ConsumptionRecordsTable({ records, searchValue, setSearchValue }
             </span>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <div className="relative w-full sm:w-[240px]">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 w-3.5 h-3.5" />
+              <input
+                type="text"
+                placeholder="Search records..."
+                value={searchValue}
+                onChange={(e) => setSearchValue(e.target.value)}
+                className="w-full h-9 pl-9 pr-3 rounded-[5px] border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#0f172a] text-[13px] text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none focus:border-[#2E37A4]"
+              />
+            </div>
             <button className="text-slate-450 hover:text-slate-650 dark:hover:text-slate-300 transition cursor-pointer outline-none">
               <ListFilter size={18} />
             </button>

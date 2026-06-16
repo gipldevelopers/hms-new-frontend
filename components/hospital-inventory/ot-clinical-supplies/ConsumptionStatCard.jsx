@@ -31,12 +31,23 @@ const BarChartSquareIcon = (props) => (
   </svg>
 );
 
-export function ConsumptionStatCard({ totalConsumptionValue, budgetUtilization }) {
+export function ConsumptionStatCard({ totalConsumptionValue = 0, budgetUtilization = 0 }) {
+  // Dynamically calculate shift based on current system time
+  const getActiveShift = () => {
+    const hr = new Date().getHours();
+    if (hr >= 6 && hr < 14) return "Shift A (Morning)";
+    if (hr >= 14 && hr < 22) return "Shift B (Evening)";
+    return "Shift C (Night)";
+  };
+
+  const budgetLimit = 20000;
+  const remainingBudget = Math.max(0, budgetLimit - totalConsumptionValue);
+
   return (
     <div className="bg-[#2E37A4] text-white p-6 rounded-[5px] relative overflow-hidden shadow-none flex flex-col justify-between min-h-[220px] h-full">
-      {/* Active Shift Badge */}
+      {/* Dynamic Active Shift Badge */}
       <div className="absolute top-4 right-4 bg-white/10 backdrop-blur-sm border border-white/20 px-2.5 py-0.5 rounded-full text-[9px] font-bold tracking-wider uppercase">
-        Active Shift
+        {getActiveShift()}
       </div>
 
       <div className="space-y-2 mt-4">
@@ -52,12 +63,18 @@ export function ConsumptionStatCard({ totalConsumptionValue, budgetUtilization }
         </h3>
       </div>
 
-      <div className="space-y-2 mt-6">
-        <div className="flex justify-between text-[11px] font-bold text-white/80">
+      {/* Daily Budget Progress Bar with Tooltip */}
+      <div className="space-y-2 mt-6 relative group">
+        {/* Hover Tooltip for budget details */}
+        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white text-[9px] px-2.5 py-1 rounded-[3px] opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none font-bold whitespace-nowrap shadow-md z-10">
+          Remaining: ₹{remainingBudget.toLocaleString("en-IN", { maximumFractionDigits: 2 })} / ₹{budgetLimit.toLocaleString("en-IN")}
+        </div>
+
+        <div className="flex justify-between text-[11px] font-bold text-white/80 cursor-default">
           <span>Daily Budget Utilization</span>
           <span>{budgetUtilization}%</span>
         </div>
-        <div className="w-full bg-white/15 h-2 rounded-full overflow-hidden">
+        <div className="w-full bg-white/15 h-2 rounded-full overflow-hidden cursor-pointer relative">
           <div
             className="bg-white h-full rounded-full transition-all duration-550"
             style={{ width: `${budgetUtilization}%` }}

@@ -4,15 +4,16 @@ import React, { useState } from "react";
 import { Search, ChevronDown, Trash2, Plus, Info, AlertTriangle, X } from "lucide-react";
 import { toast } from "sonner";
 
-// Mock Inventory Items for Add Item Dialog
-const INVENTORY_ITEMS = [
-  { name: "Surgical Mask - N95 Premium", category: "Consumables | Sterile", stock: "450 Units", batch: "BN-992-K (Exp: 12/2025)", unit: "Units (Pack of 50)", price: 2.50 },
-  { name: "Disposable Scalpels #15", category: "Instruments | Sterile", stock: "120 Units", batch: "S-8839-C (Exp: 08/2026)", unit: "Unit", price: 6.50 },
-  { name: "Surgical Sutures (Nylon 4-0)", category: "Supplies | Sterile", stock: "280 Packs", batch: "B-9982-X (Exp: 04/2027)", unit: "Pack", price: 5.50 },
-  { name: "Sterile Gauze Pads (4x4)", category: "Consumables | Sterile", stock: "800 Boxes", batch: "G-2210-A (Exp: 11/2026)", unit: "Box (10pcs)", price: 1.20 }
+const MOCK_FALLBACK_ITEMS = [
+  { name: "Surgical Mask - N95 Premium", category: "Consumables | Sterile", qty: "450", batch: "BN-992-K (Exp: 12/2025)", unit: "Units (Pack of 50)", unitPrice: 2.50 },
+  { name: "Disposable Scalpels #15", category: "Instruments | Sterile", qty: "120", batch: "S-8839-C (Exp: 08/2026)", unit: "Unit", unitPrice: 6.50 },
+  { name: "Surgical Sutures (Nylon 4-0)", category: "Supplies | Sterile", qty: "280", batch: "B-9982-X (Exp: 04/2027)", unit: "Pack", unitPrice: 5.50 },
+  { name: "Sterile Gauze Pads (4x4)", category: "Consumables | Sterile", qty: "800", batch: "G-2210-A (Exp: 11/2026)", unit: "Box (10pcs)", unitPrice: 1.20 }
 ];
 
 export function NewConsumptionLog({ onCancel, onSave }) {
+  const [inventoryItems, setInventoryItems] = useState([]);
+  
   // Mock search/filters
   const [searchTerm, setSearchTerm] = useState("");
   const [category, setCategory] = useState("All");
@@ -20,10 +21,36 @@ export function NewConsumptionLog({ onCancel, onSave }) {
 
   // Pop-up Modal State
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [modalSearchQuery, setModalSearchQuery] = useState("Surgical Mask - N95");
-  const [selectedInvItem, setSelectedInvItem] = useState(INVENTORY_ITEMS[0]);
+  const [modalSearchQuery, setModalSearchQuery] = useState("Surgical Mask");
+  const [selectedInvItem, setSelectedInvItem] = useState(null);
   const [modalUsedQty, setModalUsedQty] = useState("10");
-  const [modalBatch, setModalBatch] = useState(INVENTORY_ITEMS[0].batch);
+  const [modalBatch, setModalBatch] = useState("");
+
+  const activeItems = inventoryItems.length > 0 ? inventoryItems : MOCK_FALLBACK_ITEMS;
+
+  React.useEffect(() => {
+    const fetchInventoryItems = async () => {
+      try {
+        const token = localStorage.getItem("authtoken");
+        const userStr = localStorage.getItem("user");
+        if (!token || !userStr) return;
+        const user = JSON.parse(userStr);
+        const branchId = user.branchId;
+
+        const res = await fetch(`/api/ot-supplies/items?branchId=${branchId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const json = await res.json();
+        if (json.success) {
+          setInventoryItems(json.data);
+        }
+      } catch (err) {
+        console.error("Error fetching items:", err);
+      }
+    };
+    fetchInventoryItems();
+  }, []);
+
 
   // Form State
   const [department, setDepartment] = useState("Cardiology OT");
@@ -73,9 +100,11 @@ export function NewConsumptionLog({ onCancel, onSave }) {
 
   // Add Item handler
   const handleAddItem = () => {
-    setModalSearchQuery("Surgical Mask - N95");
-    setSelectedInvItem(INVENTORY_ITEMS[0]);
-    setModalBatch(INVENTORY_ITEMS[0].batch);
+    setModalSearchQuery("");
+    if (activeItems.length > 0) {
+      setSelectedInvItem(activeItems[0]);
+      setModalBatch(activeItems[0].batch || "");
+    }
     setModalUsedQty("10");
     setIsAddModalOpen(true);
   };
@@ -448,14 +477,12 @@ export function NewConsumptionLog({ onCancel, onSave }) {
 
         </div>
 
-      </div>
-
-      {/* Add Item Pop-up Modal */}
+      </div>      {/* Add Item Pop-up Modal */}
       {isAddModalOpen && (() => {
-        const matchedItem = INVENTORY_ITEMS.find(item =>
+        const matchedItem = activeItems.find(item =>
           item.name.toLowerCase().includes(modalSearchQuery.toLowerCase())
-        ) || INVENTORY_ITEMS[0];
-        const activeBatch = modalBatch || matchedItem.batch;
+        ) || activeItems[0];
+        const activeBatch = modalBatch || (matchedItem ? matchedItem.batch : "");
 
         return (
           <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/40 backdrop-blur-[0.5px] p-4">
@@ -468,7 +495,7 @@ export function NewConsumptionLog({ onCancel, onSave }) {
                 <button
                   type="button"
                   onClick={() => setIsAddModalOpen(false)}
-                  className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
+                  className="text-slate-400 hover:text-slate-650 dark:hover:text-slate-200 transition-colors cursor-pointer"
                 >
                   <X size={18} />
                 </button>
@@ -523,7 +550,7 @@ export function NewConsumptionLog({ onCancel, onSave }) {
                       Available Stock
                     </label>
                     <div className="flex items-center justify-between h-10 px-3 rounded-[5px] border border-[#e2e8f0] dark:border-[#334155] bg-slate-50/50 dark:bg-slate-900/30 text-[13px] text-slate-700 dark:text-slate-350 font-semibold">
-                      <span>{matchedItem?.stock || "0 Units"}</span>
+                      <span>{(matchedItem?.qty || matchedItem?.stock || "0") + " " + (matchedItem?.unit?.split(" ")[0] || "Units")}</span>
                       <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0"></span>
                     </div>
                   </div>
@@ -560,7 +587,7 @@ export function NewConsumptionLog({ onCancel, onSave }) {
                       className="w-[120px] h-10 px-3 rounded-[5px] border border-[#e2e8f0] dark:border-[#334155] bg-white dark:bg-[#0f172a] text-[13px] text-slate-800 dark:text-white font-medium focus:outline-none focus:border-[#2E37A4] text-center"
                     />
                     <span className="text-[13px] text-slate-550 dark:text-slate-400 font-medium">
-                      {matchedItem?.unit || "Units"}
+                      {matchedItem?.unit?.split(" (")[0] || "Units"}
                     </span>
                   </div>
                 </div>
@@ -582,10 +609,10 @@ export function NewConsumptionLog({ onCancel, onSave }) {
                     const newItem = {
                       id: (items.length + 1).toString(),
                       name: matchedItem.name,
-                      batch: activeBatch.split(" ")[0],
+                      batch: activeBatch ? activeBatch.split(" ")[0] : "B-GEN-X",
                       usedQty: qty,
-                      unit: matchedItem.unit.split(" (")[0],
-                      price: matchedItem.price
+                      unit: matchedItem.unit ? matchedItem.unit.split(" (")[0] : "Units",
+                      price: matchedItem.unitPrice || matchedItem.price || 1.50
                     };
                     setItems([...items, newItem]);
                     setIsAddModalOpen(false);

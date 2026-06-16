@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 
-export function CriticalStockAlerts({ onGeneratePO }) {
+export function CriticalStockAlerts({ alerts = [], onGeneratePO }) {
   return (
     <div className="bg-white dark:bg-[#1e293b] p-6 rounded-[5px] border border-[#e2e8f0] dark:border-[#334155] shadow-none flex flex-col justify-between">
       <div>
@@ -16,25 +16,22 @@ export function CriticalStockAlerts({ onGeneratePO }) {
         
         {/* Alert List */}
         <div className="mt-5 space-y-3">
-          {/* Alert 1 */}
-          <div className="flex justify-between items-center p-3 rounded-[5px] bg-red-50/50 dark:bg-red-950/10 border border-red-100 dark:border-red-900/20">
-            <span className="text-[13px] font-bold text-slate-700 dark:text-slate-300">
-              Latex Gloves (Medium)
-            </span>
-            <span className="text-[12px] font-extrabold text-red-600 dark:text-red-400">
-              Only 4 Boxes left
-            </span>
-          </div>
-
-          {/* Alert 2 */}
-          <div className="flex justify-between items-center p-3 rounded-[5px] bg-red-50/50 dark:bg-red-950/10 border border-red-100 dark:border-red-900/20">
-            <span className="text-[13px] font-bold text-slate-700 dark:text-slate-300">
-              Sterile Drape Kits
-            </span>
-            <span className="text-[12px] font-extrabold text-red-600 dark:text-red-400">
-              8 units remaining
-            </span>
-          </div>
+          {alerts.length === 0 ? (
+            <div className="text-center py-6 text-slate-400 dark:text-slate-500 font-bold">
+              No critical alerts.
+            </div>
+          ) : (
+            alerts.map((alert, index) => (
+              <div key={index} className="flex justify-between items-center p-3 rounded-[5px] bg-red-50/50 dark:bg-red-950/10 border border-red-100 dark:border-red-900/20">
+                <span className="text-[13px] font-bold text-slate-700 dark:text-slate-300">
+                  {alert.name}
+                </span>
+                <span className="text-[12px] font-extrabold text-red-600 dark:text-red-400">
+                  {alert.message}
+                </span>
+              </div>
+            ))
+          )}
         </div>
       </div>
 
