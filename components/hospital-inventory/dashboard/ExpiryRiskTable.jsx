@@ -2,53 +2,61 @@
 
 import React, { useState } from "react";
 
-export function ExpiryRiskTable() {
-  const [items, setItems] = useState([
-    {
-      id: 1,
-      name: "Propofol 10mg/mL Injection (20ml)",
-      sku: "SKU-PRP-9821",
-      location: "Central Pharmacy",
-      batch: "B-PPF9021-A",
-      expiry: "2025-04-12",
-      daysLeft: "12 days left",
-      qty: "1,450 vials",
-      loss: "₹4,350"
-    },
-    {
-      id: 2,
-      name: "Propofol 10mg/mL Injection (20ml)",
-      sku: "SKU-PRP-9821",
-      location: "Central Pharmacy",
-      batch: "B-PPF9021-A",
-      expiry: "2025-04-12",
-      daysLeft: "12 days left",
-      qty: "1,450 vials",
-      loss: "₹4,350"
-    },
-    {
-      id: 3,
-      name: "Propofol 10mg/mL Injection (20ml)",
-      sku: "SKU-PRP-9821",
-      location: "Central Pharmacy",
-      batch: "B-PPF9021-A",
-      expiry: "2025-04-12",
-      daysLeft: "12 days left",
-      qty: "1,450 vials",
-      loss: "₹4,350"
-    },
-    {
-      id: 4,
-      name: "Propofol 10mg/mL Injection (20ml)",
-      sku: "SKU-PRP-9821",
-      location: "Central Pharmacy",
-      batch: "B-PPF9021-A",
-      expiry: "2025-04-12",
-      daysLeft: "12 days left",
-      qty: "1,450 vials",
-      loss: "₹4,350"
+const defaultExpiryRisks = [
+  {
+    id: 1,
+    name: "Propofol 10mg/mL Injection (20ml)",
+    sku: "SKU-PRP-9821",
+    location: "Central Pharmacy",
+    batch: "B-PPF9021-A",
+    expiry: "2025-04-12",
+    daysLeft: "12 days left",
+    qty: "1,450 vials",
+    loss: "₹4,350"
+  },
+  {
+    id: 2,
+    name: "Propofol 10mg/mL Injection (20ml)",
+    sku: "SKU-PRP-9821",
+    location: "Central Pharmacy",
+    batch: "B-PPF9021-A",
+    expiry: "2025-04-12",
+    daysLeft: "12 days left",
+    qty: "1,450 vials",
+    loss: "₹4,350"
+  },
+  {
+    id: 3,
+    name: "Propofol 10mg/mL Injection (20ml)",
+    sku: "SKU-PRP-9821",
+    location: "Central Pharmacy",
+    batch: "B-PPF9021-A",
+    expiry: "2025-04-12",
+    daysLeft: "12 days left",
+    qty: "1,450 vials",
+    loss: "₹4,350"
+  },
+  {
+    id: 4,
+    name: "Propofol 10mg/mL Injection (20ml)",
+    sku: "SKU-PRP-9821",
+    location: "Central Pharmacy",
+    batch: "B-PPF9021-A",
+    expiry: "2025-04-12",
+    daysLeft: "12 days left",
+    qty: "1,450 vials",
+    loss: "₹4,350"
+  }
+];
+
+export function ExpiryRiskTable({ expiryRisks }) {
+  const [items, setItems] = useState(defaultExpiryRisks);
+
+  React.useEffect(() => {
+    if (expiryRisks) {
+      setItems(expiryRisks);
     }
-  ]);
+  }, [expiryRisks]);
 
   const handleAction = (id) => {
     setItems(items.filter(item => item.id !== id));

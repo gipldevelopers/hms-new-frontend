@@ -2,13 +2,24 @@
 
 import React from "react";
 
-export function StockHealthStatus() {
+export function StockHealthStatus({ health }) {
+  const healthy = health?.healthyPercent !== undefined ? health.healthyPercent : 68;
+  const lowWarning = health?.lowWarningPercent !== undefined ? health.lowWarningPercent : 24;
+  const critical = health?.criticalPercent !== undefined ? health.criticalPercent : 8;
+  const expired = health?.expiredPercent !== undefined ? health.expiredPercent : 8;
+
+  // Gauge calculation: r=60 -> circumference approx 377
+  const circumference = 377;
+  const strokeDashoffset = circumference * (1 - healthy / 100);
+
+  // Set health color dynamically
+  const healthColor = healthy >= 75 ? "#10B981" : healthy >= 45 ? "#F59E0B" : "#EF4444";
+
   return (
-    <div className="bg-white dark:bg-[#1E293B] rounded-[5px] border border-[#E7E8EB] dark:border-white/10 p-5 flex flex-col justify-between h-full">
-      {/* Title matching exact mockup text */}
-      <div className="flex justify-between items-center mb-5">
-        <h3 className="text-[14px] font-extrabold text-slate-800 dark:text-white uppercase tracking-wider leading-none">
-          PENDING SOURCING & SETTLE APPROVALS
+    <div className="bg-white dark:bg-[#1E293B] rounded-[5px] border border-[#E7E8EB] dark:border-white/10 p-5 h-full">
+      <div className="flex justify-between items-center mb-1">
+        <h3 className="text-[16px] font-bold text-slate-800 dark:text-white leading-none">
+          Stock Health Status
         </h3>
       </div>
 
@@ -30,18 +41,18 @@ export function StockHealthStatus() {
               cx="72"
               cy="72"
               r="60"
-              stroke="#EF4444"
+              stroke={healthColor}
               strokeWidth="10"
               fill="transparent"
-              strokeDasharray="376.8"
-              strokeDashoffset="59.5"
+              strokeDasharray={circumference}
+              strokeDashoffset={strokeDashoffset}
               strokeLinecap="round"
               className="transition-all duration-500"
             />
           </svg>
           <div className="absolute flex flex-col items-center justify-center text-center">
-            <span className="text-[25px] font-black text-red-500 leading-none">
-              84.2%
+            <span className="text-[25px] font-black leading-none" style={{ color: healthColor }}>
+              {healthy}%
             </span>
             <span className="text-[10px] font-extrabold text-slate-400 tracking-wider uppercase mt-1">
               HEALTHY
@@ -53,17 +64,17 @@ export function StockHealthStatus() {
       {/* Stock Breakdown Status */}
       <div className="space-y-4 pt-5 border-t border-slate-100 dark:border-slate-800/60">
         <h4 className="text-[12px] font-extrabold text-slate-500 dark:text-slate-400 tracking-wider uppercase mb-3">
-          INSURANCE & TPA STATUS
+          INVENTORY HEALTH DETAILS
         </h4>
 
         {/* Healthy Stocks */}
         <div>
           <div className="flex justify-between items-center text-[11px] font-bold text-slate-700 dark:text-slate-400 mb-1.5">
             <span>Healthy Stocks</span>
-            <span className="text-[#10B981]">68%</span>
+            <span className="text-[#10B981]">{healthy}%</span>
           </div>
           <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-            <div className="h-full bg-[#10B981] rounded-full" style={{ width: "68%" }}></div>
+            <div className="h-full bg-[#10B981] rounded-full" style={{ width: `${healthy}%` }}></div>
           </div>
         </div>
 
@@ -71,10 +82,10 @@ export function StockHealthStatus() {
         <div>
           <div className="flex justify-between items-center text-[11px] font-bold text-slate-700 dark:text-slate-400 mb-1.5">
             <span>Low Warning</span>
-            <span className="text-[#F59E0B]">24%</span>
+            <span className="text-[#F59E0B]">{lowWarning}%</span>
           </div>
           <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-            <div className="h-full bg-[#F59E0B] rounded-full" style={{ width: "24%" }}></div>
+            <div className="h-full bg-[#F59E0B] rounded-full" style={{ width: `${lowWarning}%` }}></div>
           </div>
         </div>
 
@@ -82,10 +93,10 @@ export function StockHealthStatus() {
         <div>
           <div className="flex justify-between items-center text-[11px] font-bold text-slate-700 dark:text-slate-400 mb-1.5">
             <span>Critical/Zero</span>
-            <span className="text-[#EF4444]">8%</span>
+            <span className="text-[#EF4444]">{critical}%</span>
           </div>
           <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-            <div className="h-full bg-[#EF4444] rounded-full" style={{ width: "8%" }}></div>
+            <div className="h-full bg-[#EF4444] rounded-full" style={{ width: `${critical}%` }}></div>
           </div>
         </div>
 
@@ -93,10 +104,10 @@ export function StockHealthStatus() {
         <div>
           <div className="flex justify-between items-center text-[11px] font-bold text-slate-700 dark:text-slate-400 mb-1.5">
             <span>Expired Batches</span>
-            <span className="text-[#EF4444]">8%</span>
+            <span className="text-[#EF4444]">{expired}%</span>
           </div>
           <div className="h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-            <div className="h-full bg-[#EF4444] rounded-full" style={{ width: "8%" }}></div>
+            <div className="h-full bg-[#EF4444] rounded-full" style={{ width: `${expired}%` }}></div>
           </div>
         </div>
       </div>

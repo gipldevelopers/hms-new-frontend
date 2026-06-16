@@ -37,62 +37,62 @@ const ClipboardPen = (props) => (
   </svg>
 );
 
-export function StatCards() {
+export function StatCards({ stats }) {
   const cards = [
     {
       title: "Total Inventory",
-      value: "₹1,28,000",
-      change: "+12% vs yesterday",
-      isPositive: true,
+      value: stats?.totalInventoryValue || "₹1,28,000",
+      change: stats?.totalInventoryChange || "+12% vs yesterday",
+      isPositive: stats?.totalInventoryPositive !== undefined ? stats.totalInventoryPositive : true,
       icon: BadgeIndianRupee
     },
     {
       title: "Total Available Stock",
-      value: "72%",
-      change: "+5% vs yesterday",
-      isPositive: true,
+      value: stats?.totalAvailableStockPercent || "72%",
+      change: stats?.totalAvailableStockChange || "+5% vs yesterday",
+      isPositive: stats?.totalAvailableStockPositive !== undefined ? stats.totalAvailableStockPositive : true,
       icon: Box
     },
     {
       title: "Low Stock Items",
-      value: "142",
-      change: "-2 vs avg",
-      isPositive: false,
+      value: stats?.lowStockItemsCount || "142",
+      change: stats?.lowStockItemsChange || "-2 vs avg",
+      isPositive: stats?.lowStockItemsPositive !== undefined ? stats.lowStockItemsPositive : false,
       icon: ShieldAlert
     },
     {
       title: "Near Expiry Items",
-      value: "₹45,000",
-      change: "+2% vs yesterday",
-      isPositive: true,
+      value: stats?.nearExpiryValue || "₹45,000",
+      change: stats?.nearExpiryChange || "+2% vs yesterday",
+      isPositive: stats?.nearExpiryPositive !== undefined ? stats.nearExpiryPositive : true,
       icon: Hourglass
     },
     {
       title: "Pending Purchase",
-      value: "4.2d",
-      change: "+1.5d vs yesterday",
-      isPositive: true,
+      value: stats?.pendingPurchaseValue || "4.2d",
+      change: stats?.pendingPurchaseChange || "+1.5d vs yesterday",
+      isPositive: stats?.pendingPurchasePositive !== undefined ? stats.pendingPurchasePositive : true,
       icon: ShoppingCart
     },
     {
       title: "Today's Consumption",
-      value: "1.2%",
-      change: "+5% vs yesterday",
-      isPositive: true,
+      value: stats?.todayConsumptionPercent || "1.2%",
+      change: stats?.todayConsumptionChange || "+5% vs yesterday",
+      isPositive: stats?.todayConsumptionPositive !== undefined ? stats.todayConsumptionPositive : true,
       icon: TrendingUp
     },
     {
       title: "Pending Requests",
-      value: "4.8%",
-      change: "-2% vs avg",
-      isPositive: false,
+      value: stats?.pendingRequestsPercent || "4.8%",
+      change: stats?.pendingRequestsChange || "-2% vs avg",
+      isPositive: stats?.pendingRequestsPositive !== undefined ? stats.pendingRequestsPositive : false,
       icon: ClipboardPen
     },
     {
       title: "Pending GRNs",
-      value: "2",
-      change: "+2 vs yesterday",
-      isPositive: true,
+      value: stats?.pendingGrnsCount || "2",
+      change: stats?.pendingGrnsChange || "+2 vs yesterday",
+      isPositive: stats?.pendingGrnsPositive !== undefined ? stats.pendingGrnsPositive : true,
       icon: Boxes
     }
   ];

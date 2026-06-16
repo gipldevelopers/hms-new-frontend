@@ -11,7 +11,7 @@ import {
   ResponsiveContainer
 } from "recharts";
 
-const trendData = [
+const defaultTrendData = [
   { month: "Apr", value: 3.8, purchase: 3.1 },
   { month: "May", value: 4.2, purchase: 3.6 },
   { month: "Jun", value: 4.5, purchase: 3.9 },
@@ -26,7 +26,8 @@ const trendData = [
   { month: "Mar", value: 6.9, purchase: 6.2 }
 ];
 
-export function InventoryValueTrends() {
+export function InventoryValueTrends({ trends }) {
+  const chartData = trends || defaultTrendData;
   return (
     <div className="bg-white dark:bg-[#1E293B] rounded-[5px] border border-[#E7E8EB] dark:border-white/10 p-5 h-full">
       <div className="flex justify-between items-center mb-5">
@@ -40,7 +41,7 @@ export function InventoryValueTrends() {
 
       <div className="h-[280px] w-full">
         <ResponsiveContainer width="100%" height="100%">
-          <AreaChart data={trendData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+          <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
             <defs>
               <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.2} />
