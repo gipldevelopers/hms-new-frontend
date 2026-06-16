@@ -115,6 +115,15 @@ export function LogConsumptionForm({
             />
           </div>
         </div>
+
+        <div className="flex justify-end pt-2 mt-auto">
+          <button
+            type="submit"
+            className="h-10 px-6 rounded-[5px] bg-[#2E37A4] hover:bg-[#232a7d] text-[13px] font-bold text-white transition-all cursor-pointer shadow-none"
+          >
+            Log Item
+          </button>
+        </div>
       </form>
     </div>
   );
