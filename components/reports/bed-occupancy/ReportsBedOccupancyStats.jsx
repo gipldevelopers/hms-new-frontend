@@ -32,16 +32,16 @@ function ReportsBedOccupancyCard({ title, value, trend, trendSuffix, isUp, icon:
   );
 }
 
-export function ReportsBedOccupancyStats() {
+export function ReportsBedOccupancyStats({ stats }) {
   const cards = [
-    { title: "TOTAL BEDS", value: "450", trend: "+12%", trendSuffix: "vs yesterday", isUp: true, icon: Bed },
-    { title: "OCCUPIED BEDS", value: "342", trend: "+5%", trendSuffix: "vs yesterday", isUp: true, icon: Activity },
-    { title: "AVAILABLE BEDS", value: "108", trend: "-2", trendSuffix: "vs avg", isUp: false, icon: Ambulance },
-    { title: "ICU OCCUPANCY", value: "92%", trend: "+2%", trendSuffix: "vs yesterday", isUp: true, icon: BadgeIndianRupee },
-    { title: "ISOLATION", value: "78%", trend: "+1.5d", trendSuffix: "vs yesterday", isUp: true, icon: Clock },
-    { title: "EXPECTED DISCHARGES", value: "28", trend: "+5%", trendSuffix: "vs yesterday", isUp: true, icon: ShieldAlert },
-    { title: "AVG STAY DURATION", value: "4.2d", trend: "-2%", trendSuffix: "vs avg", isUp: false, icon: RotateCcw },
-    { title: "TURNOVER RATE", value: "85 pts/day", trend: "+2", trendSuffix: "vs yesterday", isUp: true, icon: HeartPulse },
+    { title: "TOTAL BEDS", value: stats?.totalBeds ?? "0", trend: "+12%", trendSuffix: "vs yesterday", isUp: true, icon: Bed },
+    { title: "OCCUPIED BEDS", value: stats?.occupiedBeds ?? "0", trend: "+5%", trendSuffix: "vs yesterday", isUp: true, icon: Activity },
+    { title: "AVAILABLE BEDS", value: stats?.availableBeds ?? "0", trend: "-2", trendSuffix: "vs avg", isUp: false, icon: Ambulance },
+    { title: "ICU OCCUPANCY", value: `${stats?.icuOccupancyPct ?? 0}%`, trend: "+2%", trendSuffix: "vs yesterday", isUp: true, icon: BadgeIndianRupee },
+    { title: "ISOLATION", value: `${stats?.isolationPct ?? 0}%`, trend: "+1.5d", trendSuffix: "vs yesterday", isUp: true, icon: Clock },
+    { title: "EXPECTED DISCHARGES", value: stats?.expectedDischarges ?? "0", trend: "+5%", trendSuffix: "vs yesterday", isUp: true, icon: ShieldAlert },
+    { title: "AVG STAY DURATION", value: stats?.avgStayDuration ?? "4.2d", trend: "-2%", trendSuffix: "vs avg", isUp: false, icon: RotateCcw },
+    { title: "TURNOVER RATE", value: stats?.turnoverRate ?? "85 pts/day", trend: "+2", trendSuffix: "vs yesterday", isUp: true, icon: HeartPulse },
   ];
 
   return (
@@ -52,3 +52,4 @@ export function ReportsBedOccupancyStats() {
     </div>
   );
 }
+

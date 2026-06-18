@@ -3,8 +3,8 @@
 import React from "react";
 import { Users } from "lucide-react";
 
-export function ReportsPerformanceMetrics() {
-  const metrics = [
+export function ReportsPerformanceMetrics({ metrics = [] }) {
+  const displayMetrics = metrics.length > 0 ? metrics : [
     {
       name: "ICU",
       trend: "+0.25%",
@@ -26,8 +26,8 @@ export function ReportsPerformanceMetrics() {
       trend: "+0.25%",
       available: 5,
       total: 10,
-      occupied: 15,
-      pct: 75.0,
+      occupied: 5,
+      pct: 50.0,
     },
     {
       name: "Isolation",
@@ -64,7 +64,7 @@ export function ReportsPerformanceMetrics() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1">
-        {metrics.map((metric, i) => (
+        {displayMetrics.map((metric, i) => (
           <div
             key={i}
             className="bg-white dark:bg-[#1E293B]/20 rounded-lg border border-border/80 dark:border-white/5 p-3 flex flex-col justify-between"
@@ -111,3 +111,4 @@ export function ReportsPerformanceMetrics() {
     </div>
   );
 }
+

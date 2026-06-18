@@ -83,7 +83,7 @@ export default function HospitalInventoryPage({ params }) {
 
   // Render /hospital-inventory/approvals
   if (firstSlug === "approvals") {
-    return <ApprovalDashboard />;
+    return <ApprovalDashboard slugs={slugs.slice(1)} />;
   }
 
   // 5. Any other slug triggers a 404 Not Found error

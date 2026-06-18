@@ -32,11 +32,11 @@ function ReportsEmergencyCard({ title, value, trend, trendSuffix, isUp, headerCo
   );
 }
 
-export function ReportsEmergencyStats() {
+export function ReportsEmergencyStats({ stats = {} }) {
   const cards = [
     {
       title: "TOTAL PATIENTS",
-      value: "142",
+      value: stats.totalPatients !== undefined ? stats.totalPatients : "142",
       trend: "+12%",
       trendSuffix: "vs yesterday",
       isUp: true,
@@ -44,7 +44,7 @@ export function ReportsEmergencyStats() {
     },
     {
       title: "P1 CRITICAL",
-      value: "18",
+      value: stats.p1Critical !== undefined ? stats.p1Critical : "18",
       trend: "+5%",
       trendSuffix: "vs yesterday",
       isUp: true,
@@ -53,7 +53,7 @@ export function ReportsEmergencyStats() {
     },
     {
       title: "P2 URGENT",
-      value: "46",
+      value: stats.p2Urgent !== undefined ? stats.p2Urgent : "46",
       trend: "-2",
       trendSuffix: "vs avg",
       isUp: false,
@@ -62,7 +62,7 @@ export function ReportsEmergencyStats() {
     },
     {
       title: "P3 NON-URGENT",
-      value: "78",
+      value: stats.p3NonUrgent !== undefined ? stats.p3NonUrgent : "78",
       trend: "+2%",
       trendSuffix: "vs yesterday",
       isUp: true,
@@ -71,7 +71,7 @@ export function ReportsEmergencyStats() {
     },
     {
       title: "RESPONSE TIME",
-      value: "41m wait",
+      value: stats.responseTime || "41m wait",
       trend: "+1.5d",
       trendSuffix: "vs yesterday",
       isUp: true,
@@ -79,7 +79,7 @@ export function ReportsEmergencyStats() {
     },
     {
       title: "MORTALITY TODAY",
-      value: "2",
+      value: stats.mortalityToday !== undefined ? stats.mortalityToday : "2",
       trend: "+5%",
       trendSuffix: "vs yesterday",
       isUp: true,
@@ -87,7 +87,7 @@ export function ReportsEmergencyStats() {
     },
     {
       title: "ACTIVE NURSES",
-      value: "25",
+      value: stats.activeNurses !== undefined ? stats.activeNurses : "25",
       trend: "-2%",
       trendSuffix: "vs avg",
       isUp: false,
@@ -95,7 +95,7 @@ export function ReportsEmergencyStats() {
     },
     {
       title: "ACTIVE DOCTORS",
-      value: "21",
+      value: stats.activeDoctors !== undefined ? stats.activeDoctors : "21",
       trend: "+2",
       trendSuffix: "vs yesterday",
       isUp: true,

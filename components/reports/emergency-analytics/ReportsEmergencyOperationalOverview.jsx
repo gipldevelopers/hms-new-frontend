@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
-import { AlertCircle, Ambulance, AlertTriangle } from "lucide-react";
+import { Ambulance } from "lucide-react";
 
-export function ReportsEmergencyOperationalOverview() {
-  const alerts = [
+export function ReportsEmergencyOperationalOverview({ wardOverview = {}, alerts = [], incoming = [] }) {
+  const displayAlerts = alerts.length > 0 ? alerts : [
     {
       title: "ICU Capacity >90%",
       desc: "2 beds remaining. Diversion protocol suggested.",
@@ -23,7 +23,7 @@ export function ReportsEmergencyOperationalOverview() {
     },
   ];
 
-  const incoming = [
+  const displayIncoming = incoming.length > 0 ? incoming : [
     {
       id: "A1",
       title: "Cardiac Arrest",
@@ -93,7 +93,7 @@ export function ReportsEmergencyOperationalOverview() {
                 Total Beds
               </span>
               <h4 className="text-[18px] font-bold text-[#1e293b] dark:text-white mt-1.5 leading-none">
-                450
+                {wardOverview.totalBeds !== undefined ? wardOverview.totalBeds : "450"}
               </h4>
             </div>
 
@@ -103,7 +103,7 @@ export function ReportsEmergencyOperationalOverview() {
                 Occupied
               </span>
               <h4 className="text-[18px] font-bold text-[#0F766E] dark:text-teal-400 mt-1.5 leading-none">
-                327
+                {wardOverview.occupiedBeds !== undefined ? wardOverview.occupiedBeds : "327"}
               </h4>
             </div>
 
@@ -113,7 +113,7 @@ export function ReportsEmergencyOperationalOverview() {
                 Available
               </span>
               <h4 className="text-[18px] font-bold text-[#047857] dark:text-emerald-400 mt-1.5 leading-none">
-                123
+                {wardOverview.availableBeds !== undefined ? wardOverview.availableBeds : "123"}
               </h4>
             </div>
           </div>
@@ -125,13 +125,13 @@ export function ReportsEmergencyOperationalOverview() {
               <div className="flex justify-between items-center text-[12px] font-semibold text-gray-600 dark:text-slate-300">
                 <span>ICU Occupancy</span>
                 <span className="font-bold text-gray-500 dark:text-slate-400">
-                  38/45 (84.4%)
+                  {wardOverview.icuOccupied || 38}/{wardOverview.icuTotal || 45} ({wardOverview.icuPct !== undefined ? wardOverview.icuPct : 84.4}%)
                 </span>
               </div>
               <div className="w-full h-2 bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-[#EF4444] rounded-full"
-                  style={{ width: "84.4%" }}
+                  style={{ width: `${wardOverview.icuPct !== undefined ? wardOverview.icuPct : 84.4}%` }}
                 ></div>
               </div>
             </div>
@@ -141,13 +141,13 @@ export function ReportsEmergencyOperationalOverview() {
               <div className="flex justify-between items-center text-[12px] font-semibold text-gray-600 dark:text-slate-300">
                 <span>General Ward</span>
                 <span className="font-bold text-gray-500 dark:text-slate-400">
-                  289/405 (71.4%)
+                  {wardOverview.generalOccupied || 289}/{wardOverview.generalTotal || 405} ({wardOverview.generalPct !== undefined ? wardOverview.generalPct : 71.4}%)
                 </span>
               </div>
               <div className="w-full h-2 bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-[#0D9488] rounded-full"
-                  style={{ width: "71.4%" }}
+                  style={{ width: `${wardOverview.generalPct !== undefined ? wardOverview.generalPct : 71.4}%` }}
                 ></div>
               </div>
             </div>
@@ -157,13 +157,13 @@ export function ReportsEmergencyOperationalOverview() {
               <div className="flex justify-between items-center text-[12px] font-semibold text-gray-600 dark:text-slate-300">
                 <span>Overall Occupancy</span>
                 <span className="font-bold text-gray-500 dark:text-slate-400">
-                  72.7%
+                  {wardOverview.overallPct !== undefined ? wardOverview.overallPct : 72.7}%
                 </span>
               </div>
               <div className="w-full h-2 bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-[#3B82F6] rounded-full"
-                  style={{ width: "72.7%" }}
+                  style={{ width: `${wardOverview.overallPct !== undefined ? wardOverview.overallPct : 72.7}%` }}
                 ></div>
               </div>
             </div>
@@ -173,7 +173,7 @@ export function ReportsEmergencyOperationalOverview() {
 
       {/* Column 2: Critical Alert */}
       <div className="bg-card rounded-lg border border-border flex flex-col shadow-none hover:border-gray-300 dark:hover:border-white/20 min-h-[350px] h-full">
-        <div className="p-6 border-b border-border flex justify-between items-center">
+        <div className="p-6 border-b border-border flex justify-between items-center shrink-0">
           <h3 className="text-[16px] font-bold text-[#1e293b] dark:text-white">
             Critical Alert
           </h3>
@@ -182,8 +182,8 @@ export function ReportsEmergencyOperationalOverview() {
           </button>
         </div>
 
-        <div className="p-6 flex flex-col justify-start gap-2.5">
-          {alerts.map((alert, i) => (
+        <div className="p-6 flex flex-col justify-start gap-2.5 overflow-y-auto">
+          {displayAlerts.map((alert, i) => (
             <div
               key={i}
               className="p-2.5 bg-[#FFF5F5] dark:bg-red-950/20 rounded-lg flex items-center gap-3.5"
@@ -223,8 +223,8 @@ export function ReportsEmergencyOperationalOverview() {
           </h3>
         </div>
 
-        <div className="p-4 flex flex-col justify-start gap-2">
-          {incoming.map((caseItem, i) => (
+        <div className="p-4 flex flex-col justify-start gap-2 overflow-y-auto">
+          {displayIncoming.map((caseItem, i) => (
             <div
               key={i}
               className="flex justify-between items-center py-2 border-b last:border-0 border-gray-100 dark:border-white/5"
