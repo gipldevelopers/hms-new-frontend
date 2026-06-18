@@ -35,6 +35,7 @@ import {
   Coins,
   Download,
   Info,
+  Loader2,
 } from "lucide-react";
 import {
   Dialog,
@@ -253,8 +254,21 @@ const INITIAL_CLAIMS = [
   },
 ];
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050/api";
+
+function getAuthHeaders() {
+  const token = typeof window !== "undefined" ? localStorage.getItem("authtoken") : "";
+  return {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  };
+}
+
 export default function InsurancePage() {
-  const [claims, setClaims] = useState(INITIAL_CLAIMS);
+  const [claims, setClaims] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
 
@@ -294,6 +308,81 @@ export default function InsurancePage() {
     additionalDocs: []
   });
 
+  // Fetch claims and patient records from APIs
+  useEffect(() => {
+    fetchClaims();
+    fetchPatients();
+  }, []);
+
+  const fetchClaims = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await fetch(`${API_BASE}/billing/claims`, { headers: getAuthHeaders() });
+      const json = await res.json();
+      if (!res.ok || !json.success) throw new Error(json.message || `Error ${res.status}`);
+      
+      const mapped = json.data.map(c => {
+        const p = c.patient;
+        const patientName = p ? `${p.firstName || ""} ${p.lastName || ""}`.trim() || p.name || "Unknown" : "Unknown";
+        const uhid = p ? `UHID-${p.id.substring(0, 6).toUpperCase()}` : "—";
+        const dateStr = new Date(c.claimDate).toLocaleDateString("en-IN", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric"
+        });
+        
+        return {
+          id: c.id.substring(0, 8).toUpperCase(),
+          realId: c.id,
+          patient: patientName,
+          uhid,
+          provider: c.insuranceProvider,
+          amount: `₹${Number(c.claimAmount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}`,
+          date: dateStr,
+          status: c.status === "PENDING" ? "Pending" : c.status === "APPROVED" ? "Approved" : c.status === "REJECTED" ? "Rejected" : "Approved",
+          policyNo: c.policyNumber,
+          coPay: "20%",
+          diagnostics: c.notes || "General Medical Care",
+          notes: c.notes || "",
+          rawApprovedAmount: c.approvedAmount || 0,
+          rawClaimAmount: c.claimAmount || 0
+        };
+      });
+      setClaims(mapped);
+    } catch (e) {
+      console.error("fetchClaims error:", e);
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchPatients = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/billing/ipd-records`, { headers: getAuthHeaders() });
+      const json = await res.json();
+      if (res.ok && json.success) {
+        const mapped = json.data.map((p, index) => ({
+          id: p.patientId,
+          uhidVal: p.uhid,
+          name: p.patient,
+          age: 35,
+          gender: "Male",
+          admissionDate: p.admissionDate,
+          insurance: "BlueCross BlueShield",
+          billId: p.billId,
+          action: index === 0 ? "Selected" : "Select"
+        }));
+        if (mapped.length > 0) {
+          setWizardPatients(mapped);
+        }
+      }
+    } catch (e) {
+      console.error("fetchPatients error:", e);
+    }
+  };
+
   const handleSelectPatient = (patientId) => {
     setWizardPatients(wizardPatients.map(p => {
       if (p.action === "Selected") {
@@ -322,35 +411,37 @@ export default function InsurancePage() {
     alert("Draft claim saved successfully!");
   };
 
-  const handleWizardSubmit = () => {
-    const activePat = wizardPatients.find(p => p.action === "Selected") || wizardPatients[0];
-    const patMeta = PATIENT_METADATA[activePat.id] || { policyNo: "PDL-982374665", copay: "20%", amount: "₹4,500.00" };
-    const generatedId = `CLM-2023-${Math.floor(100 + Math.random() * 900)}`;
+  const handleWizardSubmit = async () => {
+    try {
+      const activePat = wizardPatients.find(p => p.action === "Selected") || wizardPatients[0];
+      const amountVal = parseFloat((PATIENT_METADATA[activePat.id]?.amount || "4500").replace(/[^\d.]/g, "")) || 4500;
+      
+      const payload = {
+        billId: activePat.billId || "placeholder",
+        patientId: activePat.id,
+        insuranceProvider: activePat.insurance,
+        policyNumber: PATIENT_METADATA[activePat.id]?.policyNo || `POL-${activePat.id}-99`,
+        cardNumber: `CRD-${activePat.id}-123`,
+        preAuthAmount: amountVal * 0.8,
+        claimAmount: amountVal,
+        notes: `TPA cashless request for ${treatmentDetails.primaryDiagnosis}. Provider: ${treatmentDetails.attendingProvider}`
+      };
 
-    const dateToday = new Date().toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
+      const res = await fetch(`${API_BASE}/billing/claims`, {
+        method: "POST",
+        headers: getAuthHeaders(),
+        body: JSON.stringify(payload)
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) throw new Error(json.message || `Error ${res.status}`);
 
-    const newClaim = {
-      id: generatedId,
-      patient: activePat.name,
-      uhid: activePat.id,
-      provider: activePat.insurance,
-      amount: patMeta.amount,
-      date: dateToday,
-      status: "Pending",
-      policyNo: patMeta.policyNo,
-      coPay: patMeta.copay,
-      diagnostics: treatmentDetails.primaryDiagnosis || "General Consultation",
-      notes: `Pre-auth cashless authorization initialized for attending provider ${treatmentDetails.attendingProvider}.`,
-    };
-
-    setClaims([newClaim, ...claims]);
-    setIsCreatingClaim(false);
-    // Reset state
-    setCurrentStep(1);
+      alert("Insurance claim submitted successfully!");
+      setIsCreatingClaim(false);
+      setCurrentStep(1);
+      fetchClaims();
+    } catch (e) {
+      alert("Failed to submit claim: " + e.message);
+    }
   };
 
   // Dynamic search/filter
@@ -370,7 +461,7 @@ export default function InsurancePage() {
   const [verifyName, setVerifyName] = useState("");
   const [verifyProvider, setVerifyProvider] = useState("BlueCross BlueShield");
   const [verifyPolicy, setVerifyPolicy] = useState("");
-  const [verifyStatus, setVerifyStatus] = useState("idle"); // idle, checking, success, error
+  const [verifyStatus, setVerifyStatus] = useState("idle");
 
   const handleVerifySubmit = (e) => {
     e.preventDefault();
@@ -388,38 +479,38 @@ export default function InsurancePage() {
   const [newPolicy, setNewPolicy] = useState("");
   const [newDiagnostics, setNewDiagnostics] = useState("");
 
-  const handleNewClaimSubmit = (e) => {
+  const handleNewClaimSubmit = async (e) => {
     e.preventDefault();
-    const generatedId = `CLM-2023-${Math.floor(100 + Math.random() * 900)}`;
-    const formattedAmount = `₹${parseFloat(newAmount || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}`;
-    const dateToday = new Date().toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
+    try {
+      const payload = {
+        billId: "placeholder",
+        patientId: newUHID || "P-882999",
+        insuranceProvider: newProvider,
+        policyNumber: newPolicy || "POL-GEN-1029",
+        cardNumber: "CRD-GEN-1029",
+        preAuthAmount: parseFloat(newAmount) * 0.8 || 0,
+        claimAmount: parseFloat(newAmount) || 0,
+        notes: newDiagnostics || "General Medical Care"
+      };
 
-    const newClaim = {
-      id: generatedId,
-      patient: newPatient,
-      uhid: newUHID || "P-882999",
-      provider: newProvider,
-      amount: formattedAmount,
-      date: dateToday,
-      status: "Pending",
-      policyNo: newPolicy || "POL-GEN-1029",
-      coPay: "20%",
-      diagnostics: newDiagnostics || "General Medical Care",
-      notes: "Cashless authorization request generated and pending medical TPA verification.",
-    };
+      const res = await fetch(`${API_BASE}/billing/claims`, {
+        method: "POST",
+        headers: getAuthHeaders(),
+        body: JSON.stringify(payload)
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) throw new Error(json.message || `Error ${res.status}`);
 
-    setClaims([newClaim, ...claims]);
-    setIsNewClaimOpen(false);
-
-    // Reset fields
-    setNewPatient("");
-    setNewUHID("");
-    setNewAmount("");
-    setNewPolicy("");
+      alert("New claim submitted successfully!");
+      setIsNewClaimOpen(false);
+      setNewPatient("");
+      setNewUHID("");
+      setNewAmount("");
+      setNewPolicy("");
+      fetchClaims();
+    } catch (err) {
+      alert("Failed to submit claim: " + err.message);
+    }
   };
 
   if (isVerifyingInsurance) {
@@ -1635,6 +1726,14 @@ export default function InsurancePage() {
     );
   }
 
+  // Calculate dynamic stats from database claims
+  const statsTotalClaims = claims.length;
+  const statsPendingPreAuth = claims.filter(c => c.status === "Pending").length;
+  const statsApprovedAmount = claims
+    .filter(c => c.status === "Approved" || c.status === "Settled")
+    .reduce((sum, c) => sum + (c.rawApprovedAmount || c.rawClaimAmount || 0), 0);
+  const statsRejectedClaims = claims.filter(c => c.status === "Rejected").length;
+
   return (
     <FinancePageShell>
       <FinanceHeader
@@ -1663,7 +1762,7 @@ export default function InsurancePage() {
       <div className="grid grid-cols-2 gap-[20px] lg:grid-cols-4">
         <FinanceStatCard
           title="Total Claims (MTD)"
-          value="142"
+          value={statsTotalClaims.toString()}
           icon={FileText}
           color="blue"
           meta={
@@ -1675,7 +1774,7 @@ export default function InsurancePage() {
         />
         <FinanceStatCard
           title="Pending Pre-Auth"
-          value="28"
+          value={statsPendingPreAuth.toString()}
           icon={Clock}
           color="amber"
           meta={
@@ -1686,7 +1785,7 @@ export default function InsurancePage() {
         />
         <FinanceStatCard
           title="Approved Amount"
-          value="₹45,200"
+          value={`₹${statsApprovedAmount.toLocaleString("en-IN", { minimumFractionDigits: 2 })}`}
           icon={ShieldCheck}
           color="emerald"
           meta={
@@ -1698,7 +1797,7 @@ export default function InsurancePage() {
         />
         <FinanceStatCard
           title="Rejected Claims"
-          value="12"
+          value={statsRejectedClaims.toString()}
           icon={XCircle}
           color="rose"
           meta={
@@ -1748,7 +1847,16 @@ export default function InsurancePage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#E7E8EB] dark:divide-white/10">
-                {filteredClaims.length === 0 ? (
+                {loading ? (
+                  <tr>
+                    <td colSpan="7" className="px-[24px] py-[40px] text-center text-[13px] font-medium text-slate-400">
+                      <span className="flex items-center justify-center gap-2">
+                        <Loader2 className="w-4 h-4 animate-spin text-[#2E37A4]" />
+                        Loading claims from database...
+                      </span>
+                    </td>
+                  </tr>
+                ) : filteredClaims.length === 0 ? (
                   <tr>
                     <td colSpan="7" className="px-[24px] py-[40px] text-center text-[13px] font-medium text-slate-400">
                       No claims found matching filters.

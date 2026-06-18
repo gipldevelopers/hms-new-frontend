@@ -1,5 +1,7 @@
 "use client";
 
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
 import {
   AlertTriangle,
   BadgeAlert,
@@ -10,6 +12,7 @@ import {
   Scale,
   TimerReset,
   Waves,
+  Loader2
 } from "lucide-react";
 import {
   FinanceHeader,
@@ -17,133 +20,53 @@ import {
   FinanceSectionCard,
 } from "@/components/finance/FinancePageChrome";
 
-const alertCards = [
-  {
-    title: "Outstanding invoice balance critically high.",
-    description:
-      "Payment overdue threshold reached. Current balance: $3,000. Immediate action required to avoid service interruption.",
-    time: "10 mins ago",
+const rupee = "\u20B9";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050/api";
+
+function getAuthHeaders() {
+  const token = typeof window !== "undefined" ? localStorage.getItem("authtoken") : "";
+  return {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  };
+}
+
+const alertConfig = {
+  critical: {
     icon: AlertTriangle,
     iconColor: "text-rose-500",
-    iconBg: "bg-rose-50",
-    chips: [
-      { icon: Link2, label: "Invoice #1001 - Consulting Services" },
-      { icon: Hash, label: "INV-9921" },
-      { icon: MapPin, label: "B-12" },
-    ],
+    iconBg: "bg-rose-50 dark:bg-rose-950/20"
   },
-  {
-    title: "Payment for Invoice #AML-4011 is below the required threshold.",
-    description:
-      "Current balance: $1800. Minimum payment: $5000. Please schedule payment soon.",
-    time: "1 hr ago",
+  overdue: {
     icon: TimerReset,
     iconColor: "text-amber-500",
-    iconBg: "bg-amber-50",
-    chips: [
-      { icon: Link2, label: "Invoice #AML-4011 - Software License" },
-      { icon: Hash, label: "AML-4011" },
-      { icon: MapPin, label: "A-06" },
-    ],
+    iconBg: "bg-amber-50 dark:bg-amber-950/20"
   },
-  {
-    title: "Invoice #ASP204 due in 12 days.",
-    description: "Prioritize processing this invoice to avoid late fees.",
-    time: "2 hrs ago",
+  duesoon: {
     icon: CalendarClock,
     iconColor: "text-violet-500",
-    iconBg: "bg-violet-50",
-    chips: [
-      { icon: Link2, label: "Invoice #ASP204 - Marketing Services" },
-      { icon: Hash, label: "ASP204" },
-      { icon: MapPin, label: "B-02" },
-    ],
+    iconBg: "bg-violet-50 dark:bg-violet-950/20"
   },
-  {
-    title: "Expired invoice detected in billing system.",
-    description:
-      "Immediate review required. Do not process payment. Action needed for correction.",
-    time: "4 hrs ago",
+  info: {
     icon: BadgeAlert,
-    iconColor: "text-red-500",
-    iconBg: "bg-red-50",
-    chips: [
-      { icon: Link2, label: "Invoice #PAR102 - IT Support" },
-      { icon: Hash, label: "PAR102" },
-      { icon: MapPin, label: "D-04" },
-    ],
-  },
-  {
-    title: "Billing discrepancy detected.",
-    description:
-      "System amount: $1200 | Recorded amount: $980. Investigation needed to reconcile.",
-    time: "5 hrs ago",
-    icon: Scale,
-    iconColor: "text-orange-500",
-    iconBg: "bg-orange-50",
-    chips: [
-      { icon: Link2, label: "Invoice #AMX-001 - Office Supplies" },
-      { icon: Hash, label: "AMX-001" },
-      { icon: MapPin, label: "A-01" },
-    ],
-  },
-  {
-    title: "Billing system error exceeded safe limits.",
-    description:
-      "Error code: 10 C (Safe Limit: 2 C - 8 C). Please verify billing system immediately.",
-    time: "1 day ago",
-    icon: Waves,
-    iconColor: "text-cyan-500",
-    iconBg: "bg-cyan-50",
-    chips: [
-      { icon: Link2, label: "Multiple invoices" },
-      { icon: Hash, label: "Multiple" },
-      { icon: MapPin, label: "Billing Queue 1" },
-    ],
-  },
-];
+    iconColor: "text-blue-500",
+    iconBg: "bg-blue-50 dark:bg-blue-950/20"
+  }
+};
 
-const statusOverview = [
-  { value: "38", label: "Critical", color: "text-rose-500" },
-  { value: "124", label: "Overdue", color: "text-amber-500" },
-  { value: "52", label: "Due Soon", color: "text-violet-500" },
-  { value: "18", label: "Pending Payments", color: "text-blue-500" },
-];
-
-const criticalInvoices = [
-  {
-    title: "Invoice #1001 - Consulting Services",
-    amount: "$3000 outstanding",
-    due: "Due in 2 days",
-  },
-  {
-    title: "Invoice #2002 - Advertising",
-    amount: "$1500 outstanding",
-    due: "Due in 4 days",
-  },
-  {
-    title: "Invoice #3003 - Software License",
-    amount: "$4500 outstanding",
-    due: "Due in 5 days",
-  },
-];
-
-const recentActivity = [
-  { text: "S. Jenkins resolved payment issue PO #PO2048", time: "10m ago" },
-  { text: "M. Lawson updated invoice AMX-001", time: "1h ago" },
-  { text: "System auto-flagged invoice PAR102 for review", time: "4h ago" },
-];
+const chipIcons = [Link2, Hash, MapPin];
 
 function AlertCard({ item }) {
-  const Icon = item.icon;
+  const config = alertConfig[item.type] || alertConfig.info;
+  const Icon = config.icon;
 
   return (
     <div className="rounded-[5px] border border-[#E7E8EB] bg-white p-5 shadow-none dark:border-white/10 dark:bg-[#101935]">
       <div className="flex gap-4">
         <div
-          className={`mt-1 flex h-12 w-12 shrink-0 items-center justify-center self-start rounded-[5px] ${item.iconBg}`}
+          className={`mt-1 flex h-12 w-12 shrink-0 items-center justify-center self-start rounded-[5px] ${config.iconBg}`}
         >
-          <Icon className={`h-5 w-5 ${item.iconColor}`} />
+          <Icon className={`h-5 w-5 ${config.iconColor}`} />
         </div>
 
         <div className="min-w-0 flex-1">
@@ -162,8 +85,8 @@ function AlertCard({ item }) {
           </div>
 
           <div className="mt-5 flex flex-wrap gap-2.5">
-            {item.chips.map((chip) => {
-              const ChipIcon = chip.icon;
+            {(item.chips || []).map((chip, index) => {
+              const ChipIcon = chipIcons[index % chipIcons.length];
               return (
                 <span
                   key={chip.label}
@@ -182,93 +105,151 @@ function AlertCard({ item }) {
 }
 
 export default function FinanceAlertsPage() {
+  const [alertsData, setAlertsData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    fetchAlerts();
+  }, []);
+
+  const fetchAlerts = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await fetch(`${API_BASE}/billing/alerts`, { headers: getAuthHeaders() });
+      const json = await res.json();
+      if (!res.ok || !json.success) throw new Error(json.message || `Error ${res.status}`);
+      setAlertsData(json.data);
+    } catch (e) {
+      console.error("fetchAlerts error:", e);
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getStatusColor = (key) => {
+    if (key === "critical") return "text-rose-500";
+    if (key === "overdue") return "text-amber-500";
+    if (key === "duesoon") return "text-violet-500";
+    return "text-blue-500";
+  };
+
+  if (loading) {
+    return (
+      <FinancePageShell>
+        <FinanceHeader title="Billing Alerts & Notifications" />
+        <div className="flex flex-col items-center justify-center min-h-[400px]">
+          <Loader2 className="w-10 h-10 text-primary animate-spin mb-4" />
+          <p className="text-[14px] text-gray-500 font-bold">Loading billing alerts...</p>
+        </div>
+      </FinancePageShell>
+    );
+  }
+
+  if (error) {
+    return (
+      <FinancePageShell>
+        <FinanceHeader title="Billing Alerts & Notifications" />
+        <div className="bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-900/50 text-rose-600 rounded-[8px] p-6 text-[14px] font-semibold text-center max-w-[600px] mx-auto mt-12">
+          <p className="mb-4">Failed to load alerts: {error}</p>
+          <Button onClick={fetchAlerts} className="bg-rose-600 hover:bg-rose-700 text-white font-bold h-10 px-4 rounded-[6px] transition-colors cursor-pointer border-0">
+            Retry Loading
+          </Button>
+        </div>
+      </FinancePageShell>
+    );
+  }
+
   return (
     <FinancePageShell>
-        <FinanceHeader
-          title="Billing Alerts & Notifications"
-        />
+      <FinanceHeader title="Billing Alerts & Notifications" />
 
-        <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_430px]">
-          <div className="space-y-4">
-            {alertCards.map((item) => (
-              <AlertCard key={item.title} item={item} />
-            ))}
-          </div>
+      <section className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_430px]">
+        <div className="space-y-4">
+          {(alertsData.alertCards || []).map((item) => (
+            <AlertCard key={item.title + item.time} item={item} />
+          ))}
+        </div>
 
-          <div className="space-y-5">
-            <FinanceSectionCard className="p-5">
-              <h2 className="mb-5 text-[16px] font-bold text-[#1e293b] dark:text-white">
-                Billing Status Overview
-              </h2>
-              <div className="grid grid-cols-2 gap-4">
-                {statusOverview.map((item) => (
-                  <div
-                    key={item.label}
-                    className="rounded-[5px] border border-[#E7E8EB] bg-[#F8F9FC] px-4 py-4 dark:border-white/10 dark:bg-[#0A0F1D]"
-                  >
-                    <div className={`text-[24px] font-bold ${item.color}`}>
-                      {item.value}
-                    </div>
-                    <div className="mt-1 text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748B] dark:text-slate-500">
-                      {item.label}
-                    </div>
+        <div className="space-y-5">
+          <FinanceSectionCard className="p-5">
+            <h2 className="mb-5 text-[16px] font-bold text-[#1e293b] dark:text-white">
+              Billing Status Overview
+            </h2>
+            <div className="grid grid-cols-2 gap-4">
+              {(alertsData.statusOverview || []).map((item) => (
+                <div
+                  key={item.label}
+                  className="rounded-[5px] border border-[#E7E8EB] bg-[#F8F9FC] px-4 py-4 dark:border-white/10 dark:bg-[#0A0F1D]"
+                >
+                  <div className={`text-[24px] font-bold ${getStatusColor(item.key)}`}>
+                    {item.value}
                   </div>
-                ))}
-              </div>
-            </FinanceSectionCard>
-
-            <FinanceSectionCard className="p-5">
-              <div className="mb-5 flex items-center gap-3">
-                <span className="h-2 w-2 rounded-full bg-rose-500" />
-                <h2 className="text-[16px] font-bold text-[#1e293b] dark:text-white">
-                  Top Critical Invoices
-                </h2>
-              </div>
-
-              <div className="space-y-5">
-                {criticalInvoices.map((item) => (
-                  <div key={item.title} className="rounded-[5px] bg-[#F8F9FC] p-4 dark:bg-[#0A0F1D]">
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <p className="text-[14px] font-bold text-[#1e293b] dark:text-white">
-                          {item.title}
-                        </p>
-                        <p className="mt-1 text-[12px] font-medium text-[#64748B] dark:text-slate-500">
-                          {item.amount}
-                        </p>
-                      </div>
-                      <span className="rounded-[5px] bg-rose-50 px-3 py-1 text-[11px] font-bold text-rose-500">
-                        {item.due}
-                      </span>
-                    </div>
+                  <div className="mt-1 text-[11px] font-bold uppercase tracking-[0.08em] text-[#64748B] dark:text-slate-500">
+                    {item.label}
                   </div>
-                ))}
-              </div>
-            </FinanceSectionCard>
+                </div>
+              ))}
+            </div>
+          </FinanceSectionCard>
 
-            <FinanceSectionCard className="p-5">
-              <h2 className="mb-5 text-[16px] font-bold text-[#1e293b] dark:text-white">
-                Recent Billing Activity
+          <FinanceSectionCard className="p-5">
+            <div className="mb-5 flex items-center gap-3">
+              <span className="h-2 w-2 rounded-full bg-rose-500" />
+              <h2 className="text-[16px] font-bold text-[#1e293b] dark:text-white">
+                Top Critical Invoices
               </h2>
+            </div>
 
-              <div className="space-y-5">
-                {recentActivity.map((item) => (
-                  <div key={item.text} className="flex items-start gap-3">
-                    <span className="mt-2 h-2 w-2 rounded-full bg-slate-200" />
+            <div className="space-y-5">
+              {(alertsData.criticalInvoices || []).map((item) => (
+                <div key={item.title} className="rounded-[5px] bg-[#F8F9FC] p-4 dark:bg-[#0A0F1D]">
+                  <div className="flex items-start justify-between gap-4">
                     <div>
-                      <p className="text-[13px] font-bold text-[#1e293b] dark:text-white">
-                        {item.text}
+                      <p className="text-[14px] font-bold text-[#1e293b] dark:text-white">
+                        {item.title}
                       </p>
                       <p className="mt-1 text-[12px] font-medium text-[#64748B] dark:text-slate-500">
-                        {item.time}
+                        {item.amount}
                       </p>
                     </div>
+                    <span className="rounded-[5px] bg-rose-50 dark:bg-rose-950/20 px-3 py-1 text-[11px] font-bold text-rose-500">
+                      {item.due}
+                    </span>
                   </div>
-                ))}
-              </div>
-            </FinanceSectionCard>
-          </div>
-        </section>
+                </div>
+              ))}
+              {(!alertsData.criticalInvoices || alertsData.criticalInvoices.length === 0) && (
+                <p className="text-[12px] text-gray-500 font-medium text-center py-4">No critical invoices found.</p>
+              )}
+            </div>
+          </FinanceSectionCard>
+
+          <FinanceSectionCard className="p-5">
+            <h2 className="mb-5 text-[16px] font-bold text-[#1e293b] dark:text-white">
+              Recent Billing Activity
+            </h2>
+
+            <div className="space-y-5">
+              {(alertsData.recentActivity || []).map((item) => (
+                <div key={item.text} className="flex items-start gap-3">
+                  <span className="mt-2 h-2 w-2 rounded-full bg-slate-200" />
+                  <div>
+                    <p className="text-[13px] font-bold text-[#1e293b] dark:text-white">
+                      {item.text}
+                    </p>
+                    <p className="mt-1 text-[12px] font-medium text-[#64748B] dark:text-slate-500">
+                      {item.time}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </FinanceSectionCard>
+        </div>
+      </section>
     </FinancePageShell>
   );
 }
