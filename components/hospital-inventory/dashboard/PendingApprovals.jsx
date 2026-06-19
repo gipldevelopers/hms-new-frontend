@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { toast } from "sonner";
 
 // Custom ShoppingBagIcon matching the screenshot exactly
 const ShoppingBagIcon = (props) => (
@@ -73,9 +74,118 @@ export function PendingApprovals({ approvals: approvalsProp }) {
     }
   }, [approvalsProp]);
 
-  const handleAction = (id) => {
-    // For visual demo, let's keep elements intact or delete upon action
-    setApprovals(approvals.filter(app => app.id !== id));
+  const handleAction = async (app, actionType) => {
+    if (actionType === "approve") {
+      if (app.rawItems && app.rawItems.length > 0) {
+        try {
+          const token = localStorage.getItem("authtoken");
+          const userStr = localStorage.getItem("user");
+          if (!token || !userStr) {
+            toast.error("Session expired.");
+            return;
+          }
+          const user = JSON.parse(userStr);
+          const branchId = user.branchId;
+
+          // 1. Create the PO
+          const poNumber = app.prNumber ? app.prNumber.replace("PR-", "PO-") : `PO-2026-${Math.floor(Math.random() * 9000 + 1000)}`;
+          const costNum = app.rawItems.reduce((sum, item) => sum + ((parseFloat(item.qty) || 0) * (parseFloat(item.unitPrice) || 0)), 0);
+          
+          const poPayload = {
+            poNumber: poNumber,
+            vendor: "Baxter Healthcare Corp",
+            orderDate: app.date || new Date().toISOString().split('T')[0],
+            expectedDelivery: "Pending",
+            totalAmount: `₹${costNum.toLocaleString('en-IN')}`,
+            payment: "PENDING",
+            orderStatus: "ORDERED",
+            items: app.rawItems,
+            justification: `Approved purchase request ${app.prNumber || app.id} from ${app.dept}.`,
+            deliveryStore: "Main Central Pharmacy Store",
+            shippingUrgency: app.urgent ? "⚡ Emergency Expedited (24h)" : "Standard Delivery (3-5 business days)",
+            branchId
+          };
+
+          const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050/api";
+          const poRes = await fetch(`${API_URL}/purchase?branchId=${branchId}`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify(poPayload)
+          });
+          const poData = await poRes.json();
+          if (!poData.success) {
+            toast.error(poData.error || "Failed to create Purchase Order");
+            return;
+          }
+
+          // 2. Update the PR status to Ordered
+          const prRes = await fetch(`${API_URL}/approvals/${app.id}?branchId=${branchId}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              status: "Ordered",
+              poNumber: poData.data.poNumber
+            })
+          });
+          const prData = await prRes.json();
+          if (prData.success) {
+            toast.success(`PR ${app.prNumber || app.id} approved & PO created successfully!`);
+            setApprovals(prev => prev.filter(a => a.id !== app.id));
+            window.dispatchEvent(new Event("refresh-dashboard-data"));
+          } else {
+            toast.error(prData.error || "Failed to update Purchase Request status");
+          }
+        } catch (err) {
+          console.error(err);
+          toast.error("An error occurred during approval.");
+        }
+      } else {
+        toast.success(`Mock Purchase Request ${app.id} approved locally.`);
+        setApprovals(prev => prev.filter(a => a.id !== app.id));
+      }
+    } else {
+      if (app.rawItems && app.rawItems.length > 0) {
+        try {
+          const token = localStorage.getItem("authtoken");
+          const userStr = localStorage.getItem("user");
+          if (!token || !userStr) return;
+          const user = JSON.parse(userStr);
+          const branchId = user.branchId;
+
+          const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050/api";
+          const prRes = await fetch(`${API_URL}/approvals/${app.id}?branchId=${branchId}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              status: "Rejected"
+            })
+          });
+          const prData = await prRes.json();
+          if (prData.success) {
+            toast.success(`Purchase Request ${app.prNumber || app.id} rejected.`);
+            setApprovals(prev => prev.filter(a => a.id !== app.id));
+            window.dispatchEvent(new Event("refresh-dashboard-data"));
+          } else {
+            toast.error(prData.error || "Failed to reject Purchase Request");
+          }
+        } catch (err) {
+          console.error(err);
+          toast.error("An error occurred.");
+        }
+      } else {
+        toast.success(`Mock Purchase Request ${app.id} rejected locally.`);
+        setApprovals(prev => prev.filter(a => a.id !== app.id));
+      }
+    }
   };
 
   return (
@@ -99,8 +209,8 @@ export function PendingApprovals({ approvals: approvalsProp }) {
                 <ShoppingBagIcon className="w-4 h-4 text-slate-500" />
               </div>
               <div className="flex-1 min-w-0 flex justify-between items-center">
-                <h4 className="text-[12px] font-bold text-slate-805 dark:text-slate-100 leading-tight">
-                  {app.id} - {app.dept}
+                <h4 className="text-[12px] font-bold text-slate-850 dark:text-slate-100 leading-tight">
+                  {app.prNumber || app.id} - {app.dept}
                 </h4>
                 {app.urgent && (
                   <span className="text-[9px] font-extrabold px-1.5 py-0.5 bg-[#FFF0F0] dark:bg-red-950/40 text-red-500 rounded-sm shrink-0 uppercase leading-none">
@@ -125,13 +235,13 @@ export function PendingApprovals({ approvals: approvalsProp }) {
               </span>
               <div className="flex gap-2 shrink-0 items-center justify-end sm:justify-start">
                 <button
-                  onClick={() => handleAction(app.id)}
+                  onClick={() => handleAction(app, "approve")}
                   className="flex items-center justify-center px-3 py-1 bg-[#EDFDF5] border border-[#C6F6D5] text-[#10B981] rounded-[4px] font-extrabold text-[11px] hover:bg-[#C6F6D5]/80 transition-all cursor-pointer"
                 >
                   Approve
                 </button>
                 <button
-                  onClick={() => handleAction(app.id)}
+                  onClick={() => handleAction(app, "deny")}
                   className="flex items-center justify-center px-3 py-1 bg-[#EEF2F6] dark:bg-slate-800 text-[#475569] dark:text-slate-300 rounded-[4px] font-extrabold text-[11px] hover:bg-[#E2E8F0] transition-all cursor-pointer"
                 >
                   Deny

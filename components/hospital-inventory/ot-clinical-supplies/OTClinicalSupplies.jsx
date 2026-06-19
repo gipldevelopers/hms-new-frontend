@@ -296,6 +296,38 @@ export function OTClinicalSupplies({ slugs = [] }) {
     }
   };
 
+  const handleDelete = async (id) => {
+    try {
+      const token = localStorage.getItem("authtoken");
+      const userStr = localStorage.getItem("user");
+      if (!token || !userStr) {
+        toast.error("Session expired.");
+        return;
+      }
+      const user = JSON.parse(userStr);
+      const branchId = user.branchId;
+
+      const res = await fetch(`/api/ot-supplies/${id}?branchId=${branchId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+
+      const json = await res.json();
+      if (json.success) {
+        toast.success("Consumption record deleted successfully.");
+        fetchRecords();
+        fetchStats();
+      } else {
+        toast.error(json.error || "Failed to delete record.");
+      }
+    } catch (err) {
+      console.error("Error deleting record:", err);
+      toast.error("Network error. Failed to delete record.");
+    }
+  };
+
   const handleExport = () => {
     try {
       if (!records || records.length === 0) {
@@ -457,6 +489,7 @@ export function OTClinicalSupplies({ slugs = [] }) {
         records={records}
         searchValue={searchValue}
         setSearchValue={setSearchValue}
+        onDelete={handleDelete}
       />
 
       {/* Bottom Row: Peak Hours & Alerts */}

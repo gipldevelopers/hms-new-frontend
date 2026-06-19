@@ -51,6 +51,14 @@ export function HospitalInventoryDashboard() {
 
   useEffect(() => {
     fetchDashboardData();
+
+    const handleRefresh = () => {
+      fetchDashboardData();
+    };
+    window.addEventListener("refresh-dashboard-data", handleRefresh);
+    return () => {
+      window.removeEventListener("refresh-dashboard-data", handleRefresh);
+    };
   }, []);
 
   useEffect(() => {

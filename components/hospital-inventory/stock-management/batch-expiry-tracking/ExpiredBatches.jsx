@@ -1,11 +1,14 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { AlertCircle } from "lucide-react";
 
 // Expired dataset from mockup Image 1
 export function ExpiredBatches({ items = [], searchQuery = "", selectedCategory = "All", selectedRoom = "All" }) {
+  const router = useRouter();
   const filtered = items.filter(item => {
     if (selectedCategory !== "All" && item.category !== selectedCategory) return false;
     if (selectedRoom !== "All" && item.room !== selectedRoom) return false;
@@ -49,12 +52,13 @@ export function ExpiredBatches({ items = [], searchQuery = "", selectedCategory 
               <th className="px-5 py-3 text-[11px] font-extrabold text-[#64748b] dark:text-[#94a3b8] uppercase tracking-wider text-left">STORAGE CABINET</th>
               <th className="px-5 py-3 text-[11px] font-extrabold text-[#64748b] dark:text-[#94a3b8] uppercase tracking-wider text-left">EST VALUE LOSS</th>
               <th className="px-5 py-3 text-[11px] font-extrabold text-[#64748b] dark:text-[#94a3b8] uppercase tracking-wider text-center">STATUS</th>
+              <th className="px-5 py-3 text-[11px] font-extrabold text-[#64748b] dark:text-[#94a3b8] uppercase tracking-wider text-center">ACTIONS</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[#e2e8f0] dark:divide-[#334155]">
             {filtered.length === 0 ? (
               <tr>
-                <td colSpan="8" className="px-5 py-10 text-center text-slate-400 font-semibold">
+                <td colSpan="9" className="px-5 py-10 text-center text-slate-400 font-semibold">
                   No expired batches found.
                 </td>
               </tr>
@@ -72,6 +76,19 @@ export function ExpiredBatches({ items = [], searchQuery = "", selectedCategory 
                     <span className="inline-flex items-center justify-center px-3 py-1 rounded-full text-[10px] font-bold border border-red-200 bg-red-50 dark:bg-red-950/20 dark:border-red-900/30 text-red-500">
                       Expired
                     </span>
+                  </td>
+                  <td className="px-5 py-3.5">
+                    <div className="flex items-center justify-center gap-1.5">
+                      <button
+                        onClick={() => {
+                          toast.success(`Initiating transfer usage for ${item.name}`);
+                          router.push(`/hospital-inventory/stock/stock-transfer?itemId=${item.id}`);
+                        }}
+                        className="w-[66px] h-[32px] flex items-center justify-center text-center text-[9px] font-bold leading-[1.1] bg-[#E0F2FE] hover:bg-[#BAE6FD] text-[#0369A1] dark:bg-[#0369A1]/20 dark:text-[#38BDF8] rounded-[4px] border border-[#BAE6FD] dark:border-[#0369A1]/30 transition-all cursor-pointer shadow-none"
+                      >
+                        Transfer<br />Usage
+                      </button>
+                    </div>
                   </td>
                 </tr>
               ))
