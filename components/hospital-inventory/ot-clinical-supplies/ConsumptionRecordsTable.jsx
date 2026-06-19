@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
-import { Search, ListFilter, MoreVertical, User } from "lucide-react";
+import { Search, ListFilter, MoreVertical, User, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export function ConsumptionRecordsTable({ records, searchValue, setSearchValue }) {
+export function ConsumptionRecordsTable({ records, searchValue, setSearchValue, onDelete }) {
   // Filter records based on search
   const filteredRecords = records.filter(rec =>
     rec.name.toLowerCase().includes(searchValue.toLowerCase()) ||
@@ -60,12 +60,13 @@ export function ConsumptionRecordsTable({ records, searchValue, setSearchValue }
                 <th className="px-6 py-4">Remaining Stock</th>
                 <th className="px-6 py-4">Used By</th>
                 <th className="px-6 py-4 text-center">Status</th>
+                <th className="px-6 py-4 text-center w-28">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[#e2e8f0] dark:divide-[#334155] text-slate-700 dark:text-slate-250 font-medium">
               {filteredRecords.length === 0 ? (
                 <tr>
-                  <td colSpan="6" className="px-6 py-8 text-center text-slate-450 dark:text-slate-500 font-bold">
+                  <td colSpan="7" className="px-6 py-8 text-center text-slate-450 dark:text-slate-500 font-bold">
                     No consumption records found.
                   </td>
                 </tr>
@@ -136,6 +137,23 @@ export function ConsumptionRecordsTable({ records, searchValue, setSearchValue }
                       <span className="px-2.5 py-0.5 rounded-[4px] text-[10px] font-black border border-emerald-200 bg-emerald-50 text-emerald-600 dark:border-emerald-900/30 dark:bg-emerald-950/20 dark:text-emerald-400 uppercase tracking-wide">
                         {item.status}
                       </span>
+                    </td>
+
+                    {/* Actions */}
+                    <td className="px-6 py-4 text-center">
+                      <div className="flex items-center justify-center">
+                        <button
+                          onClick={() => {
+                            if (confirm("Are you sure you want to delete this consumption record?")) {
+                              onDelete(item.id);
+                            }
+                          }}
+                          className="p-1.5 hover:bg-red-50 dark:hover:bg-red-950/20 rounded-[4px] transition-colors text-red-500 hover:text-red-700 cursor-pointer"
+                          title="Delete Record"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))

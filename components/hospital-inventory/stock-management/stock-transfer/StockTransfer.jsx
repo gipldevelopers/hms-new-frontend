@@ -23,6 +23,9 @@ export function StockTransfer({ slugs = [] }) {
     const today = new Date();
     return today.toISOString().split("T")[0];
   });
+  const [items, setItems] = useState([]);
+  const [notes, setNotes] = useState("");
+  const [paramsProcessed, setParamsProcessed] = useState(false);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -31,10 +34,9 @@ export function StockTransfer({ slugs = [] }) {
       if (queryFromDept) {
         setFromDept(queryFromDept);
       }
+      setParamsProcessed(true);
     }
   }, []);
-  const [items, setItems] = useState([]);
-  const [notes, setNotes] = useState("");
   
   // Success Popup state
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -99,8 +101,10 @@ export function StockTransfer({ slugs = [] }) {
   }, [API_URL, fromDept]);
 
   React.useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    if (paramsProcessed) {
+      fetchData();
+    }
+  }, [paramsProcessed, fetchData]);
 
   // Track previous fromDept to reset items when source changes manually
   const prevFromDeptRef = React.useRef(fromDept);
@@ -134,7 +138,7 @@ export function StockTransfer({ slugs = [] }) {
 
   React.useEffect(() => {
     const checkQueryParam = async () => {
-      if (!loading) {
+      if (!loading && paramsProcessed) {
         const urlParams = new URLSearchParams(window.location.search);
         const queryItemId = urlParams.get("itemId");
         const querySku = urlParams.get("sku");
@@ -147,7 +151,7 @@ export function StockTransfer({ slugs = [] }) {
             x.sku === queryItemId
           );
 
-          // 2. If not found and we have queryItemId, try fetching from department-inventory
+          // 2. If not found and we have queryItemId, try fetching from the correct inventory source
           if (!matched && queryItemId) {
             try {
               const token = localStorage.getItem("authtoken");
@@ -155,26 +159,30 @@ export function StockTransfer({ slugs = [] }) {
               if (token && userStr) {
                 const user = JSON.parse(userStr);
                 const branchId = user.branchId;
-                const res = await fetch(`/api/department-inventory/${queryItemId}?branchId=${branchId}`, {
+                const isDept = fromDept !== "Central Store" && fromDept !== "Central Pharmacy";
+                const fetchEndpoint = isDept
+                  ? `/api/department-inventory/${queryItemId}?branchId=${branchId}`
+                  : `/api/stock-inventory/${queryItemId}?branchId=${branchId}`;
+                const res = await fetch(fetchEndpoint, {
                   headers: { "Authorization": `Bearer ${token}` }
                 });
                 const json = await res.json();
                 if (json.success && json.data) {
-                  const deptItem = json.data;
-                  matched = availableItems.find(x => x.sku === deptItem.sku);
+                  const resolvedItem = json.data;
+                  matched = availableItems.find(x => x.sku === resolvedItem.sku);
                   
                   if (!matched) {
                     matched = {
-                      id: deptItem.id,
-                      name: deptItem.name,
-                      sku: deptItem.sku,
-                      qty: deptItem.qty || "0"
+                      id: resolvedItem.id,
+                      name: resolvedItem.name,
+                      sku: resolvedItem.sku,
+                      qty: resolvedItem.qty || "0"
                     };
                   }
                 }
               }
             } catch (err) {
-              console.error("Failed to fetch department item to resolve SKU:", err);
+              console.error("Failed to fetch resolved inventory item:", err);
             }
           }
 
@@ -194,7 +202,7 @@ export function StockTransfer({ slugs = [] }) {
     };
 
     checkQueryParam();
-  }, [loading, availableItems]);
+  }, [loading, paramsProcessed, availableItems]);
 
   // Generate next transfer ID if empty
   React.useEffect(() => {
@@ -282,6 +290,41 @@ export function StockTransfer({ slugs = [] }) {
         fetchData();
       } else {
         toast.error(result.error || "Failed to complete stock transfer.");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Network error. Please try again.");
+    }
+  };
+
+  const handleDeleteTransfer = async (id, transferIdText) => {
+    if (!window.confirm(`Are you sure you want to delete stock transfer ${transferIdText}? This will restore the stock quantities back to the source department.`)) {
+      return;
+    }
+
+    try {
+      const token = localStorage.getItem("authtoken");
+      const userStr = localStorage.getItem("user");
+      if (!token || !userStr) {
+        toast.error("Session expired.");
+        return;
+      }
+      const user = JSON.parse(userStr);
+      const branchId = user.branchId;
+
+      const res = await fetch(`${API_URL}/stock-transfer/${id}?branchId=${branchId}`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+
+      const result = await res.json();
+      if (result.success) {
+        toast.success(`Successfully deleted stock transfer ${transferIdText} and reverted stock quantities.`);
+        fetchData();
+      } else {
+        toast.error(result.error || "Failed to delete stock transfer.");
       }
     } catch (err) {
       console.error(err);
@@ -402,42 +445,7 @@ export function StockTransfer({ slugs = [] }) {
               </div>
             </div>
 
-            {/* Add Item Selection Dropdown */}
-            <div className="space-y-1.5">
-              <label className="text-[11px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">Add Item to Transfer</label>
-              <select
-                onChange={(e) => {
-                  const val = e.target.value;
-                  if (!val) return;
-                  const selected = availableItems.find(x => x.id === val);
-                  if (selected) {
-                    if (items.some(x => x.id === selected.id)) {
-                      toast.error("Item already added to transfer list.");
-                      return;
-                    }
-                    setItems([...items, {
-                      id: selected.id,
-                      name: selected.name,
-                      sku: selected.sku,
-                      batch: selected.sku,
-                      stock: selected.qty,
-                      qty: 1
-                    }]);
-                  }
-                  e.target.value = ""; // reset selection
-                }}
-                className="w-full h-10 px-3 bg-white dark:bg-[#0f172a] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-semibold text-slate-700 dark:text-slate-200 outline-none focus:border-[#2E37A4] transition-all"
-              >
-                <option value="">
-                  {fromDept !== "Central Store" && fromDept !== "Central Pharmacy"
-                    ? "-- Select Item from Department Inventory --"
-                    : "-- Select Item from Stock Inventory --"}
-                </option>
-                {availableItems.map(x => (
-                  <option key={x.id} value={x.id}>{x.name} (Stock: {x.qty})</option>
-                ))}
-              </select>
-            </div>
+
 
             {/* Selected Items */}
             <div className="space-y-2">
@@ -522,18 +530,19 @@ export function StockTransfer({ slugs = [] }) {
                   <th className="px-5 py-3 text-[11px] font-extrabold text-[#64748b] dark:text-[#94a3b8] text-left uppercase tracking-wider">Destination</th>
                   <th className="px-5 py-3 text-[11px] font-extrabold text-[#64748b] dark:text-[#94a3b8] text-left uppercase tracking-wider">Date</th>
                   <th className="px-5 py-3 text-[11px] font-extrabold text-[#64748b] dark:text-[#94a3b8] text-center uppercase tracking-wider">Total Items</th>
+                  <th className="px-5 py-3 text-[11px] font-extrabold text-[#64748b] dark:text-[#94a3b8] text-center uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#e2e8f0] dark:divide-[#334155]">
                 {loading ? (
                   <tr>
-                    <td colSpan="5" className="px-5 py-8 text-center text-slate-400 font-semibold">
+                    <td colSpan="6" className="px-5 py-8 text-center text-slate-400 font-semibold">
                       Loading stock transfer dispatches...
                     </td>
                   </tr>
                 ) : dispatches.length === 0 ? (
                   <tr>
-                    <td colSpan="5" className="px-5 py-8 text-center text-slate-400 font-semibold">
+                    <td colSpan="6" className="px-5 py-8 text-center text-slate-400 font-semibold">
                       No stock transfers recorded yet
                     </td>
                   </tr>
@@ -554,6 +563,17 @@ export function StockTransfer({ slugs = [] }) {
                         <span className="inline-block px-2.5 py-0.5 rounded-[4px] text-[11px] font-extrabold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300">
                           {disp.totalItems}
                         </span>
+                      </td>
+                      <td className="px-5 py-3.5 text-center">
+                        <button
+                          onClick={() => handleDeleteTransfer(disp.id, disp.transferId)}
+                          className="p-1.5 text-red-500 hover:text-white hover:bg-red-500 rounded-md transition-all cursor-pointer inline-flex items-center justify-center"
+                          title="Delete & Revert Stock"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
                       </td>
                     </tr>
                   ))

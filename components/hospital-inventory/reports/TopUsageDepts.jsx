@@ -41,7 +41,9 @@ const DEPTS_DATA = [
   }
 ];
 
-export function TopUsageDepts() {
+export function TopUsageDepts({ data = [] }) {
+  const displayData = data && data.length > 0 ? data : DEPTS_DATA;
+
   return (
     <div className="bg-white dark:bg-[#1e293b] p-6 rounded-[5px] border border-[#e2e8f0] dark:border-[#334155] shadow-none flex flex-col h-full">
       <h2 className="text-[15px] font-extrabold text-slate-800 dark:text-white mb-5">
@@ -49,7 +51,7 @@ export function TopUsageDepts() {
       </h2>
 
       <div className="space-y-4 flex-1 flex flex-col justify-between">
-        {DEPTS_DATA.map((dept, idx) => (
+        {displayData.map((dept, idx) => (
           <div key={idx} className="flex justify-between items-center gap-3">
             {/* Avatar & Info */}
             <div className="flex items-center gap-3">

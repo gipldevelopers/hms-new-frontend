@@ -2,7 +2,16 @@
 
 import React from "react";
 
-export function ResourceAllocation() {
+export function ResourceAllocation({ data = null }) {
+  const allocatedPercent = data?.allocatedPercent ?? 100;
+  const categories = data?.categories || [
+    { name: "Consumption", percentage: 75, colorClass: "bg-violet-500", dotClass: "bg-violet-500" },
+    { name: "Reserves", percentage: 25, colorClass: "bg-teal-400", dotClass: "bg-teal-400" },
+    { name: "Other", percentage: 12, colorClass: "bg-slate-400", dotClass: "bg-slate-400" }
+  ];
+
+  const strokeOffset = 2 * Math.PI * 52 * (1 - (allocatedPercent / 100));
+
   return (
     <div className="bg-white dark:bg-[#1e293b] p-6 rounded-[5px] border border-[#e2e8f0] dark:border-[#334155] shadow-none flex flex-col h-full">
       {/* Header */}
@@ -36,14 +45,14 @@ export function ResourceAllocation() {
               strokeWidth="8"
               fill="transparent"
               strokeDasharray={2 * Math.PI * 52}
-              strokeDashoffset={2 * Math.PI * 52 * (1 - 1.0)} // 100% full
+              strokeDashoffset={strokeOffset}
               strokeLinecap="round"
             />
           </svg>
           {/* Inner Text */}
           <div className="absolute flex flex-col items-center justify-center text-center">
             <span className="text-[20px] font-black text-slate-800 dark:text-white leading-none">
-              100%
+              {allocatedPercent}%
             </span>
             <span className="text-[9px] font-bold text-slate-400 mt-1 uppercase tracking-wider">
               Allocated
@@ -54,47 +63,20 @@ export function ResourceAllocation() {
 
       {/* Detail Categories */}
       <div className="mt-4 space-y-3.5">
-        {/* Category 1 */}
-        <div className="space-y-1">
-          <div className="flex justify-between text-[11px] font-extrabold text-slate-700 dark:text-slate-350">
-            <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-violet-500"></span>
-              <span>Consumption</span>
+        {categories.map((cat, idx) => (
+          <div key={idx} className="space-y-1">
+            <div className="flex justify-between text-[11px] font-extrabold text-slate-700 dark:text-slate-350">
+              <div className="flex items-center gap-1.5">
+                <span className={`w-2 h-2 rounded-full ${cat.dotClass}`}></span>
+                <span>{cat.name}</span>
+              </div>
+              <span>{cat.percentage}%</span>
             </div>
-            <span>75%</span>
-          </div>
-          <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-            <div className="h-full w-[75%] bg-violet-500 rounded-full" />
-          </div>
-        </div>
-
-        {/* Category 2 */}
-        <div className="space-y-1">
-          <div className="flex justify-between text-[11px] font-extrabold text-slate-700 dark:text-slate-350">
-            <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-teal-400"></span>
-              <span>Reserves</span>
+            <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+              <div style={{ width: `${cat.percentage}%` }} className={`h-full ${cat.colorClass} rounded-full`} />
             </div>
-            <span>25%</span>
           </div>
-          <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-            <div className="h-full w-[25%] bg-teal-400 rounded-full" />
-          </div>
-        </div>
-
-        {/* Category 3 */}
-        <div className="space-y-1">
-          <div className="flex justify-between text-[11px] font-extrabold text-slate-700 dark:text-slate-350">
-            <div className="flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-slate-400"></span>
-              <span>Other</span>
-            </div>
-            <span>12%</span>
-          </div>
-          <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
-            <div className="h-full w-[12%] bg-slate-400 rounded-full" />
-          </div>
-        </div>
+        ))}
       </div>
     </div>
   );

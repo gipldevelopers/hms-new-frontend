@@ -84,7 +84,7 @@ export function Expiring30Days({ items = [], searchQuery = "", selectedCategory 
                       <button
                         onClick={() => {
                           toast.success(`Initiating transfer usage for ${item.name}`);
-                          router.push("/hospital-inventory/stock/stock-transfer");
+                          router.push(`/hospital-inventory/stock/stock-transfer?itemId=${item.id}`);
                         }}
                         className="w-[66px] h-[32px] flex items-center justify-center text-center text-[9px] font-bold leading-[1.1] bg-[#E0F2FE] hover:bg-[#BAE6FD] text-[#0369A1] dark:bg-[#0369A1]/20 dark:text-[#38BDF8] rounded-[4px] border border-[#BAE6FD] dark:border-[#0369A1]/30 transition-all cursor-pointer"
                       >

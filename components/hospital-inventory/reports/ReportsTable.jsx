@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 const ALERTS_DATA = [
@@ -30,7 +31,11 @@ const ALERTS_DATA = [
   }
 ];
 
-export function ReportsTable() {
+export function ReportsTable({ alerts = [], lowStockCount = 0 }) {
+  const router = useRouter();
+  const displayAlerts = alerts.length > 0 ? alerts : ALERTS_DATA;
+  const countText = lowStockCount > 0 ? `${lowStockCount} Items Critical` : "15 Items Critical";
+
   return (
     <div className="bg-white dark:bg-[#1e293b] py-6 rounded-[5px] border border-[#e2e8f0] dark:border-[#334155] shadow-none flex flex-col h-full">
       {/* Header section */}
@@ -40,12 +45,13 @@ export function ReportsTable() {
             Low Stock Alert List
           </h2>
           <span className="px-2 py-0.5 rounded-[4px] bg-red-55 text-red-600 dark:bg-red-950/20 dark:text-red-400 text-[10px] font-black uppercase tracking-wider">
-            15 Items Critical
+            {countText}
           </span>
         </div>
         <button
           type="button"
-          className="text-[12px] font-extrabold text-[#2E37A4] hover:underline"
+          onClick={() => router.push("/hospital-inventory/stock/stock-inventory?status=Low")}
+          className="text-[12px] font-extrabold text-[#2E37A4] hover:underline cursor-pointer"
         >
           View All
         </button>
@@ -63,8 +69,23 @@ export function ReportsTable() {
             </tr>
           </thead>
           <tbody className="divide-y divide-[#e2e8f0] dark:divide-[#334155]">
-            {ALERTS_DATA.map((item, idx) => (
-              <tr key={idx} className="hover:bg-slate-50/50 dark:hover:bg-white/5 transition-all">
+            {displayAlerts.map((item, idx) => (
+              <tr
+                key={idx}
+                onClick={() => {
+                  if (item.id) {
+                    if (item.department === "Department Store") {
+                      router.push(`/hospital-inventory/department/${item.id}`);
+                    } else {
+                      router.push(`/hospital-inventory/stock/stock-inventory/${item.id}`);
+                    }
+                  }
+                }}
+                className={cn(
+                  "transition-all",
+                  item.id ? "cursor-pointer hover:bg-slate-50 dark:hover:bg-white/5" : "hover:bg-slate-50/50 dark:hover:bg-white/5"
+                )}
+              >
                 <td className="pl-6 pr-4 py-4 font-bold text-slate-800 dark:text-white">
                   {item.name}
                 </td>

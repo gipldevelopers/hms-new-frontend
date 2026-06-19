@@ -60,6 +60,35 @@ export function BatchExpiryTracking({ slugs = [] }) {
     fetchBatches();
   }, []);
 
+  // Handle view-detail slug detection and state sync
+  useEffect(() => {
+    if (slugs[0] === "view-detail" && slugs[1]) {
+      const itemId = slugs[1];
+      const allItems = [
+        ...batchesData.expired,
+        ...batchesData.expiring30,
+        ...batchesData.expiring60,
+        ...batchesData.healthy
+      ];
+      const found = allItems.find(x => x.id === itemId);
+      if (found) {
+        setSelectedItem(found);
+      } else {
+        setSelectedItem({ id: itemId });
+      }
+    } else {
+      setSelectedItem(null);
+    }
+  }, [slugs, batchesData]);
+
+  const handleViewDetail = (item) => {
+    router.push(`/hospital-inventory/stock/batch-expiry-tracking/view-detail/${item.id}`);
+  };
+
+  const handleBackFromDetail = () => {
+    router.push("/hospital-inventory/stock/batch-expiry-tracking");
+  };
+
   const categories = ["All", "Anesthetics", "Surgical Supplies", "Antibiotics", "Intravenous Fluids"];
   const rooms = ["All", "Central Pharmacy", "O.T. Recovery Unit", "Main Store", "Cold Storage A", "Anesthesia Vault"];
 
@@ -81,7 +110,7 @@ export function BatchExpiryTracking({ slugs = [] }) {
       {returnItem ? (
         <ReturnVendorView item={returnItem} onBack={() => setReturnItem(null)} onSuccess={() => { setReturnItem(null); fetchBatches(); }} />
       ) : selectedItem ? (
-        <BatchItemDetailView item={selectedItem} onBack={() => setSelectedItem(null)} />
+        <BatchItemDetailView item={selectedItem} onBack={handleBackFromDetail} />
       ) : (
         <>
           {/* Premium Header matching mockup */}
@@ -263,7 +292,7 @@ export function BatchExpiryTracking({ slugs = [] }) {
               searchQuery={searchQuery}
               selectedCategory={selectedCategory}
               selectedRoom={selectedRoom}
-              onView={setSelectedItem}
+              onView={handleViewDetail}
             />
           ) : (
             <div className="bg-white dark:bg-[#1e293b] rounded-[5px] border border-[#e2e8f0] dark:border-[#334155] p-10 text-center text-slate-400 font-semibold shadow-none">

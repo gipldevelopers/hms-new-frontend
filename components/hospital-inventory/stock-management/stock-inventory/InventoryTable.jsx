@@ -51,6 +51,21 @@ export function InventoryTable({ items = [], setItems, onViewItem, triggerAddMod
     }
   }, [triggerAddModal]);
 
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const urlStatus = params.get("status");
+      if (urlStatus) {
+        const matched = ["All", "In Stock", "Low", "Out of Stock"].find(
+          s => s.toLowerCase() === urlStatus.toLowerCase()
+        );
+        if (matched) {
+          setSelectedStatus(matched);
+        }
+      }
+    }
+  }, []);
+
   // Handle Add Item Submit
   const handleAddSubmit = async (e) => {
     e.preventDefault();
