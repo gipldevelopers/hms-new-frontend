@@ -66,7 +66,13 @@ export default function CreatePurchaseRequest({ onBack }) {
 
   const [department, setDepartment] = useState("General Ward");
   const [requestedBy, setRequestedBy] = useState("Ayush Solanki (Staff)");
-  const [requiredDate, setRequiredDate] = useState("2024-03-29");
+  const [requiredDate, setRequiredDate] = useState(() => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  });
   const [priority, setPriority] = useState("Urgent");
   const [reason, setReason] = useState(
     "Surgical Gloves and Masks below critical threshold. Amoxicillin near reorder point. Urgently needed before weekly O.T. schedule."
@@ -110,12 +116,64 @@ export default function CreatePurchaseRequest({ onBack }) {
     setItems(prev => [...prev, newItem]);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert("Purchase Request submitted successfully!");
-    if (onBack) onBack();
-    else router.back();
+
+    const token = localStorage.getItem("authtoken");
+    const userStr = localStorage.getItem("user");
+    if (!token || !userStr) {
+      alert("You must be logged in to submit a request.");
+      return;
+    }
+
+    let branchId = "";
+    try {
+      branchId = JSON.parse(userStr).branchId;
+    } catch (err) {
+      console.error("Failed to parse user branchId", err);
+    }
+
+    const payload = {
+      department,
+      requestedBy,
+      date: requiredDate,
+      priority,
+      items: items.map((item, idx) => ({
+        id: idx + 1,
+        qty: item.reqQty,
+        sku: item.sku,
+        name: item.name,
+        unit: item.unitType || "units",
+        total: item.reqQty * item.unitCost,
+        unitPrice: item.unitCost
+      }))
+    };
+
+    try {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050/api";
+      const res = await fetch(`${API_URL}/approvals?branchId=${branchId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        alert("Purchase Request submitted successfully!");
+        if (onBack) onBack();
+        else router.back();
+      } else {
+        alert(data.error || "Failed to submit Purchase Request");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error connecting to server. Please try again.");
+    }
   };
+
 
   return (
     <div className="flex-1 p-6 bg-slate-50/50 dark:bg-slate-900/20 max-w-[1600px] mx-auto min-h-screen font-sans transition-colors duration-300">

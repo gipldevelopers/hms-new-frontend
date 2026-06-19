@@ -5,100 +5,7 @@ import { cn } from "@/lib/utils";
 import { MoreHorizontal, AlertTriangle, CheckCircle2, Clock, AlertCircle, Info } from "lucide-react";
 
 
-const PR_QUEUE_DATA = [
-  {
-    prNumber: "PR-2024-402",
-    department: "Anesthesia Department",
-    requestedBy: "Dr. James Mercer",
-    date: "2024-03-22",
-    priority: "Urgent",
-    totalItems: 3,
-    status: "Pending Admin",
-  },
-  {
-    prNumber: "PR-2024-399",
-    department: "Central Pharmacy",
-    requestedBy: "Sarah Alvi",
-    date: "2024-03-20",
-    priority: "Normal",
-    totalItems: 15,
-    status: "Ordered",
-  },
-  {
-    prNumber: "PR-2024-391",
-    department: "Emergency & Trauma",
-    requestedBy: "Nurse Head Julia",
-    date: "2024-03-19",
-    priority: "High",
-    totalItems: 8,
-    status: "Ordered",
-  },
-  {
-    prNumber: "PR-2024-402",
-    department: "Anesthesia Department",
-    requestedBy: "Dr. James Mercer",
-    date: "2024-03-22",
-    priority: "Urgent",
-    totalItems: 3,
-    status: "Pending Admin",
-  },
-  {
-    prNumber: "PR-2024-391",
-    department: "Emergency & Trauma",
-    requestedBy: "Nurse Head Julia",
-    date: "2024-03-19",
-    priority: "High",
-    totalItems: 8,
-    status: "Ordered",
-  },
-  {
-    prNumber: "PR-2024-402",
-    department: "Anesthesia Department",
-    requestedBy: "Dr. James Mercer",
-    date: "2024-03-22",
-    priority: "Urgent",
-    totalItems: 3,
-    status: "Pending Admin",
-  },
-  {
-    prNumber: "PR-2024-391",
-    department: "Emergency & Trauma",
-    requestedBy: "Nurse Head Julia",
-    date: "2024-03-19",
-    priority: "High",
-    totalItems: 8,
-    status: "Ordered",
-  },
-  {
-    prNumber: "PR-2024-391",
-    department: "Emergency & Trauma",
-    requestedBy: "Nurse Head Julia",
-    date: "2024-03-19",
-    priority: "High",
-    totalItems: 8,
-    status: "Ordered",
-  },
-  {
-    prNumber: "PR-2024-402",
-    department: "Anesthesia Department",
-    requestedBy: "Dr. James Mercer",
-    date: "2024-03-22",
-    priority: "Urgent",
-    totalItems: 3,
-    status: "Pending Admin",
-  },
-  {
-    prNumber: "PR-2024-391",
-    department: "Emergency & Trauma",
-    requestedBy: "Nurse Head Julia",
-    date: "2024-03-19",
-    priority: "High",
-    totalItems: 8,
-    status: "Ordered",
-  }
-];
-
-export function ApprovalTable({ onViewOrder, onApproveAndPO, onEditOrder }) {
+export function ApprovalTable({ requests = [], onViewOrder, onApproveAndPO, onEditOrder, onReject, onDelete }) {
   const [openDropdownId, setOpenDropdownId] = useState(null);
 
   const toggleDropdown = (idx, e) => {
@@ -121,11 +28,10 @@ export function ApprovalTable({ onViewOrder, onApproveAndPO, onEditOrder }) {
         <h2 className="text-[15px] font-extrabold text-slate-800 dark:text-white leading-none">
           Purchase Requests Queue
         </h2>
-
       </div>
 
       {/* Table Element wrapper */}
-      <div className="overflow-x-auto flex-1">
+      <div className="overflow-x-auto flex-1 min-h-[240px]">
         <table className="w-full border-collapse text-left text-[12.5px]">
           <thead>
             <tr className="bg-[#F8F9FC] dark:bg-[#101935] border-t border-b border-[#e2e8f0] dark:border-[#334155]">
@@ -140,8 +46,8 @@ export function ApprovalTable({ onViewOrder, onApproveAndPO, onEditOrder }) {
             </tr>
           </thead>
           <tbody className="divide-y divide-[#e2e8f0] dark:divide-[#334155]">
-            {PR_QUEUE_DATA.map((item, idx) => (
-              <tr key={idx} className="hover:bg-slate-50/50 dark:hover:bg-white/5 transition-all">
+            {requests.map((item, idx) => (
+              <tr key={item.id || idx} className="hover:bg-slate-50/50 dark:hover:bg-white/5 transition-all">
                 {/* PR Number */}
                 <td className="pl-6 pr-4 py-4 font-bold text-slate-800 dark:text-white">
                   {item.prNumber}
@@ -155,7 +61,7 @@ export function ApprovalTable({ onViewOrder, onApproveAndPO, onEditOrder }) {
                   {item.requestedBy}
                 </td>
                 {/* Date */}
-                <td className="px-4 py-4 text-slate-500 dark:text-slate-450 font-semibold text-[12px]">
+                <td className="px-4 py-4 text-slate-500 dark:text-slate-455 font-semibold text-[12px]">
                   {item.date}
                 </td>
                 {/* Priority Badge */}
@@ -184,10 +90,14 @@ export function ApprovalTable({ onViewOrder, onApproveAndPO, onEditOrder }) {
                     "px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wide border inline-flex items-center gap-1",
                     item.status === "Pending Admin"
                       ? "bg-orange-50/70 text-orange-650 border-orange-200/60 dark:bg-orange-950/20 dark:text-orange-400 dark:border-orange-900/30"
-                      : "bg-emerald-50/70 text-emerald-650 border-emerald-200/60 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900/30"
+                      : item.status === "Rejected"
+                        ? "bg-rose-50/70 text-rose-600 border-rose-200/60 dark:bg-rose-950/20 dark:text-rose-400 dark:border-rose-900/30"
+                        : "bg-emerald-50/70 text-emerald-650 border-emerald-200/60 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900/30"
                   )}>
                     {item.status === "Pending Admin" ? (
                       <AlertTriangle className="w-2.5 h-2.5" />
+                    ) : item.status === "Rejected" ? (
+                      <AlertCircle className="w-2.5 h-2.5" />
                     ) : (
                       <CheckCircle2 className="w-2.5 h-2.5" />
                     )}
@@ -207,7 +117,7 @@ export function ApprovalTable({ onViewOrder, onApproveAndPO, onEditOrder }) {
                   {openDropdownId === idx && (
                     <div className={cn(
                       "absolute right-6 w-[140px] bg-white dark:bg-[#1e293b] border border-[#e2e8f0] dark:border-[#334155] rounded-[6px] shadow-lg z-20 overflow-hidden text-left",
-                      idx >= PR_QUEUE_DATA.length - 2 ? "bottom-full mb-1" : "mt-1"
+                      (idx >= requests.length - 2 && idx > 0) ? "bottom-full mb-1" : "mt-1"
                     )}>
                       {item.status === "Pending Admin" ? (
                         <>
@@ -225,7 +135,12 @@ export function ApprovalTable({ onViewOrder, onApproveAndPO, onEditOrder }) {
                           </button>
                           <button
                             type="button"
-                            onClick={() => setOpenDropdownId(null)}
+                            onClick={() => {
+                              setOpenDropdownId(null);
+                              if (onReject) {
+                                onReject(item);
+                              }
+                            }}
                             className="w-full text-left px-5 py-2.5 text-[12px] font-bold text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors bg-[#F8F9FC] dark:bg-[#1e293b] border-t border-[#e2e8f0] dark:border-[#334155] cursor-pointer block"
                           >
                             Reject
@@ -259,7 +174,12 @@ export function ApprovalTable({ onViewOrder, onApproveAndPO, onEditOrder }) {
                           </button>
                           <button
                             type="button"
-                            onClick={() => setOpenDropdownId(null)}
+                            onClick={() => {
+                              setOpenDropdownId(null);
+                              if (onDelete) {
+                                onDelete(item);
+                              }
+                            }}
                             className="w-full text-left px-5 py-2.5 text-[12px] font-bold text-slate-800 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors bg-white dark:bg-[#1e293b] border-t border-[#e2e8f0] dark:border-[#334155] cursor-pointer block"
                           >
                             Delete

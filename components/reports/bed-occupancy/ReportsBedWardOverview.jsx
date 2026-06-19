@@ -2,7 +2,18 @@
 
 import React from "react";
 
-export function ReportsBedWardOverview() {
+export function ReportsBedWardOverview({ wardOverview }) {
+  const total = wardOverview?.totalBeds ?? 450;
+  const occupied = wardOverview?.occupiedBeds ?? 327;
+  const available = wardOverview?.availableBeds ?? 123;
+  const icuOccupied = wardOverview?.icuOccupied ?? 38;
+  const icuTotal = wardOverview?.icuTotal ?? 45;
+  const icuPct = wardOverview?.icuPct ?? 84.4;
+  const generalOccupied = wardOverview?.generalOccupied ?? 289;
+  const generalTotal = wardOverview?.generalTotal ?? 405;
+  const generalPct = wardOverview?.generalPct ?? 71.4;
+  const overallPct = wardOverview?.overallPct ?? 72.7;
+
   return (
     <div className="bg-card rounded-lg border border-border flex flex-col font-sans transition-all overflow-hidden shadow-none hover:border-gray-300 dark:hover:border-white/20 md:h-[350px] h-auto p-5 justify-between">
       <div>
@@ -19,7 +30,7 @@ export function ReportsBedWardOverview() {
             Total Beds
           </span>
           <h4 className="text-[20px] font-bold text-[#1e293b] dark:text-white mt-1">
-            450
+            {total}
           </h4>
         </div>
 
@@ -29,7 +40,7 @@ export function ReportsBedWardOverview() {
             Occupied
           </span>
           <h4 className="text-[20px] font-bold text-[#0F766E] dark:text-teal-400 mt-1">
-            327
+            {occupied}
           </h4>
         </div>
 
@@ -39,7 +50,7 @@ export function ReportsBedWardOverview() {
             Available
           </span>
           <h4 className="text-[20px] font-bold text-[#047857] dark:text-emerald-400 mt-1">
-            123
+            {available}
           </h4>
         </div>
       </div>
@@ -51,13 +62,13 @@ export function ReportsBedWardOverview() {
           <div className="flex justify-between items-center text-[12px] font-semibold text-gray-600 dark:text-slate-300">
             <span>ICU Occupancy</span>
             <span className="font-bold text-gray-500 dark:text-slate-400">
-              38/45 (84.4%)
+              {icuOccupied}/{icuTotal} ({icuPct}%)
             </span>
           </div>
           <div className="w-full h-2 bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
             <div
               className="h-full bg-[#EF4444] rounded-full"
-              style={{ width: "84.4%" }}
+              style={{ width: `${icuPct}%` }}
             ></div>
           </div>
         </div>
@@ -67,13 +78,13 @@ export function ReportsBedWardOverview() {
           <div className="flex justify-between items-center text-[12px] font-semibold text-gray-600 dark:text-slate-300">
             <span>General Ward</span>
             <span className="font-bold text-gray-500 dark:text-slate-400">
-              289/405 (71.4%)
+              {generalOccupied}/{generalTotal} ({generalPct}%)
             </span>
           </div>
           <div className="w-full h-2 bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
             <div
               className="h-full bg-[#0D9488] rounded-full"
-              style={{ width: "71.4%" }}
+              style={{ width: `${generalPct}%` }}
             ></div>
           </div>
         </div>
@@ -83,13 +94,13 @@ export function ReportsBedWardOverview() {
           <div className="flex justify-between items-center text-[12px] font-semibold text-gray-600 dark:text-slate-300">
             <span>Overall Occupancy</span>
             <span className="font-bold text-gray-500 dark:text-slate-400">
-              72.7%
+              {overallPct}%
             </span>
           </div>
           <div className="w-full h-2 bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
             <div
               className="h-full bg-[#3B82F6] rounded-full"
-              style={{ width: "72.7%" }}
+              style={{ width: `${overallPct}%` }}
             ></div>
           </div>
         </div>
@@ -97,3 +108,4 @@ export function ReportsBedWardOverview() {
     </div>
   );
 }
+

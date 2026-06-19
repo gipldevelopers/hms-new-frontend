@@ -1,9 +1,13 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
+import { Search } from "lucide-react";
 
-export function ReportsEmergencyList() {
-  const triageBoard = [
+export function ReportsEmergencyList({ triageBoard = [] }) {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [pageSize, setPageSize] = useState(10);
+
+  const displayBoard = triageBoard.length > 0 ? triageBoard : [
     {
       uhid: "#ER-1010",
       name: "Maria Caral",
@@ -56,12 +60,35 @@ export function ReportsEmergencyList() {
     },
   ];
 
+  const filtered = displayBoard.filter(item => 
+    item.uhid.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.triage.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.doctor.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.status.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const paginatedItems = filtered.slice(0, pageSize);
+
   return (
     <div className="w-full bg-card rounded-lg border border-border flex flex-col font-sans transition-all overflow-hidden shadow-none hover:border-gray-300 dark:hover:border-white/20">
-      <div className="px-6 py-4 border-b border-border">
-        <h3 className="text-[15px] font-bold text-[#1e293b] dark:text-white">
+      <div className="px-6 py-4 border-b border-border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+        <h3 className="text-[15px] font-bold text-[#1e293b] dark:text-white shrink-0">
           Live Triage operation Board
         </h3>
+        <div className="relative max-w-xs w-full">
+          <Search className="w-4 h-4 text-gray-400 absolute left-3 top-2.5" />
+          <input
+            type="text"
+            placeholder="Search patient, doctor, UHID..."
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setPageSize(10); // reset page size on search
+            }}
+            className="w-full pl-9 pr-4 py-1.5 border border-[#E7E8EB] dark:border-white/10 rounded-lg text-[12px] bg-white dark:bg-[#101935] text-gray-700 dark:text-slate-200 placeholder-gray-400 focus:outline-none focus:border-primary transition-all"
+          />
+        </div>
       </div>
 
       <div className="overflow-x-auto">
@@ -95,7 +122,7 @@ export function ReportsEmergencyList() {
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {triageBoard.map((row, i) => (
+            {paginatedItems.map((row, i) => (
               <tr key={i} className="hover:bg-gray-50/50 dark:hover:bg-white/5 transition-colors">
                 {/* UHID */}
                 <td className="px-6 py-4 whitespace-nowrap text-[13px] font-bold text-[#3B82F6] dark:text-[#60A5FA] cursor-pointer hover:underline">
@@ -143,9 +170,27 @@ export function ReportsEmergencyList() {
                 </td>
               </tr>
             ))}
+            {paginatedItems.length === 0 && (
+              <tr>
+                <td colSpan="8" className="px-6 py-10 text-center text-[13px] text-gray-400 dark:text-slate-500">
+                  No active cases matching the filter.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
+
+      {filtered.length > pageSize && (
+        <div className="px-6 py-3 border-t border-border flex justify-center bg-gray-50/30 dark:bg-[#0E1528]/10">
+          <button 
+            onClick={() => setPageSize(prev => prev + 15)}
+            className="text-[12px] font-bold text-[#3B82F6] dark:text-blue-400 hover:underline"
+          >
+            Show More ({filtered.length - pageSize} remaining)
+          </button>
+        </div>
+      )}
     </div>
   );
 }

@@ -3,7 +3,99 @@
 import React from "react";
 import { AlertCircle, AlertTriangle, Beaker, Ambulance, Bell, Clock, CreditCard } from "lucide-react";
 
-export function ReportsBedOccupancyAlerts() {
+const alertStyles = {
+  critical: {
+    bg: "bg-[#FFF5F5] dark:bg-red-950/20",
+    border: "border-red-100/50 dark:border-red-900/20",
+    textColor: "text-[#EF4444]",
+    msgColor: "text-[#7F1D1D] dark:text-red-300/80",
+    icon: AlertCircle,
+    button: "ACKNOWLEDGE"
+  },
+  lab: {
+    bg: "bg-[#FFFBEB] dark:bg-amber-950/20",
+    border: "border-amber-100/50 dark:border-amber-900/20",
+    textColor: "text-[#D97706]",
+    msgColor: "text-[#78350F] dark:text-amber-300/80",
+    icon: Beaker,
+    button: "VIEW RESULTS"
+  },
+  emergency: {
+    bg: "bg-[#EFF6FF] dark:bg-blue-950/20",
+    border: "border-blue-100/50 dark:border-blue-900/20",
+    textColor: "text-[#3B82F6]",
+    msgColor: "text-[#1E3A8A] dark:text-blue-300/80",
+    icon: Ambulance,
+    button: null
+  },
+  reminder: {
+    bg: "bg-[#F8FAFC] dark:bg-slate-900/40",
+    border: "border-slate-100 dark:border-slate-800/40",
+    textColor: "text-[#64748B]",
+    msgColor: "text-[#334155] dark:text-slate-400",
+    icon: Bell,
+    button: null
+  }
+};
+
+const actionStyles = {
+  delay: {
+    bg: "bg-[#EEF2FF] dark:bg-indigo-950/40",
+    textColor: "text-[#4F46E5] dark:text-[#818CF8]",
+    icon: Clock
+  },
+  emergency: {
+    bg: "bg-[#FFF1F1] dark:bg-red-950/40",
+    textColor: "text-[#FF5C5C] dark:text-[#FCA5A5]",
+    icon: AlertTriangle
+  },
+  payment_pending: {
+    bg: "bg-[#EFF2FC] dark:bg-indigo-950/40",
+    textColor: "text-[#3F51B5] dark:text-[#818CF8]",
+    icon: CreditCard
+  },
+  payment_completed: {
+    bg: "bg-[#EFF2FC] dark:bg-indigo-950/40",
+    textColor: "text-[#3F51B5] dark:text-[#818CF8]",
+    icon: CreditCard
+  },
+  payment_declined: {
+    bg: "bg-[#EFF2FC] dark:bg-indigo-950/40",
+    textColor: "text-[#3F51B5] dark:text-[#818CF8]",
+    icon: CreditCard
+  },
+  payment_in_process: {
+    bg: "bg-[#EFF2FC] dark:bg-indigo-950/40",
+    textColor: "text-[#3F51B5] dark:text-[#818CF8]",
+    icon: CreditCard
+  }
+};
+
+export function ReportsBedOccupancyAlerts({ alerts = [], actions = [], activity = [] }) {
+  const displayAlerts = alerts.length > 0 ? alerts : [
+    { type: 'critical', title: 'Critical Patient Alert', message: 'Room 302: SpO2 levels dropping below 85%.' },
+    { type: 'lab', title: 'Lab Result Pending', message: 'MRI Results for Patient #8829 are now ready for review.' },
+    { type: 'emergency', title: 'Emergency Arrival', message: 'Ambulance #14 arriving in 4 minutes with trauma case.' },
+    { type: 'reminder', title: 'Follow-up Reminder', message: 'Send discharge summaries for Ward 2C patients.' }
+  ];
+
+  const displayActions = actions.length > 0 ? actions : [
+    { type: 'delay', title: 'Dr. Sarah Smith Delayed', description: 'Cardiology OPD is running 30 mins behind schedule.' },
+    { type: 'emergency', title: 'Emergency Alert', description: 'Trauma case arriving in 5 mins. Prep Room 1.' },
+    { type: 'payment_pending', title: 'Payment Pending', description: '3 patients checked out without completing pharmacy payment.' },
+    { type: 'payment_completed', title: 'Payment Completed', description: '25 patients successfully completed their pharmacy payments.' },
+    { type: 'payment_declined', title: 'Payment Declined', description: '2 patients faced issues with their payment methods.' },
+    { type: 'payment_in_process', title: 'Payment In Process', description: '7 patients are currently processing their payments.' }
+  ];
+
+  const displayActivity = activity.length > 0 ? activity : [
+    { title: 'New user created', user: 'John Doe', time: '2 minutes ago' },
+    { title: 'User updated', user: 'Jane Smith', time: '5 minutes ago' },
+    { title: 'User deleted', user: 'Alice Johnson', time: '10 minutes ago' },
+    { title: 'Password changed', user: 'Bob Brown', time: '15 minutes ago' },
+    { title: 'Profile picture updated', user: 'Charlie Green', time: '20 minutes ago' }
+  ];
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-[20px] font-sans">
       {/* Column 1: Critical Alert */}
@@ -18,69 +110,27 @@ export function ReportsBedOccupancyAlerts() {
         </div>
 
         <div className="p-5 flex flex-col space-y-3.5">
-          {/* Item 1 */}
-          <div className="p-3 bg-[#FFF5F5] dark:bg-red-950/20 rounded-lg flex items-start gap-3 border border-red-100/50 dark:border-red-900/20">
-            <AlertCircle className="w-5 h-5 text-[#EF4444] shrink-0 mt-0.5" />
-            <div className="flex flex-col gap-1.5">
-              <span className="text-[12px] font-bold text-[#EF4444]">Critical Patient Alert</span>
-              <p className="text-[11px] text-[#7F1D1D] dark:text-red-300/80 font-medium leading-normal">
-                Room 302: SpO2 levels dropping below 85%.
-              </p>
-              <button className="text-[10px] font-extrabold text-[#EF4444] self-start hover:underline tracking-wider mt-1">
-                ACKNOWLEDGE
-              </button>
-            </div>
-          </div>
-
-          {/* Item 2 */}
-          <div className="p-3 bg-[#FFFBEB] dark:bg-amber-950/20 rounded-lg flex items-start gap-3 border border-amber-100/50 dark:border-amber-900/20">
-            <Beaker className="w-5 h-5 text-[#D97706] shrink-0 mt-0.5" />
-            <div className="flex flex-col gap-1.5">
-              <span className="text-[12px] font-bold text-[#D97706]">Lab Result Pending</span>
-              <p className="text-[11px] text-[#78350F] dark:text-amber-300/80 font-medium leading-normal">
-                MRI Results for Patient #8829 are now ready for review.
-              </p>
-              <button className="text-[10px] font-extrabold text-[#D97706] self-start hover:underline tracking-wider mt-1">
-                VIEW RESULTS
-              </button>
-            </div>
-          </div>
-
-          {/* Item 3 */}
-          <div className="p-3 bg-[#EFF6FF] dark:bg-blue-950/20 rounded-lg flex items-start gap-3 border border-blue-100/50 dark:border-blue-900/20">
-            <Ambulance className="w-5 h-5 text-[#3B82F6] shrink-0 mt-0.5" />
-            <div className="flex flex-col gap-1">
-              <span className="text-[12px] font-bold text-[#3B82F6]">Emergency Arrival</span>
-              <p className="text-[11px] text-[#1E3A8A] dark:text-blue-300/80 font-medium leading-normal">
-                Ambulance #14 arriving in 4 minutes with trauma case.
-              </p>
-            </div>
-          </div>
-
-          {/* Item 4 */}
-          <div className="p-3 bg-[#F8FAFC] dark:bg-slate-900/40 rounded-lg flex items-start gap-3 border border-slate-100 dark:border-slate-800/40">
-            <Bell className="w-5 h-5 text-[#64748B] shrink-0 mt-0.5" />
-            <div className="flex flex-col gap-1">
-              <span className="text-[12px] font-bold text-[#475569] dark:text-slate-300">Follow-up Reminder</span>
-              <p className="text-[11px] text-[#334155] dark:text-slate-400 font-medium leading-normal">
-                Send discharge summaries for Ward 2C patients.
-              </p>
-            </div>
-          </div>
-
-          {/* Item 5 */}
-          <div className="p-3 bg-[#FFF5F5] dark:bg-red-950/20 rounded-lg flex items-start gap-3 border border-red-100/50 dark:border-red-900/20">
-            <AlertCircle className="w-5 h-5 text-[#EF4444] shrink-0 mt-0.5" />
-            <div className="flex flex-col gap-1.5">
-              <span className="text-[12px] font-bold text-[#EF4444]">Critical Patient Alert</span>
-              <p className="text-[11px] text-[#7F1D1D] dark:text-red-300/80 font-medium leading-normal">
-                Room 302: SpO2 levels dropping below 85%.
-              </p>
-              <button className="text-[10px] font-extrabold text-[#EF4444] self-start hover:underline tracking-wider mt-1">
-                ACKNOWLEDGE
-              </button>
-            </div>
-          </div>
+          {displayAlerts.map((alert, i) => {
+            const style = alertStyles[alert.type] || alertStyles.reminder;
+            const Icon = style.icon;
+            
+            return (
+              <div key={i} className={`p-3 ${style.bg} rounded-lg flex items-start gap-3 border ${style.border}`}>
+                <Icon className={`w-5 h-5 ${style.textColor} shrink-0 mt-0.5`} />
+                <div className="flex flex-col gap-1.5">
+                  <span className={`text-[12px] font-bold ${style.textColor}`}>{alert.title}</span>
+                  <p className={`text-[11px] ${style.msgColor} font-medium leading-normal`}>
+                    {alert.message}
+                  </p>
+                  {style.button && (
+                    <button className={`text-[10px] font-extrabold ${style.textColor} self-start hover:underline tracking-wider mt-1`}>
+                      {style.button}
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
@@ -93,96 +143,24 @@ export function ReportsBedOccupancyAlerts() {
         </div>
 
         <div className="flex flex-col divide-y divide-border">
-          {/* Action 1 */}
-          <div className="px-5 py-4 flex items-start gap-3.5">
-            <div className="w-9 h-9 bg-[#EEF2FF] dark:bg-indigo-950/40 rounded-full flex items-center justify-center shrink-0">
-              <Clock className="w-4 h-4 text-[#4F46E5] dark:text-[#818CF8]" />
-            </div>
-            <div className="flex flex-col gap-0.5">
-              <span className="text-[13px] font-bold text-gray-700 dark:text-slate-200">Dr. Sarah Smith Delayed</span>
-              <p className="text-[11px] text-gray-400 dark:text-slate-500 font-medium leading-snug">
-                Cardiology OPD is running 30 mins behind schedule.
-              </p>
-            </div>
-          </div>
-
-          {/* Action 2 */}
-          <div className="px-5 py-4 flex items-start gap-3.5">
-            <div className="w-9 h-9 bg-[#FFF1F1] dark:bg-red-950/40 rounded-full flex items-center justify-center shrink-0">
-              <AlertTriangle className="w-4 h-4 text-[#FF5C5C] dark:text-[#FCA5A5]" />
-            </div>
-            <div className="flex flex-col gap-0.5">
-              <span className="text-[13px] font-bold text-gray-700 dark:text-slate-200">Emergency Alert</span>
-              <p className="text-[11px] text-gray-400 dark:text-slate-500 font-medium leading-snug">
-                Trauma case arriving in 5 mins. Prep Room 1.
-              </p>
-            </div>
-          </div>
-
-          {/* Action 3 */}
-          <div className="px-5 py-4 flex items-start gap-3.5">
-            <div className="w-9 h-9 bg-[#EFF2FC] dark:bg-indigo-950/40 rounded-full flex items-center justify-center shrink-0">
-              <CreditCard className="w-4 h-4 text-[#3F51B5] dark:text-[#818CF8]" />
-            </div>
-            <div className="flex flex-col gap-0.5">
-              <span className="text-[13px] font-bold text-gray-700 dark:text-slate-200">Payment Pending</span>
-              <p className="text-[11px] text-gray-400 dark:text-slate-500 font-medium leading-snug">
-                3 patients checked out without completing pharmacy payment.
-              </p>
-            </div>
-          </div>
-
-          {/* Action 4 */}
-          <div className="px-5 py-4 flex items-start gap-3.5">
-            <div className="w-9 h-9 bg-[#EFF2FC] dark:bg-indigo-950/40 rounded-full flex items-center justify-center shrink-0">
-              <CreditCard className="w-4 h-4 text-[#3F51B5] dark:text-[#818CF8]" />
-            </div>
-            <div className="flex flex-col gap-0.5">
-              <span className="text-[13px] font-bold text-gray-700 dark:text-slate-200">Payment Completed</span>
-              <p className="text-[11px] text-gray-400 dark:text-slate-500 font-medium leading-snug">
-                25 patients successfully completed their pharmacy payments.
-              </p>
-            </div>
-          </div>
-
-          {/* Action 5 */}
-          <div className="px-5 py-4 flex items-start gap-3.5">
-            <div className="w-9 h-9 bg-[#EFF2FC] dark:bg-indigo-950/40 rounded-full flex items-center justify-center shrink-0">
-              <CreditCard className="w-4 h-4 text-[#3F51B5] dark:text-[#818CF8]" />
-            </div>
-            <div className="flex flex-col gap-0.5">
-              <span className="text-[13px] font-bold text-gray-700 dark:text-slate-200">Payment Declined</span>
-              <p className="text-[11px] text-gray-400 dark:text-slate-500 font-medium leading-snug">
-                2 patients faced issues with their payment methods.
-              </p>
-            </div>
-          </div>
-
-          {/* Action 6 */}
-          <div className="px-5 py-4 flex items-start gap-3.5">
-            <div className="w-9 h-9 bg-[#EFF2FC] dark:bg-indigo-950/40 rounded-full flex items-center justify-center shrink-0">
-              <CreditCard className="w-4 h-4 text-[#3F51B5] dark:text-[#818CF8]" />
-            </div>
-            <div className="flex flex-col gap-0.5">
-              <span className="text-[13px] font-bold text-gray-700 dark:text-slate-200">Payment In Process</span>
-              <p className="text-[11px] text-gray-400 dark:text-slate-500 font-medium leading-snug">
-                7 patients are currently processing their payments.
-              </p>
-            </div>
-          </div>
-
-          {/* Action 7 */}
-          <div className="px-5 py-4 flex items-start gap-3.5">
-            <div className="w-9 h-9 bg-[#EFF2FC] dark:bg-indigo-950/40 rounded-full flex items-center justify-center shrink-0">
-              <CreditCard className="w-4 h-4 text-[#3F51B5] dark:text-[#818CF8]" />
-            </div>
-            <div className="flex flex-col gap-0.5">
-              <span className="text-[13px] font-bold text-gray-700 dark:text-slate-200">Payment In Process</span>
-              <p className="text-[11px] text-gray-400 dark:text-slate-500 font-medium leading-snug">
-                7 patients are currently processing their payments.
-              </p>
-            </div>
-          </div>
+          {displayActions.map((act, i) => {
+            const style = actionStyles[act.type] || actionStyles.delay;
+            const Icon = style.icon;
+            
+            return (
+              <div key={i} className="px-5 py-4 flex items-start gap-3.5">
+                <div className={`w-9 h-9 ${style.bg} rounded-full flex items-center justify-center shrink-0`}>
+                  <Icon className={`w-4 h-4 ${style.textColor}`} />
+                </div>
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-[13px] font-bold text-gray-700 dark:text-slate-200">{act.title}</span>
+                  <p className="text-[11px] text-gray-400 dark:text-slate-500 font-medium leading-snug">
+                    {act.description}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
@@ -198,103 +176,21 @@ export function ReportsBedOccupancyAlerts() {
         </div>
 
         <div className="p-5 flex flex-col space-y-4">
-          {/* Act 1 */}
-          <div className="flex justify-between items-start gap-4">
-            <div className="flex items-start gap-2">
-              <span className="w-1.5 h-1.5 bg-[#4F46E5] rounded-full mt-1.5 shrink-0"></span>
-              <div className="flex flex-col gap-0.5">
-                <span className="text-[13px] font-bold text-[#1e293b] dark:text-white leading-snug">New user created</span>
-                <span className="text-[11px] text-gray-400 dark:text-slate-500 font-medium">John Doe</span>
+          {displayActivity.map((item, i) => (
+            <div key={i} className="flex justify-between items-start gap-4">
+              <div className="flex items-start gap-2">
+                <span className="w-1.5 h-1.5 bg-[#4F46E5] rounded-full mt-1.5 shrink-0"></span>
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-[13px] font-bold text-[#1e293b] dark:text-white leading-snug">{item.title}</span>
+                  <span className="text-[11px] text-gray-400 dark:text-slate-500 font-medium">{item.user}</span>
+                </div>
               </div>
+              <span className="text-[11px] text-gray-400 dark:text-slate-500 font-medium shrink-0 pt-0.5">{item.time}</span>
             </div>
-            <span className="text-[11px] text-gray-400 dark:text-slate-500 font-medium shrink-0 pt-0.5">2 minutes ago</span>
-          </div>
-
-          {/* Act 2 */}
-          <div className="flex justify-between items-start gap-4">
-            <div className="flex items-start gap-2">
-              <span className="w-1.5 h-1.5 bg-[#4F46E5] rounded-full mt-1.5 shrink-0"></span>
-              <div className="flex flex-col gap-0.5">
-                <span className="text-[13px] font-bold text-[#1e293b] dark:text-white leading-snug">User updated</span>
-                <span className="text-[11px] text-gray-400 dark:text-slate-500 font-medium">Jane Smith</span>
-              </div>
-            </div>
-            <span className="text-[11px] text-gray-400 dark:text-slate-500 font-medium shrink-0 pt-0.5">5 minutes ago</span>
-          </div>
-
-          {/* Act 3 */}
-          <div className="flex justify-between items-start gap-4">
-            <div className="flex items-start gap-2">
-              <span className="w-1.5 h-1.5 bg-[#4F46E5] rounded-full mt-1.5 shrink-0"></span>
-              <div className="flex flex-col gap-0.5">
-                <span className="text-[13px] font-bold text-[#1e293b] dark:text-white leading-snug">User deleted</span>
-                <span className="text-[11px] text-gray-400 dark:text-slate-500 font-medium">Alice Johnson</span>
-              </div>
-            </div>
-            <span className="text-[11px] text-gray-400 dark:text-slate-500 font-medium shrink-0 pt-0.5">10 minutes ago</span>
-          </div>
-
-          {/* Act 4 */}
-          <div className="flex justify-between items-start gap-4">
-            <div className="flex items-start gap-2">
-              <span className="w-1.5 h-1.5 bg-[#4F46E5] rounded-full mt-1.5 shrink-0"></span>
-              <div className="flex flex-col gap-0.5">
-                <span className="text-[13px] font-bold text-[#1e293b] dark:text-white leading-snug">Password changed</span>
-                <span className="text-[11px] text-gray-400 dark:text-slate-500 font-medium">Bob Brown</span>
-              </div>
-            </div>
-            <span className="text-[11px] text-gray-400 dark:text-slate-500 font-medium shrink-0 pt-0.5">15 minutes ago</span>
-          </div>
-
-          {/* Act 5 */}
-          <div className="flex justify-between items-start gap-4">
-            <div className="flex items-start gap-2">
-              <span className="w-1.5 h-1.5 bg-[#4F46E5] rounded-full mt-1.5 shrink-0"></span>
-              <div className="flex flex-col gap-0.5">
-                <span className="text-[13px] font-bold text-[#1e293b] dark:text-white leading-snug">Profile picture updated</span>
-                <span className="text-[11px] text-gray-400 dark:text-slate-500 font-medium">Charlie Green</span>
-              </div>
-            </div>
-            <span className="text-[11px] text-gray-400 dark:text-slate-500 font-medium shrink-0 pt-0.5">20 minutes ago</span>
-          </div>
-
-          {/* Act 6 */}
-          <div className="flex justify-between items-start gap-4">
-            <div className="flex items-start gap-2">
-              <span className="w-1.5 h-1.5 bg-[#4F46E5] rounded-full mt-1.5 shrink-0"></span>
-              <div className="flex flex-col gap-0.5">
-                <span className="text-[13px] font-bold text-[#1e293b] dark:text-white leading-snug">Profile picture updated</span>
-                <span className="text-[11px] text-gray-400 dark:text-slate-500 font-medium">Charlie Green</span>
-              </div>
-            </div>
-            <span className="text-[11px] text-gray-400 dark:text-slate-500 font-medium shrink-0 pt-0.5">20 minutes ago</span>
-          </div>
-
-          {/* Act 7 */}
-          <div className="flex justify-between items-start gap-4">
-            <div className="flex items-start gap-2">
-              <span className="w-1.5 h-1.5 bg-[#4F46E5] rounded-full mt-1.5 shrink-0"></span>
-              <div className="flex flex-col gap-0.5">
-                <span className="text-[13px] font-bold text-[#1e293b] dark:text-white leading-snug">Profile picture updated</span>
-                <span className="text-[11px] text-gray-400 dark:text-slate-500 font-medium">Charlie Green</span>
-              </div>
-            </div>
-            <span className="text-[11px] text-gray-400 dark:text-slate-500 font-medium shrink-0 pt-0.5">20 minutes ago</span>
-          </div>
-
-          {/* Act 8 */}
-          <div className="flex justify-between items-start gap-4">
-            <div className="flex items-start gap-2">
-              <span className="w-1.5 h-1.5 bg-[#4F46E5] rounded-full mt-1.5 shrink-0"></span>
-              <div className="flex flex-col gap-0.5">
-                <span className="text-[13px] font-bold text-[#1e293b] dark:text-white leading-snug">Profile picture updated</span>
-                <span className="text-[11px] text-gray-400 dark:text-slate-500 font-medium">Charlie Green</span>
-              </div>
-            </div>
-            <span className="text-[11px] text-gray-400 dark:text-slate-500 font-medium shrink-0 pt-0.5">20 minutes ago</span>
-          </div>
+          ))}
         </div>
       </div>
     </div>
   );
 }
+
