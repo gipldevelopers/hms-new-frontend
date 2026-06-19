@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import {
@@ -37,133 +37,81 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 const rupee = "\u20B9"; // Indian Rupee symbol
 
-// Static Data
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5050/api";
 
-const summaryCards = [
-  {
-    title: "Total Discount Today",
-    value: `${rupee}24,500`,
-    change: "+12%",
-    changeSuffix: " vs yesterday",
-    changePositive: true,
-    icon: BadgePercent,
-    iconColor: "text-[#6366F1]",
-    iconBg: "bg-[#EEF2FF]",
-  },
-  {
-    title: "Pending Approval",
-    value: "28",
-    change: "-12%",
-    changeSuffix: " vs yesterday",
-    changePositive: false,
-    icon: Clock3,
-    iconColor: "text-[#D97706]",
-    iconBg: "bg-[#FEF7E0]",
-  },
-  {
-    title: "Corporate Discounts",
-    value: `${rupee}12,200`,
-    change: "+8%",
-    changeSuffix: " vs last month",
-    changePositive: true,
-    icon: Calculator,
-    iconColor: "text-[#137333]",
-    iconBg: "bg-[#E6F4EA]",
-  },
-  {
-    title: "Revenue Impact",
-    value: "-2.4%",
-    change: "-2%",
-    changeSuffix: " vs last month",
-    changePositive: false,
-    icon: PieChart,
-    iconColor: "text-[#C5221F]",
-    iconBg: "bg-[#FCE8E6]",
-  },
-];
+function getAuthHeaders() {
+  const token = typeof window !== "undefined" ? localStorage.getItem("authtoken") : "";
+  return {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  };
+}
 
-const discountRequests = [
-  {
-    id: "REQ-2023-891", patientName: "Robert Fox", billNumber: "INV-44200",
-    discountType: "Hardship", amount: `${rupee}4500.00`, requestedBy: "Dr. Smith",
-    status: "Approved", requestedAt: "Oct 15, 2023, 10:30 AM", percentage: "10%",
-    patientInitials: "RF", patientMeta: "UHID: 882910 • Male • 45 Yrs",
-    grossTotal: `${rupee}45,000.00`, proposedDiscount: `-${rupee}4,500.00`,
-    revisedNetPayable: `${rupee}40,500.00`,
-    reason: "Patient requested financial assistance due to sudden unemployment. Reviewed financial hardship form and supporting documents attached.",
-    documentName: "Unemployment_Proof.pdf", documentMeta: "Oct 15, 2023 • 1.2 MB",
-  },
-  {
-    id: "REQ-2023-892", patientName: "Alice Johnson", billNumber: "INV-44201",
-    discountType: "Staff Family", amount: `${rupee}7500.00`, requestedBy: "Dr. Brown",
-    status: "Pending", requestedAt: "Oct 16, 2023, 12:15 PM", percentage: "15%",
-    patientInitials: "AJ", patientMeta: "UHID: 882911 • Female • 38 Yrs",
-    grossTotal: `${rupee}50,000.00`, proposedDiscount: `-${rupee}7,500.00`,
-    revisedNetPayable: `${rupee}42,500.00`,
-    reason: "Staff family concession requested with employment proof and dependent verification attached for approval.",
-    documentName: "Staff_Family_Request.pdf", documentMeta: "Oct 16, 2023 • 860 KB",
-  },
-  {
-    id: "REQ-2023-893", patientName: "Michael Lee", billNumber: "INV-44202",
-    discountType: "Self Pay", amount: `${rupee}3200.00`, requestedBy: "Dr. Taylor",
-    status: "Rejected", requestedAt: "Oct 17, 2023, 09:10 AM", percentage: "8%",
-    patientInitials: "ML", patientMeta: "UHID: 882912 • Male • 29 Yrs",
-    grossTotal: `${rupee}40,000.00`, proposedDiscount: `-${rupee}3,200.00`,
-    revisedNetPayable: `${rupee}36,800.00`,
-    reason: "Self-pay discount requested after follow-up consultation. Submitted remarks were found incomplete during review.",
-    documentName: "SelfPay_Statement.pdf", documentMeta: "Oct 17, 2023 • 740 KB",
-  },
-  {
-    id: "REQ-2023-894", patientName: "Emma Wilson", billNumber: "INV-44203",
-    discountType: "Corporate", amount: `${rupee}6000.00`, requestedBy: "Dr. Davis",
-    status: "Approved", requestedAt: "Oct 18, 2023, 04:45 PM", percentage: "12%",
-    patientInitials: "EW", patientMeta: "UHID: 882913 • Female • 51 Yrs",
-    grossTotal: `${rupee}50,000.00`, proposedDiscount: `-${rupee}6,000.00`,
-    revisedNetPayable: `${rupee}44,000.00`,
-    reason: "Corporate billing adjustment raised after employer benefit slab confirmation from the finance team.",
-    documentName: "Corporate_Approval.pdf", documentMeta: "Oct 18, 2023 • 1.0 MB",
-  },
-  {
-    id: "REQ-2023-895", patientName: "James Smith", billNumber: "INV-44204",
-    discountType: "Hardship", amount: `${rupee}5000.00`, requestedBy: "Dr. Garcia",
-    status: "Pending", requestedAt: "Oct 19, 2023, 11:00 AM", percentage: "10%",
-    patientInitials: "JS", patientMeta: "UHID: 882914 • Male • 61 Yrs",
-    grossTotal: `${rupee}50,000.00`, proposedDiscount: `-${rupee}5,000.00`,
-    revisedNetPayable: `${rupee}45,000.00`,
-    reason: "Hardship request initiated after emergency admission and family income declaration review.",
-    documentName: "Income_Declaration.pdf", documentMeta: "Oct 19, 2023 • 1.4 MB",
-  },
-  {
-    id: "REQ-2023-896", patientName: "Olivia Martinez", billNumber: "INV-44205",
-    discountType: "Staff Family", amount: `${rupee}4200.00`, requestedBy: "Dr. Hernandez",
-    status: "Approved", requestedAt: "Oct 20, 2023, 03:25 PM", percentage: "7%",
-    patientInitials: "OM", patientMeta: "UHID: 882915 • Female • 33 Yrs",
-    grossTotal: `${rupee}60,000.00`, proposedDiscount: `-${rupee}4,200.00`,
-    revisedNetPayable: `${rupee}55,800.00`,
-    reason: "Dependent staff-family benefit applied after HR verification and coverage confirmation.",
-    documentName: "HR_Verification.pdf", documentMeta: "Oct 20, 2023 • 930 KB",
-  },
-  {
-    id: "REQ-2023-897", patientName: "William Johnson", billNumber: "INV-44206",
-    discountType: "Staff Family", amount: `${rupee}5500.00`, requestedBy: "Dr. Wilson",
-    status: "Rejected", requestedAt: "Oct 21, 2023, 01:05 PM", percentage: "11%",
-    patientInitials: "WJ", patientMeta: "UHID: 882916 • Male • 42 Yrs",
-    grossTotal: `${rupee}50,000.00`, proposedDiscount: `-${rupee}5,500.00`,
-    revisedNetPayable: `${rupee}44,500.00`,
-    reason: "Requested family-discount slab exceeded policy limit and was sent back for revision.",
-    documentName: "Family_Discount_Request.pdf", documentMeta: "Oct 21, 2023 • 1.1 MB",
-  },
-  {
-    id: "REQ-2023-898", patientName: "Sophia Brown", billNumber: "INV-44207",
-    discountType: "Hardship", amount: `${rupee}3000.00`, requestedBy: "Dr. Lee",
-    status: "Approved", requestedAt: "Oct 22, 2023, 08:40 AM", percentage: "6%",
-    patientInitials: "SB", patientMeta: "UHID: 882917 • Female • 27 Yrs",
-    grossTotal: `${rupee}50,000.00`, proposedDiscount: `-${rupee}3,000.00`,
-    revisedNetPayable: `${rupee}47,000.00`,
-    reason: "Financial-aid request reviewed with submitted hardship note and outpatient billing summary.",
-    documentName: "Hardship_Note.pdf", documentMeta: "Oct 22, 2023 • 680 KB",
-  },
-];
+function mapDiscountRequest(req) {
+  const p = req.bill?.patient;
+  const patientName = p
+    ? `${p.firstName || ""} ${p.lastName || ""}`.trim() || p.name || "Unknown"
+    : "Unknown";
+  const patientInitials = patientName
+    .split(" ")
+    .map((part) => part[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase() || "UN";
+
+  const age = p?.age || "N/A";
+  const gender = p?.gender || "N/A";
+  const uhid = p ? `UHID-${p.id.substring(0, 6).toUpperCase()}` : "—";
+  const patientMeta = `UHID: ${uhid.replace("UHID-", "")} • ${gender} • ${age} Yrs`;
+
+  const statusMap = {
+    PENDING: "Pending",
+    APPROVED: "Approved",
+    REJECTED: "Rejected",
+  };
+  const status = statusMap[req.status] || req.status;
+
+  const discountTypeMap = {
+    PERCENTAGE: "Percentage",
+    FLAT: "Flat",
+  };
+  const discountType = req.discountType === "PERCENTAGE" || req.discountType === "FLAT"
+    ? discountTypeMap[req.discountType]
+    : req.discountType;
+
+  const grossTotal = req.bill?.subtotal || 0;
+  const proposedDiscount = req.discountAmount || 0;
+  const revisedNetPayable = Math.max(0, grossTotal - proposedDiscount);
+
+  const formattedDate = new Date(req.createdAt).toLocaleDateString("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
+  return {
+    id: req.id,
+    patientName,
+    patientInitials,
+    patientMeta,
+    billNumber: req.billId,
+    discountType,
+    amount: `${rupee}${proposedDiscount.toFixed(2)}`,
+    percentage: req.discountType === "PERCENTAGE" ? `${req.discountValue}%` : "Flat",
+    requestedBy: req.requestedBy || "Dr. Attending",
+    status,
+    requestedAt: formattedDate,
+    grossTotal: `${rupee}${grossTotal.toFixed(2)}`,
+    proposedDiscount: `-${rupee}${proposedDiscount.toFixed(2)}`,
+    revisedNetPayable: `${rupee}${revisedNetPayable.toFixed(2)}`,
+    reason: req.reason || "No reason provided",
+    documentName: "Supporting_Doc.pdf",
+    documentMeta: `${formattedDate.split(",")[0]} • 500 KB`,
+    raw: req
+  };
+}
 
 const statusOptions = ["All", "Approved", "Pending", "Rejected"];
 const discountTypeOptions = ["Hardship / Financial Aid", "Corporate", "Staff Family", "Self Pay"];
@@ -906,6 +854,11 @@ export default function DiscountsPage() {
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [submitPreviewOpen, setSubmitPreviewOpen] = useState(false);
+  
+  const [requests, setRequests] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   const [applyForm, setApplyForm] = useState({
     discountType: "Hardship / Financial Aid",
     approver: "Dr. Sarah Smith (Director)",
@@ -913,15 +866,100 @@ export default function DiscountsPage() {
     reason: "Patient requested financial assistance due to unemployment. Valid supporting documents attached.",
   });
 
+  useEffect(() => {
+    fetchRequests();
+  }, []);
+
+  const fetchRequests = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await fetch(`${API_BASE}/billing/discounts`, { headers: getAuthHeaders() });
+      const json = await res.json();
+      if (!res.ok || !json.success) throw new Error(json.message || `Error ${res.status}`);
+      setRequests(json.data.map(mapDiscountRequest));
+    } catch (e) {
+      console.error("fetchRequests error:", e);
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const dynamicSummaryCards = useMemo(() => {
+    const today = new Date().toDateString();
+    
+    const todayApproved = requests.filter(r => 
+      r.status === "Approved" && 
+      r.raw?.createdAt && new Date(r.raw.createdAt).toDateString() === today
+    );
+    const todayVal = todayApproved.reduce((sum, r) => sum + (r.raw?.discountAmount || 0), 0);
+    
+    const pendingCount = requests.filter(r => r.status === "Pending").length;
+    
+    const corporateApproved = requests.filter(r => 
+      r.status === "Approved" && 
+      String(r.discountType).toLowerCase().includes("corporate")
+    );
+    const corporateVal = corporateApproved.reduce((sum, r) => sum + (r.raw?.discountAmount || 0), 0);
+    
+    const totalSubtotals = requests.reduce((sum, r) => sum + (r.raw?.bill?.subtotal || 0), 0);
+    const totalDiscounts = requests.filter(r => r.status === "Approved").reduce((sum, r) => sum + (r.raw?.discountAmount || 0), 0);
+    const impactPct = totalSubtotals > 0 ? (totalDiscounts / totalSubtotals) * 100 : 0;
+
+    return [
+      {
+        title: "Total Discount Today",
+        value: `${rupee}${todayVal.toLocaleString("en-IN", { minimumFractionDigits: 2 })}`,
+        change: "+0%",
+        changeSuffix: " vs yesterday",
+        changePositive: true,
+        icon: BadgePercent,
+        iconColor: "text-[#6366F1]",
+        iconBg: "bg-[#EEF2FF]",
+      },
+      {
+        title: "Pending Approval",
+        value: String(pendingCount),
+        change: "0%",
+        changeSuffix: " vs yesterday",
+        changePositive: true,
+        icon: Clock3,
+        iconColor: "text-[#D97706]",
+        iconBg: "bg-[#FEF7E0]",
+      },
+      {
+        title: "Corporate Discounts",
+        value: `${rupee}${corporateVal.toLocaleString("en-IN", { minimumFractionDigits: 2 })}`,
+        change: "+0%",
+        changeSuffix: " vs last month",
+        changePositive: true,
+        icon: Calculator,
+        iconColor: "text-[#137333]",
+        iconBg: "bg-[#E6F4EA]",
+      },
+      {
+        title: "Revenue Impact",
+        value: `-${impactPct.toFixed(1)}%`,
+        change: "-0%",
+        changeSuffix: " vs last month",
+        changePositive: false,
+        icon: PieChart,
+        iconColor: "text-[#C5221F]",
+        iconBg: "bg-[#FCE8E6]",
+      },
+    ];
+  }, [requests]);
+
   const filteredRows = useMemo(() => {
     const query = searchTerm.trim().toLowerCase();
-    return discountRequests.filter((r) => {
+    return requests.filter((r) => {
       const matchSearch = !query || [r.id, r.patientName, r.billNumber, r.discountType, r.requestedBy, r.status]
-        .some((f) => f.toLowerCase().includes(query));
+        .some((f) => f && String(f).toLowerCase().includes(query));
       const matchStatus = statusFilter === "All" || r.status === statusFilter;
       return matchSearch && matchStatus;
     });
-  }, [searchTerm, statusFilter]);
+  }, [requests, searchTerm, statusFilter]);
 
   const calculatedAmount = useMemo(() => {
     const pct = Number(applyForm.percentage || 0);
@@ -929,7 +967,7 @@ export default function DiscountsPage() {
   }, [applyForm.percentage]);
 
   const handleView = (row) => {
-    const full = discountRequests.find((r) => r.id === row.id) || row;
+    const full = requests.find((r) => r.id === row.id) || row;
     setSelectedRequest(full);
     setDialogOpen(true);
   };
@@ -988,7 +1026,7 @@ export default function DiscountsPage() {
 
             {/* Stat cards */}
             <div className="grid grid-cols-1 gap-[20px] sm:grid-cols-2 xl:grid-cols-4">
-              {summaryCards.map((card) => (
+              {dynamicSummaryCards.map((card) => (
                 <StatCard key={card.title} card={card} />
               ))}
             </div>
@@ -1010,7 +1048,18 @@ export default function DiscountsPage() {
                 <SimpleDropdown value={statusFilter} onChange={setStatusFilter} options={statusOptions} />
               </div>
 
-              <DiscountTable rows={filteredRows} onView={handleView} />
+              {loading ? (
+                <div className="flex items-center justify-center py-[60px] text-[13px] text-slate-500 font-medium">
+                  <span className="animate-spin mr-2 h-4 w-4 border-t-2 border-b-2 border-[#2E37A4] rounded-full"></span>
+                  Loading discount requests...
+                </div>
+              ) : error ? (
+                <div className="py-[60px] text-center text-rose-500 font-medium text-[13px]">
+                  {error}
+                </div>
+              ) : (
+                <DiscountTable rows={filteredRows} onView={handleView} />
+              )}
             </div>
           </>
         )}

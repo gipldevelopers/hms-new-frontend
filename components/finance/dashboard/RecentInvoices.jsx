@@ -2,18 +2,31 @@
 import React from "react";
 import Link from "next/link";
 
-export function RecentInvoices() {
-  const data = [
-    { invoice: "#INV-2023-001", patient: "Robert Fox", uhid: "P-882910", amount: "₹450.00", date: "Oct 23, 2023", status: "Pending", statusColor: "bg-[#fef3c7] text-[#b45309]" },
-    { invoice: "#INV-2023-002", patient: "Sophia Turner", uhid: "P-882911", amount: "₹600.00", date: "Oct 24, 2023", status: "Paid", statusColor: "bg-[#dcfce7] text-[#15803d]" },
-    { invoice: "#INV-2023-003", patient: "Michael Smith", uhid: "P-882912", amount: "₹750.00", date: "Oct 25, 2023", status: "Pending", statusColor: "bg-[#fef3c7] text-[#b45309]" },
-    { invoice: "#INV-2023-004", patient: "Emily Johnson", uhid: "P-882913", amount: "₹300.00", date: "Oct 26, 2023", status: "Overdue", statusColor: "bg-[#fee2e2] text-[#b91c1c]" },
-    { invoice: "#INV-2023-005", patient: "Daniel Wilson", uhid: "P-882914", amount: "₹1,200.00", date: "Oct 27, 2023", status: "Paid", statusColor: "bg-[#dcfce7] text-[#15803d]" },
-    { invoice: "#INV-2023-006", patient: "Olivia Brown", uhid: "P-882915", amount: "₹500.00", date: "Oct 28, 2023", status: "Pending", statusColor: "bg-[#fef3c7] text-[#b45309]" },
-    { invoice: "#INV-2023-007", patient: "James Davis", uhid: "P-882916", amount: "₹900.00", date: "Oct 29, 2023", status: "Paid", statusColor: "bg-[#dcfce7] text-[#15803d]" },
-    { invoice: "#INV-2023-008", patient: "Ava Miller", uhid: "P-882917", amount: "₹250.00", date: "Oct 30, 2023", status: "Overdue", statusColor: "bg-[#fee2e2] text-[#b91c1c]" },
-  ];
+const currency = new Intl.NumberFormat("en-IN", {
+  style: "currency",
+  currency: "INR",
+  maximumFractionDigits: 0
+});
 
+const formatCurrency = (value) => currency.format(Number(value || 0));
+
+const formatDate = (value) => {
+  if (!value) return "-";
+  return new Intl.DateTimeFormat("en-IN", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric"
+  }).format(new Date(value));
+};
+
+const statusColor = (status) => {
+  if (status === "Paid") return "bg-[#dcfce7] text-[#15803d]";
+  if (status === "Partial") return "bg-[#e0e7ff] text-[#4338ca]";
+  if (status === "Unpaid") return "bg-[#fee2e2] text-[#b91c1c]";
+  return "bg-[#fef3c7] text-[#b45309]";
+};
+
+export function RecentInvoices({ invoices, loading, error }) {
   return (
     <div className="bg-white dark:bg-[#1e293b] rounded-[5px] border border-[#e2e8f0] dark:border-[#334155] overflow-hidden">
       <div className="p-6 flex justify-between items-center border-b border-[#e2e8f0] dark:border-[#334155]">
@@ -37,24 +50,44 @@ export function RecentInvoices() {
             </tr>
           </thead>
           <tbody className="divide-y divide-[#e2e8f0] dark:divide-[#334155]">
-            {data.map((row, i) => (
-              <tr key={i} className="transition-colors hover:bg-gray-50/30 dark:hover:bg-[#101935]/30">
-                <td className="px-6 py-4 text-[13px] font-bold text-[#1e293b] dark:text-white">{row.invoice}</td>
-                <td className="px-6 py-4 text-[13px] font-medium text-[#475569] dark:text-[#cbd5e1]">{row.patient}</td>
-                <td className="px-6 py-4">
-                  <span className="text-[11px] font-bold px-2 py-0.5 rounded-[4px] bg-[#f1f5f9] dark:bg-[#334155] text-[#475569] dark:text-[#94a3b8]">
-                    {row.uhid}
-                  </span>
-                </td>
-                <td className="px-6 py-4 text-[13px] font-bold text-[#1e293b] dark:text-white">{row.amount}</td>
-                <td className="px-6 py-4 text-[13px] font-medium text-[#475569] dark:text-[#cbd5e1]">{row.date}</td>
-                <td className="px-6 py-4">
-                  <span className={`text-[11px] font-bold px-3 py-1 rounded-[4px] ${row.statusColor}`}>
-                    {row.status}
-                  </span>
+            {loading ? (
+              <tr>
+                <td colSpan={6} className="px-6 py-8 text-[13px] text-[#64748b] dark:text-[#94a3b8]">
+                  Loading recent invoices...
                 </td>
               </tr>
-            ))}
+            ) : error ? (
+              <tr>
+                <td colSpan={6} className="px-6 py-8 text-[13px] text-[#b91c1c]">
+                  {error}
+                </td>
+              </tr>
+            ) : !invoices?.length ? (
+              <tr>
+                <td colSpan={6} className="px-6 py-8 text-[13px] text-[#64748b] dark:text-[#94a3b8]">
+                  No recent invoices found.
+                </td>
+              </tr>
+            ) : (
+              invoices.map((row) => (
+                <tr key={row.id} className="transition-colors hover:bg-gray-50/30 dark:hover:bg-[#101935]/30">
+                  <td className="px-6 py-4 text-[13px] font-bold text-[#1e293b] dark:text-white">{row.invoiceNumber}</td>
+                  <td className="px-6 py-4 text-[13px] font-medium text-[#475569] dark:text-[#cbd5e1]">{row.patientName}</td>
+                  <td className="px-6 py-4">
+                    <span className="text-[11px] font-bold px-2 py-0.5 rounded-[4px] bg-[#f1f5f9] dark:bg-[#334155] text-[#475569] dark:text-[#94a3b8]">
+                      {row.uhid || "-"}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-[13px] font-bold text-[#1e293b] dark:text-white">{formatCurrency(row.amount)}</td>
+                  <td className="px-6 py-4 text-[13px] font-medium text-[#475569] dark:text-[#cbd5e1]">{formatDate(row.createdDate)}</td>
+                  <td className="px-6 py-4">
+                    <span className={`text-[11px] font-bold px-3 py-1 rounded-[4px] ${statusColor(row.status)}`}>
+                      {row.status}
+                    </span>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

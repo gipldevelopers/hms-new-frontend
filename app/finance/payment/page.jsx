@@ -138,16 +138,55 @@ function getStatusBadgeClasses(status) {
 }
 
 // ---------------------------------------------------------------------------
-// Collect Payment Modal — UI preserved exactly, no backend call (per task spec)
+// Collect Payment Modal — Wire up with backend API
 // ---------------------------------------------------------------------------
 const CollectPaymentModal = ({ isOpen, onClose, invoice, onConfirm }) => {
   const [paymentMethod, setPaymentMethod] = useState("Card");
+  const [payingAmount, setPayingAmount] = useState("");
+  const [transactionId, setTransactionId] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (invoice && isOpen) {
+      setPayingAmount(invoice.dueAmount ? invoice.dueAmount.replace(/[^\d.]/g, "") : "");
+      setTransactionId("");
+      setError(null);
+    }
+  }, [invoice, isOpen]);
+
   if (!invoice) return null;
 
-  const handleConfirm = () => {
-    if (onConfirm) onConfirm(paymentMethod);
-    else onClose(false);
+  const handleConfirm = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await fetch(`${API_BASE}/billing/${invoice.billId}/payments`, {
+        method: "POST",
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          amount: parseFloat(payingAmount) || 0,
+          paymentMethod,
+          transactionId: transactionId || null,
+          notes: "Collected via billing dashboard"
+        })
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) throw new Error(json.message || `Error ${res.status}`);
+
+      if (onConfirm) onConfirm(paymentMethod);
+      onClose(false);
+    } catch (e) {
+      console.error("Collect payment error:", e);
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  const dueVal = parseFloat(invoice.dueAmount ? invoice.dueAmount.replace(/[^\d.]/g, "") : "0") || 0;
+  const payVal = parseFloat(payingAmount) || 0;
+  const remaining = Math.max(0, dueVal - payVal);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -164,12 +203,18 @@ const CollectPaymentModal = ({ isOpen, onClose, invoice, onConfirm }) => {
           </button>
         </div>
 
+        {error && (
+          <div className="bg-rose-50 border border-rose-200 text-rose-600 rounded-[6px] p-3 text-[13px] font-medium">
+            {error}
+          </div>
+        )}
+
         <div className="bg-[#F8F9FC] dark:bg-[#0A0F1D] rounded-[8px] p-4 flex flex-col sm:flex-row justify-between items-stretch sm:items-center border border-[#E2E8F0] dark:border-white/5 gap-3">
           <div>
             <div className="flex items-center gap-2 mb-1">
               <span className="font-bold text-[#1e293b] dark:text-white text-[14px]">{invoice.invoiceId}</span>
               <span className="bg-[#FFF3E6] text-[#D97706] text-[10px] font-bold px-2 py-0.5 rounded-full select-none">
-                Pending
+                {invoice.status}
               </span>
             </div>
             <p className="text-[12px] text-gray-500 dark:text-slate-400 font-medium">
@@ -192,12 +237,13 @@ const CollectPaymentModal = ({ isOpen, onClose, invoice, onConfirm }) => {
             </div>
             <input
               type="text"
-              defaultValue={invoice.dueAmount.replace("₹", "")}
+              value={payingAmount}
+              onChange={(e) => setPayingAmount(e.target.value)}
               className="pl-8 w-full h-10 border border-[#E2E8F0] dark:border-white/10 rounded-[6px] text-[13px] font-semibold text-[#1e293b] dark:text-white bg-white dark:bg-[#101935] focus:outline-none focus:border-[#2E37A4]"
             />
           </div>
           <p className="text-[11px] text-gray-400 dark:text-slate-500 font-medium">
-            Remaining balance will be ₹0.00
+            Remaining balance will be ₹{remaining.toFixed(2)}
           </p>
         </div>
 
@@ -238,6 +284,8 @@ const CollectPaymentModal = ({ isOpen, onClose, invoice, onConfirm }) => {
           </label>
           <input
             type="text"
+            value={transactionId}
+            onChange={(e) => setTransactionId(e.target.value)}
             placeholder="e.g., TXN-123456789"
             className="w-full h-10 border border-[#E2E8F0] dark:border-white/10 rounded-[6px] text-[13px] px-3 font-semibold text-[#1e293b] dark:text-white bg-white dark:bg-[#101935] placeholder:text-gray-400 dark:placeholder:text-slate-600 focus:outline-none focus:border-[#2E37A4]"
           />
@@ -246,14 +294,17 @@ const CollectPaymentModal = ({ isOpen, onClose, invoice, onConfirm }) => {
         <div className="flex flex-col sm:flex-row justify-end items-stretch sm:items-center gap-2.5 sm:gap-3 pt-2">
           <button
             onClick={() => onClose(false)}
+            disabled={loading}
             className="order-2 sm:order-1 text-gray-500 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200 text-[13px] font-semibold px-4 py-2 cursor-pointer transition-colors focus:outline-none border-0 bg-transparent w-full sm:w-auto text-center"
           >
             Cancel
           </button>
           <button
             onClick={handleConfirm}
-            className="order-1 sm:order-2 bg-[#2E37A4] hover:bg-[#2E37A4]/90 text-white font-semibold px-5 h-10 rounded-[6px] transition-colors cursor-pointer shadow-none border-0 text-[13px] focus:outline-none w-full sm:w-auto"
+            disabled={loading}
+            className="order-1 sm:order-2 bg-[#2E37A4] hover:bg-[#2E37A4]/90 disabled:opacity-50 text-white font-semibold px-5 h-10 rounded-[6px] transition-colors cursor-pointer shadow-none border-0 text-[13px] focus:outline-none w-full sm:w-auto flex items-center justify-center gap-1.5"
           >
+            {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
             Confirm &amp; Collect
           </button>
         </div>
@@ -414,18 +465,53 @@ const ReviewInvoiceModal = ({ isOpen, onClose, invoice, onInitiateRefund }) => {
 };
 
 // ---------------------------------------------------------------------------
-// Process Refund Modal — UI preserved exactly, no backend wiring per task spec
+// Process Refund Modal — Wire up with backend API
 // ---------------------------------------------------------------------------
 const ProcessRefundModal = ({ isOpen, onClose, invoice, onConfirm }) => {
   const [refundMethod, setRefundMethod] = useState("Source");
+  const [reason, setReason] = useState("Advance Payment Overages");
+  const [notes, setNotes] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    if (invoice && isOpen) {
+      setReason("Advance Payment Overages");
+      setNotes("");
+      setError(null);
+    }
+  }, [invoice, isOpen]);
+
   if (!invoice) return null;
   const refundAmt = invoice.refundAmount || "₹0.00";
   const billedAmt = invoice.totalAmount  || "₹0.00";
   const paidAmt   = invoice.totalAmount  || "₹0.00";
 
-  const handleConfirm = () => {
-    onConfirm?.();
-    onClose(false);
+  const handleConfirm = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const amount = parseFloat(refundAmt.replace(/[^\d.]/g, "")) || 0;
+      const res = await fetch(`${API_BASE}/billing/${invoice.billId}/refunds`, {
+        method: "POST",
+        headers: getAuthHeaders(),
+        body: JSON.stringify({
+          amount,
+          reason: `${reason}${notes ? ` - ${notes}` : ""}`,
+          paymentMethod: refundMethod
+        })
+      });
+      const json = await res.json();
+      if (!res.ok || !json.success) throw new Error(json.message || `Error ${res.status}`);
+
+      if (onConfirm) onConfirm();
+      onClose(false);
+    } catch (e) {
+      console.error("Process refund error:", e);
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -442,6 +528,12 @@ const ProcessRefundModal = ({ isOpen, onClose, invoice, onConfirm }) => {
             <X className="w-4 h-4" />
           </button>
         </div>
+
+        {error && (
+          <div className="bg-rose-50 border border-rose-200 text-rose-600 rounded-[6px] p-3 text-[13px] font-medium">
+            {error}
+          </div>
+        )}
 
         <div className="bg-[#FFF1F2] dark:bg-[#200F11] border border-[#FFE4E6] dark:border-[#521C22] rounded-[8px] p-4 flex flex-col gap-3">
           <div className="flex justify-between items-start">
@@ -512,7 +604,11 @@ const ProcessRefundModal = ({ isOpen, onClose, invoice, onConfirm }) => {
         <div className="space-y-1.5">
           <span className="text-[13px] text-[#1e293b] dark:text-white font-bold block">Refund Reason</span>
           <div className="relative">
-            <select className="h-10 border border-[#E2E8F0] dark:border-white/10 rounded-[6px] w-full bg-white dark:bg-[#101935] px-3 pr-8 text-[13px] text-[#1e293b] dark:text-white font-semibold appearance-none focus:outline-none focus:border-[#2E37A4] cursor-pointer">
+            <select
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              className="h-10 border border-[#E2E8F0] dark:border-white/10 rounded-[6px] w-full bg-white dark:bg-[#101935] px-3 pr-8 text-[13px] text-[#1e293b] dark:text-white font-semibold appearance-none focus:outline-none focus:border-[#2E37A4] cursor-pointer"
+            >
               <option>Advance Payment Overages</option>
               <option>Treatment Cancelled</option>
               <option>Billing Error</option>
@@ -528,6 +624,8 @@ const ProcessRefundModal = ({ isOpen, onClose, invoice, onConfirm }) => {
           <span className="text-[13px] text-[#1e293b] dark:text-white font-bold block">Notes (Optional)</span>
           <textarea
             placeholder="Add internal notes regarding this refund..."
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
             className="h-14 border border-[#E2E8F0] dark:border-white/10 rounded-[6px] w-full p-2.5 text-[13px] text-[#1e293b] dark:text-white placeholder:text-gray-400 dark:placeholder:text-slate-600 bg-white dark:bg-[#101935] resize-none focus:outline-none focus:border-[#2E37A4]"
           />
         </div>
@@ -535,14 +633,17 @@ const ProcessRefundModal = ({ isOpen, onClose, invoice, onConfirm }) => {
         <div className="flex flex-col sm:flex-row justify-end items-stretch sm:items-center gap-2.5 sm:gap-3 pt-2">
           <button
             onClick={() => onClose(false)}
+            disabled={loading}
             className="order-2 sm:order-1 text-gray-500 hover:text-gray-700 dark:text-slate-400 dark:hover:text-slate-200 text-[13px] font-semibold px-4 py-2 cursor-pointer transition-colors focus:outline-none border-0 bg-transparent w-full sm:w-auto text-center"
           >
             Cancel
           </button>
           <button
             onClick={handleConfirm}
-            className="order-1 sm:order-2 bg-[#2E37A4] hover:bg-[#2E37A4]/90 text-white font-semibold px-5 h-10 rounded-[6px] transition-colors cursor-pointer shadow-none border-0 text-[13px] focus:outline-none w-full sm:w-auto"
+            disabled={loading}
+            className="order-1 sm:order-2 bg-[#2E37A4] hover:bg-[#2E37A4]/90 disabled:opacity-50 text-white font-semibold px-5 h-10 rounded-[6px] transition-colors cursor-pointer shadow-none border-0 text-[13px] focus:outline-none w-full sm:w-auto flex items-center justify-center gap-1.5"
           >
+            {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
             Confirm &amp; Refund
           </button>
         </div>
@@ -937,17 +1038,8 @@ export default function PaymentPage() {
         onClose={setIsModalOpen}
         invoice={selectedInvoice}
         onConfirm={(method) => {
-          setIsModalOpen(false);
-          // Optimistically update local row status so UI reflects change immediately
-          if (selectedInvoice) {
-            setTableData((prev) =>
-              prev.map((r) =>
-                r.invoiceId === selectedInvoice.invoiceId
-                  ? { ...r, status: "Paid", dueAmount: "₹0.00", actionText: "Review", paymentMethod: method }
-                  : r
-              )
-            );
-          }
+          fetchSummary();
+          fetchPayments();
           setIsReviewModalOpen(true);
         }}
       />
@@ -965,7 +1057,8 @@ export default function PaymentPage() {
         onClose={setIsRefundModalOpen}
         invoice={selectedInvoice}
         onConfirm={() => {
-          setIsRefundModalOpen(false);
+          fetchSummary();
+          fetchPayments();
         }}
       />
     </div>

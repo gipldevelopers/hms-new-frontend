@@ -1,7 +1,7 @@
 import React from "react";
 import { cn } from "@/lib/utils";
 
-export function FinanceStatCard({ title, value, trend, isUp, color, icon: Icon, trendSuffix = "vs yesterday" }) {
+export function FinanceStatCard({ title, value, trend, isUp, color, icon: Icon, trendSuffix = "vs yesterday", meta }) {
   const colorMap = {
     purple: {
       bg: "bg-[#F0F2FF]",
@@ -47,14 +47,18 @@ export function FinanceStatCard({ title, value, trend, isUp, color, icon: Icon, 
         </div>
       </div>
 
-      <div className="flex items-center gap-1.5">
-        <span className={cn("text-[14px] font-bold", isUp ? "text-[#2ECC71]" : "text-[#FF5C5C]")}>
-          {isUp ? `+${trend}` : trend}
-        </span>
-        <span className="text-[14px] text-gray-400 dark:text-slate-500">
-          {trendSuffix}
-        </span>
-      </div>
+      {(trend || meta) && (
+        <div className="flex items-center gap-1.5">
+          {trend && (
+            <span className={cn("text-[14px] font-bold", isUp ? "text-[#2ECC71]" : "text-[#FF5C5C]")}>
+              {isUp ? `+${trend}` : trend}
+            </span>
+          )}
+          <span className="text-[14px] text-gray-400 dark:text-slate-500">
+            {meta || trendSuffix}
+          </span>
+        </div>
+      )}
     </div>
   );
 }
