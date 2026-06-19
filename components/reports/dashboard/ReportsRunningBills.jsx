@@ -2,38 +2,7 @@
 
 import React from "react";
 
-export function ReportsRunningBills() {
-  const bills = [
-    {
-      id: "#PT-4821",
-      name: "Rajesh Gupta",
-      ward: "ICU / Bed 4A",
-      doctor: "Dr. R. Sharma",
-      status: "Discharge Initiated",
-    },
-    {
-      id: "#PT-4820",
-      name: "Meena Patel",
-      ward: "Ward A / Bed 12",
-      doctor: "Dr. P. Mehta",
-      status: "Active",
-    },
-    {
-      id: "#PT-4819",
-      name: "Suresh Kumar",
-      ward: "ICU / Bed 3C",
-      doctor: "Dr. N. Verma",
-      status: "Active",
-    },
-    {
-      id: "#PT-4818",
-      name: "Anita Desai",
-      ward: "Ward B / Bed 7",
-      doctor: "Dr. L. Joshi",
-      status: "Active",
-    },
-  ];
-
+export function ReportsRunningBills({ bills = [] }) {
   return (
     <div className="w-full bg-card rounded-lg border border-border flex flex-col font-sans transition-all overflow-hidden shadow-none hover:border-gray-300 dark:hover:border-white/20">
       <div className="px-6 py-4 border-b border-border">
@@ -67,16 +36,16 @@ export function ReportsRunningBills() {
             {bills.map((bill, index) => (
               <tr key={index} className="hover:bg-gray-50/50 dark:hover:bg-white/5 transition-colors">
                 <td className="px-6 py-4 whitespace-nowrap text-[13px] font-bold text-[#3B82F6] dark:text-blue-400 hover:underline cursor-pointer">
-                  {bill.id}
+                  {bill.uhid || "—"}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-[13px] font-medium text-gray-700 dark:text-slate-200">
-                  {bill.name}
+                  {bill.patientName || bill.name}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-[12px] text-gray-500 dark:text-slate-400">
-                  {bill.ward}
+                  {bill.wardBed || bill.ward}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-[12px] text-gray-500 dark:text-slate-400">
-                  {bill.doctor}
+                  ₹{bill.totalAmount || 0}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-right">
                   {bill.status === "Discharge Initiated" ? (

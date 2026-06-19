@@ -1,14 +1,55 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Printer, FileDown } from "lucide-react";
 import { ReportsStatGrid } from "./ReportsStatGrid";
 import { ReportsRevenueTrend } from "./ReportsRevenueTrend";
 import { ReportsBedWardOverview } from "./ReportsBedWardOverview";
 import { ReportsAlertsActivity } from "./ReportsAlertsActivity";
 import { ReportsRunningBills } from "./ReportsRunningBills";
+import { API_URL } from "@/lib/api";
+
+function getAuthHeaders() {
+  const token = typeof window !== "undefined" ? localStorage.getItem("authtoken") : "";
+  return {
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
+  };
+}
 
 export default function ReportsDashboard() {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        const response = await fetch(`${API_URL}/reports/dashboard`, {
+          headers: getAuthHeaders(),
+        });
+        if (!response.ok) {
+          const text = await response.text();
+          throw new Error(`HTTP error! status: ${response.status}, message: ${text}`);
+        }
+        const result = await response.json();
+        setData(result?.data);
+      } catch (error) {
+        console.error("Error fetching reports dashboard:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDashboardData();
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="p-6 bg-[#F8F9FC] dark:bg-[#0A0F1D] min-h-screen flex justify-center items-center font-sans">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 bg-[#F8F9FC] dark:bg-[#0A0F1D] min-h-screen space-y-[20px] font-sans transition-colors duration-300">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-[20px]">
@@ -28,7 +69,7 @@ export default function ReportsDashboard() {
       </div>
 
       {/* Row 1: Key Statistics Cards */}
-      <ReportsStatGrid />
+      <ReportsStatGrid stats={data?.stats} />
 
       {/* Row 2: Revenue Trend & Bed/Ward Overview */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-[20px]">
@@ -36,15 +77,15 @@ export default function ReportsDashboard() {
           <ReportsRevenueTrend />
         </div>
         <div className="lg:col-span-4">
-          <ReportsBedWardOverview />
+          <ReportsBedWardOverview wardOverview={data?.wardOverview} />
         </div>
       </div>
 
       {/* Row 3: Alerts and Recent Activity */}
-      <ReportsAlertsActivity />
+      <ReportsAlertsActivity alerts={data?.alerts} recentActivity={data?.recentActivity} actionsNeeded={[]} />
 
       {/* Row 4: Patients with Running Bills */}
-      <ReportsRunningBills />
+      <ReportsRunningBills bills={data?.runningBills} />
     </div>
   );
 }

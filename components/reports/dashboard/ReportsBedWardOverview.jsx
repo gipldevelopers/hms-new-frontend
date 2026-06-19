@@ -2,7 +2,12 @@
 
 import React from "react";
 
-export function ReportsBedWardOverview() {
+export function ReportsBedWardOverview({ wardOverview = [] }) {
+  const totalBeds = wardOverview.reduce((sum, w) => sum + w.total, 0);
+  const totalOccupied = wardOverview.reduce((sum, w) => sum + w.occupied, 0);
+  const totalAvailable = totalBeds - totalOccupied;
+  const overallOccupancy = totalBeds ? ((totalOccupied / totalBeds) * 100).toFixed(1) : 0;
+
   return (
     <div className="bg-card rounded-lg border border-border flex flex-col font-sans transition-all overflow-hidden shadow-none hover:border-gray-300 dark:hover:border-white/20 md:h-[350px] h-auto p-5 justify-between">
       <div>
@@ -12,14 +17,14 @@ export function ReportsBedWardOverview() {
       </div>
 
       {/* Summary Boxes */}
-      <div className="grid grid-cols-3 gap-3 my-10">
+      <div className="grid grid-cols-3 gap-3 my-4 md:my-10">
         {/* Total Beds */}
         <div className="p-3 bg-[#F4F6F9] dark:bg-[#1E293B]/40 rounded-lg flex flex-col">
           <span className="text-[11px] font-semibold text-gray-400 dark:text-slate-400">
             Total Beds
           </span>
           <h4 className="text-[20px] font-bold text-[#1e293b] dark:text-white mt-1">
-            450
+            {totalBeds}
           </h4>
         </div>
 
@@ -29,7 +34,7 @@ export function ReportsBedWardOverview() {
             Occupied
           </span>
           <h4 className="text-[20px] font-bold text-[#0F766E] dark:text-teal-400 mt-1">
-            327
+            {totalOccupied}
           </h4>
         </div>
 
@@ -39,57 +44,42 @@ export function ReportsBedWardOverview() {
             Available
           </span>
           <h4 className="text-[20px] font-bold text-[#047857] dark:text-emerald-400 mt-1">
-            123
+            {totalAvailable}
           </h4>
         </div>
       </div>
 
       {/* Progress Bars */}
       <div className="space-y-4 flex-1 flex flex-col justify-end">
-        {/* ICU Occupancy */}
-        <div className="space-y-1.5">
-          <div className="flex justify-between items-center text-[12px] font-semibold text-gray-600 dark:text-slate-300">
-            <span>ICU Occupancy</span>
-            <span className="font-bold text-gray-500 dark:text-slate-400">
-              38/45 (84.4%)
-            </span>
+        {wardOverview.slice(0, 2).map((ward, index) => (
+          <div key={ward.id || index} className="space-y-1.5">
+            <div className="flex justify-between items-center text-[12px] font-semibold text-gray-600 dark:text-slate-300">
+              <span>{ward.name}</span>
+              <span className="font-bold text-gray-500 dark:text-slate-400">
+                {ward.occupied}/{ward.total} ({ward.total ? ((ward.occupied / ward.total) * 100).toFixed(1) : 0}%)
+              </span>
+            </div>
+            <div className="w-full h-2 bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
+              <div
+                className={`h-full rounded-full ${index === 0 ? 'bg-[#EF4444]' : 'bg-[#0D9488]'}`}
+                style={{ width: `${ward.total ? ((ward.occupied / ward.total) * 100) : 0}%` }}
+              ></div>
+            </div>
           </div>
-          <div className="w-full h-2 bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-[#EF4444] rounded-full"
-              style={{ width: "84.4%" }}
-            ></div>
-          </div>
-        </div>
-
-        {/* General Ward */}
-        <div className="space-y-1.5">
-          <div className="flex justify-between items-center text-[12px] font-semibold text-gray-600 dark:text-slate-300">
-            <span>General Ward</span>
-            <span className="font-bold text-gray-500 dark:text-slate-400">
-              289/405 (71.4%)
-            </span>
-          </div>
-          <div className="w-full h-2 bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-[#0D9488] rounded-full"
-              style={{ width: "71.4%" }}
-            ></div>
-          </div>
-        </div>
+        ))}
 
         {/* Overall Occupancy */}
         <div className="space-y-1.5">
           <div className="flex justify-between items-center text-[12px] font-semibold text-gray-600 dark:text-slate-300">
             <span>Overall Occupancy</span>
             <span className="font-bold text-gray-500 dark:text-slate-400">
-              72.7%
+              {overallOccupancy}%
             </span>
           </div>
           <div className="w-full h-2 bg-gray-100 dark:bg-white/5 rounded-full overflow-hidden">
             <div
               className="h-full bg-[#3B82F6] rounded-full"
-              style={{ width: "72.7%" }}
+              style={{ width: `${overallOccupancy}%` }}
             ></div>
           </div>
         </div>

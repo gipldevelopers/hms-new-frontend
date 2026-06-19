@@ -1,4 +1,4 @@
-import { Inter } from "next/font/google";
+  import { Inter } from "next/font/google";
 import "./globals.css";
 
 const inter = Inter({
@@ -24,7 +24,7 @@ export default function RootLayout({ children }) {
       className={`${inter.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col">
+      <body className="min-h-full flex flex-col" suppressHydrationWarning>
         <ThemeProvider 
           attribute="class" 
           defaultTheme="light" 

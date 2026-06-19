@@ -2,12 +2,13 @@ import React from "react";
 import { Bed, Activity, Ambulance, BadgeIndianRupee, Clock, ShieldAlert, RotateCcw, HeartPulse } from "lucide-react";
 import { ReportsStatCard } from "./ReportsStatCard";
 
-export function ReportsStatGrid() {
+export function ReportsStatGrid({ stats }) {
+  if (!stats) return null;
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-[16px]">
       <ReportsStatCard
         title="Bed Occupancy"
-        value="86%"
+        value={`${stats.bedOccupancy || 0}%`}
         trend="12%"
         isUp={true}
         color="indigo"
@@ -15,7 +16,7 @@ export function ReportsStatGrid() {
       />
       <ReportsStatCard
         title="OT Utilization"
-        value="72%"
+        value={`${stats.otUtilization || 0}%`}
         trend="5%"
         isUp={true}
         color="indigo"
@@ -23,7 +24,7 @@ export function ReportsStatGrid() {
       />
       <ReportsStatCard
         title="Emergency Cases"
-        value="142"
+        value={stats.emergencyCases || 0}
         trend="-2"
         isUp={false}
         color="indigo"
@@ -32,7 +33,7 @@ export function ReportsStatGrid() {
       />
       <ReportsStatCard
         title="Revenue Today"
-        value="₹45000"
+        value={`₹${stats.revenueToday || 0}`}
         trend="2%"
         isUp={true}
         color="indigo"
@@ -40,15 +41,15 @@ export function ReportsStatGrid() {
       />
       <ReportsStatCard
         title="Average LOS"
-        value="4.2d"
-        trend="1.5d"
+        value={`${stats.avgLos || 0} Days`}
+        trend="1.5 Days"
         isUp={true}
         color="indigo"
         icon={Clock}
       />
       <ReportsStatCard
         title="Infection Rate"
-        value="1.2%"
+        value={`${stats.infectionRate || 0}%`}
         trend="5%"
         isUp={true}
         color="indigo"
@@ -56,7 +57,7 @@ export function ReportsStatGrid() {
       />
       <ReportsStatCard
         title="Readmission Rate"
-        value="4.8%"
+        value={`${stats.readmissionRate || 0}%`}
         trend="-2%"
         isUp={false}
         color="indigo"
@@ -65,7 +66,7 @@ export function ReportsStatGrid() {
       />
       <ReportsStatCard
         title="Mortality Count"
-        value="2"
+        value={stats.mortalityCount || 0}
         trend="2"
         isUp={true}
         color="indigo"
