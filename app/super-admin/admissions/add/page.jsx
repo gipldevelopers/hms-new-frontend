@@ -197,6 +197,7 @@ function AddAdmissionForm() {
       if (ampm === 'AM' && hours === 12) hours = 0;
       combinedDateTime.setHours(hours, minutes);
 
+      const { admissionTime, ...payload } = formData;
       const res = await fetch(`/api/admissions?branchId=${branchId}`, {
         method: "POST",
         headers: { 
@@ -204,7 +205,7 @@ function AddAdmissionForm() {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          ...formData,
+          ...payload,
           branchId,
           admissionDate: combinedDateTime.toISOString()
         })

@@ -309,6 +309,7 @@ export default function AddAdmissionPage() {
       if (ampm === 'AM' && hours === 12) hours = 0;
       combinedDateTime.setHours(hours, minutes);
 
+      const { admissionTime, ...payload } = formData;
       const res = await fetch("/api/admissions", {
         method: "POST",
         headers: { 
@@ -316,7 +317,8 @@ export default function AddAdmissionPage() {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          ...formData,
+          ...payload,
+          patientId: selectedPatient?.id || undefined,
           admissionDate: combinedDateTime.toISOString()
         })
       });

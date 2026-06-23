@@ -240,10 +240,11 @@ export default function EditAdmissionPage() {
       if (ampm === 'AM' && hours === 12) hours = 0;
       combinedDateTime.setHours(hours, minutes);
 
+      const { admissionTime, ...payload } = formData;
       const res = await fetch(`/api/admissions/${admissionId}`, {
         method: "PATCH",
         headers: { "Authorization": `Bearer ${token}`, "Content-Type": "application/json" },
-        body: JSON.stringify({ ...formData, admissionDate: combinedDateTime.toISOString() })
+        body: JSON.stringify({ ...payload, admissionDate: combinedDateTime.toISOString() })
       });
 
       if (res.ok) {
