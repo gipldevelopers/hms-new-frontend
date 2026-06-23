@@ -55,7 +55,7 @@ export default function Header({
     return () => window.removeEventListener("click", handleClickOutside);
   }, [isNotificationsOpen, isProfileOpen]);
 
-  const notifications = [
+  const [notifications, setNotifications] = React.useState([
     {
       id: 1,
       title: "New patient registered",
@@ -80,7 +80,39 @@ export default function Header({
       desc: "New login from unauthorized device",
       time: "Yesterday",
     },
-  ];
+  ]);
+
+  React.useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+        const token = localStorage.getItem("authtoken");
+        if (storedUser.role === "DOCTOR" && token) {
+          const res = await fetch("/api/doctor-opd/alerts", {
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
+          });
+          const json = await res.json();
+          if (json.success && json.data) {
+            const mapped = json.data.map(alert => ({
+              id: alert.id,
+              title: alert.type || "Critical Alert",
+              desc: `${alert.patientName}: ${alert.description}`,
+              time: alert.time || "Just now"
+            }));
+            setNotifications(mapped);
+          }
+        }
+      } catch (err) {
+        console.error("Failed to fetch header notifications:", err);
+      }
+    };
+
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 15000); // refresh every 15s
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <header className="w-full bg-white dark:bg-[#101935] px-4 md:px-6 h-[72px] flex items-center justify-between border-b border-[#E7E8EB] dark:border-white/10 z-[30] flex-shrink-0 transition-all">
@@ -129,7 +161,9 @@ export default function Header({
             className="w-9 h-9 md:w-10 md:h-10 rounded-full border border-[#E7E8EB] dark:border-white/10 bg-white dark:bg-[#101935] text-slate-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-[#1e293b] relative"
           >
             <Bell className="w-[17px] h-[17px] md:w-[18px] md:h-[18px]" />
-            <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-primary border-2 border-white dark:border-[#101935] rounded-full"></span>
+            {notifications.length > 0 && (
+              <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-primary border-2 border-white dark:border-[#101935] rounded-full"></span>
+            )}
           </Button>
 
           {isNotificationsOpen && (
@@ -142,13 +176,21 @@ export default function Header({
                   Recent Notifications
                 </span>
                 <span className="text-[10px] font-bold bg-primary/10 dark:bg-primary/20 text-primary dark:text-primary px-2 py-0.5 rounded-full">
-                  4 New
+                  {notifications.length} New
                 </span>
               </div>
               <div className="max-h-[320px] overflow-y-auto no-scrollbar">
                 {notifications.map((n) => (
                   <div
                     key={n.id}
+                    onClick={() => {
+                      if (String(n.id).startsWith("critical-") || String(n.id).startsWith("vital-") || String(n.id).startsWith("task-") || String(n.id).startsWith("admission-")) {
+                        router.push(`/doctor/alerts/${n.id}`);
+                      } else {
+                        router.push("/doctor/alerts");
+                      }
+                      setIsNotificationsOpen(false);
+                    }}
                     className="p-4 border-b border-[#E7E8EB] dark:border-white/5 hover:bg-gray-50 dark:hover:bg-white/[0.02] cursor-pointer transition-colors group"
                   >
                     <p className="text-[12px] font-bold text-[#101935] dark:text-white leading-tight group-hover:text-primary transition-colors">
@@ -164,7 +206,16 @@ export default function Header({
                 ))}
               </div>
               <div className="p-3 text-center border-t border-[#E7E8EB] dark:border-white/10">
-                <button className="text-[11px] font-bold text-primary dark:text-primary hover:underline tracking-tighter">
+                <button
+                  onClick={() => {
+                    const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+                    if (storedUser.role === "DOCTOR") {
+                      router.push("/doctor/alerts");
+                    }
+                    setIsNotificationsOpen(false);
+                  }}
+                  className="text-[11px] font-bold text-primary dark:text-primary hover:underline tracking-tighter"
+                >
                   View All Updates
                 </button>
               </div>

@@ -1,10 +1,12 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { CriticalValuesHeader } from "@/components/laboratory/critical-values/CriticalValuesHeader";
 import { CriticalValuesFilters } from "@/components/laboratory/critical-values/CriticalValuesFilters";
 import { CriticalValuesList } from "@/components/laboratory/critical-values/CriticalValuesList";
 import { AcknowledgeCriticalModal } from "@/components/laboratory/critical-values/AcknowledgeCriticalModal";
+import { ReportCriticalModal } from "@/components/laboratory/critical-values/ReportCriticalModal";
 import { AnimatePresence } from "framer-motion";
+import { toast } from "sonner";
 
 const INITIAL_CRITICAL_ALERTS = [
   {
@@ -110,29 +112,119 @@ const INITIAL_CRITICAL_ALERTS = [
 ];
 
 export default function CriticalValuesPage() {
-  const [alerts, setAlerts] = useState(INITIAL_CRITICAL_ALERTS);
+  const [alerts, setAlerts] = useState([]);
   const [activeTab, setActiveTab] = useState("unacknowledged");
   const [selectedDate, setSelectedDate] = useState("today");
   const [selectedDept, setSelectedDept] = useState("all");
   const [selectedAcknowledgeAlert, setSelectedAcknowledgeAlert] = useState(null);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-  const handleUpdateAlert = (updatedItem) => {
-    setAlerts((prev) =>
-      prev.map((item) => (item.id === updatedItem.id ? updatedItem : item))
-    );
+  const handleReportCritical = async (newData) => {
+    try {
+      const token = localStorage.getItem("authtoken");
+      const res = await fetch("/api/laboratory/critical-values", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(newData)
+      });
+      const json = await res.json();
+      if (json.success) {
+        toast.success("Critical value reported successfully.");
+        fetchAlerts();
+      } else {
+        toast.error(json.message || "Failed to report critical value.");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Error reporting critical value.");
+    }
   };
 
-  const handleConfirmAcknowledge = () => {
+  const fetchAlerts = async () => {
+    try {
+      setLoading(true);
+      const token = localStorage.getItem("authtoken");
+      const res = await fetch("/api/laboratory/critical-values", {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      const json = await res.json();
+      if (json.success) {
+        setAlerts(json.data);
+      } else {
+        toast.error(json.message || "Failed to fetch critical values.");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Error connecting to server.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAlerts();
+  }, []);
+
+  const handleUpdateAlert = async (updatedItem) => {
+    try {
+      const token = localStorage.getItem("authtoken");
+      const res = await fetch(`/api/laboratory/critical-values/${updatedItem.id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(updatedItem)
+      });
+      const json = await res.json();
+      if (json.success) {
+        toast.success("Critical value updated successfully.");
+        fetchAlerts();
+      } else {
+        toast.error(json.message || "Failed to update critical value.");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Error updating critical value.");
+    }
+  };
+
+  const handleConfirmAcknowledge = async () => {
     if (!selectedAcknowledgeAlert) return;
     const nurse = selectedAcknowledgeAlert.notifiedNurse || "Nurse Clara";
     const time = selectedAcknowledgeAlert.notifiedTime || "09:45 AM";
 
-    handleUpdateAlert({
-      ...selectedAcknowledgeAlert,
-      status: "acknowledged",
-      acknowledgedBy: nurse,
-      acknowledgedTime: time
-    });
+    try {
+      const token = localStorage.getItem("authtoken");
+      const res = await fetch(`/api/laboratory/critical-values/${selectedAcknowledgeAlert.id}/acknowledge`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          acknowledgedBy: nurse,
+          acknowledgedTime: time
+        })
+      });
+      const json = await res.json();
+      if (json.success) {
+        toast.success("Critical value acknowledged successfully.");
+        fetchAlerts();
+        setSelectedAcknowledgeAlert(null);
+      } else {
+        toast.error(json.message || "Failed to acknowledge critical value.");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Error acknowledging critical value.");
+    }
   };
 
   // Derived filter logic
@@ -150,10 +242,18 @@ export default function CriticalValuesPage() {
   const unacknowledgedCount = alerts.filter((item) => item.status === "unacknowledged").length;
   const acknowledgedCount = alerts.filter((item) => item.status === "acknowledged").length;
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-[20px] bg-background text-foreground min-h-screen space-y-[20px] font-sans transition-colors duration-300">
       {/* Header section */}
-      <CriticalValuesHeader unacknowledgedCount={unacknowledgedCount} />
+      <CriticalValuesHeader unacknowledgedCount={unacknowledgedCount} onReportClick={() => setIsReportModalOpen(true)} />
 
       {/* Tabs and Filters */}
       <CriticalValuesFilters
@@ -182,6 +282,13 @@ export default function CriticalValuesPage() {
             alertItem={selectedAcknowledgeAlert}
             onClose={() => setSelectedAcknowledgeAlert(null)}
             onConfirm={handleConfirmAcknowledge}
+          />
+        )}
+        {isReportModalOpen && (
+          <ReportCriticalModal
+            isOpen={isReportModalOpen}
+            onClose={() => setIsReportModalOpen(false)}
+            onSave={handleReportCritical}
           />
         )}
       </AnimatePresence>

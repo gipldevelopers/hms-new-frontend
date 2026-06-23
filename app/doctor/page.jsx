@@ -48,6 +48,31 @@ export default function DoctorDashboard() {
 
   useEffect(() => {
     fetchDashboardData();
+    const interval = setInterval(() => {
+      // Fetch fresh data in the background silently
+      const fetchSilent = async () => {
+        try {
+          const token = localStorage.getItem("authtoken");
+          const res = await fetch(`${API_BASE}/doctor-opd/dashboard`, {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          if (res.ok) {
+            const resData = await res.json();
+            if (resData.success) {
+              setData(resData.data);
+            }
+          }
+        } catch (err) {
+          console.error("Dashboard background refresh failed:", err);
+        }
+      };
+      fetchSilent();
+    }, 5000); // refresh dashboard data every 5 seconds
+
+    return () => clearInterval(interval);
   }, [fetchDashboardData]);
 
   const handleAlertAction = useCallback((alert) => {
@@ -60,6 +85,8 @@ export default function DoctorDashboard() {
           alerts: prev.alerts.filter(a => a !== alert)
         };
       });
+    } else if (alert.path) {
+      window.location.href = alert.path;
     } else if (alert.status === "VIEW TASK" || alert.status === "VIEW RESULTS") {
       // Route appropriately
       window.location.href = alert.status === "VIEW TASK" ? "/doctor/schedule" : "/doctor/reports";
