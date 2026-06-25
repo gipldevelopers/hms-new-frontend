@@ -158,6 +158,20 @@ const CollectPaymentModal = ({ isOpen, onClose, invoice, onConfirm }) => {
   if (!invoice) return null;
 
   const handleConfirm = async () => {
+    const amt = parseFloat(payingAmount);
+    if (isNaN(amt) || amt <= 0) {
+      setError("Please enter a valid paying amount greater than 0.");
+      return;
+    }
+    const dueVal = parseFloat(invoice.dueAmount ? invoice.dueAmount.replace(/[^\d.]/g, "") : "0") || 0;
+    if (amt > dueVal) {
+      setError(`Paying amount cannot exceed the due amount (₹${dueVal.toFixed(2)}).`);
+      return;
+    }
+    if (transactionId && transactionId.trim().length > 100) {
+      setError("Transaction reference cannot exceed 100 characters.");
+      return;
+    }
     try {
       setLoading(true);
       setError(null);
@@ -165,9 +179,9 @@ const CollectPaymentModal = ({ isOpen, onClose, invoice, onConfirm }) => {
         method: "POST",
         headers: getAuthHeaders(),
         body: JSON.stringify({
-          amount: parseFloat(payingAmount) || 0,
+          amount: amt,
           paymentMethod,
-          transactionId: transactionId || null,
+          transactionId: transactionId ? transactionId.trim() : null,
           notes: "Collected via billing dashboard"
         })
       });
@@ -488,16 +502,29 @@ const ProcessRefundModal = ({ isOpen, onClose, invoice, onConfirm }) => {
   const paidAmt   = invoice.totalAmount  || "₹0.00";
 
   const handleConfirm = async () => {
+    const amount = parseFloat(refundAmt.replace(/[^\d.]/g, "")) || 0;
+    if (isNaN(amount) || amount <= 0) {
+      setError("Please enter a valid refund amount greater than 0.");
+      return;
+    }
+    const fullReason = `${reason}${notes ? ` - ${notes}` : ""}`.trim();
+    if (!fullReason) {
+      setError("Please select or write a refund reason.");
+      return;
+    }
+    if (fullReason.length > 500) {
+      setError(`Refund reason/notes are too long (${fullReason.length}/500 characters). Please shorten the notes.`);
+      return;
+    }
     try {
       setLoading(true);
       setError(null);
-      const amount = parseFloat(refundAmt.replace(/[^\d.]/g, "")) || 0;
       const res = await fetch(`${API_BASE}/billing/${invoice.billId}/refunds`, {
         method: "POST",
         headers: getAuthHeaders(),
         body: JSON.stringify({
           amount,
-          reason: `${reason}${notes ? ` - ${notes}` : ""}`,
+          reason: fullReason,
           paymentMethod: refundMethod
         })
       });

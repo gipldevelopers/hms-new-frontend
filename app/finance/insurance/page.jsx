@@ -481,15 +481,43 @@ export default function InsurancePage() {
 
   const handleNewClaimSubmit = async (e) => {
     e.preventDefault();
+    
+    const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+    if (!uuidRegex.test(newUHID)) {
+      alert("Please enter a valid Patient UUID (e.g., xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx).");
+      return;
+    }
+    const amt = parseFloat(newAmount);
+    if (isNaN(amt) || amt <= 0) {
+      alert("Please enter a valid claim amount greater than 0.");
+      return;
+    }
+    if (!newProvider || !newProvider.trim()) {
+      alert("Please select or enter an insurance provider.");
+      return;
+    }
+    if (!newPolicy || !newPolicy.trim()) {
+      alert("Please enter a policy number.");
+      return;
+    }
+    if (newPolicy.length > 100) {
+      alert("Policy ID cannot exceed 100 characters.");
+      return;
+    }
+    if (newDiagnostics && newDiagnostics.length > 1000) {
+      alert("Diagnostics details cannot exceed 1000 characters.");
+      return;
+    }
+
     try {
       const payload = {
         billId: "placeholder",
-        patientId: newUHID || "P-882999",
+        patientId: newUHID,
         insuranceProvider: newProvider,
-        policyNumber: newPolicy || "POL-GEN-1029",
+        policyNumber: newPolicy,
         cardNumber: "CRD-GEN-1029",
-        preAuthAmount: parseFloat(newAmount) * 0.8 || 0,
-        claimAmount: parseFloat(newAmount) || 0,
+        preAuthAmount: amt * 0.8,
+        claimAmount: amt,
         notes: newDiagnostics || "General Medical Care"
       };
 
