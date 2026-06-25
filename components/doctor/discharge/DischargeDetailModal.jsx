@@ -5,7 +5,7 @@ import { X, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function DischargeDetailModal({ isOpen, onClose, data }) {
+export default function DischargeDetailModal({ isOpen, onClose, data, onApprove, onReject }) {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -23,8 +23,7 @@ export default function DischargeDetailModal({ isOpen, onClose, data }) {
   const checklist = [
     "Final Vitals Checked",
     "Medications Explained",
-    "Reports Attached",
-    "Billing Cleared"
+    "Reports Attached"
   ];
 
   return (
@@ -52,7 +51,7 @@ export default function DischargeDetailModal({ isOpen, onClose, data }) {
             <div className="p-5 md:p-6 pb-4 flex justify-between items-start sticky top-0 bg-card z-10 border-b border-border/10">
               <div className="space-y-2">
                 <h2 className="text-[20px] md:text-[24px] font-bold text-foreground leading-tight">
-                  {data?.patient || "John Doe"}
+                  {data?.patientName || data?.patient || "John Doe"}
                 </h2>
                 <span className="inline-block px-3 py-1 rounded-lg text-[10px] font-bold tracking-wider bg-orange-50 dark:bg-orange-500/10 text-orange-600 border border-orange-100 dark:border-orange-500/20 uppercase">
                   Pending Discharge
@@ -68,15 +67,19 @@ export default function DischargeDetailModal({ isOpen, onClose, data }) {
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                 <div className="space-y-1">
                   <p className="text-[10px] font-bold text-muted-foreground tracking-wider uppercase">AGE / GENDER</p>
-                  <p className="text-[13px] md:text-[14px] font-bold text-foreground">45 yrs • Male</p>
+                  <p className="text-[13px] md:text-[14px] font-bold text-foreground">
+                    {data?.patientAge || data?.age || "45"} yrs • {data?.patientGender || data?.gender || "Male"}
+                  </p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-[10px] font-bold text-muted-foreground tracking-wider uppercase">UHID</p>
-                  <p className="text-[13px] md:text-[14px] font-bold text-foreground">UH10294</p>
+                  <p className="text-[13px] md:text-[14px] font-bold text-foreground">{data?.patientId?.slice(0, 8) || "UH10294"}</p>
                 </div>
                 <div className="space-y-1 col-span-2 sm:col-span-1">
                   <p className="text-[10px] font-bold text-muted-foreground tracking-wider uppercase">WARD / BED</p>
-                  <p className="text-[13px] md:text-[14px] font-bold text-foreground">{data?.ward || "Ward A - B12"}</p>
+                  <p className="text-[13px] md:text-[14px] font-bold text-foreground">
+                    {data?.wardName || data?.ward?.name || "General Ward"} - {data?.bedLabel || data?.bed?.label || "Bed"}
+                  </p>
                 </div>
               </div>
 
@@ -84,11 +87,13 @@ export default function DischargeDetailModal({ isOpen, onClose, data }) {
               <div className="bg-muted/30 border border-border rounded-lg p-4 md:p-5 grid grid-cols-1 sm:grid-cols-2 gap-y-5 gap-x-4">
                 <div className="space-y-1">
                   <p className="text-[10px] font-bold text-muted-foreground tracking-wider uppercase">DIAGNOSIS</p>
-                  <p className="text-[13px] md:text-[14px] font-bold text-foreground">{data?.diagnosis || "Pneumonia"}</p>
+                  <p className="text-[13px] md:text-[14px] font-bold text-foreground">{data?.diagnosis || data?.reason || "Pneumonia"}</p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-[10px] font-bold text-muted-foreground tracking-wider uppercase">ADMISSION DATE</p>
-                  <p className="text-[13px] md:text-[14px] font-bold text-foreground">{data?.date || "Oct 12, 2023"}</p>
+                  <p className="text-[13px] md:text-[14px] font-bold text-foreground">
+                    {data?.date || (data?.admissionDate ? new Date(data.admissionDate).toLocaleDateString() : "Oct 12, 2023")}
+                  </p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-[10px] font-bold text-muted-foreground tracking-wider uppercase">TREATMENT STATUS</p>
@@ -149,13 +154,14 @@ export default function DischargeDetailModal({ isOpen, onClose, data }) {
               <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
                 <button 
                   type="button"
-                  onClick={onClose}
+                  onClick={() => onReject && onReject(data)}
                   className="w-full sm:flex-1 md:w-auto h-10 px-5 rounded-lg border border-red-200 text-red-500 text-[13px] font-bold hover:bg-red-50 dark:hover:bg-red-500/10 transition-all shadow-none"
                 >
                   Reject Request
                 </button>
                 <button 
                   type="button"
+                  onClick={() => onApprove && onApprove(data)}
                   className="w-full sm:flex-1 md:w-auto h-10 px-5 rounded-lg bg-[#2E37A4] text-white text-[13px] font-bold hover:opacity-90 transition-all shadow-none"
                 >
                   Approve Discharge

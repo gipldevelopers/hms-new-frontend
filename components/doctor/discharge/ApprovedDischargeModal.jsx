@@ -23,9 +23,61 @@ export default function ApprovedDischargeModal({ isOpen, onClose, data }) {
   const checklist = [
     "Final Vitals Checked",
     "Medications Explained",
-    "Reports Attached",
-    "Billing Cleared"
+    "Reports Attached"
   ];
+
+  const handleDownload = () => {
+    if (!data) return;
+    
+    const age = data.rawAdmission?.patient?.age || "32";
+    const gender = data.rawAdmission?.patient?.gender || "Female";
+    const uhid = data.rawAdmission?.patientId?.slice(0, 8) || "UH10295";
+    const diagnosis = data.diagnosis || data.reason || "Appendicitis";
+    const date = data.date || (data.rawAdmission?.admissionDate ? new Date(data.rawAdmission.admissionDate).toLocaleDateString() : "Oct 12, 2023");
+    const dischargeDate = data.rawAdmission?.dischargeDate ? new Date(data.rawAdmission.dischargeDate).toLocaleString() : "Oct 16, 2023, 10:45 AM";
+    const doctor = data.requestedBy || "Dr. Patel";
+
+    const content = `==================================================
+        PATIENT DISCHARGE SUMMARY (APPROVED)
+==================================================
+Patient Name:    ${data.patient || "Alice Smith"}
+Age/Gender:      ${age} yrs • ${gender}
+UHID:            ${uhid}
+Ward / Bed:      ${data.ward || "ICU - A03"}
+Diagnosis:       ${diagnosis}
+Admission Date:  ${date}
+Discharged On:   ${dischargeDate}
+Approved By:     ${doctor}
+Status:          Discharged (Recovered)
+
+Discharge Checklist:
+- Final Vitals Checked: Checked
+- Medications Explained: Checked
+- Reports Attached: Checked
+
+Clinical Discharge Notes:
+Post-operative recovery excellent. Patient is fit for discharge with oral antibiotics.
+Follow-up Advice: Follow up in 1 week.
+==================================================
+`;
+
+    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `discharge_summary_${(data.patient || "patient").replace(/\s+/g, "_")}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
+  const formattedDischargeDate = data?.rawAdmission?.dischargeDate
+    ? new Date(data.rawAdmission.dischargeDate).toLocaleDateString()
+    : "Oct 16, 2023";
+  const formattedDischargeTime = data?.rawAdmission?.dischargeDate
+    ? new Date(data.rawAdmission.dischargeDate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    : "10:45 AM";
 
   return (
     <AnimatePresence>
@@ -74,7 +126,7 @@ export default function ApprovedDischargeModal({ isOpen, onClose, data }) {
                     Discharge Approved by {data?.requestedBy || "Dr. Patel"}
                   </p>
                   <p className="text-[11px] md:text-[12px] font-medium text-emerald-600/80 dark:text-emerald-400/60 truncate">
-                    on Oct 16, 2023 at 10:45 AM
+                    on {formattedDischargeDate} at {formattedDischargeTime}
                   </p>
                 </div>
               </div>
@@ -83,11 +135,15 @@ export default function ApprovedDischargeModal({ isOpen, onClose, data }) {
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                 <div className="space-y-1">
                   <p className="text-[10px] font-bold text-muted-foreground tracking-wider uppercase">AGE / GENDER</p>
-                  <p className="text-[13px] md:text-[14px] font-bold text-foreground leading-tight">32 yrs • Female</p>
+                  <p className="text-[13px] md:text-[14px] font-bold text-foreground leading-tight">
+                    {data?.rawAdmission?.patient?.age || "32"} yrs • {data?.rawAdmission?.patient?.gender || "Female"}
+                  </p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-[10px] font-bold text-muted-foreground tracking-wider uppercase">UHID</p>
-                  <p className="text-[13px] md:text-[14px] font-bold text-foreground leading-tight">UH10295</p>
+                  <p className="text-[13px] md:text-[14px] font-bold text-foreground leading-tight">
+                    {data?.rawAdmission?.patientId?.slice(0, 8) || "UH10295"}
+                  </p>
                 </div>
                 <div className="space-y-1 col-span-2 sm:col-span-1">
                   <p className="text-[10px] font-bold text-muted-foreground tracking-wider uppercase">WARD / BED</p>
@@ -147,6 +203,7 @@ export default function ApprovedDischargeModal({ isOpen, onClose, data }) {
               </button>
               <button 
                 type="button"
+                onClick={handleDownload}
                 className="w-full sm:w-auto h-11 px-6 rounded-lg bg-[#2E37A4] text-white text-[13px] font-bold hover:opacity-90 transition-all shadow-none"
               >
                 Download Summary
