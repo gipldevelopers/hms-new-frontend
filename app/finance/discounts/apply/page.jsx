@@ -102,19 +102,28 @@ export default function ApplyDiscountPage() {
       return;
     }
     const pct = parseFloat(form.percentage) || 0;
-    if (pct <= 0 || pct > 100) {
+    if (isNaN(pct) || pct <= 0 || pct > 100) {
       alert("Please enter a valid discount percentage (between 0.1% and 100%).");
       return;
     }
+    if (!form.reason || !form.reason.trim()) {
+      alert("Please enter a reason or remarks for the discount request.");
+      return;
+    }
+    
+    // Prepend category to the reason
+    const reasonWithCategory = `[${form.discountType}] ${form.reason.trim()}`;
+    if (reasonWithCategory.length > 500) {
+      alert(`Reason is too long (${reasonWithCategory.length}/500 characters, including the category tag). Please shorten it.`);
+      return;
+    }
+
     const billTotal = parseFloat(selectedBill.totalAmount.replace(/[^\d.]/g, "")) || 0;
     const discountAmount = (billTotal * pct) / 100;
 
     try {
       setSubmitting(true);
       setError(null);
-
-      // Prepend category to the reason
-      const reasonWithCategory = `[${form.discountType}] ${form.reason}`;
 
       const body = {
         billId: selectedBill.billId,
