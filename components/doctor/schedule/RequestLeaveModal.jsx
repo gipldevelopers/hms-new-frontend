@@ -30,7 +30,35 @@ export default function RequestLeaveModal({ isOpen, onClose, onLeaveAdded }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!date) {
-      setError("Date is required.");
+      setError("Leave Date is required.");
+      return;
+    }
+    if (!startTime || startTime.trim() === "") {
+      setError("Start Time is required.");
+      return;
+    }
+    if (startTime.length > 50) {
+      setError("Start Time must be 50 characters or less.");
+      return;
+    }
+    if (!endTime || endTime.trim() === "") {
+      setError("End Time is required.");
+      return;
+    }
+    if (endTime.length > 50) {
+      setError("End Time must be 50 characters or less.");
+      return;
+    }
+    if (!department || department.trim() === "") {
+      setError("Department is required.");
+      return;
+    }
+    if (department.length > 100) {
+      setError("Department must be 100 characters or less.");
+      return;
+    }
+    if (notes && notes.length > 500) {
+      setError("Reason / Notes must be 500 characters or less.");
       return;
     }
     setError("");
