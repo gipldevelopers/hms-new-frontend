@@ -123,8 +123,34 @@ function AddMedicineModal({ onClose, onAdd, prescriptionId }) {
       alert("Please wait — creating prescription first...");
       return;
     }
-    if (!formData.medicineName) {
+    if (!formData.medicineName || formData.medicineName.trim() === "") {
       alert("Please select or enter a medicine name");
+      return;
+    }
+    if (formData.medicineName.length > 200) {
+      alert("Medicine name must be 200 characters or less");
+      return;
+    }
+    if (!formData.dosage || formData.dosage.trim() === "") {
+      alert("Dosage is required");
+      return;
+    }
+    if (formData.dosage.length > 100) {
+      alert("Dosage must be 100 characters or less");
+      return;
+    }
+    const timingStr = `${formData.frequency} (${formData.timing})`;
+    if (timingStr.length > 200) {
+      alert("Timing details must be 200 characters or less");
+      return;
+    }
+    const durationStr = `${formData.duration} ${formData.durationType}`;
+    if (durationStr.length > 100) {
+      alert("Duration must be 100 characters or less");
+      return;
+    }
+    if (formData.instructions && formData.instructions.length > 500) {
+      alert("Instructions must be 500 characters or less");
       return;
     }
     setSaving(true);
@@ -547,6 +573,31 @@ export default function ConsultationPage() {
   const saveTimer = useRef(null);
   const saveConsultation = useCallback(async (status = "IN_PROGRESS") => {
     if (!appointmentId) return;
+    if (chiefComplaints && chiefComplaints.length > 1000) {
+      alert("Chief Complaints must be 1000 characters or less");
+      return;
+    }
+    if (clinicalHistory && clinicalHistory.length > 1000) {
+      alert("Clinical History must be 1000 characters or less");
+      return;
+    }
+    const finalDiagnosisStr = diagnoses.join(", ");
+    if (finalDiagnosisStr && finalDiagnosisStr.length > 500) {
+      alert("Diagnoses details must be 500 characters or less");
+      return;
+    }
+    if (labTests && labTests.some(t => t.name && t.name.length > 200)) {
+      alert("Lab test name must be 200 characters or less");
+      return;
+    }
+    if (instructions && instructions.length > 1000) {
+      alert("Instructions must be 1000 characters or less");
+      return;
+    }
+    if (referral && referral.length > 200) {
+      alert("Referral details must be 200 characters or less");
+      return;
+    }
     setSaving(true);
     try {
       const res = await fetch(`${API_BASE}/doctor-opd/consultation/${appointmentId}`, {
