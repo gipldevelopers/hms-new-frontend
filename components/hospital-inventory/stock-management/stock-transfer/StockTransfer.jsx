@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { Calendar } from "lucide-react";
+import { API_URL } from "@/lib/api";
 
 export function StockTransfer({ slugs = [] }) {
   const router = useRouter();
@@ -37,7 +38,7 @@ export function StockTransfer({ slugs = [] }) {
       setParamsProcessed(true);
     }
   }, []);
-  
+
   // Success Popup state
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [successDetails, setSuccessDetails] = useState({ from: "", to: "" });
@@ -73,7 +74,7 @@ export function StockTransfer({ slugs = [] }) {
 
       // 1. Fetch available items based on fromDept
       const isDept = fromDept !== "Central Store" && fromDept !== "Central Pharmacy";
-      const endpoint = isDept 
+      const endpoint = isDept
         ? `${API_URL}/department-inventory?branchId=${branchId}`
         : `${API_URL}/stock-inventory?branchId=${branchId}`;
 
@@ -145,8 +146,8 @@ export function StockTransfer({ slugs = [] }) {
 
         if (queryItemId || querySku) {
           // 1. Try to find directly in availableItems (by ID or SKU)
-          let matched = availableItems.find(x => 
-            x.id === queryItemId || 
+          let matched = availableItems.find(x =>
+            x.id === queryItemId ||
             (querySku && x.sku === querySku) ||
             x.sku === queryItemId
           );
@@ -170,7 +171,7 @@ export function StockTransfer({ slugs = [] }) {
                 if (json.success && json.data) {
                   const resolvedItem = json.data;
                   matched = availableItems.find(x => x.sku === resolvedItem.sku);
-                  
+
                   if (!matched) {
                     matched = {
                       id: resolvedItem.id,
@@ -215,6 +216,21 @@ export function StockTransfer({ slugs = [] }) {
   const handleQtyChange = (id, val) => {
     const numericVal = parseInt(val) || 0;
     setItems(items.map(item => item.id === id ? { ...item, qty: numericVal } : item));
+  };
+
+  const handleAddItem = (itemId) => {
+    if (!itemId) return;
+    const matched = availableItems.find(x => String(x.id) === String(itemId));
+    if (matched && !items.some(x => x.id === matched.id)) {
+      setItems([...items, {
+        id: matched.id,
+        name: matched.name,
+        sku: matched.sku,
+        batch: matched.sku,
+        stock: matched.qty,
+        qty: 1
+      }]);
+    }
   };
 
   // Submit transfer to backend
@@ -445,6 +461,33 @@ export function StockTransfer({ slugs = [] }) {
               </div>
             </div>
 
+            {/* Choose Item to Transfer */}
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-extrabold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Choose Item to Transfer</label>
+              <select
+                onChange={(e) => {
+                  handleAddItem(e.target.value);
+                  e.target.value = "";
+                }}
+                defaultValue=""
+                className="w-full h-10 px-3 bg-white dark:bg-[#0f172a] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-semibold text-slate-700 dark:text-slate-200 outline-none focus:border-[#2E37A4] transition-all cursor-pointer"
+              >
+                <option value="" disabled>Select an item from inventory...</option>
+                {availableItems.map((item) => {
+                  const alreadyAdded = items.some(x => x.id === item.id);
+                  return (
+                    <option
+                      key={item.id}
+                      value={item.id}
+                      disabled={alreadyAdded}
+                    >
+                      {item.name} ({item.sku}) - Stock: {item.qty} {alreadyAdded ? "(Already Added)" : ""}
+                    </option>
+                  );
+                })}
+              </select>
+            </div>
+
 
 
             {/* Selected Items */}
@@ -586,13 +629,13 @@ export function StockTransfer({ slugs = [] }) {
 
       {/* Success Modal */}
       {mounted && showSuccessModal && createPortal(
-        <div 
+        <div
           className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/80 backdrop-blur-[0.5px]"
           style={{ backdropFilter: "blur(0.5px)" }}
         >
           <div className="relative w-full max-w-[440px] bg-white dark:bg-[#1e293b] rounded-[16px] shadow-2xl border border-slate-100 dark:border-slate-800 p-8 flex flex-col items-center text-center animate-in fade-in zoom-in-95 duration-200">
             {/* Close Button */}
-            <button 
+            <button
               onClick={() => setShowSuccessModal(false)}
               className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors cursor-pointer"
             >

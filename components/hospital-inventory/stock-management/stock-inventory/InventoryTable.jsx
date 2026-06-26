@@ -235,7 +235,7 @@ export function InventoryTable({ items = [], setItems, onViewItem, triggerAddMod
     return matchesSearch && matchesCategory && matchesStatus;
   });
 
-  const categories = ["All", "Anesthetics", "Surgical Supplies", "Antibiotics", "Intravenous Fluids", "Analgesics", "PPE", "Anticoagulants"];
+  const categories = ["All", "Anesthetics & Sedatives", "Surgical Supplies", "Antibiotics", "Intravenous Fluids", "Analgesics", "PPE", "Anticoagulants"];
   const statuses = ["All", "In Stock", "Low", "Out of Stock"];
 
   const handleExportExcel = () => {
@@ -342,7 +342,7 @@ export function InventoryTable({ items = [], setItems, onViewItem, triggerAddMod
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <input
             type="text"
-            placeholder="Search Patient name / Order ID..."
+            placeholder="Search item name, SKU, or supplier..."
             className="w-full h-10 pl-11 pr-4 bg-[#F8F9FC] dark:bg-[#0A0F1D] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-medium outline-none focus:border-[#2E37A4] transition-all text-foreground"
             value={search}
             onChange={(e) => setSearch(e.target.value)}

@@ -1,11 +1,28 @@
 "use client";
 
 import React, { useState } from "react";
-import { ArrowLeft, Box, AlertTriangle, Layers, IndianRupee, ChevronRight, Info } from "lucide-react";
+import { ArrowLeft, Box, AlertTriangle, Layers, IndianRupee, ChevronRight, Info, Plus, ArrowLeftRight, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { API_URL } from "@/lib/api";
+import { toast } from "sonner";
+import { createPortal } from "react-dom";
 
-export function ItemDetailView({ item, onBack, onTransferStock }) {
+export function ItemDetailView({ item, onBack, onTransferStock, onRefreshDetails }) {
   if (!item) return null;
+
+  const [mounted, setMounted] = useState(false);
+  const [isAdjustOpen, setIsAdjustOpen] = useState(false);
+  const [adjustData, setAdjustData] = useState({
+    type: "Addition",
+    qtyChanged: "",
+    notes: ""
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
 
   React.useEffect(() => {
     window.scrollTo({ top: 0, behavior: "instant" });
@@ -14,6 +31,58 @@ export function ItemDetailView({ item, onBack, onTransferStock }) {
       container.scrollTop = 0;
     });
   }, [item]);
+
+  const handleAdjustSubmit = async (e) => {
+    e.preventDefault();
+    const qty = parseFloat(adjustData.qtyChanged);
+    if (isNaN(qty) || qty <= 0) {
+      toast.error("Quantity changed must be a positive number.");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      const token = localStorage.getItem("authtoken");
+      const userStr = localStorage.getItem("user");
+      if (!token || !userStr) {
+        toast.error("Session expired.");
+        return;
+      }
+      const user = JSON.parse(userStr);
+      const branchId = user.branchId;
+
+      const payload = {
+        qtyChanged: qty,
+        type: adjustData.type,
+        notes: adjustData.notes
+      };
+
+      const res = await fetch(`${API_URL}/stock-inventory/${item.id}/stock?branchId=${branchId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const result = await res.json();
+      if (result.success) {
+        toast.success("Stock adjusted successfully!");
+        setIsAdjustOpen(false);
+        setAdjustData({ type: "Addition", qtyChanged: "", notes: "" });
+        window.dispatchEvent(new Event("refresh-inventory"));
+        if (onRefreshDetails) onRefreshDetails();
+      } else {
+        toast.error(result.error || "Failed to adjust stock.");
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error("Network error. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   // Mock standard values based on Propofol if details are missing
   const skuCode = item.sku || "ITM-90234";
@@ -26,8 +95,8 @@ export function ItemDetailView({ item, onBack, onTransferStock }) {
   // Format numbers nicely with commas
   const formatNumber = (num) => {
     if (!num) return "0";
-    const cleaned = String(num).replace(/,/g, "");
-    return Number(cleaned).toLocaleString("en-IN");
+    const parsed = parseFloat(String(num).replace(/,/g, ""));
+    return isNaN(parsed) ? "0" : parsed.toLocaleString("en-IN");
   };
 
   const currentQty = item.qty ? formatNumber(item.qty) : "3,100";
@@ -40,7 +109,8 @@ export function ItemDetailView({ item, onBack, onTransferStock }) {
   const unitPrice = parseFloat(item.unitPrice || 0).toFixed(2);
 
   return (
-    <div className="font-sans space-y-4">
+    <>
+      <div className="font-sans space-y-4">
 
       {/* TOP HEADER CONTAINER CARD */}
       <div className="bg-white dark:bg-[#1e293b] p-4 rounded-[5px] border border-[#e2e8f0] dark:border-[#334155] flex items-center justify-between shadow-none">
@@ -338,5 +408,91 @@ export function ItemDetailView({ item, onBack, onTransferStock }) {
 
 
     </div>
+
+      {/* -------------------- ADJUST STOCK MODAL -------------------- */}
+      {mounted && isAdjustOpen && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/80 backdrop-blur-[0.5px]">
+          <div className="relative w-full max-w-[480px] bg-white dark:bg-[#1e293b] border border-slate-150 dark:border-white/10 p-6 rounded-[8px] shadow-2xl z-10 flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex justify-between items-center pb-2 border-b border-slate-100 dark:border-white/10">
+              <h3 className="text-[16px] font-bold text-slate-800 dark:text-white">Adjust Stock: {itemName}</h3>
+              <button
+                onClick={() => setIsAdjustOpen(false)}
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-white transition-all cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <form onSubmit={handleAdjustSubmit} className="space-y-4">
+              <div className="space-y-4 bg-slate-50/50 dark:bg-slate-900/20 p-4 rounded-[6px] border border-slate-100 dark:border-slate-800">
+                
+                {/* Adjustment Type */}
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-slate-500 uppercase">Adjustment Type *</label>
+                  <select
+                    value={adjustData.type}
+                    onChange={(e) => setAdjustData({ ...adjustData, type: e.target.value })}
+                    className="w-full h-10 px-3 bg-white dark:bg-[#0f172a] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-semibold text-slate-700 dark:text-slate-200 outline-none focus:border-[#2E37A4] transition-all"
+                  >
+                    <option value="Addition">Addition (+)</option>
+                    <option value="Usage">Usage (-)</option>
+                  </select>
+                </div>
+
+                {/* Quantity Changed */}
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-slate-500 uppercase">Quantity Changed *</label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      min="1"
+                      placeholder="e.g. 50"
+                      value={adjustData.qtyChanged}
+                      onChange={(e) => setAdjustData({ ...adjustData, qtyChanged: e.target.value })}
+                      className="w-full h-10 px-3 border border-[#E2E8F0] dark:border-slate-700 bg-white dark:bg-[#0f172a] rounded-[5px] text-[13px] font-semibold outline-none focus:border-[#2E37A4] text-foreground"
+                      required
+                    />
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[12px] text-slate-400 font-bold">
+                      {unitOfMeasure}s
+                    </span>
+                  </div>
+                </div>
+
+                {/* Notes */}
+                <div className="space-y-1">
+                  <label className="text-[11px] font-bold text-slate-500 uppercase">Notes / Reason</label>
+                  <textarea
+                    rows={3}
+                    placeholder="e.g. Received new shipment from vendor, or broken ampoules discarded."
+                    value={adjustData.notes}
+                    onChange={(e) => setAdjustData({ ...adjustData, notes: e.target.value })}
+                    className="w-full p-3 bg-white dark:bg-[#0f172a] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-medium outline-none focus:border-[#2E37A4] text-foreground resize-none"
+                  />
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex items-center justify-end gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsAdjustOpen(false)}
+                  className="h-10 px-4 rounded-[5px] border border-rose-500 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 text-[12px] font-bold transition-all cursor-pointer bg-transparent"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="h-10 px-6 rounded-[5px] bg-[#2E37A4] hover:bg-[#232a7d] text-[12px] font-bold text-white transition-all cursor-pointer disabled:opacity-50"
+                >
+                  {isSubmitting ? "Adjusting..." : "Submit Adjustment"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>,
+        document.body
+      )}
+    </>
   );
 }
