@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { AlertCircle } from "lucide-react";
 
 // Expired dataset from mockup Image 1
-export function ExpiredBatches({ items = [], searchQuery = "", selectedCategory = "All", selectedRoom = "All" }) {
+export function ExpiredBatches({ items = [], searchQuery = "", selectedCategory = "All", selectedRoom = "All", onReturn }) {
   const router = useRouter();
   const filtered = items.filter(item => {
     if (selectedCategory !== "All" && item.category !== selectedCategory) return false;
@@ -87,6 +87,12 @@ export function ExpiredBatches({ items = [], searchQuery = "", selectedCategory 
                         className="w-[66px] h-[32px] flex items-center justify-center text-center text-[9px] font-bold leading-[1.1] bg-[#E0F2FE] hover:bg-[#BAE6FD] text-[#0369A1] dark:bg-[#0369A1]/20 dark:text-[#38BDF8] rounded-[4px] border border-[#BAE6FD] dark:border-[#0369A1]/30 transition-all cursor-pointer shadow-none"
                       >
                         Transfer<br />Usage
+                      </button>
+                      <button
+                        onClick={() => onReturn ? onReturn(item) : toast.success(`Initiating return to vendor for ${item.name}`)}
+                        className="w-[66px] h-[32px] flex items-center justify-center text-center text-[9px] font-bold leading-[1.1] bg-white hover:bg-slate-50 dark:bg-[#1e293b]/50 text-slate-500 dark:text-slate-400 rounded-[4px] border border-[#E2E8F0] dark:border-[#334155] hover:text-slate-700 dark:hover:text-white transition-all cursor-pointer"
+                      >
+                        Return<br />Vendor
                       </button>
                     </div>
                   </td>

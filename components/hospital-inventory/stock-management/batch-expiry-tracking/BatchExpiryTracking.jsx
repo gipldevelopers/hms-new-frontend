@@ -269,6 +269,7 @@ export function BatchExpiryTracking({ slugs = [] }) {
               searchQuery={searchQuery}
               selectedCategory={selectedCategory}
               selectedRoom={selectedRoom}
+              onReturn={setReturnItem}
             />
           ) : activePill === "Expiring in 30 Days" ? (
             <Expiring30Days 

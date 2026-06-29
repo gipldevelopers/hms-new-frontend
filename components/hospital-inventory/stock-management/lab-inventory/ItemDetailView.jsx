@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
-import { ChevronLeft, Plus, Download, RefreshCw, Send, Edit3 } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { ChevronLeft, Plus, Download, RefreshCw, Send, Edit3, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { createPortal } from "react-dom";
 
 const formatDateToDDMMYYYY = (dateStr) => {
   if (!dateStr) return "";
@@ -28,17 +29,25 @@ const formatDateToDDMMYYYY = (dateStr) => {
 };
 
 export function ItemDetailView({ item, onBack, onAddItem, onRefreshDetails }) {
+  const [mounted, setMounted] = useState(false);
+  const [isAdjustOpen, setIsAdjustOpen] = useState(false);
   const [adjustType, setAdjustType] = useState("Addition");
   const [adjustQty, setAdjustQty] = useState("");
   const [adjustNotes, setAdjustNotes] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
+
   if (!item) return null;
 
   const handleStockAdjustment = async (e) => {
     e.preventDefault();
-    if (!adjustQty || parseFloat(adjustQty) <= 0) {
-      toast.error("Please enter a valid quantity");
+    const qtyVal = parseFloat(adjustQty);
+    if (isNaN(qtyVal) || qtyVal <= 0) {
+      toast.error("Please enter a valid positive quantity");
       return;
     }
 
@@ -53,19 +62,20 @@ export function ItemDetailView({ item, onBack, onAddItem, onRefreshDetails }) {
         },
         body: JSON.stringify({
           type: adjustType,
-          qtyChanged: adjustQty,
+          qtyChanged: qtyVal,
           notes: adjustNotes
         })
       });
 
       const json = await res.json();
       if (json.success) {
-        toast.success(`Stock successfully updated!`);
+        toast.success(`Stock successfully adjusted!`);
         setAdjustQty("");
         setAdjustNotes("");
+        setIsAdjustOpen(false);
         if (onRefreshDetails) onRefreshDetails();
       } else {
-        toast.error(json.error || "Failed to adjust stock");
+        toast.error(json.message || json.error || "Failed to adjust stock");
       }
     } catch (err) {
       console.error("Error adjusting stock:", err);
@@ -77,8 +87,11 @@ export function ItemDetailView({ item, onBack, onAddItem, onRefreshDetails }) {
 
   const stockLogs = item.stockHistory || [];
 
+  const unitOfMeasure = item.qty.replace(/^[0-9.\s]+/, "") || "Units";
+
   return (
-    <div className="space-y-[20px] font-sans transition-colors duration-300">
+    <>
+      <div className="space-y-[20px] font-sans transition-colors duration-300">
 
       {/* Header matching standard system detail styles */}
       <div className="-mt-4 sm:-mt-6 -mx-4 sm:-mx-6 bg-white dark:bg-[#101935] border-b border-[#E7E8EB] dark:border-white/10 px-[20px] py-[16px]">
@@ -111,10 +124,16 @@ export function ItemDetailView({ item, onBack, onAddItem, onRefreshDetails }) {
           </div>
           <div className="flex flex-wrap items-center gap-[12px]">
             <button
-              onClick={onAddItem}
+              onClick={() => setIsAdjustOpen(true)}
               className="h-[38px] px-[16px] rounded-[5px] bg-[#2E37A4] text-[13px] font-semibold text-white hover:bg-[#2E37A4]/90 transition flex items-center justify-center gap-[6px] cursor-pointer border border-[#2E37A4]"
             >
-              <Plus className="h-4 w-4" /> Add Item
+              <Plus className="h-4 w-4" /> Adjust Stock
+            </button>
+            <button
+              onClick={onAddItem}
+              className="h-[38px] px-[16px] rounded-[5px] border border-[#e2e8f0] dark:border-slate-700 bg-white dark:bg-[#1e293b] text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 transition flex items-center justify-center gap-[6px] cursor-pointer"
+            >
+              <Edit3 className="h-4 w-4" /> Edit Details
             </button>
           </div>
         </div>
@@ -278,5 +297,92 @@ export function ItemDetailView({ item, onBack, onAddItem, onRefreshDetails }) {
 
       </div>
     </div>
+
+    {/* -------------------- ADJUST STOCK MODAL -------------------- */}
+    {mounted && isAdjustOpen && createPortal(
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 dark:bg-black/80 backdrop-blur-[0.5px]">
+        <div className="relative w-full max-w-[480px] bg-white dark:bg-[#1e293b] border border-slate-150 dark:border-white/10 p-6 rounded-[8px] shadow-2xl z-10 flex flex-col gap-4 animate-in fade-in zoom-in-95 duration-150">
+          <div className="flex justify-between items-center pb-2 border-b border-slate-100 dark:border-white/10">
+            <h3 className="text-[16px] font-bold text-slate-800 dark:text-white">Adjust Stock: {item.name}</h3>
+            <button
+              onClick={() => setIsAdjustOpen(false)}
+              className="text-slate-400 hover:text-slate-600 dark:hover:text-white transition-all cursor-pointer"
+            >
+              <X size={18} />
+            </button>
+          </div>
+
+          <form onSubmit={handleStockAdjustment} className="space-y-4">
+            <div className="space-y-4 bg-slate-50/50 dark:bg-slate-900/20 p-4 rounded-[6px] border border-slate-100 dark:border-slate-800">
+              
+              {/* Adjustment Type */}
+              <div className="space-y-1">
+                <label className="text-[11px] font-bold text-slate-500 uppercase">Adjustment Type *</label>
+                <select
+                  value={adjustType}
+                  onChange={(e) => setAdjustType(e.target.value)}
+                  className="w-full h-10 px-3 bg-white dark:bg-[#0f172a] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-semibold text-slate-700 dark:text-slate-200 outline-none focus:border-[#2E37A4] transition-all"
+                >
+                  <option value="Addition">Addition (+)</option>
+                  <option value="Usage">Usage (-)</option>
+                </select>
+              </div>
+
+              {/* Quantity Changed */}
+              <div className="space-y-1">
+                <label className="text-[11px] font-bold text-slate-500 uppercase">Quantity Changed *</label>
+                <div className="relative">
+                  <input
+                    type="number"
+                    min="0.01"
+                    step="any"
+                    placeholder="e.g. 50"
+                    value={adjustQty}
+                    onChange={(e) => setAdjustQty(e.target.value)}
+                    className="w-full h-10 px-3 border border-[#E2E8F0] dark:border-slate-700 bg-white dark:bg-[#0f172a] rounded-[5px] text-[13px] font-semibold outline-none focus:border-[#2E37A4] text-foreground"
+                    required
+                  />
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[12px] text-slate-400 font-bold">
+                    {unitOfMeasure}
+                  </span>
+                </div>
+              </div>
+
+              {/* Notes */}
+              <div className="space-y-1">
+                <label className="text-[11px] font-bold text-slate-500 uppercase">Notes / Reason</label>
+                <textarea
+                  rows={3}
+                  placeholder="e.g. Received new shipment from vendor, or broken tubes discarded."
+                  value={adjustNotes}
+                  onChange={(e) => setAdjustNotes(e.target.value)}
+                  className="w-full p-3 bg-white dark:bg-[#0f172a] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-medium outline-none focus:border-[#2E37A4] text-foreground resize-none"
+                />
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setIsAdjustOpen(false)}
+                className="h-10 px-4 rounded-[5px] border border-rose-500 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/20 text-[12px] font-bold transition-all cursor-pointer bg-transparent"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={submitting}
+                className="h-10 px-6 rounded-[5px] bg-[#2E37A4] hover:bg-[#232a7d] text-[12px] font-bold text-white transition-all cursor-pointer disabled:opacity-50"
+              >
+                {submitting ? "Adjusting..." : "Submit Adjustment"}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>,
+      document.body
+    )}
+  </>
   );
 }

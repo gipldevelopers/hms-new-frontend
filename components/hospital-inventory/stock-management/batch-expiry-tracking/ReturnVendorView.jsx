@@ -102,7 +102,7 @@ export function ReturnVendorView({ item, onBack, onSuccess }) {
         toast.success(`Debit Note request generated for batch ${batchCode}!`);
         setShowSuccessModal(true);
       } else {
-        toast.error(data.error || "Failed to process return");
+        toast.error(data.message || data.error || "Failed to process return");
       }
     } catch (err) {
       console.error(err);

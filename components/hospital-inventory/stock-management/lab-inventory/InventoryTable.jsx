@@ -237,7 +237,7 @@ export function InventoryTable({ items, setItems, onViewItem, triggerAddModal, c
           toast.success("Inventory item updated successfully!");
           if (onRefresh) onRefresh();
         } else {
-          toast.error(json.error || "Failed to update item");
+          toast.error(json.message || json.error || "Failed to update item");
         }
       } else {
         const res = await fetch("/api/lab-inventory", {
@@ -253,7 +253,7 @@ export function InventoryTable({ items, setItems, onViewItem, triggerAddModal, c
           toast.success("Inventory item added successfully!");
           if (onRefresh) onRefresh();
         } else {
-          toast.error(json.error || "Failed to add item");
+          toast.error(json.message || json.error || "Failed to add item");
         }
       }
     } catch (err) {
@@ -282,7 +282,7 @@ export function InventoryTable({ items, setItems, onViewItem, triggerAddModal, c
         toast.success(`${item.name} deleted successfully`);
         if (onRefresh) onRefresh();
       } else {
-        toast.error(json.error || "Failed to delete item");
+        toast.error(json.message || json.error || "Failed to delete item");
       }
     } catch (err) {
       console.error("Error deleting item:", err);
@@ -778,9 +778,10 @@ export function InventoryTable({ items, setItems, onViewItem, triggerAddModal, c
                     </div>
 
                     <div className="space-y-1.5">
-                      <label className="text-[13px] font-medium text-slate-700 dark:text-slate-300">Expiry Date</label>
+                      <label className="text-[13px] font-medium text-slate-700 dark:text-slate-300">Expiry Date <span className="text-red-500">*</span></label>
                       <input
                         type="date"
+                        required
                         max="9999-12-31"
                         className="w-full h-9 px-3 bg-white dark:bg-[#0A0F1D] border border-[#e2e8f0] dark:border-[#334155] rounded-[5px] text-[13px] font-medium outline-none focus:border-[#2E37A4] text-foreground"
                         defaultValue={modalType === "edit" ? formatDateToYYYYMMDD(selectedItem?.expiry) : ""}
